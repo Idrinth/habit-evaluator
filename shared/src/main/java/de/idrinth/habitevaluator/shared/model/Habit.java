@@ -14,10 +14,12 @@ public class Habit {
     private String id;
     private String name;
     private String description;
+    private String categoryId;
     private FrequencyType frequencyType;
     private int targetFrequency;
     private LocalDateTime createdAt;
     private List<HabitEntry> entries;
+    private ScoringRule scoringRule;
 
     public Habit() {
         this.id = UUID.randomUUID().toString();
@@ -25,6 +27,7 @@ public class Habit {
         this.entries = new ArrayList<>();
         this.frequencyType = FrequencyType.DAILY;
         this.targetFrequency = 1;
+        this.scoringRule = new ScoringRule();
     }
 
     public Habit(String name, String description) {
@@ -55,6 +58,14 @@ public class Habit {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getCategoryId() {
+        return categoryId;
+    }
+
+    public void setCategoryId(String categoryId) {
+        this.categoryId = categoryId;
     }
 
     public FrequencyType getFrequencyType() {
@@ -91,6 +102,14 @@ public class Habit {
 
     public void addEntry(HabitEntry entry) {
         this.entries.add(entry);
+    }
+
+    public ScoringRule getScoringRule() {
+        return scoringRule;
+    }
+
+    public void setScoringRule(ScoringRule scoringRule) {
+        this.scoringRule = scoringRule;
     }
 
     @Override
