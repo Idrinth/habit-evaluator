@@ -1,0 +1,11 @@
+plugins {
+    id 'java-library'
+}
+
+dependencies {
+    // JSON processing
+    api 'com.google.code.gson:gson:2.10.1'
+
+    // Logging
+    api 'org.slf4j:slf4j-api:2.0.11'
+}
