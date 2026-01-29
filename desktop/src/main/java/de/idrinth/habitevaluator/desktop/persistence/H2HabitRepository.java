@@ -92,4 +92,16 @@ public class H2HabitRepository implements HabitRepository {
             em.close();
         }
     }
+
+    @Override
+    public List<Habit> findByUserId(String userId) {
+        EntityManager em = PersistenceManager.createEntityManager();
+        try {
+            return em.createQuery("SELECT h FROM Habit h WHERE h.user.id = :userId", Habit.class)
+                    .setParameter("userId", userId)
+                    .getResultList();
+        } finally {
+            em.close();
+        }
+    }
 }

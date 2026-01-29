@@ -7,6 +7,8 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
@@ -48,6 +50,10 @@ public class Habit {
     @OneToMany(mappedBy = "habit", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<HabitEntry> entries;
     private ScoringRule scoringRule;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user;
 
     public Habit() {
         this.id = UUID.randomUUID().toString();
@@ -131,6 +137,14 @@ public class Habit {
     public void addEntry(HabitEntry entry) {
         this.entries.add(entry);
         entry.setHabit(this);
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 
     public ScoringRule getScoringRule() {

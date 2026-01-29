@@ -48,4 +48,12 @@ public interface HabitRepository {
      * @return true if exists, false otherwise
      */
     boolean existsById(String id);
+
+    /**
+     * Finds all habits for a specific user.
+     *
+     * @param userId the user ID
+     * @return list of habits for the user
+     */
+    List<Habit> findByUserId(String userId);
 }
