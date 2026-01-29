@@ -16,15 +16,19 @@ import de.idrinth.habitevaluator.android.ui.HabitAdapter;
 import de.idrinth.habitevaluator.shared.model.Evaluation;
 import de.idrinth.habitevaluator.shared.model.Habit;
 import de.idrinth.habitevaluator.shared.model.HabitEntry;
+import de.idrinth.habitevaluator.shared.model.User;
 import de.idrinth.habitevaluator.shared.service.HabitEvaluatorService;
 
 public class MainActivity extends AppCompatActivity implements HabitAdapter.OnHabitClickListener {
+
+    private static final String PLACEHOLDER_USERNAME = "android_user";
 
     private ActivityMainBinding binding;
     private HabitAdapter habitAdapter;
     private List<Habit> habits;
     private HabitEvaluatorService evaluatorService;
     private Habit selectedHabit;
+    private User currentUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,6 +38,9 @@ public class MainActivity extends AppCompatActivity implements HabitAdapter.OnHa
 
         habits = new ArrayList<>();
         evaluatorService = new HabitEvaluatorService();
+
+        // Initialize placeholder user for Android
+        currentUser = new User(PLACEHOLDER_USERNAME, "placeholder");
 
         setupRecyclerView();
         setupClickListeners();
@@ -60,6 +67,7 @@ public class MainActivity extends AppCompatActivity implements HabitAdapter.OnHa
         }
 
         Habit habit = new Habit(name, description);
+        habit.setUser(currentUser);
         habits.add(habit);
         habitAdapter.notifyItemInserted(habits.size() - 1);
 

@@ -9,6 +9,7 @@
         <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
 
         <!-- Entity classes -->
+        <class>de.idrinth.habitevaluator.shared.model.User</class>
         <class>de.idrinth.habitevaluator.shared.model.Habit</class>
         <class>de.idrinth.habitevaluator.shared.model.HabitEntry</class>
 
