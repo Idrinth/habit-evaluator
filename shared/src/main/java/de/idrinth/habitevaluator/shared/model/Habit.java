@@ -35,6 +35,8 @@ public class Habit {
     @Column(length = 1000)
     private String description;
 
+    private String categoryId;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "frequency_type", nullable = false)
     private FrequencyType frequencyType;
@@ -47,6 +49,7 @@ public class Habit {
 
     @OneToMany(mappedBy = "habit", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<HabitEntry> entries;
+    private ScoringRule scoringRule;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
@@ -58,6 +61,7 @@ public class Habit {
         this.entries = new ArrayList<>();
         this.frequencyType = FrequencyType.DAILY;
         this.targetFrequency = 1;
+        this.scoringRule = new ScoringRule();
     }
 
     public Habit(String name, String description) {
@@ -88,6 +92,14 @@ public class Habit {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getCategoryId() {
+        return categoryId;
+    }
+
+    public void setCategoryId(String categoryId) {
+        this.categoryId = categoryId;
     }
 
     public FrequencyType getFrequencyType() {
@@ -133,6 +145,14 @@ public class Habit {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public ScoringRule getScoringRule() {
+        return scoringRule;
+    }
+
+    public void setScoringRule(ScoringRule scoringRule) {
+        this.scoringRule = scoringRule;
     }
 
     @Override
