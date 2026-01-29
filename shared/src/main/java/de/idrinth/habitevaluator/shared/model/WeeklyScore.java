@@ -28,8 +28,8 @@ public class WeeklyScore {
         this();
         this.weekStart = weekStart;
         this.weekEnd = weekEnd;
-        this.weekNumber = weekStart.get(java.time.temporal.WeekFields.ISO.weekOfYear());
-        this.year = weekStart.getYear();
+        this.weekNumber = weekStart.get(java.time.temporal.WeekFields.ISO.weekOfWeekBasedYear());
+        this.year = weekStart.get(java.time.temporal.WeekFields.ISO.weekBasedYear());
     }
 
     public void addHabitScore(HabitScore habitScore) {

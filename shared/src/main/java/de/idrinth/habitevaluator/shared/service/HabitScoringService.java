@@ -82,8 +82,9 @@ public class HabitScoringService {
      * @return WeeklyScore for the specified week
      */
     public WeeklyScore calculateWeeklyScoreByWeekNumber(List<Habit> habits, int weekNumber, int year) {
-        LocalDate weekStart = LocalDate.of(year, 1, 1)
-                .with(java.time.temporal.WeekFields.ISO.weekOfYear(), weekNumber)
+        LocalDate weekStart = LocalDate.of(year, 1, 4)
+                .with(java.time.temporal.WeekFields.ISO.weekBasedYear(), year)
+                .with(java.time.temporal.WeekFields.ISO.weekOfWeekBasedYear(), weekNumber)
                 .with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
         LocalDate weekEnd = weekStart.plusDays(6);
 

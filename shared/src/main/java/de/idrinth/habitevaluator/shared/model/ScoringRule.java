@@ -33,11 +33,23 @@ public class ScoringRule {
 
     public ScoringRule(String name, int thresholdFor1Point, int thresholdFor2Points,
                        int thresholdFor4Points, int thresholdFor8Points) {
-        this(name);
+        this.id = UUID.randomUUID().toString();
+        this.name = name;
+        validateThresholds(thresholdFor1Point, thresholdFor2Points, thresholdFor4Points, thresholdFor8Points);
         this.thresholdFor1Point = thresholdFor1Point;
         this.thresholdFor2Points = thresholdFor2Points;
         this.thresholdFor4Points = thresholdFor4Points;
         this.thresholdFor8Points = thresholdFor8Points;
+    }
+
+    private void validateThresholds(int t1, int t2, int t4, int t8) {
+        if (t1 < 0 || t2 < 0 || t4 < 0 || t8 < 0) {
+            throw new IllegalArgumentException("Thresholds must be non-negative");
+        }
+        if (!(t1 <= t2 && t2 <= t4 && t4 <= t8)) {
+            throw new IllegalArgumentException(
+                "Thresholds must be in ascending order: thresholdFor1Point <= thresholdFor2Points <= thresholdFor4Points <= thresholdFor8Points");
+        }
     }
 
     /**
@@ -80,6 +92,7 @@ public class ScoringRule {
     }
 
     public void setThresholdFor1Point(int thresholdFor1Point) {
+        validateThresholds(thresholdFor1Point, this.thresholdFor2Points, this.thresholdFor4Points, this.thresholdFor8Points);
         this.thresholdFor1Point = thresholdFor1Point;
     }
 
@@ -88,6 +101,7 @@ public class ScoringRule {
     }
 
     public void setThresholdFor2Points(int thresholdFor2Points) {
+        validateThresholds(this.thresholdFor1Point, thresholdFor2Points, this.thresholdFor4Points, this.thresholdFor8Points);
         this.thresholdFor2Points = thresholdFor2Points;
     }
 
@@ -96,6 +110,7 @@ public class ScoringRule {
     }
 
     public void setThresholdFor4Points(int thresholdFor4Points) {
+        validateThresholds(this.thresholdFor1Point, this.thresholdFor2Points, thresholdFor4Points, this.thresholdFor8Points);
         this.thresholdFor4Points = thresholdFor4Points;
     }
 
@@ -104,6 +119,7 @@ public class ScoringRule {
     }
 
     public void setThresholdFor8Points(int thresholdFor8Points) {
+        validateThresholds(this.thresholdFor1Point, this.thresholdFor2Points, this.thresholdFor4Points, thresholdFor8Points);
         this.thresholdFor8Points = thresholdFor8Points;
     }
 
