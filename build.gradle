@@ -9,24 +9,26 @@ allprojects {
 }
 
 subprojects {
-    apply plugin: 'java'
-
-    java {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
-    }
-
     repositories {
         mavenCentral()
         google()
     }
 
-    test {
-        useJUnitPlatform()
-    }
+    afterEvaluate {
+        if (plugins.hasPlugin('java') || plugins.hasPlugin('java-library')) {
+            java {
+                sourceCompatibility = JavaVersion.VERSION_17
+                targetCompatibility = JavaVersion.VERSION_17
+            }
 
-    dependencies {
-        testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
-        testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+            test {
+                useJUnitPlatform()
+            }
+
+            dependencies {
+                testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
+                testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+            }
+        }
     }
 }
