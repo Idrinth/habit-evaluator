@@ -1,8 +1,10 @@
 package de.idrinth.habitevaluator.desktop.controller;
 
+import de.idrinth.habitevaluator.desktop.persistence.H2HabitRepository;
 import de.idrinth.habitevaluator.shared.model.Evaluation;
 import de.idrinth.habitevaluator.shared.model.Habit;
 import de.idrinth.habitevaluator.shared.model.HabitEntry;
+import de.idrinth.habitevaluator.shared.repository.HabitRepository;
 import de.idrinth.habitevaluator.shared.service.HabitEvaluatorService;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -33,9 +35,13 @@ public class MainController {
 
     private final ObservableList<Habit> habits = FXCollections.observableArrayList();
     private final HabitEvaluatorService evaluatorService = new HabitEvaluatorService();
+    private final HabitRepository habitRepository = new H2HabitRepository();
 
     @FXML
     public void initialize() {
+        // Load habits from database
+        habits.addAll(habitRepository.findAll());
+
         habitListView.setItems(habits);
         habitListView.setCellFactory(param -> new ListCell<>() {
             @Override
@@ -64,6 +70,7 @@ public class MainController {
 
         if (!name.isEmpty()) {
             Habit habit = new Habit(name, description);
+            habitRepository.save(habit);
             habits.add(habit);
             clearInputFields();
         }
@@ -75,6 +82,7 @@ public class MainController {
         if (selectedHabit != null) {
             HabitEntry entry = new HabitEntry(selectedHabit.getId());
             selectedHabit.addEntry(entry);
+            habitRepository.save(selectedHabit);
             displayHabitDetails(selectedHabit);
         }
     }
@@ -83,6 +91,7 @@ public class MainController {
     private void handleDeleteHabit() {
         Habit selectedHabit = habitListView.getSelectionModel().getSelectedItem();
         if (selectedHabit != null) {
+            habitRepository.deleteById(selectedHabit.getId());
             habits.remove(selectedHabit);
             clearEvaluationDisplay();
         }

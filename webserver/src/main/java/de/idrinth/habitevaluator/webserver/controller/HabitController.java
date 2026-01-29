@@ -3,71 +3,70 @@ package de.idrinth.habitevaluator.webserver.controller;
 import de.idrinth.habitevaluator.shared.model.Evaluation;
 import de.idrinth.habitevaluator.shared.model.Habit;
 import de.idrinth.habitevaluator.shared.model.HabitEntry;
+import de.idrinth.habitevaluator.shared.repository.HabitRepository;
 import de.idrinth.habitevaluator.shared.service.HabitEvaluatorService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 @RestController
 @RequestMapping("/api/habits")
 public class HabitController {
 
-    private final Map<String, Habit> habitStore = new ConcurrentHashMap<>();
-    private final HabitEvaluatorService evaluatorService = new HabitEvaluatorService();
+    private final HabitRepository habitRepository;
+    private final HabitEvaluatorService evaluatorService;
+
+    public HabitController(HabitRepository habitRepository, HabitEvaluatorService evaluatorService) {
+        this.habitRepository = habitRepository;
+        this.evaluatorService = evaluatorService;
+    }
 
     @GetMapping
     public List<Habit> getAllHabits() {
-        return new ArrayList<>(habitStore.values());
+        return habitRepository.findAll();
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Habit> getHabit(@PathVariable String id) {
-        Habit habit = habitStore.get(id);
-        if (habit == null) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(habit);
+        return habitRepository.findById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping
     public Habit createHabit(@RequestBody Habit habit) {
-        habitStore.put(habit.getId(), habit);
-        return habit;
+        return habitRepository.save(habit);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<Habit> updateHabit(@PathVariable String id, @RequestBody Habit habit) {
-        if (!habitStore.containsKey(id)) {
+        if (!habitRepository.existsById(id)) {
             return ResponseEntity.notFound().build();
         }
         habit.setId(id);
-        habitStore.put(id, habit);
-        return ResponseEntity.ok(habit);
+        return ResponseEntity.ok(habitRepository.save(habit));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteHabit(@PathVariable String id) {
-        if (!habitStore.containsKey(id)) {
+        if (!habitRepository.existsById(id)) {
             return ResponseEntity.notFound().build();
         }
-        habitStore.remove(id);
+        habitRepository.deleteById(id);
         return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/{id}/entries")
     public ResponseEntity<HabitEntry> addEntry(@PathVariable String id, @RequestBody HabitEntry entry) {
-        Habit habit = habitStore.get(id);
-        if (habit == null) {
-            return ResponseEntity.notFound().build();
-        }
-        entry.setHabitId(id);
-        habit.addEntry(entry);
-        return ResponseEntity.ok(entry);
+        return habitRepository.findById(id)
+                .map(habit -> {
+                    habit.addEntry(entry);
+                    habitRepository.save(habit);
+                    return ResponseEntity.ok(entry);
+                })
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @GetMapping("/{id}/evaluate")
@@ -76,19 +75,13 @@ public class HabitController {
             @RequestParam(required = false) LocalDate start,
             @RequestParam(required = false) LocalDate end) {
 
-        Habit habit = habitStore.get(id);
-        if (habit == null) {
-            return ResponseEntity.notFound().build();
-        }
-
-        if (start == null) {
-            start = LocalDate.now().minusDays(30);
-        }
-        if (end == null) {
-            end = LocalDate.now();
-        }
-
-        Evaluation evaluation = evaluatorService.evaluate(habit, start, end);
-        return ResponseEntity.ok(evaluation);
+        return habitRepository.findById(id)
+                .map(habit -> {
+                    LocalDate startDate = start != null ? start : LocalDate.now().minusDays(30);
+                    LocalDate endDate = end != null ? end : LocalDate.now();
+                    Evaluation evaluation = evaluatorService.evaluate(habit, startDate, endDate);
+                    return ResponseEntity.ok(evaluation);
+                })
+                .orElse(ResponseEntity.notFound().build());
     }
 }

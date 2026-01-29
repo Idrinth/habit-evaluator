@@ -10,6 +10,15 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
 
+    // Database abstraction layer - Spring Data JPA
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+
+    // H2 database for local/development mode
+    runtimeOnly 'com.h2database:h2:2.2.224'
+
+    // MariaDB/MySQL driver for production/webserver mode
+    runtimeOnly 'org.mariadb.jdbc:mariadb-java-client:3.3.2'
+
     // Development tools
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
 
