@@ -1,0 +1,29 @@
+plugins {
+    id 'application'
+    id 'org.openjfx.javafxplugin' version '0.1.0'
+}
+
+javafx {
+    version = '21.0.2'
+    modules = ['javafx.controls', 'javafx.fxml']
+}
+
+dependencies {
+    implementation project(':shared')
+
+    // Logging implementation
+    implementation 'ch.qos.logback:logback-classic:1.4.14'
+}
+
+application {
+    mainClass = 'de.idrinth.habitevaluator.desktop.HabitEvaluatorDesktopApp'
+    mainModule = 'de.idrinth.habitevaluator.desktop'
+}
+
+jar {
+    manifest {
+        attributes(
+            'Main-Class': 'de.idrinth.habitevaluator.desktop.HabitEvaluatorDesktopApp'
+        )
+    }
+}

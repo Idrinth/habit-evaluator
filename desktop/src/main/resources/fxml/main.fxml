@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="de.idrinth.habitevaluator.desktop.controller.MainController"
+            prefHeight="600.0" prefWidth="800.0">
+
+    <left>
+        <VBox spacing="10" styleClass="sidebar">
+            <padding>
+                <Insets top="10" right="10" bottom="10" left="10"/>
+            </padding>
+
+            <Label text="Habits" styleClass="section-title"/>
+
+            <ListView fx:id="habitListView" VBox.vgrow="ALWAYS" prefWidth="200"/>
+
+            <HBox spacing="5">
+                <Button text="Complete" onAction="#handleCompleteHabit" styleClass="primary-button"/>
+                <Button text="Delete" onAction="#handleDeleteHabit" styleClass="danger-button"/>
+            </HBox>
+        </VBox>
+    </left>
+
+    <center>
+        <VBox spacing="15" styleClass="main-content">
+            <padding>
+                <Insets top="20" right="20" bottom="20" left="20"/>
+            </padding>
+
+            <Label text="Add New Habit" styleClass="section-title"/>
+
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <Label text="Name:" prefWidth="80"/>
+                <TextField fx:id="habitNameField" HBox.hgrow="ALWAYS" promptText="Enter habit name"/>
+            </HBox>
+
+            <HBox spacing="10" alignment="TOP_LEFT">
+                <Label text="Description:" prefWidth="80"/>
+                <TextArea fx:id="habitDescriptionArea" HBox.hgrow="ALWAYS"
+                          prefRowCount="3" promptText="Enter habit description"/>
+            </HBox>
+
+            <Button text="Add Habit" onAction="#handleAddHabit" styleClass="primary-button"/>
+
+            <Separator/>
+
+            <Label text="Evaluation" styleClass="section-title"/>
+
+            <VBox spacing="10" styleClass="evaluation-panel">
+                <Label fx:id="streakLabel" text="Current Streak: -"/>
+                <Label fx:id="completionRateLabel" text="Completion Rate: -"/>
+                <ProgressBar fx:id="completionProgressBar" progress="0" prefWidth="300"/>
+            </VBox>
+        </VBox>
+    </center>
+</BorderPane>
