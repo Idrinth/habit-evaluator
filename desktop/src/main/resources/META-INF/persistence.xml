@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence xmlns="https://jakarta.ee/xml/ns/persistence"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="https://jakarta.ee/xml/ns/persistence
+                https://jakarta.ee/xml/ns/persistence/persistence_3_0.xsd"
+             version="3.0">
+
+    <persistence-unit name="habit-evaluator-desktop" transaction-type="RESOURCE_LOCAL">
+        <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
+
+        <!-- Entity classes -->
+        <class>de.idrinth.habitevaluator.shared.model.Habit</class>
+        <class>de.idrinth.habitevaluator.shared.model.HabitEntry</class>
+
+        <exclude-unlisted-classes>true</exclude-unlisted-classes>
+
+        <!-- Properties are configured programmatically in PersistenceManager -->
+    </persistence-unit>
+
+</persistence>

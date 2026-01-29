@@ -1,5 +1,6 @@
 package de.idrinth.habitevaluator.desktop;
 
+import de.idrinth.habitevaluator.desktop.persistence.PersistenceManager;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -21,6 +22,12 @@ public class HabitEvaluatorDesktopApp extends Application {
         primaryStage.setTitle("Habit Evaluator");
         primaryStage.setScene(scene);
         primaryStage.show();
+    }
+
+    @Override
+    public void stop() {
+        // Close database connection on application shutdown
+        PersistenceManager.close();
     }
 
     public static void main(String[] args) {

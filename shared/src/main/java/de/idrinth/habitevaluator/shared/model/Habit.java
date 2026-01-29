@@ -1,5 +1,15 @@
 package de.idrinth.habitevaluator.shared.model;
 
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -9,15 +19,33 @@ import java.util.UUID;
 /**
  * Represents a habit to be tracked and evaluated.
  */
+@Entity
+@Table(name = "habits")
 public class Habit {
 
+    @Id
+    @Column(length = 36)
     private String id;
+
+    @Column(nullable = false)
     private String name;
+
+    @Column(length = 1000)
     private String description;
+
     private String categoryId;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "frequency_type", nullable = false)
     private FrequencyType frequencyType;
+
+    @Column(name = "target_frequency", nullable = false)
     private int targetFrequency;
+
+    @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
+
+    @OneToMany(mappedBy = "habit", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<HabitEntry> entries;
     private ScoringRule scoringRule;
 
@@ -102,6 +130,7 @@ public class Habit {
 
     public void addEntry(HabitEntry entry) {
         this.entries.add(entry);
+        entry.setHabit(this);
     }
 
     public ScoringRule getScoringRule() {
