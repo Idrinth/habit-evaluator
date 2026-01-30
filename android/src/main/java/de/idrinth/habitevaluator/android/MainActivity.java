@@ -1,5 +1,6 @@
 package de.idrinth.habitevaluator.android;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Toast;
@@ -22,6 +23,11 @@ import de.idrinth.habitevaluator.shared.service.HabitEvaluatorService;
 public class MainActivity extends AppCompatActivity implements HabitAdapter.OnHabitClickListener {
 
     private static final String PLACEHOLDER_USERNAME = "android_user";
+    private static List<Habit> sharedHabits;
+
+    public static List<Habit> getSharedHabits() {
+        return sharedHabits;
+    }
 
     private ActivityMainBinding binding;
     private HabitAdapter habitAdapter;
@@ -37,6 +43,7 @@ public class MainActivity extends AppCompatActivity implements HabitAdapter.OnHa
         setContentView(binding.getRoot());
 
         habits = new ArrayList<>();
+        sharedHabits = habits;
         evaluatorService = new HabitEvaluatorService();
 
         // Initialize placeholder user for Android
@@ -55,6 +62,10 @@ public class MainActivity extends AppCompatActivity implements HabitAdapter.OnHa
     private void setupClickListeners() {
         binding.addHabitButton.setOnClickListener(v -> addHabit());
         binding.completeButton.setOnClickListener(v -> completeHabit());
+        binding.trackHabitsButton.setOnClickListener(v -> {
+            Intent intent = new Intent(this, TrackHabitsActivity.class);
+            startActivity(intent);
+        });
     }
 
     private void addHabit() {

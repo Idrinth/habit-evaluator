@@ -3,6 +3,7 @@ package de.idrinth.habitevaluator.webserver.controller;
 import de.idrinth.habitevaluator.shared.model.FrequencyType;
 import de.idrinth.habitevaluator.shared.model.Habit;
 import de.idrinth.habitevaluator.shared.model.HabitCategory;
+import de.idrinth.habitevaluator.shared.model.HabitEntry;
 import de.idrinth.habitevaluator.shared.model.ScoringRule;
 import de.idrinth.habitevaluator.shared.model.User;
 import de.idrinth.habitevaluator.shared.repository.HabitCategoryRepository;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -151,5 +153,49 @@ public class PageController {
             model.addAttribute("error", e.getMessage());
         }
         return "score-rule-add";
+    }
+
+    @GetMapping("/habits/track")
+    public String trackHabitsPage(HttpSession session, Model model) {
+        String userId = (String) session.getAttribute("userId");
+        if (userId == null) {
+            return "redirect:/login";
+        }
+        List<Habit> habits = habitRepository.findByUserId(userId);
+        model.addAttribute("habits", habits);
+        return "track-habits";
+    }
+
+    @PostMapping("/habits/track")
+    public String trackHabits(@RequestParam(required = false) List<String> habitIds,
+                              HttpSession session, Model model) {
+        String userId = (String) session.getAttribute("userId");
+        if (userId == null) {
+            return "redirect:/login";
+        }
+        if (habitIds == null || habitIds.isEmpty()) {
+            List<Habit> habits = habitRepository.findByUserId(userId);
+            model.addAttribute("habits", habits);
+            model.addAttribute("error", "No habits were selected");
+            return "track-habits";
+        }
+        int count = 0;
+        for (String habitId : habitIds) {
+            Optional<Habit> habitOpt = habitRepository.findById(habitId);
+            if (habitOpt.isPresent()) {
+                Habit habit = habitOpt.get();
+                if (habit.getUser() != null && userId.equals(habit.getUser().getId())) {
+                    HabitEntry entry = new HabitEntry();
+                    entry.setHabit(habit);
+                    habit.addEntry(entry);
+                    habitRepository.save(habit);
+                    count++;
+                }
+            }
+        }
+        List<Habit> habits = habitRepository.findByUserId(userId);
+        model.addAttribute("habits", habits);
+        model.addAttribute("success", count + " habit(s) tracked successfully");
+        return "track-habits";
     }
 }

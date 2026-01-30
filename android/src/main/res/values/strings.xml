@@ -8,4 +8,9 @@
     <string name="mark_complete">Mark Complete</string>
     <string name="current_streak">Current Streak</string>
     <string name="completion_rate">Completion Rate</string>
+    <string name="track_habits">Track Habits</string>
+    <string name="submit">Submit</string>
+    <string name="no_habits_found">No habits found. Add a habit first.</string>
+    <string name="no_habits_selected">No habits were selected</string>
+    <string name="habits_tracked_success">%d habit(s) tracked successfully</string>
 </resources>

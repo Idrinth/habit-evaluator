@@ -13,8 +13,13 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.layout.VBox;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class MainController {
 
@@ -38,6 +43,13 @@ public class MainController {
     @FXML
     private ProgressBar completionProgressBar;
 
+    @FXML
+    private VBox trackHabitsContainer;
+
+    @FXML
+    private Label trackMessage;
+
+    private final Map<String, CheckBox> trackCheckBoxes = new HashMap<>();
     private final ObservableList<Habit> habits = FXCollections.observableArrayList();
     private final HabitEvaluatorService evaluatorService = new HabitEvaluatorService();
     private final HabitRepository habitRepository = new H2HabitRepository();
@@ -75,6 +87,27 @@ public class MainController {
                         displayHabitDetails(newValue);
                     }
                 });
+
+        refreshTrackHabits();
+        habits.addListener((javafx.collections.ListChangeListener<Habit>) change -> refreshTrackHabits());
+    }
+
+    private void refreshTrackHabits() {
+        trackHabitsContainer.getChildren().clear();
+        trackCheckBoxes.clear();
+        trackMessage.setText("");
+        if (habits.isEmpty()) {
+            trackHabitsContainer.getChildren().add(new Label("No habits found. Add a habit first."));
+            return;
+        }
+        for (Habit habit : habits) {
+            CheckBox checkBox = new CheckBox(habit.getName());
+            if (habit.getDescription() != null && !habit.getDescription().isEmpty()) {
+                checkBox.setTooltip(new Tooltip(habit.getDescription()));
+            }
+            trackCheckBoxes.put(habit.getId(), checkBox);
+            trackHabitsContainer.getChildren().add(checkBox);
+        }
     }
 
     @FXML
@@ -109,6 +142,36 @@ public class MainController {
             habitRepository.deleteById(selectedHabit.getId());
             habits.remove(selectedHabit);
             clearEvaluationDisplay();
+        }
+    }
+
+    @FXML
+    private void handleTrackHabits() {
+        List<Habit> checkedHabits = new ArrayList<>();
+        for (Habit habit : habits) {
+            CheckBox checkBox = trackCheckBoxes.get(habit.getId());
+            if (checkBox != null && checkBox.isSelected()) {
+                checkedHabits.add(habit);
+            }
+        }
+        if (checkedHabits.isEmpty()) {
+            trackMessage.setText("No habits were selected");
+            trackMessage.setStyle("-fx-text-fill: red;");
+            return;
+        }
+        int count = 0;
+        for (Habit habit : checkedHabits) {
+            HabitEntry entry = new HabitEntry(habit.getId());
+            habit.addEntry(entry);
+            habitRepository.save(habit);
+            count++;
+        }
+        trackMessage.setText(count + " habit(s) tracked successfully");
+        trackMessage.setStyle("-fx-text-fill: green;");
+
+        // Uncheck all boxes
+        for (CheckBox checkBox : trackCheckBoxes.values()) {
+            checkBox.setSelected(false);
         }
     }
 
