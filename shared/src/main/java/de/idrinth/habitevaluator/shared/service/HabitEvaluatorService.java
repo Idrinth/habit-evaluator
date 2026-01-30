@@ -73,7 +73,7 @@ public class HabitEvaluatorService {
         return switch (frequencyType) {
             case DAILY -> (int) days * targetFrequency;
             case WEEKLY -> (int) Math.ceil(days / 7.0) * targetFrequency;
-            case MONTHLY -> (int) Math.ceil(days / 30.0) * targetFrequency;
+            case MONTHLY -> (int) Math.max(1, ChronoUnit.MONTHS.between(start, end)) * targetFrequency;
         };
     }
 
