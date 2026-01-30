@@ -1,6 +1,9 @@
 package de.idrinth.habitevaluator.webserver.controller;
 
+import de.idrinth.habitevaluator.shared.model.FrequencyType;
+import de.idrinth.habitevaluator.shared.model.Habit;
 import de.idrinth.habitevaluator.shared.model.User;
+import de.idrinth.habitevaluator.shared.repository.HabitRepository;
 import de.idrinth.habitevaluator.shared.repository.UserRepository;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -19,10 +22,12 @@ import java.util.Optional;
 public class PageController {
 
     private final UserRepository userRepository;
+    private final HabitRepository habitRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public PageController(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public PageController(UserRepository userRepository, HabitRepository habitRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.habitRepository = habitRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -46,5 +51,37 @@ public class PageController {
         session.setAttribute("username", user.getUsername());
 
         return "redirect:/login";
+    }
+
+    @GetMapping("/habits/add")
+    public String addHabitPage(HttpSession session) {
+        String userId = (String) session.getAttribute("userId");
+        if (userId == null) {
+            return "redirect:/login";
+        }
+        return "add-habit";
+    }
+
+    @PostMapping("/habits/add")
+    public String addHabit(@RequestParam String name,
+                           @RequestParam(required = false) String description,
+                           @RequestParam FrequencyType frequencyType,
+                           @RequestParam int targetFrequency,
+                           HttpSession session, Model model) {
+        String userId = (String) session.getAttribute("userId");
+        if (userId == null) {
+            return "redirect:/login";
+        }
+        Optional<User> userOpt = userRepository.findById(userId);
+        if (userOpt.isEmpty()) {
+            return "redirect:/login";
+        }
+        Habit habit = new Habit(name, description);
+        habit.setFrequencyType(frequencyType);
+        habit.setTargetFrequency(targetFrequency);
+        habit.setUser(userOpt.get());
+        habitRepository.save(habit);
+        model.addAttribute("success", "Habit \"" + name + "\" created successfully");
+        return "add-habit";
     }
 }
