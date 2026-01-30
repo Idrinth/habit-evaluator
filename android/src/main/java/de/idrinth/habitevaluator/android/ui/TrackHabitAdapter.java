@@ -1,0 +1,73 @@
+package de.idrinth.habitevaluator.android.ui;
+
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.CheckBox;
+import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
+
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import de.idrinth.habitevaluator.android.R;
+import de.idrinth.habitevaluator.shared.model.Habit;
+
+public class TrackHabitAdapter extends RecyclerView.Adapter<TrackHabitAdapter.TrackHabitViewHolder> {
+
+    private final List<Habit> habits;
+    private final Set<String> checkedHabitIds = new HashSet<>();
+
+    public TrackHabitAdapter(List<Habit> habits) {
+        this.habits = habits;
+    }
+
+    public Set<String> getCheckedHabitIds() {
+        return checkedHabitIds;
+    }
+
+    @NonNull
+    @Override
+    public TrackHabitViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.item_track_habit, parent, false);
+        return new TrackHabitViewHolder(view);
+    }
+
+    @Override
+    public void onBindViewHolder(@NonNull TrackHabitViewHolder holder, int position) {
+        Habit habit = habits.get(position);
+        holder.nameText.setText(habit.getName());
+        holder.descriptionText.setText(habit.getDescription());
+        holder.checkBox.setChecked(checkedHabitIds.contains(habit.getId()));
+        holder.checkBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isChecked) {
+                checkedHabitIds.add(habit.getId());
+            } else {
+                checkedHabitIds.remove(habit.getId());
+            }
+        });
+        holder.itemView.setOnClickListener(v -> holder.checkBox.toggle());
+    }
+
+    @Override
+    public int getItemCount() {
+        return habits.size();
+    }
+
+    static class TrackHabitViewHolder extends RecyclerView.ViewHolder {
+        private final CheckBox checkBox;
+        private final TextView nameText;
+        private final TextView descriptionText;
+
+        TrackHabitViewHolder(@NonNull View itemView) {
+            super(itemView);
+            checkBox = itemView.findViewById(R.id.habitCheckBox);
+            nameText = itemView.findViewById(R.id.trackHabitName);
+            descriptionText = itemView.findViewById(R.id.trackHabitDescription);
+        }
+    }
+}

@@ -48,6 +48,23 @@
 
             <Separator/>
 
+            <Label text="Track Habits" styleClass="section-title"/>
+
+            <ScrollPane fitToWidth="true" prefHeight="150" VBox.vgrow="SOMETIMES">
+                <VBox fx:id="trackHabitsContainer" spacing="5">
+                    <padding>
+                        <Insets top="5" right="5" bottom="5" left="5"/>
+                    </padding>
+                </VBox>
+            </ScrollPane>
+
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <Button text="Submit" onAction="#handleTrackHabits" styleClass="primary-button"/>
+                <Label fx:id="trackMessage" text=""/>
+            </HBox>
+
+            <Separator/>
+
             <Label text="Evaluation" styleClass="section-title"/>
 
             <VBox spacing="10" styleClass="evaluation-panel">
