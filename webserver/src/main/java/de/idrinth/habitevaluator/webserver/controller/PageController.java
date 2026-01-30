@@ -2,8 +2,10 @@ package de.idrinth.habitevaluator.webserver.controller;
 
 import de.idrinth.habitevaluator.shared.model.FrequencyType;
 import de.idrinth.habitevaluator.shared.model.Habit;
+import de.idrinth.habitevaluator.shared.model.HabitCategory;
 import de.idrinth.habitevaluator.shared.model.ScoringRule;
 import de.idrinth.habitevaluator.shared.model.User;
+import de.idrinth.habitevaluator.shared.repository.HabitCategoryRepository;
 import de.idrinth.habitevaluator.shared.repository.HabitRepository;
 import de.idrinth.habitevaluator.shared.repository.ScoringRuleRepository;
 import de.idrinth.habitevaluator.shared.repository.UserRepository;
@@ -26,13 +28,16 @@ public class PageController {
     private final UserRepository userRepository;
     private final HabitRepository habitRepository;
     private final PasswordEncoder passwordEncoder;
+    private final HabitCategoryRepository habitCategoryRepository;
     private final ScoringRuleRepository scoringRuleRepository;
 
     public PageController(UserRepository userRepository, HabitRepository habitRepository,
-                          PasswordEncoder passwordEncoder, ScoringRuleRepository scoringRuleRepository) {
+                          PasswordEncoder passwordEncoder, HabitCategoryRepository habitCategoryRepository,
+                          ScoringRuleRepository scoringRuleRepository) {
         this.userRepository = userRepository;
         this.habitRepository = habitRepository;
         this.passwordEncoder = passwordEncoder;
+        this.habitCategoryRepository = habitCategoryRepository;
         this.scoringRuleRepository = scoringRuleRepository;
     }
 
@@ -56,6 +61,28 @@ public class PageController {
         session.setAttribute("username", user.getUsername());
 
         return "redirect:/login";
+    }
+
+    @GetMapping("/categories/add")
+    public String addCategoryPage() {
+        return "add-category";
+    }
+
+    @PostMapping("/categories/add")
+    public String addCategory(@RequestParam String name,
+                              @RequestParam(required = false) String description,
+                              @RequestParam(required = false) String color,
+                              Model model) {
+        if (name == null || name.isBlank()) {
+            model.addAttribute("error", "Category name is required");
+            return "add-category";
+        }
+
+        HabitCategory category = new HabitCategory(name, description, color);
+        habitCategoryRepository.save(category);
+
+        model.addAttribute("success", "Category created successfully");
+        return "add-category";
     }
 
     @GetMapping("/habits/add")
