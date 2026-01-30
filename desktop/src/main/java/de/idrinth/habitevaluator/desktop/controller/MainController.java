@@ -2,6 +2,10 @@ package de.idrinth.habitevaluator.desktop.controller;
 
 import de.idrinth.habitevaluator.desktop.persistence.H2HabitRepository;
 import de.idrinth.habitevaluator.desktop.persistence.H2UserRepository;
+import de.idrinth.habitevaluator.shared.api.ApiClient;
+import de.idrinth.habitevaluator.shared.api.RemoteHabitRepository;
+import de.idrinth.habitevaluator.shared.api.RemoteUserRepository;
+import de.idrinth.habitevaluator.shared.api.StorageConfig;
 import de.idrinth.habitevaluator.shared.model.Evaluation;
 import de.idrinth.habitevaluator.shared.model.Habit;
 import de.idrinth.habitevaluator.shared.model.HabitEntry;
@@ -12,9 +16,16 @@ import de.idrinth.habitevaluator.shared.service.HabitEvaluatorService;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 
+import java.io.File;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -24,6 +35,8 @@ import java.util.Map;
 public class MainController {
 
     private static final String PLACEHOLDER_USERNAME = "desktop_user";
+    private static final String CONFIG_DIR = System.getProperty("user.home") + "/.habit-evaluator";
+    private static final String CONFIG_FILE = CONFIG_DIR + "/storage.properties";
 
     @FXML
     private ListView<Habit> habitListView;
@@ -49,24 +62,22 @@ public class MainController {
     @FXML
     private Label trackMessage;
 
+    @FXML
+    private Label storageModeLabel;
+
     private final Map<String, CheckBox> trackCheckBoxes = new HashMap<>();
     private final ObservableList<Habit> habits = FXCollections.observableArrayList();
     private final HabitEvaluatorService evaluatorService = new HabitEvaluatorService();
-    private final HabitRepository habitRepository = new H2HabitRepository();
-    private final UserRepository userRepository = new H2UserRepository();
+    private final StorageConfig storageConfig = new StorageConfig(new File(CONFIG_FILE));
+
+    private HabitRepository habitRepository;
+    private UserRepository userRepository;
     private User currentUser;
 
     @FXML
     public void initialize() {
-        // Initialize placeholder user
-        currentUser = userRepository.findByUsername(PLACEHOLDER_USERNAME)
-                .orElseGet(() -> {
-                    User user = new User(PLACEHOLDER_USERNAME, "placeholder");
-                    return userRepository.save(user);
-                });
-
-        // Load habits for the current user
-        habits.addAll(habitRepository.findByUserId(currentUser.getId()));
+        initializeStorage();
+        loadHabits();
 
         habitListView.setItems(habits);
         habitListView.setCellFactory(param -> new ListCell<>() {
@@ -90,6 +101,88 @@ public class MainController {
 
         refreshTrackHabits();
         habits.addListener((javafx.collections.ListChangeListener<Habit>) change -> refreshTrackHabits());
+    }
+
+    private void initializeStorage() {
+        if (storageConfig.isRemote()) {
+            initializeRemoteStorage();
+        } else {
+            initializeLocalStorage();
+        }
+        updateStorageModeLabel();
+    }
+
+    private void initializeLocalStorage() {
+        habitRepository = new H2HabitRepository();
+        userRepository = new H2UserRepository();
+        currentUser = userRepository.findByUsername(PLACEHOLDER_USERNAME)
+                .orElseGet(() -> {
+                    User user = new User(PLACEHOLDER_USERNAME, "placeholder");
+                    return userRepository.save(user);
+                });
+    }
+
+    private void initializeRemoteStorage() {
+        try {
+            ApiClient apiClient = new ApiClient(storageConfig.getApiBaseUrl());
+            boolean loggedIn = apiClient.login(
+                    storageConfig.getApiUsername(),
+                    storageConfig.getApiPassword()
+            );
+            if (loggedIn) {
+                habitRepository = new RemoteHabitRepository(apiClient);
+                userRepository = new RemoteUserRepository(apiClient);
+                currentUser = userRepository.findAll().stream().findFirst().orElse(null);
+                return;
+            }
+        } catch (IOException e) {
+            showAlert("Connection Error",
+                    "Failed to connect to remote API: " + e.getMessage() + "\nFalling back to local storage.");
+        }
+        // Fall back to local
+        storageConfig.setStorageMode(StorageConfig.StorageMode.LOCAL);
+        initializeLocalStorage();
+    }
+
+    private void loadHabits() {
+        habits.clear();
+        if (currentUser != null) {
+            habits.addAll(habitRepository.findByUserId(currentUser.getId()));
+        }
+    }
+
+    private void updateStorageModeLabel() {
+        if (storageModeLabel != null) {
+            storageModeLabel.setText("Storage: " + (storageConfig.isRemote() ? "Remote API" : "Local"));
+        }
+    }
+
+    @FXML
+    private void handleOpenSettings() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/settings.fxml"));
+            Parent root = loader.load();
+
+            SettingsDialogController controller = loader.getController();
+            controller.setStorageConfig(storageConfig);
+
+            Stage dialogStage = new Stage();
+            dialogStage.setTitle("Storage Settings");
+            dialogStage.initModality(Modality.APPLICATION_MODAL);
+            dialogStage.initOwner(habitListView.getScene().getWindow());
+
+            Scene scene = new Scene(root);
+            scene.getStylesheets().add(getClass().getResource("/css/styles.css").toExternalForm());
+            dialogStage.setScene(scene);
+            dialogStage.showAndWait();
+
+            if (controller.isSaved()) {
+                initializeStorage();
+                loadHabits();
+            }
+        } catch (IOException e) {
+            showAlert("Error", "Failed to open settings: " + e.getMessage());
+        }
     }
 
     private void refreshTrackHabits() {
@@ -196,5 +289,13 @@ public class MainController {
         streakLabel.setText("Current Streak: -");
         completionRateLabel.setText("Completion Rate: -");
         completionProgressBar.setProgress(0);
+    }
+
+    private void showAlert(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
     }
 }

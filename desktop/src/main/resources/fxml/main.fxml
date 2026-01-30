@@ -8,6 +8,16 @@
             fx:controller="de.idrinth.habitevaluator.desktop.controller.MainController"
             prefHeight="600.0" prefWidth="800.0">
 
+    <top>
+        <HBox spacing="10" alignment="CENTER_RIGHT" styleClass="toolbar">
+            <padding>
+                <Insets top="5" right="10" bottom="5" left="10"/>
+            </padding>
+            <Label fx:id="storageModeLabel" text="Storage: Local"/>
+            <Button text="Settings" onAction="#handleOpenSettings"/>
+        </HBox>
+    </top>
+
     <left>
         <VBox spacing="10" styleClass="sidebar">
             <padding>

@@ -1,23 +1,31 @@
 package de.idrinth.habitevaluator.android;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
 import de.idrinth.habitevaluator.android.databinding.ActivityMainBinding;
 import de.idrinth.habitevaluator.android.ui.HabitAdapter;
+import de.idrinth.habitevaluator.shared.api.ApiClient;
+import de.idrinth.habitevaluator.shared.api.RemoteHabitRepository;
+import de.idrinth.habitevaluator.shared.api.RemoteUserRepository;
 import de.idrinth.habitevaluator.shared.model.Evaluation;
 import de.idrinth.habitevaluator.shared.model.Habit;
 import de.idrinth.habitevaluator.shared.model.HabitEntry;
 import de.idrinth.habitevaluator.shared.model.User;
+import de.idrinth.habitevaluator.shared.repository.HabitRepository;
 import de.idrinth.habitevaluator.shared.service.HabitEvaluatorService;
 
 public class MainActivity extends AppCompatActivity implements HabitAdapter.OnHabitClickListener {
@@ -35,6 +43,15 @@ public class MainActivity extends AppCompatActivity implements HabitAdapter.OnHa
     private HabitEvaluatorService evaluatorService;
     private Habit selectedHabit;
     private User currentUser;
+    private HabitRepository habitRepository;
+    private boolean usingRemoteStorage;
+
+    private final ActivityResultLauncher<Intent> settingsLauncher =
+            registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+                if (result.getResultCode() == RESULT_OK) {
+                    initializeStorage();
+                }
+            });
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,11 +63,83 @@ public class MainActivity extends AppCompatActivity implements HabitAdapter.OnHa
         sharedHabits = habits;
         evaluatorService = new HabitEvaluatorService();
 
-        // Initialize placeholder user for Android
-        currentUser = new User(PLACEHOLDER_USERNAME, "placeholder");
-
+        initializeStorage();
         setupRecyclerView();
         setupClickListeners();
+    }
+
+    private void initializeStorage() {
+        SharedPreferences prefs = getSharedPreferences(SettingsActivity.PREFS_NAME, MODE_PRIVATE);
+        String mode = prefs.getString(SettingsActivity.KEY_STORAGE_MODE, SettingsActivity.MODE_LOCAL);
+
+        if (SettingsActivity.MODE_REMOTE.equals(mode)) {
+            initializeRemoteStorage(prefs);
+        } else {
+            initializeLocalStorage();
+        }
+        updateStorageModeLabel();
+        loadHabits();
+    }
+
+    private void initializeLocalStorage() {
+        usingRemoteStorage = false;
+        habitRepository = null;
+        currentUser = new User(PLACEHOLDER_USERNAME, "placeholder");
+    }
+
+    private void initializeRemoteStorage(SharedPreferences prefs) {
+        String url = prefs.getString(SettingsActivity.KEY_API_URL, "");
+        String username = prefs.getString(SettingsActivity.KEY_API_USERNAME, "");
+        String password = prefs.getString(SettingsActivity.KEY_API_PASSWORD, "");
+
+        new Thread(() -> {
+            try {
+                ApiClient apiClient = new ApiClient(url);
+                boolean loggedIn = apiClient.login(username, password);
+                if (loggedIn) {
+                    habitRepository = new RemoteHabitRepository(apiClient);
+                    RemoteUserRepository userRepo = new RemoteUserRepository(apiClient);
+                    currentUser = userRepo.findAll().stream().findFirst().orElse(null);
+                    usingRemoteStorage = true;
+                    runOnUiThread(() -> {
+                        updateStorageModeLabel();
+                        loadHabits();
+                    });
+                    return;
+                }
+            } catch (IOException e) {
+                runOnUiThread(() ->
+                        Toast.makeText(this, "Failed to connect to remote API, using local storage",
+                                Toast.LENGTH_LONG).show());
+            }
+            runOnUiThread(() -> {
+                initializeLocalStorage();
+                updateStorageModeLabel();
+                loadHabits();
+            });
+        }).start();
+    }
+
+    private void loadHabits() {
+        habits.clear();
+        if (usingRemoteStorage && habitRepository != null && currentUser != null) {
+            new Thread(() -> {
+                List<Habit> remoteHabits = habitRepository.findByUserId(currentUser.getId());
+                runOnUiThread(() -> {
+                    habits.addAll(remoteHabits);
+                    habitAdapter.notifyDataSetChanged();
+                });
+            }).start();
+        }
+        habitAdapter.notifyDataSetChanged();
+    }
+
+    private void updateStorageModeLabel() {
+        if (usingRemoteStorage) {
+            binding.storageModeText.setText(R.string.storage_mode_remote);
+        } else {
+            binding.storageModeText.setText(R.string.storage_mode_local);
+        }
     }
 
     private void setupRecyclerView() {
@@ -66,6 +155,10 @@ public class MainActivity extends AppCompatActivity implements HabitAdapter.OnHa
             Intent intent = new Intent(this, TrackHabitsActivity.class);
             startActivity(intent);
         });
+        binding.settingsButton.setOnClickListener(v -> {
+            Intent intent = new Intent(this, SettingsActivity.class);
+            settingsLauncher.launch(intent);
+        });
     }
 
     private void addHabit() {
@@ -79,8 +172,19 @@ public class MainActivity extends AppCompatActivity implements HabitAdapter.OnHa
 
         Habit habit = new Habit(name, description);
         habit.setUser(currentUser);
-        habits.add(habit);
-        habitAdapter.notifyItemInserted(habits.size() - 1);
+
+        if (usingRemoteStorage && habitRepository != null) {
+            new Thread(() -> {
+                habitRepository.save(habit);
+                runOnUiThread(() -> {
+                    habits.add(habit);
+                    habitAdapter.notifyItemInserted(habits.size() - 1);
+                });
+            }).start();
+        } else {
+            habits.add(habit);
+            habitAdapter.notifyItemInserted(habits.size() - 1);
+        }
 
         binding.habitNameInput.setText("");
         binding.habitDescriptionInput.setText("");
@@ -94,8 +198,19 @@ public class MainActivity extends AppCompatActivity implements HabitAdapter.OnHa
 
         HabitEntry entry = new HabitEntry(selectedHabit.getId());
         selectedHabit.addEntry(entry);
-        updateEvaluationDisplay(selectedHabit);
-        Toast.makeText(this, "Habit completed!", Toast.LENGTH_SHORT).show();
+
+        if (usingRemoteStorage && habitRepository != null) {
+            new Thread(() -> {
+                habitRepository.save(selectedHabit);
+                runOnUiThread(() -> {
+                    updateEvaluationDisplay(selectedHabit);
+                    Toast.makeText(this, "Habit completed!", Toast.LENGTH_SHORT).show();
+                });
+            }).start();
+        } else {
+            updateEvaluationDisplay(selectedHabit);
+            Toast.makeText(this, "Habit completed!", Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override
