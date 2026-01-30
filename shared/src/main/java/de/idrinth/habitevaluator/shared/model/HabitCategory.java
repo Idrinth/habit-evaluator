@@ -1,16 +1,30 @@
 package de.idrinth.habitevaluator.shared.model;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+
 import java.util.Objects;
 import java.util.UUID;
 
 /**
  * Represents a user-defined category for organizing habits.
  */
+@Entity
+@Table(name = "habit_categories")
 public class HabitCategory {
 
+    @Id
+    @Column(length = 36)
     private String id;
+
+    @Column(nullable = false)
     private String name;
+
+    @Column(length = 1000)
     private String description;
+
     private String color;
 
     public HabitCategory() {
