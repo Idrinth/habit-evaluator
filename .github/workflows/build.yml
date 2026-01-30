@@ -2,9 +2,11 @@ name: Build
 
 on:
   push:
-    branches: ['**']
+    branches:
+    - the-one
   pull_request:
-    branches: ['**']
+    branches:
+    - the-one
 
 jobs:
   build:
