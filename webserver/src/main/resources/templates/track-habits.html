@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Habit Evaluator - Track Habits</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: #fff;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 480px;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            color: #333;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+        .habit-list {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 1rem 0;
+        }
+        .habit-item {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem;
+            border: 1px solid #eee;
+            border-radius: 4px;
+            margin-bottom: 0.5rem;
+        }
+        .habit-item:hover {
+            background-color: #f9f9f9;
+        }
+        .habit-item input[type="checkbox"] {
+            margin-right: 0.75rem;
+            width: 18px;
+            height: 18px;
+        }
+        .habit-info {
+            display: flex;
+            flex-direction: column;
+        }
+        .habit-name {
+            font-weight: bold;
+            color: #333;
+        }
+        .habit-description {
+            font-size: 0.85rem;
+            color: #777;
+            margin-top: 0.15rem;
+        }
+        button {
+            padding: 0.6rem;
+            background-color: #4a90d9;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #357abd;
+        }
+        .error {
+            color: #d9534f;
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+        .success {
+            color: #5cb85c;
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+        .empty {
+            text-align: center;
+            color: #999;
+            padding: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Track Habits</h1>
+        <p class="error" th:if="${error}" th:text="${error}"></p>
+        <p class="success" th:if="${success}" th:text="${success}"></p>
+        <form action="/habits/track" method="post">
+            <ul class="habit-list" th:if="${!habits.isEmpty()}">
+                <li class="habit-item" th:each="habit : ${habits}">
+                    <input type="checkbox" th:id="${habit.id}" name="habitIds" th:value="${habit.id}">
+                    <label th:for="${habit.id}" class="habit-info">
+                        <span class="habit-name" th:text="${habit.name}"></span>
+                        <span class="habit-description" th:if="${habit.description}" th:text="${habit.description}"></span>
+                    </label>
+                </li>
+            </ul>
+            <p class="empty" th:if="${habits.isEmpty()}">No habits found. Add a habit first.</p>
+            <button type="submit" th:if="${!habits.isEmpty()}">Submit</button>
+        </form>
+    </div>
+</body>
+</html>
