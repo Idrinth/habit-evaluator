@@ -1,5 +1,13 @@
 package de.idrinth.habitevaluator.shared.model;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+
 import java.util.Objects;
 import java.util.UUID;
 
@@ -8,14 +16,32 @@ import java.util.UUID;
  * Supports the fixed point values: 0, 1, 2, 4, 8.
  * Each threshold defines the minimum completions per week required for that score.
  */
+@Entity
+@Table(name = "scoring_rules")
 public class ScoringRule {
 
+    @Id
+    @Column(length = 36)
     private String id;
+
+    @Column(nullable = false)
     private String name;
+
+    @Column(name = "threshold_for_1_point", nullable = false)
     private int thresholdFor1Point;
+
+    @Column(name = "threshold_for_2_points", nullable = false)
     private int thresholdFor2Points;
+
+    @Column(name = "threshold_for_4_points", nullable = false)
     private int thresholdFor4Points;
+
+    @Column(name = "threshold_for_8_points", nullable = false)
     private int thresholdFor8Points;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user;
 
     public ScoringRule() {
         this.id = UUID.randomUUID().toString();
@@ -121,6 +147,14 @@ public class ScoringRule {
     public void setThresholdFor8Points(int thresholdFor8Points) {
         validateThresholds(this.thresholdFor1Point, this.thresholdFor2Points, this.thresholdFor4Points, thresholdFor8Points);
         this.thresholdFor8Points = thresholdFor8Points;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 
     @Override

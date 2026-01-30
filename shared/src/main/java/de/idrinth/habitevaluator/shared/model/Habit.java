@@ -49,6 +49,9 @@ public class Habit {
 
     @OneToMany(mappedBy = "habit", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<HabitEntry> entries;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "scoring_rule_id")
     private ScoringRule scoringRule;
 
     @ManyToOne(fetch = FetchType.LAZY)
