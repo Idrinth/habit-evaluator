@@ -1,5 +1,6 @@
 package de.idrinth.habitevaluator.desktop.controller;
 
+import de.idrinth.habitevaluator.desktop.persistence.H2HabitCategoryRepository;
 import de.idrinth.habitevaluator.desktop.persistence.H2HabitRepository;
 import de.idrinth.habitevaluator.desktop.persistence.H2UserRepository;
 import de.idrinth.habitevaluator.shared.api.ApiClient;
@@ -12,7 +13,10 @@ import de.idrinth.habitevaluator.shared.model.HabitEntry;
 import de.idrinth.habitevaluator.shared.model.User;
 import de.idrinth.habitevaluator.shared.repository.HabitRepository;
 import de.idrinth.habitevaluator.shared.repository.UserRepository;
+import de.idrinth.habitevaluator.shared.repository.HabitCategoryRepository;
+import de.idrinth.habitevaluator.shared.service.DefaultDataInitializer;
 import de.idrinth.habitevaluator.shared.service.HabitEvaluatorService;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -24,10 +28,13 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
+import com.google.gson.reflect.TypeToken;
+
 import java.io.File;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -71,7 +78,9 @@ public class MainController {
     private final StorageConfig storageConfig = new StorageConfig(new File(CONFIG_FILE));
 
     private HabitRepository habitRepository;
+    private HabitCategoryRepository categoryRepository;
     private UserRepository userRepository;
+    private ApiClient apiClient;
     private User currentUser;
 
     @FXML
@@ -115,6 +124,8 @@ public class MainController {
     private void initializeLocalStorage() {
         habitRepository = new H2HabitRepository();
         userRepository = new H2UserRepository();
+        categoryRepository = new H2HabitCategoryRepository();
+        apiClient = null;
         currentUser = userRepository.findByUsername(PLACEHOLDER_USERNAME)
                 .orElseGet(() -> {
                     User user = new User(PLACEHOLDER_USERNAME, "placeholder");
@@ -124,7 +135,7 @@ public class MainController {
 
     private void initializeRemoteStorage() {
         try {
-            ApiClient apiClient = new ApiClient(storageConfig.getApiBaseUrl());
+            apiClient = new ApiClient(storageConfig.getApiBaseUrl());
             boolean loggedIn = apiClient.login(
                     storageConfig.getApiUsername(),
                     storageConfig.getApiPassword()
@@ -132,6 +143,7 @@ public class MainController {
             if (loggedIn) {
                 habitRepository = new RemoteHabitRepository(apiClient);
                 userRepository = new RemoteUserRepository(apiClient);
+                categoryRepository = null;
                 currentUser = userRepository.findAll().stream().findFirst().orElse(null);
                 return;
             }
@@ -289,6 +301,24 @@ public class MainController {
         streakLabel.setText("Current Streak: -");
         completionRateLabel.setText("Completion Rate: -");
         completionProgressBar.setProgress(0);
+    }
+
+    @FXML
+    private void handleLoadDefaults() {
+        new Thread(() -> {
+            try {
+                if (storageConfig.isRemote() && apiClient != null) {
+                    apiClient.post("/api/init-defaults", Collections.emptyMap(),
+                            new TypeToken<Map<String, Object>>() {}.getType());
+                } else if (categoryRepository != null && currentUser != null) {
+                    DefaultDataInitializer initializer = new DefaultDataInitializer(categoryRepository, habitRepository);
+                    initializer.initializeDefaults(currentUser);
+                }
+                Platform.runLater(this::loadHabits);
+            } catch (IOException e) {
+                Platform.runLater(() -> showAlert("Error", "Failed to load default habits: " + e.getMessage()));
+            }
+        }).start();
     }
 
     private void showAlert(String title, String message) {

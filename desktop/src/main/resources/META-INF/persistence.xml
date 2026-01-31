@@ -12,6 +12,8 @@
         <class>de.idrinth.habitevaluator.shared.model.User</class>
         <class>de.idrinth.habitevaluator.shared.model.Habit</class>
         <class>de.idrinth.habitevaluator.shared.model.HabitEntry</class>
+        <class>de.idrinth.habitevaluator.shared.model.HabitCategory</class>
+        <class>de.idrinth.habitevaluator.shared.model.ScoringRule</class>
 
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
 

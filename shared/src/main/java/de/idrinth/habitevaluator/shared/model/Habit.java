@@ -11,6 +11,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -22,7 +23,9 @@ import java.util.UUID;
  * Represents a habit to be tracked and evaluated.
  */
 @Entity
-@Table(name = "habits")
+@Table(name = "habits", uniqueConstraints = {
+    @UniqueConstraint(columnNames = {"name", "category_id", "user_id"})
+})
 public class Habit {
 
     @Id
@@ -35,6 +38,7 @@ public class Habit {
     @Column(length = 1000)
     private String description;
 
+    @Column(name = "category_id")
     private String categoryId;
 
     @Enumerated(EnumType.STRING)

@@ -4,6 +4,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 
 import java.util.Objects;
 import java.util.UUID;
@@ -12,7 +13,9 @@ import java.util.UUID;
  * Represents a user-defined category for organizing habits.
  */
 @Entity
-@Table(name = "habit_categories")
+@Table(name = "habit_categories", uniqueConstraints = {
+    @UniqueConstraint(columnNames = {"name"})
+})
 public class HabitCategory {
 
     @Id

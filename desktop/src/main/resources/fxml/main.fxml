@@ -13,7 +13,8 @@
             <padding>
                 <Insets top="5" right="10" bottom="5" left="10"/>
             </padding>
-            <Label fx:id="storageModeLabel" text="Storage: Local"/>
+            <Label fx:id="storageModeLabel" text="Storage: Local" HBox.hgrow="ALWAYS"/>
+            <Button text="Load Default Habits" onAction="#handleLoadDefaults"/>
             <Button text="Settings" onAction="#handleOpenSettings"/>
         </HBox>
     </top>
