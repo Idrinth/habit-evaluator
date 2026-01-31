@@ -1,0 +1,6 @@
+general:
+  app_name: "Test App"
+  shared_key: "General English"
+habits:
+  add_button: "Add Habit"
+  track_heading: "Track Habits"

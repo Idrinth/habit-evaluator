@@ -1,0 +1,5 @@
+general:
+  app_name: "Test App DE"
+  shared_key: "Allgemein Deutsch"
+habits:
+  add_button: "Gewohnheit hinzufügen"
