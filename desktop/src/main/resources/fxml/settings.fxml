@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns:fx="http://javafx.com/fxml"
+      fx:controller="de.idrinth.habitevaluator.desktop.controller.SettingsDialogController"
+      spacing="15" prefWidth="450" prefHeight="400">
+    <padding>
+        <Insets top="20" right="20" bottom="20" left="20"/>
+    </padding>
+
+    <Label text="Storage Settings" styleClass="section-title"/>
+
+    <Separator/>
+
+    <Label text="Choose where to store your data:"/>
+
+    <RadioButton fx:id="localRadio" text="Local Database (H2)" selected="true">
+        <toggleGroup>
+            <ToggleGroup fx:id="storageToggleGroup"/>
+        </toggleGroup>
+    </RadioButton>
+
+    <RadioButton fx:id="remoteRadio" text="Remote API Server" toggleGroup="$storageToggleGroup"/>
+
+    <Separator/>
+
+    <VBox fx:id="remoteSettingsPane" spacing="10" disable="true">
+        <Label text="Remote API Configuration" styleClass="section-title"/>
+
+        <HBox spacing="10" alignment="CENTER_LEFT">
+            <Label text="Server URL:" prefWidth="100"/>
+            <TextField fx:id="apiUrlField" HBox.hgrow="ALWAYS" promptText="http://localhost:8080"/>
+        </HBox>
+
+        <HBox spacing="10" alignment="CENTER_LEFT">
+            <Label text="Username:" prefWidth="100"/>
+            <TextField fx:id="apiUsernameField" HBox.hgrow="ALWAYS" promptText="Your username"/>
+        </HBox>
+
+        <HBox spacing="10" alignment="CENTER_LEFT">
+            <Label text="Password:" prefWidth="100"/>
+            <PasswordField fx:id="apiPasswordField" HBox.hgrow="ALWAYS" promptText="Your password"/>
+        </HBox>
+
+        <HBox spacing="10" alignment="CENTER_LEFT">
+            <Button text="Test Connection" onAction="#handleTestConnection" styleClass="primary-button"/>
+            <Label fx:id="connectionStatusLabel" text=""/>
+        </HBox>
+    </VBox>
+
+    <Region VBox.vgrow="ALWAYS"/>
+
+    <Separator/>
+
+    <HBox spacing="10" alignment="CENTER_RIGHT">
+        <Button text="Save" onAction="#handleSave" styleClass="primary-button"/>
+        <Button text="Cancel" onAction="#handleCancel"/>
+    </HBox>
+</VBox>
