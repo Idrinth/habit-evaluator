@@ -1,5 +1,6 @@
 package de.idrinth.habitevaluator.desktop.controller;
 
+import de.idrinth.habitevaluator.desktop.persistence.H2HabitCategoryRepository;
 import de.idrinth.habitevaluator.desktop.persistence.H2HabitRepository;
 import de.idrinth.habitevaluator.desktop.persistence.H2UserRepository;
 import de.idrinth.habitevaluator.shared.api.ApiClient;
@@ -12,6 +13,8 @@ import de.idrinth.habitevaluator.shared.model.HabitEntry;
 import de.idrinth.habitevaluator.shared.model.User;
 import de.idrinth.habitevaluator.shared.repository.HabitRepository;
 import de.idrinth.habitevaluator.shared.repository.UserRepository;
+import de.idrinth.habitevaluator.shared.repository.HabitCategoryRepository;
+import de.idrinth.habitevaluator.shared.service.DefaultDataInitializer;
 import de.idrinth.habitevaluator.shared.service.HabitEvaluatorService;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -115,11 +118,17 @@ public class MainController {
     private void initializeLocalStorage() {
         habitRepository = new H2HabitRepository();
         userRepository = new H2UserRepository();
+        HabitCategoryRepository categoryRepository = new H2HabitCategoryRepository();
+        boolean isNewUser = userRepository.findByUsername(PLACEHOLDER_USERNAME).isEmpty();
         currentUser = userRepository.findByUsername(PLACEHOLDER_USERNAME)
                 .orElseGet(() -> {
                     User user = new User(PLACEHOLDER_USERNAME, "placeholder");
                     return userRepository.save(user);
                 });
+        if (isNewUser) {
+            DefaultDataInitializer dataInitializer = new DefaultDataInitializer(categoryRepository, habitRepository);
+            dataInitializer.initializeDefaults(currentUser);
+        }
     }
 
     private void initializeRemoteStorage() {
