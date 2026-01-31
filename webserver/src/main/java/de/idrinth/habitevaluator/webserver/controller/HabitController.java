@@ -3,10 +3,12 @@ package de.idrinth.habitevaluator.webserver.controller;
 import de.idrinth.habitevaluator.shared.model.Evaluation;
 import de.idrinth.habitevaluator.shared.model.Habit;
 import de.idrinth.habitevaluator.shared.model.HabitEntry;
+import de.idrinth.habitevaluator.shared.model.PredictedWeeklyScore;
 import de.idrinth.habitevaluator.shared.model.User;
 import de.idrinth.habitevaluator.shared.repository.HabitRepository;
 import de.idrinth.habitevaluator.shared.repository.UserRepository;
 import de.idrinth.habitevaluator.shared.service.HabitEvaluatorService;
+import de.idrinth.habitevaluator.shared.service.HabitScoringService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,12 +24,14 @@ public class HabitController {
     private final HabitRepository habitRepository;
     private final UserRepository userRepository;
     private final HabitEvaluatorService evaluatorService;
+    private final HabitScoringService scoringService;
 
     public HabitController(HabitRepository habitRepository, UserRepository userRepository,
-                           HabitEvaluatorService evaluatorService) {
+                           HabitEvaluatorService evaluatorService, HabitScoringService scoringService) {
         this.habitRepository = habitRepository;
         this.userRepository = userRepository;
         this.evaluatorService = evaluatorService;
+        this.scoringService = scoringService;
     }
 
     @GetMapping
@@ -138,5 +142,16 @@ public class HabitController {
                     return ResponseEntity.ok(evaluation);
                 })
                 .orElse(ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/predict")
+    public ResponseEntity<PredictedWeeklyScore> predictWeeklyScore(HttpSession session) {
+        String userId = (String) session.getAttribute("userId");
+        if (userId == null) {
+            return ResponseEntity.status(401).build();
+        }
+        List<Habit> habits = habitRepository.findByUserId(userId);
+        PredictedWeeklyScore prediction = scoringService.predictCurrentWeekScore(habits);
+        return ResponseEntity.ok(prediction);
     }
 }
