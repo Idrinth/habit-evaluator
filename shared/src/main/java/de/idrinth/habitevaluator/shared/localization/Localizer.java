@@ -145,6 +145,13 @@ public class Localizer {
      * Returns an input stream for the given classpath resource. Extracted for testability.
      */
     InputStream getResourceStream(String path) {
-        return Thread.currentThread().getContextClassLoader().getResourceAsStream(path);
+        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+        if (classLoader == null) {
+            classLoader = Localizer.class.getClassLoader();
+        }
+        if (classLoader == null) {
+            classLoader = ClassLoader.getSystemClassLoader();
+        }
+        return classLoader.getResourceAsStream(path);
     }
 }
