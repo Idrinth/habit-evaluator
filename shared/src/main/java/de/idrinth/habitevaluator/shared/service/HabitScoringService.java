@@ -137,7 +137,8 @@ public class HabitScoringService {
      * @return predicted habit score
      */
     public PredictedHabitScore predictHabitScore(Habit habit, LocalDate weekStart, LocalDate weekEnd, LocalDateTime now) {
-        int currentCompletions = countCompletionsInPeriod(habit, weekStart, now.toLocalDate());
+        LocalDate clampedEnd = now.toLocalDate().isBefore(weekEnd) ? now.toLocalDate() : weekEnd;
+        int currentCompletions = countCompletionsInPeriod(habit, weekStart, clampedEnd);
 
         ScoringRule rule = habit.getScoringRule();
         if (rule == null) {
@@ -191,8 +192,9 @@ public class HabitScoringService {
      * @return predicted weekly score
      */
     public PredictedWeeklyScore predictWeeklyScore(List<Habit> habits, LocalDate weekStart, LocalDate weekEnd, LocalDateTime now) {
-        int daysElapsed = (int) (weekStart.until(now.toLocalDate(), ChronoUnit.DAYS)) + 1;
-        int daysRemaining = Math.max(0, (int) (now.toLocalDate().until(weekEnd, ChronoUnit.DAYS)));
+        int totalDays = (int) (weekStart.until(weekEnd, ChronoUnit.DAYS)) + 1;
+        int daysElapsed = Math.max(0, Math.min(totalDays, (int) (weekStart.until(now.toLocalDate(), ChronoUnit.DAYS)) + 1));
+        int daysRemaining = Math.max(0, totalDays - daysElapsed);
 
         PredictedWeeklyScore prediction = new PredictedWeeklyScore(weekStart, weekEnd, daysElapsed, daysRemaining);
 

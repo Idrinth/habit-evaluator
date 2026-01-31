@@ -83,6 +83,37 @@ class HabitScoringServicePredictionTest {
     }
 
     @Test
+    void testPredictHabitScoreAfterWeekEndExcludesFollowingWeekEntries() {
+        // Entries exist in both the target week and the following week.
+        // When now is after weekEnd, only the target week entries should be counted.
+        LocalDate weekStart = LocalDate.of(2024, 1, 1); // Monday
+        LocalDate weekEnd = LocalDate.of(2024, 1, 7);   // Sunday
+
+        Habit habit = new Habit("Exercise", "Daily workout");
+        // 3 entries in the target week
+        for (int i = 0; i < 3; i++) {
+            HabitEntry entry = new HabitEntry(habit.getId());
+            entry.setCompletedAt(weekStart.plusDays(i).atTime(10, 0));
+            habit.addEntry(entry);
+        }
+        // 2 entries in the following week (should NOT be counted)
+        for (int i = 0; i < 2; i++) {
+            HabitEntry entry = new HabitEntry(habit.getId());
+            entry.setCompletedAt(weekEnd.plusDays(1 + i).atTime(10, 0)); // Jan 8, Jan 9
+            habit.addEntry(entry);
+        }
+
+        LocalDateTime now = LocalDate.of(2024, 1, 10).atTime(12, 0); // Well past weekEnd
+
+        PredictedHabitScore prediction = scoringService.predictHabitScore(habit, weekStart, weekEnd, now);
+
+        assertEquals(3, prediction.getCurrentCompletionCount(),
+                "Only entries within the target week should be counted, not entries from the following week");
+        assertEquals(3, prediction.getPredictedCompletionCount(),
+                "Predicted count should equal current count when the week is over");
+    }
+
+    @Test
     void testPredictHabitScoreFirstDayMorning() {
         // Monday early with 1 entry, should extrapolate aggressively
         LocalDate weekStart = LocalDate.of(2024, 1, 1);
