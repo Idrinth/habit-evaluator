@@ -163,8 +163,21 @@ public class DefaultDataInitializer {
             HabitCategory defaultCategory = entry.getKey();
             HabitCategory category = existingCategoriesByName.get(defaultCategory.getName());
             if (category == null) {
-                category = categoryRepository.save(defaultCategory);
-                logger.info("Created default category: {}", category.getName());
+                try {
+                    category = categoryRepository.save(defaultCategory);
+                    logger.info("Created default category: {}", category.getName());
+                } catch (RuntimeException e) {
+                    logger.info("Category already exists (concurrent insert), reloading: {}", defaultCategory.getName());
+                    // Reload categories after concurrent insert
+                    for (HabitCategory cat : categoryRepository.findAll()) {
+                        existingCategoriesByName.put(cat.getName(), cat);
+                    }
+                    category = existingCategoriesByName.get(defaultCategory.getName());
+                    if (category == null) {
+                        logger.warn("Failed to create or find category: {}", defaultCategory.getName());
+                        continue;
+                    }
+                }
             } else {
                 logger.info("Reusing existing category: {}", category.getName());
             }
@@ -175,13 +188,18 @@ public class DefaultDataInitializer {
                     logger.info("Habit already exists, skipping: {} in category: {}", def.name, category.getName());
                     continue;
                 }
-                Habit habit = new Habit(def.name, def.description);
-                habit.setCategoryId(category.getId());
-                habit.setFrequencyType(def.frequencyType);
-                habit.setTargetFrequency(def.targetFrequency);
-                habit.setUser(user);
-                habitRepository.save(habit);
-                logger.info("Created default habit: {} in category: {}", def.name, category.getName());
+                try {
+                    Habit habit = new Habit(def.name, def.description);
+                    habit.setCategoryId(category.getId());
+                    habit.setFrequencyType(def.frequencyType);
+                    habit.setTargetFrequency(def.targetFrequency);
+                    habit.setUser(user);
+                    habitRepository.save(habit);
+                    logger.info("Created default habit: {} in category: {}", def.name, category.getName());
+                } catch (RuntimeException e) {
+                    logger.info("Habit already exists (concurrent insert), skipping: {} in category: {}",
+                            def.name, category.getName());
+                }
             }
         }
 

@@ -7,10 +7,12 @@ import de.idrinth.habitevaluator.shared.repository.UserRepository;
 import de.idrinth.habitevaluator.shared.service.DefaultDataInitializer;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
 
@@ -31,6 +33,7 @@ public class DefaultDataController {
     }
 
     @PostMapping
+    @Transactional
     public ResponseEntity<Map<String, Object>> initializeDefaults(HttpSession session) {
         String userId = (String) session.getAttribute("userId");
         if (userId == null) {
@@ -42,6 +45,6 @@ public class DefaultDataController {
         }
         DefaultDataInitializer initializer = new DefaultDataInitializer(categoryRepository, habitRepository);
         initializer.initializeDefaults(userOpt.get());
-        return ResponseEntity.ok(Map.of("success", true));
+        return ResponseEntity.ok(Collections.singletonMap("success", true));
     }
 }
