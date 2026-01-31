@@ -19,6 +19,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -59,7 +60,10 @@ public class ApiClient {
      * @return true if login succeeded
      */
     public boolean login(String username, String password) throws IOException {
-        String json = gson.toJson(Map.of("username", username, "password", password));
+        Map<String, String> credentials = new HashMap<>();
+        credentials.put("username", username);
+        credentials.put("password", password);
+        String json = gson.toJson(credentials);
         HttpURLConnection conn = createConnection("/api/auth/login", "POST");
         writeBody(conn, json);
 

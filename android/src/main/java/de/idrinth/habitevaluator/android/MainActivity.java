@@ -16,6 +16,7 @@ import com.google.gson.reflect.TypeToken;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -175,7 +176,7 @@ public class MainActivity extends AppCompatActivity implements HabitAdapter.OnHa
         }
         new Thread(() -> {
             try {
-                apiClient.post("/api/init-defaults", Map.of(),
+                apiClient.post("/api/init-defaults", Collections.emptyMap(),
                         new TypeToken<Map<String, Object>>() {}.getType());
                 runOnUiThread(() -> {
                     Toast.makeText(this, R.string.defaults_loaded, Toast.LENGTH_SHORT).show();

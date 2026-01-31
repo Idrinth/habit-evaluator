@@ -16,6 +16,7 @@ import de.idrinth.habitevaluator.shared.repository.UserRepository;
 import de.idrinth.habitevaluator.shared.repository.HabitCategoryRepository;
 import de.idrinth.habitevaluator.shared.service.DefaultDataInitializer;
 import de.idrinth.habitevaluator.shared.service.HabitEvaluatorService;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -33,6 +34,7 @@ import java.io.File;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -303,19 +305,20 @@ public class MainController {
 
     @FXML
     private void handleLoadDefaults() {
-        if (storageConfig.isRemote() && apiClient != null) {
+        new Thread(() -> {
             try {
-                apiClient.post("/api/init-defaults", Map.of(),
-                        new TypeToken<Map<String, Object>>() {}.getType());
+                if (storageConfig.isRemote() && apiClient != null) {
+                    apiClient.post("/api/init-defaults", Collections.emptyMap(),
+                            new TypeToken<Map<String, Object>>() {}.getType());
+                } else if (categoryRepository != null && currentUser != null) {
+                    DefaultDataInitializer initializer = new DefaultDataInitializer(categoryRepository, habitRepository);
+                    initializer.initializeDefaults(currentUser);
+                }
+                Platform.runLater(this::loadHabits);
             } catch (IOException e) {
-                showAlert("Error", "Failed to load default habits: " + e.getMessage());
-                return;
+                Platform.runLater(() -> showAlert("Error", "Failed to load default habits: " + e.getMessage()));
             }
-        } else if (categoryRepository != null && currentUser != null) {
-            DefaultDataInitializer initializer = new DefaultDataInitializer(categoryRepository, habitRepository);
-            initializer.initializeDefaults(currentUser);
-        }
-        loadHabits();
+        }).start();
     }
 
     private void showAlert(String title, String message) {

@@ -92,12 +92,11 @@
         android:id="@+id/loadDefaultsButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:layout_marginStart="8dp"
+        android:layout_marginTop="4dp"
         android:text="@string/load_defaults"
         style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-        app:layout_constraintStart_toEndOf="@id/trackHabitsButton"
-        app:layout_constraintTop_toBottomOf="@id/habitDescriptionLayout" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/addHabitButton" />
 
     <TextView
         android:id="@+id/habitsLabel"
@@ -108,7 +107,7 @@
         android:textSize="18sp"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/addHabitButton" />
+        app:layout_constraintTop_toBottomOf="@id/loadDefaultsButton" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/habitsRecyclerView"

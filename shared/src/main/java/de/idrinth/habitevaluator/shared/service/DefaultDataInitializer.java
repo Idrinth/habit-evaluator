@@ -9,9 +9,12 @@ import de.idrinth.habitevaluator.shared.repository.HabitRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Initializes default categories and habits when a user's database is first set up.
@@ -136,25 +139,42 @@ public class DefaultDataInitializer {
 
     /**
      * Initializes default categories and habits for a user.
-     * Only runs when no categories exist yet (first-time setup).
+     * Idempotent: reuses existing categories by name and skips habits
+     * that already exist for the user with the same name and category.
      *
      * @param user the user to create default habits for
      */
     public void initializeDefaults(User user) {
-        List<HabitCategory> existingCategories = categoryRepository.findAll();
-        if (!existingCategories.isEmpty()) {
-            logger.info("Default categories already exist, skipping initialization");
-            return;
-        }
-
         logger.info("Initializing default categories and habits for user: {}", user.getUsername());
         Map<HabitCategory, List<HabitDefinition>> defaults = buildDefaults();
 
+        // Build lookup of existing categories by name
+        Map<String, HabitCategory> existingCategoriesByName = new HashMap<>();
+        for (HabitCategory cat : categoryRepository.findAll()) {
+            existingCategoriesByName.put(cat.getName(), cat);
+        }
+
+        // Build lookup of existing habits for this user by (name, categoryId)
+        Set<String> existingHabitKeys = habitRepository.findByUserId(user.getId()).stream()
+                .map(h -> h.getName() + "\0" + h.getCategoryId())
+                .collect(Collectors.toSet());
+
         for (Map.Entry<HabitCategory, List<HabitDefinition>> entry : defaults.entrySet()) {
-            HabitCategory category = categoryRepository.save(entry.getKey());
-            logger.info("Created default category: {}", category.getName());
+            HabitCategory defaultCategory = entry.getKey();
+            HabitCategory category = existingCategoriesByName.get(defaultCategory.getName());
+            if (category == null) {
+                category = categoryRepository.save(defaultCategory);
+                logger.info("Created default category: {}", category.getName());
+            } else {
+                logger.info("Reusing existing category: {}", category.getName());
+            }
 
             for (HabitDefinition def : entry.getValue()) {
+                String habitKey = def.name + "\0" + category.getId();
+                if (existingHabitKeys.contains(habitKey)) {
+                    logger.info("Habit already exists, skipping: {} in category: {}", def.name, category.getName());
+                    continue;
+                }
                 Habit habit = new Habit(def.name, def.description);
                 habit.setCategoryId(category.getId());
                 habit.setFrequencyType(def.frequencyType);
