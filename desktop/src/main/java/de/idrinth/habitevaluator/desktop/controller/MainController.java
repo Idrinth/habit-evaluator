@@ -27,6 +27,8 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
+import com.google.gson.reflect.TypeToken;
+
 import java.io.File;
 import java.io.IOException;
 import java.time.LocalDate;
@@ -74,7 +76,9 @@ public class MainController {
     private final StorageConfig storageConfig = new StorageConfig(new File(CONFIG_FILE));
 
     private HabitRepository habitRepository;
+    private HabitCategoryRepository categoryRepository;
     private UserRepository userRepository;
+    private ApiClient apiClient;
     private User currentUser;
 
     @FXML
@@ -118,22 +122,18 @@ public class MainController {
     private void initializeLocalStorage() {
         habitRepository = new H2HabitRepository();
         userRepository = new H2UserRepository();
-        HabitCategoryRepository categoryRepository = new H2HabitCategoryRepository();
-        boolean isNewUser = userRepository.findByUsername(PLACEHOLDER_USERNAME).isEmpty();
+        categoryRepository = new H2HabitCategoryRepository();
+        apiClient = null;
         currentUser = userRepository.findByUsername(PLACEHOLDER_USERNAME)
                 .orElseGet(() -> {
                     User user = new User(PLACEHOLDER_USERNAME, "placeholder");
                     return userRepository.save(user);
                 });
-        if (isNewUser) {
-            DefaultDataInitializer dataInitializer = new DefaultDataInitializer(categoryRepository, habitRepository);
-            dataInitializer.initializeDefaults(currentUser);
-        }
     }
 
     private void initializeRemoteStorage() {
         try {
-            ApiClient apiClient = new ApiClient(storageConfig.getApiBaseUrl());
+            apiClient = new ApiClient(storageConfig.getApiBaseUrl());
             boolean loggedIn = apiClient.login(
                     storageConfig.getApiUsername(),
                     storageConfig.getApiPassword()
@@ -141,6 +141,7 @@ public class MainController {
             if (loggedIn) {
                 habitRepository = new RemoteHabitRepository(apiClient);
                 userRepository = new RemoteUserRepository(apiClient);
+                categoryRepository = null;
                 currentUser = userRepository.findAll().stream().findFirst().orElse(null);
                 return;
             }
@@ -298,6 +299,23 @@ public class MainController {
         streakLabel.setText("Current Streak: -");
         completionRateLabel.setText("Completion Rate: -");
         completionProgressBar.setProgress(0);
+    }
+
+    @FXML
+    private void handleLoadDefaults() {
+        if (storageConfig.isRemote() && apiClient != null) {
+            try {
+                apiClient.post("/api/init-defaults", Map.of(),
+                        new TypeToken<Map<String, Object>>() {}.getType());
+            } catch (IOException e) {
+                showAlert("Error", "Failed to load default habits: " + e.getMessage());
+                return;
+            }
+        } else if (categoryRepository != null && currentUser != null) {
+            DefaultDataInitializer initializer = new DefaultDataInitializer(categoryRepository, habitRepository);
+            initializer.initializeDefaults(currentUser);
+        }
+        loadHabits();
     }
 
     private void showAlert(String title, String message) {

@@ -7,6 +7,7 @@ import de.idrinth.habitevaluator.shared.repository.UserRepository;
 import de.idrinth.habitevaluator.shared.service.DefaultDataInitializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,6 +24,9 @@ public class DataInitializer {
     public static final String DEFAULT_USERNAME = "demo";
     public static final String DEFAULT_PASSWORD = "demo123";
 
+    @Value("${app.init-default-data:false}")
+    private boolean initDefaultData;
+
     @Bean
     public CommandLineRunner initializeData(
             UserRepository userRepository,
@@ -30,9 +34,8 @@ public class DataInitializer {
             HabitRepository habitRepository,
             PasswordEncoder passwordEncoder) {
         return args -> {
-            User defaultUser;
             if (!userRepository.existsByUsername(DEFAULT_USERNAME)) {
-                defaultUser = new User(
+                User defaultUser = new User(
                     DEFAULT_USERNAME,
                     passwordEncoder.encode(DEFAULT_PASSWORD),
                     "demo@example.com"
@@ -40,8 +43,10 @@ public class DataInitializer {
                 userRepository.save(defaultUser);
                 logger.info("Created default user: {} (password: {})", DEFAULT_USERNAME, DEFAULT_PASSWORD);
 
-                DefaultDataInitializer dataInitializer = new DefaultDataInitializer(categoryRepository, habitRepository);
-                dataInitializer.initializeDefaults(defaultUser);
+                if (initDefaultData) {
+                    DefaultDataInitializer dataInitializer = new DefaultDataInitializer(categoryRepository, habitRepository);
+                    dataInitializer.initializeDefaults(defaultUser);
+                }
             } else {
                 logger.info("Default user already exists");
             }

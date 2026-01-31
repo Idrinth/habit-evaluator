@@ -11,10 +11,13 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import com.google.gson.reflect.TypeToken;
+
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import de.idrinth.habitevaluator.android.databinding.ActivityMainBinding;
 import de.idrinth.habitevaluator.android.ui.HabitAdapter;
@@ -44,6 +47,7 @@ public class MainActivity extends AppCompatActivity implements HabitAdapter.OnHa
     private Habit selectedHabit;
     private User currentUser;
     private HabitRepository habitRepository;
+    private ApiClient apiClient;
     private boolean usingRemoteStorage;
 
     private final ActivityResultLauncher<Intent> settingsLauncher =
@@ -84,6 +88,7 @@ public class MainActivity extends AppCompatActivity implements HabitAdapter.OnHa
     private void initializeLocalStorage() {
         usingRemoteStorage = false;
         habitRepository = null;
+        apiClient = null;
         currentUser = new User(PLACEHOLDER_USERNAME, "placeholder");
     }
 
@@ -94,10 +99,11 @@ public class MainActivity extends AppCompatActivity implements HabitAdapter.OnHa
 
         new Thread(() -> {
             try {
-                ApiClient apiClient = new ApiClient(url);
-                boolean loggedIn = apiClient.login(username, password);
+                ApiClient client = new ApiClient(url);
+                boolean loggedIn = client.login(username, password);
                 if (loggedIn) {
-                    habitRepository = new RemoteHabitRepository(apiClient);
+                    apiClient = client;
+                    habitRepository = new RemoteHabitRepository(client);
                     RemoteUserRepository userRepo = new RemoteUserRepository(apiClient);
                     currentUser = userRepo.findAll().stream().findFirst().orElse(null);
                     usingRemoteStorage = true;
@@ -159,6 +165,28 @@ public class MainActivity extends AppCompatActivity implements HabitAdapter.OnHa
             Intent intent = new Intent(this, SettingsActivity.class);
             settingsLauncher.launch(intent);
         });
+        binding.loadDefaultsButton.setOnClickListener(v -> loadDefaults());
+    }
+
+    private void loadDefaults() {
+        if (!usingRemoteStorage || apiClient == null) {
+            Toast.makeText(this, R.string.load_defaults_requires_remote, Toast.LENGTH_LONG).show();
+            return;
+        }
+        new Thread(() -> {
+            try {
+                apiClient.post("/api/init-defaults", Map.of(),
+                        new TypeToken<Map<String, Object>>() {}.getType());
+                runOnUiThread(() -> {
+                    Toast.makeText(this, R.string.defaults_loaded, Toast.LENGTH_SHORT).show();
+                    loadHabits();
+                });
+            } catch (IOException e) {
+                runOnUiThread(() ->
+                        Toast.makeText(this, getString(R.string.load_defaults_failed, e.getMessage()),
+                                Toast.LENGTH_LONG).show());
+            }
+        }).start();
     }
 
     private void addHabit() {
