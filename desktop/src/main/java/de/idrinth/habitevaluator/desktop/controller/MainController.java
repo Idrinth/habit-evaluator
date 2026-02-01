@@ -221,12 +221,7 @@ public class MainController {
         } else {
             categoryComboBox.getSelectionModel().selectFirst();
         }
-        categoryComboBox.getSelectionModel().selectedItemProperty().addListener(
-                (observable, oldValue, newValue) -> {
-                    if (NEW_CATEGORY.equals(newValue)) {
-                        showNewCategoryDialog();
-                    }
-                });
+        // No listener needed - category creation is handled when the add habit button is clicked
 
         // Populate the filter combo box
         ObservableList<String> filterNames = FXCollections.observableArrayList();
@@ -239,31 +234,26 @@ public class MainController {
         categoryFilterComboBox.getSelectionModel().selectFirst();
     }
 
-    private void showNewCategoryDialog() {
+    private void showNewCategoryDialog(Habit habit) {
         TextInputDialog dialog = new TextInputDialog();
         dialog.setTitle("Create New Category");
         dialog.setHeaderText(null);
         dialog.setContentText("Category name:");
         Optional<String> result = dialog.showAndWait();
         if (result.isPresent() && !result.get().trim().isEmpty()) {
-            createCategory(result.get().trim());
-        } else {
-            // Revert selection to first actual category or stay on New category
-            if (categoryList.size() > 0) {
-                categoryComboBox.getSelectionModel().select(1);
-            }
+            createCategoryAndSaveHabit(result.get().trim(), habit);
         }
     }
 
-    private void createCategory(String name) {
+    private void createCategoryAndSaveHabit(String name, Habit habit) {
         HabitCategory category = new HabitCategory(name);
         category.setUser(currentUser);
         if (categoryRepository != null) {
             categoryRepository.save(category);
             categoryList.add(category);
             populateCategoryComboBoxes();
-            // Select the newly created category
-            categoryComboBox.getSelectionModel().select(name);
+            habit.setCategoryId(category.getId());
+            saveHabit(habit);
         } else if (storageConfig.isRemote() && apiClient != null) {
             new Thread(() -> {
                 try {
@@ -273,7 +263,8 @@ public class MainController {
                     Platform.runLater(() -> {
                         categoryList.add(created);
                         populateCategoryComboBoxes();
-                        categoryComboBox.getSelectionModel().select(created.getName());
+                        habit.setCategoryId(created.getId());
+                        saveHabit(habit);
                     });
                 } catch (IOException e) {
                     Platform.runLater(() -> showAlert("Error", "Failed to create category: " + e.getMessage()));
@@ -499,16 +490,6 @@ public class MainController {
             Habit habit = new Habit(name, description);
             habit.setUser(currentUser);
 
-            String selectedCategory = categoryComboBox.getSelectionModel().getSelectedItem();
-            if (selectedCategory == null || NEW_CATEGORY.equals(selectedCategory)) {
-                showAlert("Category Required", "Please select or create a category before adding a habit.");
-                return;
-            }
-            String catId = categoryNameToId.get(selectedCategory);
-            if (catId != null) {
-                habit.setCategoryId(catId);
-            }
-
             // Set frequency type
             int freqIdx = frequencyTypeComboBox.getSelectionModel().getSelectedIndex();
             if (freqIdx >= 0 && freqIdx < FrequencyType.values().length) {
@@ -538,10 +519,28 @@ public class MainController {
             // Set positive/negative scoring
             habit.setPositiveScoring(positiveScoringCheckBox.isSelected());
 
-            habitRepository.save(habit);
-            habits.add(habit);
-            clearInputFields();
+            String selectedCategory = categoryComboBox.getSelectionModel().getSelectedItem();
+            if (selectedCategory == null) {
+                showAlert("Category Required", "Please select or create a category before adding a habit.");
+                return;
+            }
+            if (NEW_CATEGORY.equals(selectedCategory)) {
+                showNewCategoryDialog(habit);
+                return;
+            }
+            String catId = categoryNameToId.get(selectedCategory);
+            if (catId != null) {
+                habit.setCategoryId(catId);
+            }
+
+            saveHabit(habit);
         }
+    }
+
+    private void saveHabit(Habit habit) {
+        habitRepository.save(habit);
+        habits.add(habit);
+        clearInputFields();
     }
 
     @FXML
