@@ -10,3 +10,7 @@
 -keepattributes Signature
 -keepattributes *Annotation*
 -keep class com.google.gson.** { *; }
+
+# Suppress warnings for server-side annotations not present on Android
+-dontwarn jakarta.persistence.**
+-dontwarn com.fasterxml.jackson.annotation.**
