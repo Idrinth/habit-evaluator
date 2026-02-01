@@ -27,13 +27,27 @@ jobs:
       - name: Build
         run: ./gradlew build
 
+  check-signing:
+    runs-on: ubuntu-latest
+    outputs:
+      has-secrets: ${{ steps.check.outputs.has-secrets }}
+    steps:
+      - name: Check for signing secrets
+        id: check
+        run: |
+          if [ -n "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" ] && \
+             [ -n "${{ secrets.ANDROID_KEYSTORE_PASSWORD }}" ] && \
+             [ -n "${{ secrets.ANDROID_KEY_ALIAS }}" ] && \
+             [ -n "${{ secrets.ANDROID_KEY_PASSWORD }}" ]; then
+            echo "has-secrets=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has-secrets=false" >> "$GITHUB_OUTPUT"
+          fi
+
   apk:
     runs-on: ubuntu-latest
-    if: >-
-      secrets.ANDROID_KEYSTORE_BASE64 != '' &&
-      secrets.ANDROID_KEYSTORE_PASSWORD != '' &&
-      secrets.ANDROID_KEY_ALIAS != '' &&
-      secrets.ANDROID_KEY_PASSWORD != ''
+    needs: check-signing
+    if: needs.check-signing.outputs.has-secrets == 'true'
     steps:
       - uses: actions/checkout@v4
 
