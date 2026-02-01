@@ -14,7 +14,9 @@ dependencies {
 
     // JPA API for entity annotations (implementation provided by runtime)
     compileOnly 'jakarta.persistence:jakarta.persistence-api:3.1.0'
+    testCompileOnly 'jakarta.persistence:jakarta.persistence-api:3.1.0'
 
     // Jackson annotations for JSON serialization control (implementation provided by runtime)
     compileOnly 'com.fasterxml.jackson.core:jackson-annotations:2.16.1'
+    testCompileOnly 'com.fasterxml.jackson.core:jackson-annotations:2.16.1'
 }
