@@ -2,7 +2,10 @@ package de.idrinth.habitevaluator.shared.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 
@@ -14,7 +17,7 @@ import java.util.UUID;
  */
 @Entity
 @Table(name = "habit_categories", uniqueConstraints = {
-    @UniqueConstraint(columnNames = {"name"})
+    @UniqueConstraint(columnNames = {"name", "user_id"})
 })
 public class HabitCategory {
 
@@ -29,6 +32,10 @@ public class HabitCategory {
     private String description;
 
     private String color;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user;
 
     public HabitCategory() {
         this.id = UUID.randomUUID().toString();
@@ -75,6 +82,14 @@ public class HabitCategory {
 
     public void setColor(String color) {
         this.color = color;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 
     @Override
