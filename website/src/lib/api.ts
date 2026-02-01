@@ -35,7 +35,9 @@ export interface Habit {
 	description: string | null;
 	frequencyType: 'DAILY' | 'WEEKLY' | 'MONTHLY';
 	targetFrequency: number;
+	maxEntriesPerDay: number;
 	positiveScoring: boolean;
+	entries?: { completedAt: string }[];
 }
 
 export interface HabitCategory {
@@ -73,7 +75,7 @@ export const habits = {
 	list() {
 		return request<Habit[]>('/habits');
 	},
-	create(habit: { name: string; description?: string; frequencyType: string; targetFrequency: number; positiveScoring: boolean }) {
+	create(habit: { name: string; description?: string; frequencyType: string; targetFrequency: number; maxEntriesPerDay: number; positiveScoring: boolean }) {
 		return request<Habit>('/habits', {
 			method: 'POST',
 			body: JSON.stringify(habit)

@@ -5,6 +5,7 @@
 	let description = $state('');
 	let frequencyType = $state('DAILY');
 	let targetFrequency = $state(1);
+	let maxEntriesPerDay = $state(1);
 	let positiveScoring = $state(true);
 	let error = $state('');
 	let success = $state('');
@@ -15,12 +16,13 @@
 		success = '';
 
 		try {
-			await habits.create({ name, description: description || undefined, frequencyType, targetFrequency, positiveScoring });
+			await habits.create({ name, description: description || undefined, frequencyType, targetFrequency, maxEntriesPerDay, positiveScoring });
 			success = `Habit "${name}" created successfully`;
 			name = '';
 			description = '';
 			frequencyType = 'DAILY';
 			targetFrequency = 1;
+			maxEntriesPerDay = 1;
 			positiveScoring = true;
 		} catch (err) {
 			error = err instanceof Error ? err.message : 'Failed to create habit';
@@ -52,6 +54,9 @@
 
 		<label for="targetFrequency">Target frequency</label>
 		<input type="number" id="targetFrequency" bind:value={targetFrequency} required min="1" />
+
+		<label for="maxEntriesPerDay">Max entries per day (0 = unlimited)</label>
+		<input type="number" id="maxEntriesPerDay" bind:value={maxEntriesPerDay} required min="0" />
 
 		<label for="positiveScoring">
 			<input type="checkbox" id="positiveScoring" bind:checked={positiveScoring} />

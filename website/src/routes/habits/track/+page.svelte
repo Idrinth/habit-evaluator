@@ -8,6 +8,17 @@
 	let success = $state('');
 	let loading = $state(true);
 
+	function hasReachedDailyLimit(habit: Habit): boolean {
+		if (!habit.maxEntriesPerDay || habit.maxEntriesPerDay <= 0) {
+			return false;
+		}
+		const today = new Date().toISOString().slice(0, 10);
+		const todayEntries = (habit.entries || []).filter(
+			(e) => e.completedAt && e.completedAt.slice(0, 10) === today
+		).length;
+		return todayEntries >= habit.maxEntriesPerDay;
+	}
+
 	onMount(async () => {
 		try {
 			habitList = await habits.list();
@@ -75,17 +86,22 @@
 			{#if habitList.length > 0}
 				<ul class="habit-list">
 					{#each habitList as habit (habit.id)}
-						<li class="habit-item">
+						{@const atLimit = hasReachedDailyLimit(habit)}
+						<li class="habit-item" class:at-limit={atLimit}>
 							<input
 								type="checkbox"
 								id={habit.id}
 								checked={selected.has(habit.id)}
+								disabled={atLimit}
 								onchange={() => toggleHabit(habit.id)}
 							/>
 							<label for={habit.id} class="habit-info">
 								<span class="habit-name">{habit.name}</span>
 								{#if habit.description}
 									<span class="habit-description">{habit.description}</span>
+								{/if}
+								{#if atLimit}
+									<span class="limit-reached">Daily limit reached</span>
 								{/if}
 							</label>
 						</li>
@@ -138,6 +154,16 @@
 	.habit-description {
 		font-size: 0.85rem;
 		color: var(--color-text-muted);
+		margin-top: 0.15rem;
+	}
+
+	.at-limit {
+		opacity: 0.5;
+	}
+
+	.limit-reached {
+		font-size: 0.8rem;
+		color: #e67e22;
 		margin-top: 0.15rem;
 	}
 

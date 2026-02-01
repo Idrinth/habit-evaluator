@@ -13,6 +13,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -48,6 +49,9 @@ public class Habit {
     @Column(name = "target_frequency", nullable = false)
     private int targetFrequency;
 
+    @Column(name = "max_entries_per_day", nullable = false)
+    private int maxEntriesPerDay;
+
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
@@ -71,6 +75,7 @@ public class Habit {
         this.entries = new ArrayList<>();
         this.frequencyType = FrequencyType.DAILY;
         this.targetFrequency = 1;
+        this.maxEntriesPerDay = 1;
         this.positiveScoring = true;
         this.scoringRule = new ScoringRule();
     }
@@ -127,6 +132,24 @@ public class Habit {
 
     public void setTargetFrequency(int targetFrequency) {
         this.targetFrequency = targetFrequency;
+    }
+
+    public int getMaxEntriesPerDay() {
+        return maxEntriesPerDay;
+    }
+
+    public void setMaxEntriesPerDay(int maxEntriesPerDay) {
+        this.maxEntriesPerDay = maxEntriesPerDay;
+    }
+
+    public boolean hasReachedDailyLimit(LocalDate date) {
+        if (maxEntriesPerDay <= 0) {
+            return false;
+        }
+        long todayEntries = entries.stream()
+                .filter(entry -> entry.getCompletedAt().toLocalDate().equals(date))
+                .count();
+        return todayEntries >= maxEntriesPerDay;
     }
 
     public LocalDateTime getCreatedAt() {

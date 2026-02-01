@@ -9,6 +9,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -40,8 +41,10 @@ public class TrackHabitAdapter extends RecyclerView.Adapter<TrackHabitAdapter.Tr
     @Override
     public void onBindViewHolder(@NonNull TrackHabitViewHolder holder, int position) {
         Habit habit = habits.get(position);
+        boolean atLimit = habit.hasReachedDailyLimit(LocalDate.now());
         holder.nameText.setText(habit.getName());
-        holder.descriptionText.setText(habit.getDescription());
+        holder.descriptionText.setText(atLimit ? "Daily limit reached" : habit.getDescription());
+        holder.checkBox.setEnabled(!atLimit);
         holder.checkBox.setChecked(checkedHabitIds.contains(habit.getId()));
         holder.checkBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (isChecked) {
@@ -50,7 +53,12 @@ public class TrackHabitAdapter extends RecyclerView.Adapter<TrackHabitAdapter.Tr
                 checkedHabitIds.remove(habit.getId());
             }
         });
-        holder.itemView.setOnClickListener(v -> holder.checkBox.toggle());
+        holder.itemView.setAlpha(atLimit ? 0.5f : 1.0f);
+        holder.itemView.setOnClickListener(v -> {
+            if (!atLimit) {
+                holder.checkBox.toggle();
+            }
+        });
     }
 
     @Override
