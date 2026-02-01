@@ -68,8 +68,8 @@ public class MainActivity extends AppCompatActivity implements HabitAdapter.OnHa
         sharedHabits = habits;
         evaluatorService = new HabitEvaluatorService();
 
-        initializeStorage();
         setupRecyclerView();
+        initializeStorage();
         setupClickListeners();
     }
 
