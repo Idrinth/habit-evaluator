@@ -5,9 +5,11 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.io.InputStream;
 
 public class HabitEvaluatorDesktopApp extends Application {
 
@@ -18,6 +20,11 @@ public class HabitEvaluatorDesktopApp extends Application {
 
         Scene scene = new Scene(root, 800, 600);
         scene.getStylesheets().add(getClass().getResource("/css/styles.css").toExternalForm());
+
+        InputStream iconStream = getClass().getResourceAsStream("/logo.svg");
+        if (iconStream != null) {
+            primaryStage.getIcons().add(new Image(iconStream));
+        }
 
         primaryStage.setTitle("Habit Evaluator");
         primaryStage.setScene(scene);
