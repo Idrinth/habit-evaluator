@@ -75,9 +75,13 @@ jobs:
       - name: Build webserver and desktop JARs
         run: ./gradlew :webserver:bootJar :desktop:jar
 
+      - name: Build Android APK
+        run: ./gradlew :android:assembleRelease
+
       - name: Upload release assets
         uses: softprops/action-gh-release@v2
         with:
           files: |
             webserver/build/libs/habit-evaluator-web*.jar
             desktop/build/libs/*.jar
+            android/build/outputs/apk/release/*.apk
