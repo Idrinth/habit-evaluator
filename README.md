@@ -3,12 +3,6 @@ A habit tracker focussed on analysing and evaluating data without leaking it any
 
 ## Features
 
-### Multi-Platform Support
-- **Web** — Spring Boot REST API with Thymeleaf login page
-- **Desktop** — JavaFX application with local H2 database storage
-- **Android** — Native app with RecyclerView-based UI
-- **Shared Core** — Common models, services, and repository interfaces used by all platforms
-
 ### Habit Management
 - Create, update, and delete habits
 - Organise habits into user-defined categories with colour coding
@@ -22,10 +16,24 @@ A habit tracker focussed on analysing and evaluating data without leaking it any
 - Configurable scoring rules with 0/1/2/4/8 point thresholds
 - Weekly score aggregation across all habits and per category
 
-### Authentication & Sharing
+### Sharing
+- Magic links for read-only shared data access with optional time-based and category-based filtering and token expiration
+
+### Multi-Platform Support
+- **Web** — Spring Boot REST API with Svelte frontend
+- **Desktop** — JavaFX application with local H2 database storage
+- **Android** — Native app with RecyclerView-based UI
+
+### Privacy
+- All data stays under your control — no automatic cloud uploads
+- Desktop app stores everything locally in an H2 database
+- Data is only shared when you explicitly create a magic link
+
+## Technical Details
+
+### Authentication
 - Session-based authentication with BCrypt password encoding
 - HTML login page served via Thymeleaf
-- Magic links for read-only shared data access with optional time-based and category-based filtering and token expiration
 
 ### REST API
 - Full CRUD endpoints for habits (`/api/habits`)
