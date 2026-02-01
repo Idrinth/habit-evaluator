@@ -1,0 +1,134 @@
+name: CodeRabbit Retry on Rate Limit
+
+on:
+  schedule:
+    - cron: '0 * * * *'  # Run once every hour
+  workflow_dispatch:      # Allow manual trigger
+    inputs:
+      max_retries:
+        description: 'Maximum number of retry requests per run'
+        required: false
+        default: '4'
+
+env:
+  MAX_RETRIES: ${{ github.event.inputs.max_retries || '4' }}
+
+jobs:
+  retry-coderabbit:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      contents: read
+    
+    steps:
+      - name: Retry CodeRabbit Reviews
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const maxRetries = parseInt(process.env.MAX_RETRIES) || 4;
+            let retryCount = 0;
+            
+            console.log(`Max retries configured: ${maxRetries}`);
+            
+            // Get all open PRs
+            const { data: pullRequests } = await github.rest.pulls.list({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              sort: 'updated',
+              direction: 'desc'
+            });
+            
+            console.log(`Found ${pullRequests.length} open PRs`);
+            
+            for (const pr of pullRequests) {
+              if (retryCount >= maxRetries) {
+                console.log(`Reached max retry limit (${maxRetries}). Stopping.`);
+                break;
+              }
+              
+              console.log(`\nChecking PR #${pr.number}: ${pr.title}`);
+              
+              // Get the latest commit SHA
+              const latestCommitSha = pr.head.sha;
+              console.log(`Latest commit: ${latestCommitSha.substring(0, 7)}`);
+              
+              // Get all reviews for this PR
+              const { data: reviews } = await github.rest.pulls.listReviews({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: pr.number
+              });
+              
+              // Check if CodeRabbit has reviewed the latest commit
+              const coderabbitReview = reviews.find(review => 
+                review.user?.login?.toLowerCase() === 'coderabbitai' &&
+                review.commit_id === latestCommitSha
+              );
+              
+              if (coderabbitReview) {
+                console.log(`CodeRabbit has already reviewed the latest commit`);
+                continue;
+              }
+              
+              console.log(`CodeRabbit has NOT reviewed the latest commit`);
+              
+              // Get all comments on the PR (including issue comments)
+              const { data: comments } = await github.rest.issues.listComments({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: pr.number
+              });
+              
+              // Also get review comments
+              const { data: reviewComments } = await github.rest.pulls.listReviewComments({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: pr.number
+              });
+              
+              // Combine all comments
+              const allComments = [...comments, ...reviewComments];
+              
+              // Check for rate limit message from CodeRabbit
+              const rateLimitComment = allComments.find(comment => 
+                comment.user?.login?.toLowerCase() === 'coderabbitai' &&
+                comment.body?.toLowerCase().includes('rate limit exceeded')
+              );
+              
+              if (!rateLimitComment) {
+                console.log(`No rate limit comment found from CodeRabbit`);
+                continue;
+              }
+              
+              console.log(`Found rate limit comment from CodeRabbit`);
+              
+              // Check if we already requested a retry recently (within last 2 hours)
+              const twoHoursAgo = new Date(Date.now() - 2 * 60 * 60 * 1000);
+              const recentRetryRequest = comments.find(comment =>
+                comment.user?.login === 'github-actions[bot]' &&
+                comment.body?.includes('@coderabbitai review') &&
+                new Date(comment.created_at) > twoHoursAgo
+              );
+              
+              if (recentRetryRequest) {
+                console.log(`Already requested retry within the last 2 hours, skipping`);
+                continue;
+              }
+              
+              // Add comment to request CodeRabbit review
+              console.log(`Requesting CodeRabbit review for PR #${pr.number}`);
+              
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: pr.number,
+                body: `@coderabbitai review\n\n_Automated retry request due to previous rate limit. Triggered by GitHub Actions._`
+              });
+              
+              retryCount++;
+              console.log(`Retry requested (${retryCount}/${maxRetries})`);
+            }
+            
+            console.log(`\nCompleted. Total retries requested: ${retryCount}`);
