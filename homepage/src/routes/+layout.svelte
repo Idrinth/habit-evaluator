@@ -13,8 +13,9 @@
 		}
 	});
 
+	/** @param {Event} event */
 	function handleThemeChange(event) {
-		const value = event.target.value;
+		const value = /** @type {HTMLSelectElement} */ (event.target).value;
 		themeMode = value;
 		if (value === 'system') {
 			document.documentElement.removeAttribute('data-theme');
