@@ -40,6 +40,10 @@ android/local.properties
 android/.cxx/
 android/app/release/
 
+# Signing keys
+*.jks
+*.keystore
+
 # Test outputs
 test-output/
 test-results/
