@@ -29,4 +29,5 @@ dependencies {
 
 bootJar {
     archiveBaseName = 'habit-evaluator-web'
+    archiveVersion = ''
 }
