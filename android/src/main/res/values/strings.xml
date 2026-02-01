@@ -36,4 +36,8 @@
     <string name="load_defaults_requires_remote">Loading default habits requires remote storage. Please configure a remote API connection in Settings.</string>
     <string name="defaults_loaded">Default categories and habits loaded</string>
     <string name="load_defaults_failed">Failed to load defaults: %s</string>
+    <string name="completion_points">Completion Points</string>
+    <string name="daily_points">Today: %d pts</string>
+    <string name="weekly_points">Week: %d pts</string>
+    <string name="monthly_points">Month: %d pts</string>
 </resources>
