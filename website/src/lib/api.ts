@@ -12,7 +12,14 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
 		const body = await response.json().catch(() => null);
 		throw new Error(body?.message || `Request failed with status ${response.status}`);
 	}
-	return response.json();
+	if (response.status === 204 || response.headers.get('content-length') === '0') {
+		return null as T;
+	}
+	const text = await response.text();
+	if (!text) {
+		return null as T;
+	}
+	return JSON.parse(text);
 }
 
 export interface LoginResponse {
@@ -80,6 +87,9 @@ export const habits = {
 };
 
 export const categories = {
+	list() {
+		return request<HabitCategory[]>('/categories', { method: 'GET' });
+	},
 	create(category: { name: string; description?: string; color?: string }) {
 		return request<HabitCategory>('/categories', {
 			method: 'POST',

@@ -5,7 +5,7 @@
 	let thresholdFor1Point = $state(1);
 	let thresholdFor2Points = $state(2);
 	let thresholdFor4Points = $state(4);
-	let thresholdFor8Points = $state(7);
+	let thresholdFor8Points = $state(8);
 	let error = $state('');
 	let success = $state('');
 
@@ -27,7 +27,7 @@
 			thresholdFor1Point = 1;
 			thresholdFor2Points = 2;
 			thresholdFor4Points = 4;
-			thresholdFor8Points = 7;
+			thresholdFor8Points = 8;
 		} catch (err) {
 			error = err instanceof Error ? err.message : 'Failed to create scoring rule';
 		}
