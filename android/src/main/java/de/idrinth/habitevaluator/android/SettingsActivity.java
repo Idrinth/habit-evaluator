@@ -7,6 +7,7 @@ import android.widget.RadioGroup;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 
 import de.idrinth.habitevaluator.android.databinding.ActivitySettingsBinding;
 import de.idrinth.habitevaluator.shared.api.ApiClient;
@@ -25,8 +26,12 @@ public class SettingsActivity extends AppCompatActivity {
     public static final String KEY_API_URL = "api_base_url";
     public static final String KEY_API_USERNAME = "api_username";
     public static final String KEY_API_PASSWORD = "api_password";
+    public static final String KEY_THEME_MODE = "theme_mode";
     public static final String MODE_LOCAL = "LOCAL";
     public static final String MODE_REMOTE = "REMOTE";
+    public static final String THEME_SYSTEM = "SYSTEM";
+    public static final String THEME_LIGHT = "LIGHT";
+    public static final String THEME_DARK = "DARK";
 
     private ActivitySettingsBinding binding;
 
@@ -46,6 +51,7 @@ public class SettingsActivity extends AppCompatActivity {
         String url = prefs.getString(KEY_API_URL, StorageConfig.DEFAULT_API_BASE_URL);
         String username = prefs.getString(KEY_API_USERNAME, "");
         String password = prefs.getString(KEY_API_PASSWORD, "");
+        String themeMode = prefs.getString(KEY_THEME_MODE, THEME_SYSTEM);
 
         if (MODE_REMOTE.equals(mode)) {
             binding.remoteRadio.setChecked(true);
@@ -53,6 +59,14 @@ public class SettingsActivity extends AppCompatActivity {
         } else {
             binding.localRadio.setChecked(true);
             binding.remoteSettingsPanel.setVisibility(View.GONE);
+        }
+
+        if (THEME_LIGHT.equals(themeMode)) {
+            binding.themeLightRadio.setChecked(true);
+        } else if (THEME_DARK.equals(themeMode)) {
+            binding.themeDarkRadio.setChecked(true);
+        } else {
+            binding.themeSystemRadio.setChecked(true);
         }
 
         binding.apiUrlInput.setText(url);
@@ -126,13 +140,34 @@ public class SettingsActivity extends AppCompatActivity {
             editor.putString(KEY_STORAGE_MODE, MODE_LOCAL);
         }
 
+        String themeMode;
+        if (binding.themeLightRadio.isChecked()) {
+            themeMode = THEME_LIGHT;
+        } else if (binding.themeDarkRadio.isChecked()) {
+            themeMode = THEME_DARK;
+        } else {
+            themeMode = THEME_SYSTEM;
+        }
+        editor.putString(KEY_THEME_MODE, themeMode);
+
         editor.putString(KEY_API_URL, url);
         editor.putString(KEY_API_USERNAME, username);
         editor.putString(KEY_API_PASSWORD, password);
 
         editor.apply();
+        applyThemeMode(themeMode);
         setResult(RESULT_OK);
         Toast.makeText(this, R.string.settings_saved, Toast.LENGTH_SHORT).show();
         finish();
+    }
+
+    public static void applyThemeMode(String themeMode) {
+        if (THEME_LIGHT.equals(themeMode)) {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+        } else if (THEME_DARK.equals(themeMode)) {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+        } else {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
+        }
     }
 }

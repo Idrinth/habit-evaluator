@@ -1,6 +1,7 @@
 package de.idrinth.habitevaluator.desktop;
 
 import de.idrinth.habitevaluator.desktop.persistence.PersistenceManager;
+import de.idrinth.habitevaluator.shared.api.StorageConfig;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -9,11 +10,14 @@ import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
 public class HabitEvaluatorDesktopApp extends Application {
+
+    private static final String CONFIG_FILE = System.getProperty("user.home") + "/.habit-evaluator/storage.properties";
 
     @Override
     public void start(Stage primaryStage) throws IOException {
@@ -23,7 +27,7 @@ public class HabitEvaluatorDesktopApp extends Application {
         Scene scene = new Scene(root, 800, 600);
         scene.getStylesheets().add(getClass().getResource("/css/styles.css").toExternalForm());
 
-        if (isDarkMode()) {
+        if (shouldUseDarkMode()) {
             scene.getStylesheets().add(getClass().getResource("/css/dark.css").toExternalForm());
         }
 
@@ -37,7 +41,19 @@ public class HabitEvaluatorDesktopApp extends Application {
         primaryStage.show();
     }
 
-    private boolean isDarkMode() {
+    private boolean shouldUseDarkMode() {
+        StorageConfig config = new StorageConfig(new File(CONFIG_FILE));
+        StorageConfig.ThemeMode themeMode = config.getThemeMode();
+        if (themeMode == StorageConfig.ThemeMode.DARK) {
+            return true;
+        }
+        if (themeMode == StorageConfig.ThemeMode.LIGHT) {
+            return false;
+        }
+        return isSystemDarkMode();
+    }
+
+    private boolean isSystemDarkMode() {
         String os = System.getProperty("os.name", "").toLowerCase();
         try {
             if (os.contains("mac")) {

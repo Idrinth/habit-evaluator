@@ -51,6 +51,22 @@
         </HBox>
     </VBox>
 
+    <Separator/>
+
+    <Label text="Theme Settings" styleClass="section-title"/>
+
+    <Label text="Choose app theme:"/>
+
+    <RadioButton fx:id="themeSystemRadio" text="System default" selected="true">
+        <toggleGroup>
+            <ToggleGroup fx:id="themeToggleGroup"/>
+        </toggleGroup>
+    </RadioButton>
+
+    <RadioButton fx:id="themeLightRadio" text="Light" toggleGroup="$themeToggleGroup"/>
+
+    <RadioButton fx:id="themeDarkRadio" text="Dark" toggleGroup="$themeToggleGroup"/>
+
     <Region VBox.vgrow="ALWAYS"/>
 
     <Separator/>

@@ -59,4 +59,9 @@
     <string name="threshold_8pt">8pt</string>
     <string name="habits_saved_success">%d habit(s) saved successfully</string>
     <string name="save">Save</string>
+    <string name="theme_settings">Theme Settings</string>
+    <string name="theme_mode_label">Choose app theme:</string>
+    <string name="theme_system">System default</string>
+    <string name="theme_light">Light</string>
+    <string name="theme_dark">Dark</string>
 </resources>
