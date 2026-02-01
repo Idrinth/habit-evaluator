@@ -60,6 +60,12 @@ scoring:
   hint_4_points: "Nombre minimum de complétions hebdomadaires pour obtenir 4 points"
   hint_8_points: "Nombre minimum de complétions hebdomadaires pour obtenir 8 points"
 
+defaults:
+  load_button: "Charger les valeurs par défaut"
+  requires_remote: "Le chargement des habitudes par défaut nécessite un stockage distant. Veuillez configurer une connexion API distante dans les Paramètres."
+  loaded: "Catégories et habitudes par défaut chargées"
+  load_failed: "Échec du chargement des valeurs par défaut : %s"
+
 settings:
   storage_settings: "Paramètres de stockage"
   storage_mode_label: "Choisissez où stocker vos données :"

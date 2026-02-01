@@ -60,6 +60,12 @@ scoring:
   hint_4_points: "Mínimo de completaciones semanales para obtener 4 puntos"
   hint_8_points: "Mínimo de completaciones semanales para obtener 8 puntos"
 
+defaults:
+  load_button: "Cargar valores predeterminados"
+  requires_remote: "Cargar hábitos predeterminados requiere almacenamiento remoto. Por favor, configure una conexión API remota en Configuración."
+  loaded: "Categorías y hábitos predeterminados cargados"
+  load_failed: "Error al cargar los valores predeterminados: %s"
+
 settings:
   storage_settings: "Configuración de almacenamiento"
   storage_mode_label: "Elija dónde almacenar sus datos:"
