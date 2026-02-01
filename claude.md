@@ -10,7 +10,7 @@ A privacy-focused, multi-platform habit tracker for analyzing and evaluating hab
 
 ## Project Structure
 
-```
+```text
 habit-evaluator/
 ├── shared/              # Core models, services, repositories, localization
 ├── webserver/           # Spring Boot 3.2.2 web application (REST API + Thymeleaf)
@@ -74,7 +74,7 @@ Android application (SDK 34, min 26).
 ## REST API
 
 | Method | Path | Description |
-|--------|------|-------------|
+| --- | --- | --- |
 | GET | `/api/habits` | List user's habits |
 | GET | `/api/habits/{id}` | Get habit by ID |
 | POST | `/api/habits` | Create habit |
@@ -182,7 +182,7 @@ GitHub Actions workflow at `.github/workflows/build.yml`:
 **Layered architecture with shared core:**
 - Models (JPA entities) and Services (stateless business logic) live in `shared`
 - Each platform provides its own Repository implementation and UI/Controller layer
-- Webserver uses Spring DI; desktop and android use manual dependency management
+- Webserver uses Spring DI; desktop and Android use manual dependency management
 
 **Package naming:** `de.idrinth.habitevaluator.[module].[layer]`
 
