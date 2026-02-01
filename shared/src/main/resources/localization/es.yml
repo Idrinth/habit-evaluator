@@ -92,3 +92,14 @@ settings:
   connection_error_message: "Error al conectar con la API remota: %s\nVolviendo al almacenamiento local."
   incomplete_settings: "Configuración incompleta"
   failed_to_open: "Error al abrir la configuración: %s"
+
+sync:
+  title: "Sincronizar con servidor remoto"
+  description: "Introduzca los datos del servidor remoto para sincronizar sus hábitos:"
+  sync_button: "Sincronizar"
+  close_button: "Cerrar"
+  syncing: "Sincronizando..."
+  sync_complete: "Sincronización completa: %d enviados, %d recibidos, %d fusionados"
+  sync_failed: "Sincronización fallida: %s"
+  fill_all_fields: "Por favor, rellene todos los campos"
+  failed_to_open: "Error al abrir el diálogo de sincronización: %s"

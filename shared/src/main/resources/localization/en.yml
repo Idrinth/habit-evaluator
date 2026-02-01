@@ -92,3 +92,14 @@ settings:
   connection_error_message: "Failed to connect to remote API: %s\nFalling back to local storage."
   incomplete_settings: "Incomplete Settings"
   failed_to_open: "Failed to open settings: %s"
+
+sync:
+  title: "Sync with Remote Server"
+  description: "Enter the remote server details to sync your habits:"
+  sync_button: "Sync"
+  close_button: "Close"
+  syncing: "Syncing..."
+  sync_complete: "Sync complete: %d pushed, %d pulled, %d merged"
+  sync_failed: "Sync failed: %s"
+  fill_all_fields: "Please fill in all fields"
+  failed_to_open: "Failed to open sync dialog: %s"
