@@ -24,8 +24,8 @@ import java.util.List;
 import java.util.Map;
 
 import de.idrinth.habitevaluator.android.databinding.ActivityMainBinding;
-import de.idrinth.habitevaluator.android.persistence.InMemoryHabitCategoryRepository;
-import de.idrinth.habitevaluator.android.persistence.InMemoryHabitRepository;
+import de.idrinth.habitevaluator.android.persistence.FileSystemHabitCategoryRepository;
+import de.idrinth.habitevaluator.android.persistence.FileSystemHabitRepository;
 import de.idrinth.habitevaluator.android.ui.HabitAdapter;
 import de.idrinth.habitevaluator.shared.api.ApiClient;
 import de.idrinth.habitevaluator.shared.api.RemoteHabitRepository;
@@ -105,8 +105,9 @@ public class MainActivity extends AppCompatActivity implements HabitAdapter.OnHa
 
     private void initializeLocalStorage() {
         usingRemoteStorage = false;
-        habitRepository = new InMemoryHabitRepository();
-        categoryRepository = new InMemoryHabitCategoryRepository();
+        java.io.File storageDir = new java.io.File(getFilesDir(), "habit-data");
+        habitRepository = new FileSystemHabitRepository(storageDir);
+        categoryRepository = new FileSystemHabitCategoryRepository(storageDir);
         apiClient = null;
         currentUser = new User(PLACEHOLDER_USERNAME, "placeholder");
     }
