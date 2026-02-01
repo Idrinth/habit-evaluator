@@ -54,6 +54,9 @@ public class Habit {
     @OneToMany(mappedBy = "habit", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<HabitEntry> entries;
 
+    @Column(name = "positive_scoring", nullable = false)
+    private boolean positiveScoring;
+
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "scoring_rule_id")
     private ScoringRule scoringRule;
@@ -68,6 +71,7 @@ public class Habit {
         this.entries = new ArrayList<>();
         this.frequencyType = FrequencyType.DAILY;
         this.targetFrequency = 1;
+        this.positiveScoring = true;
         this.scoringRule = new ScoringRule();
     }
 
@@ -152,6 +156,14 @@ public class Habit {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public boolean isPositiveScoring() {
+        return positiveScoring;
+    }
+
+    public void setPositiveScoring(boolean positiveScoring) {
+        this.positiveScoring = positiveScoring;
     }
 
     public ScoringRule getScoringRule() {

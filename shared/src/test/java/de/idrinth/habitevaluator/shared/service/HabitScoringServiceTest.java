@@ -133,6 +133,48 @@ class HabitScoringServiceTest {
     }
 
     @Test
+    void testCalculateHabitScoreNegativeScoring() {
+        LocalDate weekStart = LocalDate.of(2024, 1, 1);
+        LocalDate weekEnd = LocalDate.of(2024, 1, 7);
+        Habit habit = createHabitWithEntries("Bad Habit", weekStart, 4);
+        habit.setPositiveScoring(false);
+
+        HabitScore score = scoringService.calculateHabitScore(habit, weekStart, weekEnd);
+
+        assertEquals(4, score.getCompletionCount());
+        assertEquals(-4, score.getScore());
+    }
+
+    @Test
+    void testCalculateHabitScoreNegativeScoringNoEntries() {
+        Habit habit = new Habit("Bad Habit", "Something to avoid");
+        habit.setPositiveScoring(false);
+        LocalDate weekStart = LocalDate.of(2024, 1, 1);
+        LocalDate weekEnd = LocalDate.of(2024, 1, 7);
+
+        HabitScore score = scoringService.calculateHabitScore(habit, weekStart, weekEnd);
+
+        assertEquals(0, score.getCompletionCount());
+        assertEquals(0, score.getScore());
+    }
+
+    @Test
+    void testCalculateWeeklyScoreMixedPositiveAndNegative() {
+        LocalDate weekStart = LocalDate.of(2024, 1, 1);
+        LocalDate weekEnd = LocalDate.of(2024, 1, 7);
+
+        Habit positiveHabit = createHabitWithEntries("Exercise", weekStart, 7);
+        Habit negativeHabit = createHabitWithEntries("Smoking", weekStart, 4);
+        negativeHabit.setPositiveScoring(false);
+
+        WeeklyScore weeklyScore = scoringService.calculateWeeklyScore(
+                List.of(positiveHabit, negativeHabit), weekStart, weekEnd);
+
+        assertEquals(2, weeklyScore.getHabitScores().size());
+        assertEquals(4, weeklyScore.getTotalScore()); // 8 + (-4) = 4
+    }
+
+    @Test
     void testCountCompletionsInPeriodFiltersCorrectly() {
         Habit habit = new Habit("Test", "Test");
         LocalDate weekStart = LocalDate.of(2024, 1, 8);

@@ -268,6 +268,39 @@ class HabitScoringServicePredictionTest {
     }
 
     @Test
+    void testPredictHabitScoreNegativeScoring() {
+        LocalDate weekStart = LocalDate.of(2024, 1, 1);
+        LocalDate weekEnd = LocalDate.of(2024, 1, 7);
+        Habit habit = createHabitWithEntries("Bad Habit", weekStart, 4);
+        habit.setPositiveScoring(false);
+        LocalDateTime now = LocalDate.of(2024, 1, 4).atTime(12, 0);
+
+        PredictedHabitScore prediction = scoringService.predictHabitScore(habit, weekStart, weekEnd, now);
+
+        assertEquals(4, prediction.getCurrentCompletionCount());
+        assertTrue(prediction.getCurrentScore() < 0, "Current score should be negative for negative scoring habit");
+        assertTrue(prediction.getPredictedScore() < 0, "Predicted score should be negative for negative scoring habit");
+    }
+
+    @Test
+    void testPredictWeeklyScoreMixedPositiveAndNegative() {
+        LocalDate weekStart = LocalDate.of(2024, 1, 1);
+        LocalDate weekEnd = LocalDate.of(2024, 1, 7);
+        LocalDateTime now = LocalDate.of(2024, 1, 4).atTime(12, 0);
+
+        Habit positiveHabit = createHabitWithEntries("Exercise", weekStart, 3);
+        Habit negativeHabit = createHabitWithEntries("Smoking", weekStart, 3);
+        negativeHabit.setPositiveScoring(false);
+
+        PredictedWeeklyScore prediction = scoringService.predictWeeklyScore(
+                List.of(positiveHabit, negativeHabit), weekStart, weekEnd, now);
+
+        assertEquals(2, prediction.getHabitPredictions().size());
+        assertEquals(0, prediction.getCurrentTotalScore(),
+                "Positive and negative habits with same completions should cancel out");
+    }
+
+    @Test
     void testPredictWeeklyScoreWeekNumberAndYear() {
         LocalDate weekStart = LocalDate.of(2024, 1, 1);
         LocalDate weekEnd = LocalDate.of(2024, 1, 7);
