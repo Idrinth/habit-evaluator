@@ -8,6 +8,9 @@
 -keep class de.idrinth.habitevaluator.shared.api.** { *; }
 -keep class de.idrinth.habitevaluator.shared.repository.** { *; }
 
+# Keep Android persistence classes for filesystem storage
+-keep class de.idrinth.habitevaluator.android.persistence.** { *; }
+
 # Keep Gson classes and ensure reflection-based serialization works
 -keepattributes Signature
 -keepattributes *Annotation*
