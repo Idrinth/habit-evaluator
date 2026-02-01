@@ -201,3 +201,46 @@ GitHub Actions workflow at `.github/workflows/build.yml`:
 - JPMS module system for shared library
 
 **Default branch:** `the-one` (not `main` or `master`)
+
+## Translations
+
+The project uses a custom YAML-based localization system implemented in the `shared` module via the `Localizer` class (`shared/src/main/java/de/idrinth/habitevaluator/shared/localization/Localizer.java`).
+
+**Translation files** are YAML files stored on the classpath at `localization/{lang}.yml`:
+- Production: `shared/src/main/resources/localization/en.yml`
+- Test fixtures: `shared/src/test/resources/localization/en.yml`, `de.yml`
+
+**File format** — top-level keys are module names, nested keys are translation keys:
+
+```yaml
+general:
+  app_name: "Habit Evaluator"
+  submit: "Submit"
+habits:
+  add_button: "Add Habit"
+login:
+  title: "Habit Evaluator - Login"
+```
+
+Current modules: `general`, `login`, `habits`, `evaluation`, `categories`, `scoring`, `settings`.
+
+**Resolution chain** — `translate(module, key, language)` looks up translations in this order:
+1. `module.key` in the requested language
+2. `module.key` in English (fallback)
+3. `general.key` in the requested language
+4. `general.key` in English
+5. Literal string `"module.key"` if nothing matches
+
+**Usage:**
+
+```java
+Localizer localizer = new Localizer();
+localizer.translate("habits", "add_button");         // English (default)
+localizer.translate("habits", "add_button", "de");    // German
+```
+
+**Adding a new language:** Create `shared/src/main/resources/localization/{lang}.yml` mirroring the structure of `en.yml`. The `Localizer` lazy-loads and caches language files on first access using `ConcurrentHashMap`.
+
+**Adding new keys:** Add the key under the appropriate module section in `en.yml` (and any other language files). Add corresponding test entries in the test fixture files and update `LocalizerTest` if needed.
+
+**Android** uses its own native string resources (`android/src/main/res/values/strings.xml`) rather than the shared `Localizer`. The SvelteKit-based `website` and `homepage` subprojects do not currently have an i18n system.
