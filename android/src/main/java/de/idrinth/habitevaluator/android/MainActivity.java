@@ -1,11 +1,13 @@
 package de.idrinth.habitevaluator.android;
 
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -182,12 +184,77 @@ public class MainActivity extends AppCompatActivity implements HabitAdapter.OnHa
         }
     }
 
+    private void showNewCategoryDialog() {
+        EditText input = new EditText(this);
+        input.setHint(R.string.new_category_hint);
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.new_category_dialog_title)
+                .setView(input)
+                .setPositiveButton(android.R.string.ok, (dialog, which) -> {
+                    String categoryName = input.getText().toString().trim();
+                    if (categoryName.isEmpty()) {
+                        Toast.makeText(this, R.string.category_name_required, Toast.LENGTH_SHORT).show();
+                        binding.categorySpinner.setSelection(0);
+                        return;
+                    }
+                    createCategory(categoryName);
+                })
+                .setNegativeButton(android.R.string.cancel, (dialog, which) -> {
+                    if (categoryList.isEmpty()) {
+                        binding.categorySpinner.setSelection(0);
+                    } else {
+                        binding.categorySpinner.setSelection(1);
+                    }
+                })
+                .show();
+    }
+
+    private void createCategory(String name) {
+        HabitCategory category = new HabitCategory(name);
+        category.setUser(currentUser);
+        if (usingRemoteStorage && apiClient != null) {
+            new Thread(() -> {
+                try {
+                    Map<String, String> body = new LinkedHashMap<>();
+                    body.put("name", name);
+                    HabitCategory created = apiClient.post("/api/categories", body, HabitCategory.class);
+                    runOnUiThread(() -> {
+                        categoryList.add(created);
+                        populateCategorySpinners();
+                        // Select the newly created category
+                        int position = findCategorySpinnerPosition(created.getName());
+                        binding.categorySpinner.setSelection(position);
+                    });
+                } catch (IOException e) {
+                    runOnUiThread(() ->
+                            Toast.makeText(this, "Failed to create category: " + e.getMessage(),
+                                    Toast.LENGTH_LONG).show());
+                }
+            }).start();
+        } else if (categoryRepository != null) {
+            categoryRepository.save(category);
+            categoryList.add(category);
+            populateCategorySpinners();
+            int position = findCategorySpinnerPosition(category.getName());
+            binding.categorySpinner.setSelection(position);
+        }
+    }
+
+    private int findCategorySpinnerPosition(String categoryName) {
+        for (int i = 0; i < binding.categorySpinner.getAdapter().getCount(); i++) {
+            if (categoryName.equals(binding.categorySpinner.getAdapter().getItem(i))) {
+                return i;
+            }
+        }
+        return 0;
+    }
+
     private void populateCategorySpinners() {
         categoryNameToId.clear();
 
         // Category creation spinner
         List<String> categoryNames = new ArrayList<>();
-        categoryNames.add(getString(R.string.no_category));
+        categoryNames.add(getString(R.string.new_category));
         for (HabitCategory cat : categoryList) {
             categoryNames.add(cat.getName());
             categoryNameToId.put(cat.getName(), cat.getId());
@@ -196,6 +263,23 @@ public class MainActivity extends AppCompatActivity implements HabitAdapter.OnHa
                 android.R.layout.simple_spinner_item, categoryNames);
         createAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         binding.categorySpinner.setAdapter(createAdapter);
+        // Select first actual category if available, otherwise stay on "New category"
+        if (categoryList.size() > 0) {
+            binding.categorySpinner.setSelection(1);
+        }
+        binding.categorySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                String selected = (String) parent.getItemAtPosition(position);
+                if (getString(R.string.new_category).equals(selected)) {
+                    showNewCategoryDialog();
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
+        });
 
         // Category filter spinner
         List<String> filterNames = new ArrayList<>();
@@ -353,11 +437,13 @@ public class MainActivity extends AppCompatActivity implements HabitAdapter.OnHa
         habit.setUser(currentUser);
 
         String selectedCategory = (String) binding.categorySpinner.getSelectedItem();
-        if (selectedCategory != null && !getString(R.string.no_category).equals(selectedCategory)) {
-            String catId = categoryNameToId.get(selectedCategory);
-            if (catId != null) {
-                habit.setCategoryId(catId);
-            }
+        if (selectedCategory == null || getString(R.string.new_category).equals(selectedCategory)) {
+            Toast.makeText(this, R.string.category_required, Toast.LENGTH_SHORT).show();
+            return;
+        }
+        String catId = categoryNameToId.get(selectedCategory);
+        if (catId != null) {
+            habit.setCategoryId(catId);
         }
 
         // Set frequency type
