@@ -1,10 +1,11 @@
 name: CodeRabbit Retry
-
 on:
   schedule:
     - cron: '0 * * * *'
   workflow_dispatch:
-
+permissions:
+  pull-requests: write
+  contents: read
 jobs:
   retry:
     runs-on: ubuntu-latest
