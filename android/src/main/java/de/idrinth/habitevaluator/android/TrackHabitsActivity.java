@@ -7,6 +7,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -65,8 +66,14 @@ public class TrackHabitsActivity extends AppCompatActivity {
         }
 
         int count = 0;
+        int skipped = 0;
+        LocalDate today = LocalDate.now();
         for (Habit habit : habits) {
             if (checkedIds.contains(habit.getId())) {
+                if (habit.hasReachedDailyLimit(today)) {
+                    skipped++;
+                    continue;
+                }
                 HabitEntry entry = new HabitEntry(habit.getId());
                 habit.addEntry(entry);
                 count++;
