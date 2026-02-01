@@ -11,42 +11,39 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import de.idrinth.habitevaluator.android.databinding.ActivityTrackHabitsBinding;
+import de.idrinth.habitevaluator.android.databinding.ActivityEditHabitsBinding;
 import de.idrinth.habitevaluator.android.ui.EditHabitAdapter;
 import de.idrinth.habitevaluator.shared.model.Habit;
 import de.idrinth.habitevaluator.shared.model.ScoringRule;
 
 public class EditHabitsActivity extends AppCompatActivity {
 
-    private ActivityTrackHabitsBinding binding;
+    private ActivityEditHabitsBinding binding;
     private EditHabitAdapter adapter;
     private List<Habit> habits;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        binding = ActivityTrackHabitsBinding.inflate(getLayoutInflater());
+        binding = ActivityEditHabitsBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
         habits = MainActivity.getSharedHabits();
 
-        binding.trackTitle.setText(R.string.edit_habits);
-
         if (habits == null || habits.isEmpty()) {
             binding.emptyText.setVisibility(View.VISIBLE);
-            binding.trackRecyclerView.setVisibility(View.GONE);
-            binding.submitButton.setVisibility(View.GONE);
+            binding.editRecyclerView.setVisibility(View.GONE);
+            binding.saveButton.setVisibility(View.GONE);
         } else {
             binding.emptyText.setVisibility(View.GONE);
-            binding.trackRecyclerView.setVisibility(View.VISIBLE);
-            binding.submitButton.setVisibility(View.VISIBLE);
-            binding.submitButton.setText(R.string.save);
+            binding.editRecyclerView.setVisibility(View.VISIBLE);
+            binding.saveButton.setVisibility(View.VISIBLE);
             adapter = new EditHabitAdapter(habits);
-            binding.trackRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-            binding.trackRecyclerView.setAdapter(adapter);
+            binding.editRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+            binding.editRecyclerView.setAdapter(adapter);
         }
 
-        binding.submitButton.setOnClickListener(v -> saveEditedHabits());
+        binding.saveButton.setOnClickListener(v -> saveEditedHabits());
     }
 
     private void saveEditedHabits() {
@@ -100,9 +97,9 @@ public class EditHabitsActivity extends AppCompatActivity {
         MainActivity.saveAllHabits();
 
         String message = getString(R.string.habits_saved_success, count);
-        binding.trackMessage.setText(message);
-        binding.trackMessage.setTextColor(getResources().getColor(android.R.color.holo_green_dark, getTheme()));
-        binding.trackMessage.setVisibility(View.VISIBLE);
+        binding.editMessage.setText(message);
+        binding.editMessage.setTextColor(getResources().getColor(android.R.color.holo_green_dark, getTheme()));
+        binding.editMessage.setVisibility(View.VISIBLE);
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
     }
 }

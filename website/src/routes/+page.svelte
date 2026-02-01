@@ -7,7 +7,7 @@
 		try {
 			const res = await auth.me();
 			if (res.success) {
-				goto('/habits/track');
+				goto('/habits/edit');
 			} else {
 				goto('/login');
 			}

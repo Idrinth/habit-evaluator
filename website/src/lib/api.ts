@@ -88,12 +88,6 @@ export const habits = {
 			method: 'PUT',
 			body: JSON.stringify(habit)
 		});
-	},
-	track(habitId: string) {
-		return request<unknown>(`/habits/${habitId}/entries`, {
-			method: 'POST',
-			body: JSON.stringify({})
-		});
 	}
 };
 

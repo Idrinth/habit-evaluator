@@ -45,7 +45,7 @@
 		<li>Uses the <code>shared</code> module for models, API client, and repository interfaces.</li>
 		<li><code>RemoteHabitRepository</code> and <code>RemoteUserRepository</code> communicate with the webserver REST API.</li>
 		<li>UI built with RecyclerView, CardView, and Material Design 3 components.</li>
-		<li>Activities: <code>MainActivity</code>, <code>TrackHabitsActivity</code>, <code>SettingsActivity</code>.</li>
+		<li>Activities: <code>MainActivity</code>, <code>EditHabitsActivity</code>, <code>SettingsActivity</code>.</li>
 		<li>Requires the <code>INTERNET</code> permission for server communication.</li>
 	</ul>
 </section>
