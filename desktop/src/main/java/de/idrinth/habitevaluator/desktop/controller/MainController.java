@@ -32,6 +32,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import java.util.Optional;
 
 import com.google.gson.reflect.TypeToken;
 
@@ -51,6 +52,7 @@ public class MainController {
     private static final String CONFIG_DIR = System.getProperty("user.home") + "/.habit-evaluator";
     private static final String CONFIG_FILE = CONFIG_DIR + "/storage.properties";
     private static final String ALL_CATEGORIES = "All categories";
+    private static final String NEW_CATEGORY = "New category";
 
     @FXML
     private ListView<Habit> habitListView;
@@ -188,14 +190,25 @@ public class MainController {
     private void populateCategoryComboBoxes() {
         // Populate the creation combo box
         ObservableList<String> categoryNames = FXCollections.observableArrayList();
-        categoryNames.add("No category");
+        categoryNames.add(NEW_CATEGORY);
         categoryNameToId.clear();
         for (HabitCategory cat : categoryList) {
             categoryNames.add(cat.getName());
             categoryNameToId.put(cat.getName(), cat.getId());
         }
         categoryComboBox.setItems(categoryNames);
-        categoryComboBox.getSelectionModel().selectFirst();
+        // Select first actual category if available
+        if (categoryList.size() > 0) {
+            categoryComboBox.getSelectionModel().select(1);
+        } else {
+            categoryComboBox.getSelectionModel().selectFirst();
+        }
+        categoryComboBox.getSelectionModel().selectedItemProperty().addListener(
+                (observable, oldValue, newValue) -> {
+                    if (NEW_CATEGORY.equals(newValue)) {
+                        showNewCategoryDialog();
+                    }
+                });
 
         // Populate the filter combo box
         ObservableList<String> filterNames = FXCollections.observableArrayList();
@@ -206,6 +219,49 @@ public class MainController {
         filterNames.add("Uncategorized");
         categoryFilterComboBox.setItems(filterNames);
         categoryFilterComboBox.getSelectionModel().selectFirst();
+    }
+
+    private void showNewCategoryDialog() {
+        TextInputDialog dialog = new TextInputDialog();
+        dialog.setTitle("Create New Category");
+        dialog.setHeaderText(null);
+        dialog.setContentText("Category name:");
+        Optional<String> result = dialog.showAndWait();
+        if (result.isPresent() && !result.get().trim().isEmpty()) {
+            createCategory(result.get().trim());
+        } else {
+            // Revert selection to first actual category or stay on New category
+            if (categoryList.size() > 0) {
+                categoryComboBox.getSelectionModel().select(1);
+            }
+        }
+    }
+
+    private void createCategory(String name) {
+        HabitCategory category = new HabitCategory(name);
+        category.setUser(currentUser);
+        if (categoryRepository != null) {
+            categoryRepository.save(category);
+            categoryList.add(category);
+            populateCategoryComboBoxes();
+            // Select the newly created category
+            categoryComboBox.getSelectionModel().select(name);
+        } else if (storageConfig.isRemote() && apiClient != null) {
+            new Thread(() -> {
+                try {
+                    Map<String, String> body = new LinkedHashMap<>();
+                    body.put("name", name);
+                    HabitCategory created = apiClient.post("/api/categories", body, HabitCategory.class);
+                    Platform.runLater(() -> {
+                        categoryList.add(created);
+                        populateCategoryComboBoxes();
+                        categoryComboBox.getSelectionModel().select(created.getName());
+                    });
+                } catch (IOException e) {
+                    Platform.runLater(() -> showAlert("Error", "Failed to create category: " + e.getMessage()));
+                }
+            }).start();
+        }
     }
 
     private void applyFilter() {
@@ -423,11 +479,13 @@ public class MainController {
             habit.setUser(currentUser);
 
             String selectedCategory = categoryComboBox.getSelectionModel().getSelectedItem();
-            if (selectedCategory != null && !"No category".equals(selectedCategory)) {
-                String catId = categoryNameToId.get(selectedCategory);
-                if (catId != null) {
-                    habit.setCategoryId(catId);
-                }
+            if (selectedCategory == null || NEW_CATEGORY.equals(selectedCategory)) {
+                showAlert("Category Required", "Please select or create a category before adding a habit.");
+                return;
+            }
+            String catId = categoryNameToId.get(selectedCategory);
+            if (catId != null) {
+                habit.setCategoryId(catId);
             }
 
             // Set frequency type
