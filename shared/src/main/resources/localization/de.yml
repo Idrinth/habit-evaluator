@@ -92,3 +92,14 @@ settings:
   connection_error_message: "Verbindung zum Remote-API fehlgeschlagen: %s\nFallback auf lokalen Speicher."
   incomplete_settings: "Unvollständige Einstellungen"
   failed_to_open: "Einstellungen konnten nicht geöffnet werden: %s"
+
+sync:
+  title: "Mit Remote-Server synchronisieren"
+  description: "Geben Sie die Remote-Server-Details ein, um Ihre Gewohnheiten zu synchronisieren:"
+  sync_button: "Synchronisieren"
+  close_button: "Schließen"
+  syncing: "Synchronisierung läuft..."
+  sync_complete: "Synchronisierung abgeschlossen: %d gesendet, %d empfangen, %d zusammengeführt"
+  sync_failed: "Synchronisierung fehlgeschlagen: %s"
+  fill_all_fields: "Bitte füllen Sie alle Felder aus"
+  failed_to_open: "Synchronisierungsdialog konnte nicht geöffnet werden: %s"

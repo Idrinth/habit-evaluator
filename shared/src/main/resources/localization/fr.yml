@@ -92,3 +92,14 @@ settings:
   connection_error_message: "Échec de la connexion à l'API distante : %s\nRetour au stockage local."
   incomplete_settings: "Paramètres incomplets"
   failed_to_open: "Impossible d'ouvrir les paramètres : %s"
+
+sync:
+  title: "Synchroniser avec le serveur distant"
+  description: "Entrez les détails du serveur distant pour synchroniser vos habitudes :"
+  sync_button: "Synchroniser"
+  close_button: "Fermer"
+  syncing: "Synchronisation en cours..."
+  sync_complete: "Synchronisation terminée : %d envoyés, %d reçus, %d fusionnés"
+  sync_failed: "Échec de la synchronisation : %s"
+  fill_all_fields: "Veuillez remplir tous les champs"
+  failed_to_open: "Impossible d'ouvrir le dialogue de synchronisation : %s"

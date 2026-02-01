@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns:fx="http://javafx.com/fxml"
+      fx:controller="de.idrinth.habitevaluator.desktop.controller.SyncDialogController"
+      spacing="15" prefWidth="450" prefHeight="350">
+    <padding>
+        <Insets top="20" right="20" bottom="20" left="20"/>
+    </padding>
+
+    <Label text="Sync with Remote Server" styleClass="section-title"/>
+
+    <Separator/>
+
+    <Label text="Enter the remote server details to sync your habits:"/>
+
+    <HBox spacing="10" alignment="CENTER_LEFT">
+        <Label text="Server URL:" prefWidth="100"/>
+        <TextField fx:id="serverUrlField" HBox.hgrow="ALWAYS" promptText="http://localhost:8080"/>
+    </HBox>
+
+    <HBox spacing="10" alignment="CENTER_LEFT">
+        <Label text="Username:" prefWidth="100"/>
+        <TextField fx:id="usernameField" HBox.hgrow="ALWAYS" promptText="Your username"/>
+    </HBox>
+
+    <HBox spacing="10" alignment="CENTER_LEFT">
+        <Label text="Password:" prefWidth="100"/>
+        <PasswordField fx:id="passwordField" HBox.hgrow="ALWAYS" promptText="Your password"/>
+    </HBox>
+
+    <Label fx:id="statusLabel" text="" wrapText="true"/>
+
+    <Region VBox.vgrow="ALWAYS"/>
+
+    <Separator/>
+
+    <HBox spacing="10" alignment="CENTER_RIGHT">
+        <Button fx:id="syncButton" text="Sync" onAction="#handleSync" styleClass="primary-button"/>
+        <Button text="Close" onAction="#handleClose"/>
+    </HBox>
+</VBox>

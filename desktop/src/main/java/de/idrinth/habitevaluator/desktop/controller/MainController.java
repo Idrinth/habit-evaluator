@@ -304,6 +304,34 @@ public class MainController {
     }
 
     @FXML
+    private void handleSync() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/sync.fxml"));
+            Parent root = loader.load();
+
+            SyncDialogController controller = loader.getController();
+            controller.setHabitRepository(habitRepository);
+            controller.setCurrentUser(currentUser);
+
+            Stage dialogStage = new Stage();
+            dialogStage.setTitle("Sync with Remote Server");
+            dialogStage.initModality(Modality.APPLICATION_MODAL);
+            dialogStage.initOwner(habitListView.getScene().getWindow());
+
+            Scene scene = new Scene(root);
+            scene.getStylesheets().add(getClass().getResource("/css/styles.css").toExternalForm());
+            dialogStage.setScene(scene);
+            dialogStage.showAndWait();
+
+            if (controller.isSynced()) {
+                loadHabits();
+            }
+        } catch (IOException e) {
+            showAlert("Error", "Failed to open sync dialog: " + e.getMessage());
+        }
+    }
+
+    @FXML
     private void handleLoadDefaults() {
         new Thread(() -> {
             try {
