@@ -147,6 +147,16 @@ public class MainController {
         categoryNameToId.clear();
         if (categoryRepository != null && currentUser != null) {
             categoryList = categoryRepository.findByUserId(currentUser.getId());
+        } else if (storageConfig.isRemote() && apiClient != null) {
+            try {
+                List<HabitCategory> remoteCats = apiClient.get("/api/categories",
+                        new TypeToken<List<HabitCategory>>() {}.getType());
+                if (remoteCats != null) {
+                    categoryList = remoteCats;
+                }
+            } catch (IOException e) {
+                // categories are optional, continue without them
+            }
         }
         populateCategoryComboBoxes();
     }
@@ -312,7 +322,7 @@ public class MainController {
             HabitCategory cat = catMap.get(entry.getKey());
             Label categoryLabel = new Label(cat.getName());
             categoryLabel.setStyle("-fx-font-weight: bold; -fx-padding: 5 0 2 0;" +
-                    (cat.getColor() != null ? " -fx-text-fill: " + cat.getColor() + ";" : ""));
+                    (isValidColor(cat.getColor()) ? " -fx-text-fill: " + cat.getColor() + ";" : ""));
             trackHabitsContainer.getChildren().add(categoryLabel);
             for (Habit habit : entry.getValue()) {
                 addTrackCheckBox(habit);
@@ -492,6 +502,14 @@ public class MainController {
                 Platform.runLater(() -> showAlert("Error", "Failed to load default habits: " + e.getMessage()));
             }
         }).start();
+    }
+
+    private static boolean isValidColor(String color) {
+        if (color == null || color.isEmpty()) {
+            return false;
+        }
+        return color.matches("^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$")
+                || color.matches("^[a-zA-Z]{1,20}$");
     }
 
     private void showAlert(String title, String message) {

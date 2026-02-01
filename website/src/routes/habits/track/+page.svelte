@@ -42,6 +42,13 @@
 		return result;
 	});
 
+	function isValidColor(color: string | null | undefined): boolean {
+		if (!color) return false;
+		return /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(color)
+			|| /^rgb\(\s*\d{1,3}\s*,\s*\d{1,3}\s*,\s*\d{1,3}\s*\)$/.test(color)
+			|| /^[a-zA-Z]{1,20}$/.test(color);
+	}
+
 	function hasReachedDailyLimit(habit: Habit): boolean {
 		if (!habit.maxEntriesPerDay || habit.maxEntriesPerDay <= 0) {
 			return false;
@@ -122,7 +129,7 @@
 			{#if habitList.length > 0}
 				{#each groupedHabits as group}
 					<div class="category-group">
-						<h2 class="category-header" style={group.category?.color ? `border-left: 4px solid ${group.category.color}; padding-left: 0.5rem;` : ''}>
+						<h2 class="category-header" style={isValidColor(group.category?.color) ? `border-left: 4px solid ${group.category!.color}; padding-left: 0.5rem;` : ''}>
 							{group.category?.name ?? 'Uncategorized'}
 						</h2>
 						<ul class="habit-list">

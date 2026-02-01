@@ -101,7 +101,6 @@ public class MainActivity extends AppCompatActivity implements HabitAdapter.OnHa
         }
         updateStorageModeLabel();
         loadCategories();
-        loadHabits();
     }
 
     private void initializeLocalStorage() {
@@ -156,18 +155,27 @@ public class MainActivity extends AppCompatActivity implements HabitAdapter.OnHa
                 try {
                     List<HabitCategory> remoteCats = apiClient.get("/api/categories",
                             new TypeToken<List<HabitCategory>>() {}.getType());
-                    if (remoteCats != null) {
-                        runOnUiThread(() -> {
+                    runOnUiThread(() -> {
+                        if (remoteCats != null) {
                             categoryList.addAll(remoteCats);
-                            populateCategorySpinners();
-                        });
-                    }
+                        }
+                        populateCategorySpinners();
+                        loadHabits();
+                    });
                 } catch (IOException e) {
-                    // categories are optional, ignore
+                    runOnUiThread(() -> {
+                        populateCategorySpinners();
+                        loadHabits();
+                    });
                 }
             }).start();
+        } else if (categoryRepository != null && currentUser != null) {
+            categoryList.addAll(categoryRepository.findByUserId(currentUser.getId()));
+            populateCategorySpinners();
+            loadHabits();
         } else {
             populateCategorySpinners();
+            loadHabits();
         }
     }
 
@@ -299,7 +307,6 @@ public class MainActivity extends AppCompatActivity implements HabitAdapter.OnHa
                 runOnUiThread(() -> {
                     Toast.makeText(this, R.string.defaults_loaded, Toast.LENGTH_SHORT).show();
                     loadCategories();
-                    loadHabits();
                 });
             } catch (IOException e) {
                 runOnUiThread(() ->
