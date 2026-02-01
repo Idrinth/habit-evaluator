@@ -366,6 +366,11 @@ public class MainActivity extends AppCompatActivity implements HabitAdapter.OnHa
             return;
         }
 
+        if (selectedHabit.hasReachedDailyLimit(LocalDate.now())) {
+            Toast.makeText(this, "Daily limit reached for this habit", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         HabitEntry entry = new HabitEntry(selectedHabit.getId());
         selectedHabit.addEntry(entry);
 

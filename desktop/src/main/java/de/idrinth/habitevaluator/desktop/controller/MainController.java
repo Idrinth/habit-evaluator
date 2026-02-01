@@ -377,6 +377,11 @@ public class MainController {
     private void handleCompleteHabit() {
         Habit selectedHabit = habitListView.getSelectionModel().getSelectedItem();
         if (selectedHabit != null) {
+            if (selectedHabit.hasReachedDailyLimit(LocalDate.now())) {
+                trackMessage.setText("Daily limit reached for this habit");
+                trackMessage.setStyle("-fx-text-fill: red;");
+                return;
+            }
             HabitEntry entry = new HabitEntry(selectedHabit.getId());
             selectedHabit.addEntry(entry);
             habitRepository.save(selectedHabit);
@@ -409,13 +414,22 @@ public class MainController {
             return;
         }
         int count = 0;
+        int skipped = 0;
         for (Habit habit : checkedHabits) {
+            if (habit.hasReachedDailyLimit(LocalDate.now())) {
+                skipped++;
+                continue;
+            }
             HabitEntry entry = new HabitEntry(habit.getId());
             habit.addEntry(entry);
             habitRepository.save(habit);
             count++;
         }
-        trackMessage.setText(count + " habit(s) tracked successfully");
+        String message = count + " habit(s) tracked successfully";
+        if (skipped > 0) {
+            message += " (" + skipped + " skipped - daily limit reached)";
+        }
+        trackMessage.setText(message);
         trackMessage.setStyle("-fx-text-fill: green;");
 
         // Uncheck all boxes
