@@ -11,6 +11,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Retry CodeRabbit Reviews
-        uses: idrinth/coderabbit-retry-action@1
+        uses: idrinth/coderabbit-retry-action@v1
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
