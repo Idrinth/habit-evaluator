@@ -25,6 +25,10 @@
             android:exported="false" />
 
         <activity
+            android:name=".EditHabitsActivity"
+            android:exported="false" />
+
+        <activity
             android:name=".SettingsActivity"
             android:exported="false" />
     </application>

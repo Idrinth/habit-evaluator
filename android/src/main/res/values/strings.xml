@@ -51,4 +51,12 @@
     <string name="max_entries_per_day_hint">Max/day</string>
     <string name="positive_scoring">Positive</string>
     <string name="value_hint">Val</string>
+    <string name="edit_habits">Edit Habits</string>
+    <string name="scoring_thresholds">Scoring thresholds (1pt/2pt/4pt/8pt)</string>
+    <string name="threshold_1pt">1pt</string>
+    <string name="threshold_2pt">2pt</string>
+    <string name="threshold_4pt">4pt</string>
+    <string name="threshold_8pt">8pt</string>
+    <string name="habits_saved_success">%d habit(s) saved successfully</string>
+    <string name="save">Save</string>
 </resources>

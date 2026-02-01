@@ -173,6 +173,17 @@
         app:layout_constraintTop_toBottomOf="@id/habitParams2Layout" />
 
     <com.google.android.material.button.MaterialButton
+        android:id="@+id/editHabitsButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:layout_marginStart="8dp"
+        android:text="@string/edit_habits"
+        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+        app:layout_constraintStart_toEndOf="@id/trackHabitsButton"
+        app:layout_constraintTop_toBottomOf="@id/habitParams2Layout" />
+
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/loadDefaultsButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
