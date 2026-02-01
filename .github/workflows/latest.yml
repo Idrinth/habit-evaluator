@@ -6,6 +6,7 @@ on:
       - the-one
 
 permissions:
+  contents: read
   packages: write
 
 jobs:
