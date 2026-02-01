@@ -91,12 +91,6 @@ public class MainController {
     private ProgressBar completionProgressBar;
 
     @FXML
-    private VBox trackHabitsContainer;
-
-    @FXML
-    private Label trackMessage;
-
-    @FXML
     private Button loadDefaultsButton;
 
     @FXML
@@ -117,7 +111,6 @@ public class MainController {
     @FXML
     private Label editMessage;
 
-    private final Map<String, CheckBox> trackCheckBoxes = new HashMap<>();
     private final Map<String, TextField> editTargetFields = new HashMap<>();
     private final Map<String, TextField> editMaxEntriesFields = new HashMap<>();
     private final Map<String, CheckBox> editPositiveScoringBoxes = new HashMap<>();
@@ -176,11 +169,9 @@ public class MainController {
         categoryFilterComboBox.getSelectionModel().selectedItemProperty().addListener(
                 (observable, oldValue, newValue) -> applyFilter());
 
-        refreshTrackHabits();
         refreshEditHabits();
         habits.addListener((javafx.collections.ListChangeListener<Habit>) change -> {
             applyFilter();
-            refreshTrackHabits();
             refreshEditHabits();
         });
     }
@@ -392,95 +383,6 @@ public class MainController {
         }
     }
 
-    private void refreshTrackHabits() {
-        trackHabitsContainer.getChildren().clear();
-        trackCheckBoxes.clear();
-        trackMessage.setText("");
-        if (habits.isEmpty()) {
-            trackHabitsContainer.getChildren().add(new Label("No habits found. Add a habit first."));
-            return;
-        }
-
-        // Group habits by category
-        Map<String, List<Habit>> grouped = new LinkedHashMap<>();
-        List<Habit> uncategorized = new ArrayList<>();
-        Map<String, HabitCategory> catMap = new HashMap<>();
-        for (HabitCategory cat : categoryList) {
-            catMap.put(cat.getId(), cat);
-        }
-
-        for (Habit habit : habits) {
-            if (habit.getCategoryId() != null && catMap.containsKey(habit.getCategoryId())) {
-                grouped.computeIfAbsent(habit.getCategoryId(), k -> new ArrayList<>()).add(habit);
-            } else {
-                uncategorized.add(habit);
-            }
-        }
-
-        for (Map.Entry<String, List<Habit>> entry : grouped.entrySet()) {
-            HabitCategory cat = catMap.get(entry.getKey());
-            Label categoryLabel = new Label(cat.getName());
-            categoryLabel.setStyle("-fx-font-weight: bold; -fx-padding: 5 0 2 0;" +
-                    (isValidColor(cat.getColor()) ? " -fx-text-fill: " + cat.getColor() + ";" : ""));
-            trackHabitsContainer.getChildren().add(categoryLabel);
-            for (Habit habit : entry.getValue()) {
-                addTrackCheckBox(habit);
-            }
-        }
-
-        if (!uncategorized.isEmpty()) {
-            if (!grouped.isEmpty()) {
-                Label uncatLabel = new Label("Uncategorized");
-                uncatLabel.setStyle("-fx-font-weight: bold; -fx-padding: 5 0 2 0;");
-                trackHabitsContainer.getChildren().add(uncatLabel);
-            }
-            for (Habit habit : uncategorized) {
-                addTrackCheckBox(habit);
-            }
-        }
-    }
-
-    private void addTrackCheckBox(Habit habit) {
-        boolean atLimit = habit.hasReachedDailyLimit(LocalDate.now());
-
-        CheckBox checkBox = new CheckBox(habit.getName());
-        if (atLimit) {
-            checkBox.setDisable(true);
-            checkBox.setTooltip(new Tooltip("Daily limit reached"));
-        } else if (habit.getDescription() != null && !habit.getDescription().isEmpty()) {
-            checkBox.setTooltip(new Tooltip(habit.getDescription()));
-        }
-
-        // Build info label with habit parameters
-        StringBuilder info = new StringBuilder();
-        info.append(habit.getFrequencyType().name().toLowerCase());
-        info.append(", target: ").append(habit.getTargetFrequency());
-        if (habit.getMaxEntriesPerDay() > 0) {
-            info.append(", max/day: ").append(habit.getMaxEntriesPerDay());
-        }
-        info.append(", scoring: ").append(habit.isPositiveScoring() ? "+" : "-");
-        ScoringRule rule = habit.getScoringRule();
-        if (rule != null) {
-            info.append(" (").append(rule.getThresholdFor1Point())
-                .append("/").append(rule.getThresholdFor2Points())
-                .append("/").append(rule.getThresholdFor4Points())
-                .append("/").append(rule.getThresholdFor8Points())
-                .append(")");
-        }
-
-        Label infoLabel = new Label(info.toString());
-        infoLabel.setStyle("-fx-font-size: 10px; -fx-text-fill: #888;");
-
-        HBox row = new HBox(8, checkBox, infoLabel);
-        row.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
-        if (atLimit) {
-            row.setOpacity(0.5);
-        }
-
-        trackCheckBoxes.put(habit.getId(), checkBox);
-        trackHabitsContainer.getChildren().add(row);
-    }
-
     @FXML
     private void handleAddHabit() {
         String name = habitNameField.getText().trim();
@@ -548,8 +450,6 @@ public class MainController {
         Habit selectedHabit = habitListView.getSelectionModel().getSelectedItem();
         if (selectedHabit != null) {
             if (selectedHabit.hasReachedDailyLimit(LocalDate.now())) {
-                trackMessage.setText("Daily limit reached for this habit");
-                trackMessage.setStyle("-fx-text-fill: red;");
                 return;
             }
             HabitEntry entry = new HabitEntry(selectedHabit.getId());
@@ -575,45 +475,6 @@ public class MainController {
                 }
             }
             clearEvaluationDisplay();
-        }
-    }
-
-    @FXML
-    private void handleTrackHabits() {
-        List<Habit> checkedHabits = new ArrayList<>();
-        for (Habit habit : habits) {
-            CheckBox checkBox = trackCheckBoxes.get(habit.getId());
-            if (checkBox != null && checkBox.isSelected()) {
-                checkedHabits.add(habit);
-            }
-        }
-        if (checkedHabits.isEmpty()) {
-            trackMessage.setText("No habits were selected");
-            trackMessage.setStyle("-fx-text-fill: red;");
-            return;
-        }
-        int count = 0;
-        int skipped = 0;
-        for (Habit habit : checkedHabits) {
-            if (habit.hasReachedDailyLimit(LocalDate.now())) {
-                skipped++;
-                continue;
-            }
-            HabitEntry entry = new HabitEntry(habit.getId());
-            habit.addEntry(entry);
-            habitRepository.save(habit);
-            count++;
-        }
-        String message = count + " habit(s) tracked successfully";
-        if (skipped > 0) {
-            message += " (" + skipped + " skipped - daily limit reached)";
-        }
-        trackMessage.setText(message);
-        trackMessage.setStyle("-fx-text-fill: green;");
-
-        // Uncheck all boxes
-        for (CheckBox checkBox : trackCheckBoxes.values()) {
-            checkBox.setSelected(false);
         }
     }
 
@@ -862,15 +723,6 @@ public class MainController {
 
         editMessage.setText(count + " habit(s) saved successfully");
         editMessage.setStyle("-fx-text-fill: green;");
-        refreshTrackHabits();
-    }
-
-    private static boolean isValidColor(String color) {
-        if (color == null || color.isEmpty()) {
-            return false;
-        }
-        return color.matches("^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$")
-                || color.matches("^[a-zA-Z]{1,20}$");
     }
 
     private void applyTheme() {

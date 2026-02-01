@@ -44,7 +44,6 @@
 
 {#if data.loggedIn}
 	<nav>
-		<a href="/habits/track">Track</a>
 		<a href="/habits/edit">Edit</a>
 		<a href="/habits/add">Add Habit</a>
 		<a href="/categories/add">Add Category</a>

@@ -411,10 +411,6 @@ public class MainActivity extends AppCompatActivity implements HabitAdapter.OnHa
     private void setupClickListeners() {
         binding.addHabitButton.setOnClickListener(v -> addHabit());
         binding.completeButton.setOnClickListener(v -> completeHabit());
-        binding.trackHabitsButton.setOnClickListener(v -> {
-            Intent intent = new Intent(this, TrackHabitsActivity.class);
-            startActivity(intent);
-        });
         binding.editHabitsButton.setOnClickListener(v -> {
             Intent intent = new Intent(this, EditHabitsActivity.class);
             startActivity(intent);

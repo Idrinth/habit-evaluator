@@ -13,7 +13,7 @@
 			const res = await auth.login(username, password);
 			if (res.success) {
 				await invalidate('app:session');
-				goto('/habits/track');
+				goto('/habits/edit');
 			} else {
 				error = res.message || 'Invalid username or password';
 			}

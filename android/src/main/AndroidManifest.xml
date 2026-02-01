@@ -21,10 +21,6 @@
         </activity>
 
         <activity
-            android:name=".TrackHabitsActivity"
-            android:exported="false" />
-
-        <activity
             android:name=".EditHabitsActivity"
             android:exported="false" />
 
