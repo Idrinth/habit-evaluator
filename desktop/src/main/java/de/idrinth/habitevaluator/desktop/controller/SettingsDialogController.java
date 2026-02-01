@@ -44,6 +44,18 @@ public class SettingsDialogController {
     @FXML
     private Label connectionStatusLabel;
 
+    @FXML
+    private ToggleGroup themeToggleGroup;
+
+    @FXML
+    private RadioButton themeSystemRadio;
+
+    @FXML
+    private RadioButton themeLightRadio;
+
+    @FXML
+    private RadioButton themeDarkRadio;
+
     private StorageConfig storageConfig;
     private boolean saved;
 
@@ -66,6 +78,15 @@ public class SettingsDialogController {
         apiUrlField.setText(config.getApiBaseUrl());
         apiUsernameField.setText(config.getApiUsername());
         apiPasswordField.setText(config.getApiPassword());
+
+        StorageConfig.ThemeMode themeMode = config.getThemeMode();
+        if (themeMode == StorageConfig.ThemeMode.LIGHT) {
+            themeLightRadio.setSelected(true);
+        } else if (themeMode == StorageConfig.ThemeMode.DARK) {
+            themeDarkRadio.setSelected(true);
+        } else {
+            themeSystemRadio.setSelected(true);
+        }
     }
 
     @FXML
@@ -122,6 +143,14 @@ public class SettingsDialogController {
         storageConfig.setApiBaseUrl(url);
         storageConfig.setApiUsername(username);
         storageConfig.setApiPassword(password);
+
+        if (themeLightRadio.isSelected()) {
+            storageConfig.setThemeMode(StorageConfig.ThemeMode.LIGHT);
+        } else if (themeDarkRadio.isSelected()) {
+            storageConfig.setThemeMode(StorageConfig.ThemeMode.DARK);
+        } else {
+            storageConfig.setThemeMode(StorageConfig.ThemeMode.SYSTEM);
+        }
 
         storageConfig.save();
         saved = true;

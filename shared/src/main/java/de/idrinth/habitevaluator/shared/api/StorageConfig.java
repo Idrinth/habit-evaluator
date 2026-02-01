@@ -24,7 +24,12 @@ public class StorageConfig {
         LOCAL, REMOTE
     }
 
+    public enum ThemeMode {
+        SYSTEM, LIGHT, DARK
+    }
+
     private StorageMode storageMode;
+    private ThemeMode themeMode;
     private String apiBaseUrl;
     private String apiUsername;
     private String apiPassword;
@@ -34,6 +39,7 @@ public class StorageConfig {
     public StorageConfig(File configFile) {
         this.configFile = configFile;
         this.storageMode = StorageMode.LOCAL;
+        this.themeMode = ThemeMode.SYSTEM;
         this.apiBaseUrl = DEFAULT_API_BASE_URL;
         this.apiUsername = "";
         this.apiPassword = "";
@@ -49,6 +55,12 @@ public class StorageConfig {
             props.load(fis);
             String mode = props.getProperty("storage.mode", "LOCAL");
             storageMode = StorageMode.valueOf(mode);
+            String theme = props.getProperty("theme.mode", "SYSTEM");
+            try {
+                themeMode = ThemeMode.valueOf(theme);
+            } catch (IllegalArgumentException e) {
+                themeMode = ThemeMode.SYSTEM;
+            }
             apiBaseUrl = props.getProperty("api.baseUrl", DEFAULT_API_BASE_URL);
             apiUsername = props.getProperty("api.username", "");
             apiPassword = props.getProperty("api.password", "");
@@ -70,6 +82,7 @@ public class StorageConfig {
         }
         Properties props = new Properties();
         props.setProperty("storage.mode", storageMode.name());
+        props.setProperty("theme.mode", themeMode != null ? themeMode.name() : "SYSTEM");
         props.setProperty("api.baseUrl", apiBaseUrl != null ? apiBaseUrl : "");
         props.setProperty("api.username", apiUsername != null ? apiUsername : "");
         props.setProperty("api.password", apiPassword != null ? apiPassword : "");
@@ -114,5 +127,13 @@ public class StorageConfig {
 
     public boolean isRemote() {
         return storageMode == StorageMode.REMOTE;
+    }
+
+    public ThemeMode getThemeMode() {
+        return themeMode;
+    }
+
+    public void setThemeMode(ThemeMode themeMode) {
+        this.themeMode = themeMode;
     }
 }

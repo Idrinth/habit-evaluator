@@ -1,7 +1,29 @@
 <script>
 	import '../app.css';
+	import { onMount } from 'svelte';
 
 	let { children } = $props();
+	let themeMode = $state('system');
+
+	onMount(() => {
+		const saved = localStorage.getItem('theme');
+		if (saved === 'light' || saved === 'dark') {
+			themeMode = saved;
+			document.documentElement.setAttribute('data-theme', saved);
+		}
+	});
+
+	function handleThemeChange(event) {
+		const value = event.target.value;
+		themeMode = value;
+		if (value === 'system') {
+			document.documentElement.removeAttribute('data-theme');
+			localStorage.removeItem('theme');
+		} else {
+			document.documentElement.setAttribute('data-theme', value);
+			localStorage.setItem('theme', value);
+		}
+	}
 </script>
 
 <nav>
@@ -11,6 +33,11 @@
 			<a href="/features">Features</a>
 			<a href="/docs">Setup Guide</a>
 			<a href="/docs/api">API Reference</a>
+			<select class="theme-select" value={themeMode} onchange={handleThemeChange}>
+				<option value="system">System</option>
+				<option value="light">Light</option>
+				<option value="dark">Dark</option>
+			</select>
 		</div>
 	</div>
 </nav>
@@ -61,6 +88,7 @@
 	.nav-links {
 		display: flex;
 		gap: 1.5rem;
+		align-items: center;
 	}
 	.nav-links a {
 		color: var(--color-text-muted);
@@ -69,6 +97,19 @@
 	.nav-links a:hover {
 		color: var(--color-primary);
 		text-decoration: none;
+	}
+	.theme-select {
+		padding: 0.2rem 0.4rem;
+		font-size: 0.8rem;
+		border-radius: 4px;
+		border: 1px solid var(--color-border);
+		background: var(--color-bg);
+		color: var(--color-text-muted);
+		cursor: pointer;
+	}
+	.theme-select option {
+		background: var(--color-bg);
+		color: var(--color-text);
 	}
 	main {
 		max-width: var(--max-width);

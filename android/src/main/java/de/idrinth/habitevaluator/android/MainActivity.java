@@ -96,6 +96,9 @@ public class MainActivity extends AppCompatActivity implements HabitAdapter.OnHa
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        SharedPreferences themePrefs = getSharedPreferences(SettingsActivity.PREFS_NAME, MODE_PRIVATE);
+        SettingsActivity.applyThemeMode(themePrefs.getString(SettingsActivity.KEY_THEME_MODE, SettingsActivity.THEME_SYSTEM));
+
         super.onCreate(savedInstanceState);
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());

@@ -391,6 +391,7 @@ public class MainController {
             dialogStage.showAndWait();
 
             if (controller.isSaved()) {
+                applyTheme();
                 initializeStorage();
                 loadCategories();
                 loadHabits();
@@ -871,6 +872,29 @@ public class MainController {
         }
         return color.matches("^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$")
                 || color.matches("^[a-zA-Z]{1,20}$");
+    }
+
+    private void applyTheme() {
+        Scene scene = habitListView.getScene();
+        String darkCss = getClass().getResource("/css/dark.css").toExternalForm();
+        boolean hasDark = scene.getStylesheets().contains(darkCss);
+        boolean wantDark;
+
+        StorageConfig.ThemeMode themeMode = storageConfig.getThemeMode();
+        if (themeMode == StorageConfig.ThemeMode.DARK) {
+            wantDark = true;
+        } else if (themeMode == StorageConfig.ThemeMode.LIGHT) {
+            wantDark = false;
+        } else {
+            // SYSTEM: keep current state (would need app restart for OS detection)
+            return;
+        }
+
+        if (wantDark && !hasDark) {
+            scene.getStylesheets().add(darkCss);
+        } else if (!wantDark && hasDark) {
+            scene.getStylesheets().remove(darkCss);
+        }
     }
 
     private void showAlert(String title, String message) {
