@@ -10,6 +10,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import de.idrinth.habitevaluator.android.databinding.ActivitySettingsBinding;
 import de.idrinth.habitevaluator.shared.api.ApiClient;
+import de.idrinth.habitevaluator.shared.api.StorageConfig;
 
 import java.io.IOException;
 
@@ -42,7 +43,7 @@ public class SettingsActivity extends AppCompatActivity {
     private void loadSettings() {
         SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
         String mode = prefs.getString(KEY_STORAGE_MODE, MODE_LOCAL);
-        String url = prefs.getString(KEY_API_URL, "http://localhost:8080");
+        String url = prefs.getString(KEY_API_URL, StorageConfig.DEFAULT_API_BASE_URL);
         String username = prefs.getString(KEY_API_USERNAME, "");
         String password = prefs.getString(KEY_API_PASSWORD, "");
 
@@ -111,23 +112,23 @@ public class SettingsActivity extends AppCompatActivity {
     private void saveSettings() {
         SharedPreferences.Editor editor = getSharedPreferences(PREFS_NAME, MODE_PRIVATE).edit();
 
-        if (binding.remoteRadio.isChecked()) {
-            String url = binding.apiUrlInput.getText().toString().trim();
-            String username = binding.apiUsernameInput.getText().toString().trim();
-            String password = binding.apiPasswordInput.getText().toString();
+        String url = binding.apiUrlInput.getText().toString().trim();
+        String username = binding.apiUsernameInput.getText().toString().trim();
+        String password = binding.apiPasswordInput.getText().toString();
 
+        if (binding.remoteRadio.isChecked()) {
             if (url.isEmpty() || username.isEmpty() || password.isEmpty()) {
                 Toast.makeText(this, R.string.fill_all_fields, Toast.LENGTH_SHORT).show();
                 return;
             }
-
             editor.putString(KEY_STORAGE_MODE, MODE_REMOTE);
-            editor.putString(KEY_API_URL, url);
-            editor.putString(KEY_API_USERNAME, username);
-            editor.putString(KEY_API_PASSWORD, password);
         } else {
             editor.putString(KEY_STORAGE_MODE, MODE_LOCAL);
         }
+
+        editor.putString(KEY_API_URL, url);
+        editor.putString(KEY_API_USERNAME, username);
+        editor.putString(KEY_API_PASSWORD, password);
 
         editor.apply();
         setResult(RESULT_OK);

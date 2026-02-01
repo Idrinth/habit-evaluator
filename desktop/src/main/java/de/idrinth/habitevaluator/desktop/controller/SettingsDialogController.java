@@ -101,11 +101,11 @@ public class SettingsDialogController {
 
     @FXML
     private void handleSave() {
-        if (remoteRadio.isSelected()) {
-            String url = apiUrlField.getText().trim();
-            String username = apiUsernameField.getText().trim();
-            String password = apiPasswordField.getText();
+        String url = apiUrlField.getText().trim();
+        String username = apiUsernameField.getText().trim();
+        String password = apiPasswordField.getText();
 
+        if (remoteRadio.isSelected()) {
             if (url.isEmpty() || username.isEmpty() || password.isEmpty()) {
                 Alert alert = new Alert(Alert.AlertType.WARNING);
                 alert.setTitle("Incomplete Settings");
@@ -114,14 +114,14 @@ public class SettingsDialogController {
                 alert.showAndWait();
                 return;
             }
-
             storageConfig.setStorageMode(StorageConfig.StorageMode.REMOTE);
-            storageConfig.setApiBaseUrl(url);
-            storageConfig.setApiUsername(username);
-            storageConfig.setApiPassword(password);
         } else {
             storageConfig.setStorageMode(StorageConfig.StorageMode.LOCAL);
         }
+
+        storageConfig.setApiBaseUrl(url);
+        storageConfig.setApiUsername(username);
+        storageConfig.setApiPassword(password);
 
         storageConfig.save();
         saved = true;

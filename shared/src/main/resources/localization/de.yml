@@ -76,7 +76,7 @@ settings:
   storage_mode_remote: "Speicher: Remote-API"
   remote_api_config: "Remote-API-Konfiguration"
   server_url: "Server-URL"
-  server_url_hint: "http://localhost:8080"
+  server_url_hint: "http://your-server:8080"
   username_hint: "Ihr Benutzername"
   password_hint: "Ihr Passwort"
   test_connection: "Verbindung testen"

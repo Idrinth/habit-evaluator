@@ -18,6 +18,8 @@ public class StorageConfig {
 
     private static final Logger logger = LoggerFactory.getLogger(StorageConfig.class);
 
+    public static final String DEFAULT_API_BASE_URL = "http://localhost:8080";
+
     public enum StorageMode {
         LOCAL, REMOTE
     }
@@ -32,7 +34,7 @@ public class StorageConfig {
     public StorageConfig(File configFile) {
         this.configFile = configFile;
         this.storageMode = StorageMode.LOCAL;
-        this.apiBaseUrl = "http://localhost:8080";
+        this.apiBaseUrl = DEFAULT_API_BASE_URL;
         this.apiUsername = "";
         this.apiPassword = "";
         load();
@@ -47,7 +49,7 @@ public class StorageConfig {
             props.load(fis);
             String mode = props.getProperty("storage.mode", "LOCAL");
             storageMode = StorageMode.valueOf(mode);
-            apiBaseUrl = props.getProperty("api.baseUrl", "http://localhost:8080");
+            apiBaseUrl = props.getProperty("api.baseUrl", DEFAULT_API_BASE_URL);
             apiUsername = props.getProperty("api.username", "");
             apiPassword = props.getProperty("api.password", "");
         } catch (IOException e) {
