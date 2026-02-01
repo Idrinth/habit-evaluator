@@ -38,4 +38,15 @@ public class InMemoryHabitCategoryRepository implements HabitCategoryRepository 
     public boolean existsById(String id) {
         return store.containsKey(id);
     }
+
+    @Override
+    public List<HabitCategory> findByUserId(String userId) {
+        List<HabitCategory> result = new ArrayList<>();
+        for (HabitCategory category : store.values()) {
+            if (category.getUser() != null && userId.equals(category.getUser().getId())) {
+                result.add(category);
+            }
+        }
+        return result;
+    }
 }
