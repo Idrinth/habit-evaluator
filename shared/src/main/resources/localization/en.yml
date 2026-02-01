@@ -60,6 +60,12 @@ scoring:
   hint_4_points: "Minimum weekly completions to earn 4 points"
   hint_8_points: "Minimum weekly completions to earn 8 points"
 
+defaults:
+  load_button: "Load Defaults"
+  requires_remote: "Loading default habits requires remote storage. Please configure a remote API connection in Settings."
+  loaded: "Default categories and habits loaded"
+  load_failed: "Failed to load defaults: %s"
+
 settings:
   storage_settings: "Storage Settings"
   storage_mode_label: "Choose where to store your data:"
