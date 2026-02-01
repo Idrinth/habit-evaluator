@@ -83,6 +83,15 @@
                 <Label fx:id="streakLabel" text="Current Streak: -"/>
                 <Label fx:id="completionRateLabel" text="Completion Rate: -"/>
                 <ProgressBar fx:id="completionProgressBar" progress="0" prefWidth="300"/>
+
+                <Separator/>
+
+                <Label text="Completion Points" styleClass="section-title"/>
+                <HBox spacing="20">
+                    <Label fx:id="dailyPointsLabel" text="Today: -"/>
+                    <Label fx:id="weeklyPointsLabel" text="This Week: -"/>
+                    <Label fx:id="monthlyPointsLabel" text="This Month: -"/>
+                </HBox>
             </VBox>
         </VBox>
     </center>

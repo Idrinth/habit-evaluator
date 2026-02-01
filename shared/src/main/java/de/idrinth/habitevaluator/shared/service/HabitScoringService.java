@@ -113,6 +113,31 @@ public class HabitScoringService {
     }
 
     /**
+     * Gets the score for a single habit for today.
+     *
+     * @param habit the habit to score
+     * @return the score (0, 1, 2, 4, or 8)
+     */
+    public int getCurrentDayScore(Habit habit) {
+        LocalDate today = LocalDate.now();
+        return calculateHabitScore(habit, today, today).getScore();
+    }
+
+    /**
+     * Gets the score for a single habit in the current month.
+     *
+     * @param habit the habit to score
+     * @return the score (0, 1, 2, 4, or 8)
+     */
+    public int getCurrentMonthScore(Habit habit) {
+        LocalDate today = LocalDate.now();
+        LocalDate monthStart = today.with(TemporalAdjusters.firstDayOfMonth());
+        LocalDate monthEnd = today.with(TemporalAdjusters.lastDayOfMonth());
+
+        return calculateHabitScore(habit, monthStart, monthEnd).getScore();
+    }
+
+    /**
      * Counts the number of completions for a habit within a date range.
      *
      * @param habit the habit

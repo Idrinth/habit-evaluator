@@ -16,6 +16,7 @@ import de.idrinth.habitevaluator.shared.repository.UserRepository;
 import de.idrinth.habitevaluator.shared.repository.HabitCategoryRepository;
 import de.idrinth.habitevaluator.shared.service.DefaultDataInitializer;
 import de.idrinth.habitevaluator.shared.service.HabitEvaluatorService;
+import de.idrinth.habitevaluator.shared.service.HabitScoringService;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -72,9 +73,19 @@ public class MainController {
     @FXML
     private Label storageModeLabel;
 
+    @FXML
+    private Label dailyPointsLabel;
+
+    @FXML
+    private Label weeklyPointsLabel;
+
+    @FXML
+    private Label monthlyPointsLabel;
+
     private final Map<String, CheckBox> trackCheckBoxes = new HashMap<>();
     private final ObservableList<Habit> habits = FXCollections.observableArrayList();
     private final HabitEvaluatorService evaluatorService = new HabitEvaluatorService();
+    private final HabitScoringService scoringService = new HabitScoringService();
     private final StorageConfig storageConfig = new StorageConfig(new File(CONFIG_FILE));
 
     private HabitRepository habitRepository;
@@ -290,6 +301,10 @@ public class MainController {
         streakLabel.setText("Current Streak: " + evaluation.getCurrentStreak() + " days");
         completionRateLabel.setText(String.format("Completion Rate: %.1f%%", evaluation.getCompletionRate() * 100));
         completionProgressBar.setProgress(evaluation.getCompletionRate());
+
+        dailyPointsLabel.setText("Today: " + scoringService.getCurrentDayScore(habit) + " pts");
+        weeklyPointsLabel.setText("This Week: " + scoringService.getCurrentWeekScore(habit) + " pts");
+        monthlyPointsLabel.setText("This Month: " + scoringService.getCurrentMonthScore(habit) + " pts");
     }
 
     private void clearInputFields() {
@@ -301,6 +316,9 @@ public class MainController {
         streakLabel.setText("Current Streak: -");
         completionRateLabel.setText("Completion Rate: -");
         completionProgressBar.setProgress(0);
+        dailyPointsLabel.setText("Today: -");
+        weeklyPointsLabel.setText("This Week: -");
+        monthlyPointsLabel.setText("This Month: -");
     }
 
     @FXML

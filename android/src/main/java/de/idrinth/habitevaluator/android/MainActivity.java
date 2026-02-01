@@ -31,6 +31,7 @@ import de.idrinth.habitevaluator.shared.model.HabitEntry;
 import de.idrinth.habitevaluator.shared.model.User;
 import de.idrinth.habitevaluator.shared.repository.HabitRepository;
 import de.idrinth.habitevaluator.shared.service.HabitEvaluatorService;
+import de.idrinth.habitevaluator.shared.service.HabitScoringService;
 
 public class MainActivity extends AppCompatActivity implements HabitAdapter.OnHabitClickListener {
 
@@ -45,6 +46,7 @@ public class MainActivity extends AppCompatActivity implements HabitAdapter.OnHa
     private HabitAdapter habitAdapter;
     private List<Habit> habits;
     private HabitEvaluatorService evaluatorService;
+    private HabitScoringService scoringService;
     private Habit selectedHabit;
     private User currentUser;
     private HabitRepository habitRepository;
@@ -67,6 +69,7 @@ public class MainActivity extends AppCompatActivity implements HabitAdapter.OnHa
         habits = new ArrayList<>();
         sharedHabits = habits;
         evaluatorService = new HabitEvaluatorService();
+        scoringService = new HabitScoringService();
 
         setupRecyclerView();
         initializeStorage();
@@ -261,5 +264,9 @@ public class MainActivity extends AppCompatActivity implements HabitAdapter.OnHa
         binding.streakText.setText(String.format("Current Streak: %d days", evaluation.getCurrentStreak()));
         binding.completionRateText.setText(String.format("Completion Rate: %.1f%%", evaluation.getCompletionRate() * 100));
         binding.completionProgress.setProgress((int) (evaluation.getCompletionRate() * 100));
+
+        binding.dailyPointsText.setText(getString(R.string.daily_points, scoringService.getCurrentDayScore(habit)));
+        binding.weeklyPointsText.setText(getString(R.string.weekly_points, scoringService.getCurrentWeekScore(habit)));
+        binding.monthlyPointsText.setText(getString(R.string.monthly_points, scoringService.getCurrentMonthScore(habit)));
     }
 }
