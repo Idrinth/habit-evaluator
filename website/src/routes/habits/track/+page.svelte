@@ -69,7 +69,7 @@
 	{/if}
 
 	{#if loading}
-		<p style="text-align: center; color: #999;">Loading habits...</p>
+		<p style="text-align: center; color: var(--color-text-placeholder);">Loading habits...</p>
 	{:else}
 		<form onsubmit={handleSubmit}>
 			{#if habitList.length > 0}
@@ -110,13 +110,13 @@
 		display: flex;
 		align-items: center;
 		padding: 0.75rem;
-		border: 1px solid #eee;
+		border: 1px solid var(--color-border-light);
 		border-radius: 4px;
 		margin-bottom: 0.5rem;
 	}
 
 	.habit-item:hover {
-		background-color: #f9f9f9;
+		background-color: var(--color-bg-hover);
 	}
 
 	.habit-item input[type='checkbox'] {
@@ -132,18 +132,18 @@
 
 	.habit-name {
 		font-weight: bold;
-		color: #333;
+		color: var(--color-text);
 	}
 
 	.habit-description {
 		font-size: 0.85rem;
-		color: #777;
+		color: var(--color-text-muted);
 		margin-top: 0.15rem;
 	}
 
 	.empty {
 		text-align: center;
-		color: #999;
+		color: var(--color-text-placeholder);
 		padding: 1rem;
 	}
 </style>

@@ -184,7 +184,7 @@ public class MainController {
             dialogStage.initOwner(habitListView.getScene().getWindow());
 
             Scene scene = new Scene(root);
-            scene.getStylesheets().add(getClass().getResource("/css/styles.css").toExternalForm());
+            scene.getStylesheets().addAll(habitListView.getScene().getStylesheets());
             dialogStage.setScene(scene);
             dialogStage.showAndWait();
 
@@ -319,7 +319,7 @@ public class MainController {
             dialogStage.initOwner(habitListView.getScene().getWindow());
 
             Scene scene = new Scene(root);
-            scene.getStylesheets().add(getClass().getResource("/css/styles.css").toExternalForm());
+            scene.getStylesheets().addAll(habitListView.getScene().getStylesheets());
             dialogStage.setScene(scene);
             dialogStage.showAndWait();
 
