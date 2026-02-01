@@ -9,6 +9,7 @@ import de.idrinth.habitevaluator.shared.api.RemoteUserRepository;
 import de.idrinth.habitevaluator.shared.api.StorageConfig;
 import de.idrinth.habitevaluator.shared.model.Evaluation;
 import de.idrinth.habitevaluator.shared.model.Habit;
+import de.idrinth.habitevaluator.shared.model.HabitCategory;
 import de.idrinth.habitevaluator.shared.model.HabitEntry;
 import de.idrinth.habitevaluator.shared.model.User;
 import de.idrinth.habitevaluator.shared.repository.HabitRepository;
@@ -37,6 +38,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -45,6 +47,7 @@ public class MainController {
     private static final String PLACEHOLDER_USERNAME = "desktop_user";
     private static final String CONFIG_DIR = System.getProperty("user.home") + "/.habit-evaluator";
     private static final String CONFIG_FILE = CONFIG_DIR + "/storage.properties";
+    private static final String ALL_CATEGORIES = "All categories";
 
     @FXML
     private ListView<Habit> habitListView;
@@ -54,6 +57,12 @@ public class MainController {
 
     @FXML
     private TextArea habitDescriptionArea;
+
+    @FXML
+    private ComboBox<String> categoryComboBox;
+
+    @FXML
+    private ComboBox<String> categoryFilterComboBox;
 
     @FXML
     private Label streakLabel;
@@ -84,6 +93,7 @@ public class MainController {
 
     private final Map<String, CheckBox> trackCheckBoxes = new HashMap<>();
     private final ObservableList<Habit> habits = FXCollections.observableArrayList();
+    private final ObservableList<Habit> filteredHabits = FXCollections.observableArrayList();
     private final HabitEvaluatorService evaluatorService = new HabitEvaluatorService();
     private final HabitScoringService scoringService = new HabitScoringService();
     private final StorageConfig storageConfig = new StorageConfig(new File(CONFIG_FILE));
@@ -93,13 +103,16 @@ public class MainController {
     private UserRepository userRepository;
     private ApiClient apiClient;
     private User currentUser;
+    private List<HabitCategory> categoryList = new ArrayList<>();
+    private final Map<String, String> categoryNameToId = new LinkedHashMap<>();
 
     @FXML
     public void initialize() {
         initializeStorage();
+        loadCategories();
         loadHabits();
 
-        habitListView.setItems(habits);
+        habitListView.setItems(filteredHabits);
         habitListView.setCellFactory(param -> new ListCell<>() {
             @Override
             protected void updateItem(Habit item, boolean empty) {
@@ -119,8 +132,79 @@ public class MainController {
                     }
                 });
 
+        categoryFilterComboBox.getSelectionModel().selectedItemProperty().addListener(
+                (observable, oldValue, newValue) -> applyFilter());
+
         refreshTrackHabits();
-        habits.addListener((javafx.collections.ListChangeListener<Habit>) change -> refreshTrackHabits());
+        habits.addListener((javafx.collections.ListChangeListener<Habit>) change -> {
+            applyFilter();
+            refreshTrackHabits();
+        });
+    }
+
+    private void loadCategories() {
+        categoryList.clear();
+        categoryNameToId.clear();
+        if (categoryRepository != null && currentUser != null) {
+            categoryList = categoryRepository.findByUserId(currentUser.getId());
+        } else if (storageConfig.isRemote() && apiClient != null) {
+            try {
+                List<HabitCategory> remoteCats = apiClient.get("/api/categories",
+                        new TypeToken<List<HabitCategory>>() {}.getType());
+                if (remoteCats != null) {
+                    categoryList = remoteCats;
+                }
+            } catch (IOException e) {
+                // categories are optional, continue without them
+            }
+        }
+        populateCategoryComboBoxes();
+    }
+
+    private void populateCategoryComboBoxes() {
+        // Populate the creation combo box
+        ObservableList<String> categoryNames = FXCollections.observableArrayList();
+        categoryNames.add("No category");
+        categoryNameToId.clear();
+        for (HabitCategory cat : categoryList) {
+            categoryNames.add(cat.getName());
+            categoryNameToId.put(cat.getName(), cat.getId());
+        }
+        categoryComboBox.setItems(categoryNames);
+        categoryComboBox.getSelectionModel().selectFirst();
+
+        // Populate the filter combo box
+        ObservableList<String> filterNames = FXCollections.observableArrayList();
+        filterNames.add(ALL_CATEGORIES);
+        for (HabitCategory cat : categoryList) {
+            filterNames.add(cat.getName());
+        }
+        filterNames.add("Uncategorized");
+        categoryFilterComboBox.setItems(filterNames);
+        categoryFilterComboBox.getSelectionModel().selectFirst();
+    }
+
+    private void applyFilter() {
+        filteredHabits.clear();
+        String selected = categoryFilterComboBox.getSelectionModel().getSelectedItem();
+        if (selected == null || ALL_CATEGORIES.equals(selected)) {
+            filteredHabits.addAll(habits);
+        } else if ("Uncategorized".equals(selected)) {
+            for (Habit h : habits) {
+                if (h.getCategoryId() == null || h.getCategoryId().isEmpty()) {
+                    filteredHabits.add(h);
+                }
+            }
+        } else {
+            String categoryId = categoryNameToId.get(selected);
+            if (categoryId != null) {
+                for (Habit h : habits) {
+                    if (categoryId.equals(h.getCategoryId())) {
+                        filteredHabits.add(h);
+                    }
+                }
+            }
+        }
     }
 
     private void initializeStorage() {
@@ -201,6 +285,7 @@ public class MainController {
 
             if (controller.isSaved()) {
                 initializeStorage();
+                loadCategories();
                 loadHabits();
             }
         } catch (IOException e) {
@@ -216,14 +301,53 @@ public class MainController {
             trackHabitsContainer.getChildren().add(new Label("No habits found. Add a habit first."));
             return;
         }
-        for (Habit habit : habits) {
-            CheckBox checkBox = new CheckBox(habit.getName());
-            if (habit.getDescription() != null && !habit.getDescription().isEmpty()) {
-                checkBox.setTooltip(new Tooltip(habit.getDescription()));
-            }
-            trackCheckBoxes.put(habit.getId(), checkBox);
-            trackHabitsContainer.getChildren().add(checkBox);
+
+        // Group habits by category
+        Map<String, List<Habit>> grouped = new LinkedHashMap<>();
+        List<Habit> uncategorized = new ArrayList<>();
+        Map<String, HabitCategory> catMap = new HashMap<>();
+        for (HabitCategory cat : categoryList) {
+            catMap.put(cat.getId(), cat);
         }
+
+        for (Habit habit : habits) {
+            if (habit.getCategoryId() != null && catMap.containsKey(habit.getCategoryId())) {
+                grouped.computeIfAbsent(habit.getCategoryId(), k -> new ArrayList<>()).add(habit);
+            } else {
+                uncategorized.add(habit);
+            }
+        }
+
+        for (Map.Entry<String, List<Habit>> entry : grouped.entrySet()) {
+            HabitCategory cat = catMap.get(entry.getKey());
+            Label categoryLabel = new Label(cat.getName());
+            categoryLabel.setStyle("-fx-font-weight: bold; -fx-padding: 5 0 2 0;" +
+                    (isValidColor(cat.getColor()) ? " -fx-text-fill: " + cat.getColor() + ";" : ""));
+            trackHabitsContainer.getChildren().add(categoryLabel);
+            for (Habit habit : entry.getValue()) {
+                addTrackCheckBox(habit);
+            }
+        }
+
+        if (!uncategorized.isEmpty()) {
+            if (!grouped.isEmpty()) {
+                Label uncatLabel = new Label("Uncategorized");
+                uncatLabel.setStyle("-fx-font-weight: bold; -fx-padding: 5 0 2 0;");
+                trackHabitsContainer.getChildren().add(uncatLabel);
+            }
+            for (Habit habit : uncategorized) {
+                addTrackCheckBox(habit);
+            }
+        }
+    }
+
+    private void addTrackCheckBox(Habit habit) {
+        CheckBox checkBox = new CheckBox(habit.getName());
+        if (habit.getDescription() != null && !habit.getDescription().isEmpty()) {
+            checkBox.setTooltip(new Tooltip(habit.getDescription()));
+        }
+        trackCheckBoxes.put(habit.getId(), checkBox);
+        trackHabitsContainer.getChildren().add(checkBox);
     }
 
     @FXML
@@ -234,6 +358,15 @@ public class MainController {
         if (!name.isEmpty()) {
             Habit habit = new Habit(name, description);
             habit.setUser(currentUser);
+
+            String selectedCategory = categoryComboBox.getSelectionModel().getSelectedItem();
+            if (selectedCategory != null && !"No category".equals(selectedCategory)) {
+                String catId = categoryNameToId.get(selectedCategory);
+                if (catId != null) {
+                    habit.setCategoryId(catId);
+                }
+            }
+
             habitRepository.save(habit);
             habits.add(habit);
             clearInputFields();
@@ -310,6 +443,7 @@ public class MainController {
     private void clearInputFields() {
         habitNameField.clear();
         habitDescriptionArea.clear();
+        categoryComboBox.getSelectionModel().selectFirst();
     }
 
     private void clearEvaluationDisplay() {
@@ -360,11 +494,22 @@ public class MainController {
                     DefaultDataInitializer initializer = new DefaultDataInitializer(categoryRepository, habitRepository);
                     initializer.initializeDefaults(currentUser);
                 }
-                Platform.runLater(this::loadHabits);
+                Platform.runLater(() -> {
+                    loadCategories();
+                    loadHabits();
+                });
             } catch (IOException e) {
                 Platform.runLater(() -> showAlert("Error", "Failed to load default habits: " + e.getMessage()));
             }
         }).start();
+    }
+
+    private static boolean isValidColor(String color) {
+        if (color == null || color.isEmpty()) {
+            return false;
+        }
+        return color.matches("^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$")
+                || color.matches("^[a-zA-Z]{1,20}$");
     }
 
     private void showAlert(String title, String message) {

@@ -92,4 +92,16 @@ public class H2HabitCategoryRepository implements HabitCategoryRepository {
             em.close();
         }
     }
+
+    @Override
+    public List<HabitCategory> findByUserId(String userId) {
+        EntityManager em = PersistenceManager.createEntityManager();
+        try {
+            return em.createQuery("SELECT c FROM HabitCategory c WHERE c.user.id = :userId", HabitCategory.class)
+                    .setParameter("userId", userId)
+                    .getResultList();
+        } finally {
+            em.close();
+        }
+    }
 }

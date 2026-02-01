@@ -29,7 +29,7 @@ public class CategoryController {
         if (userId == null) {
             return ResponseEntity.status(401).build();
         }
-        return ResponseEntity.ok(habitCategoryRepository.findAll());
+        return ResponseEntity.ok(habitCategoryRepository.findByUserId(userId));
     }
 
     @PostMapping

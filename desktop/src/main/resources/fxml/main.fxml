@@ -28,6 +28,8 @@
 
             <Label text="Habits" styleClass="section-title"/>
 
+            <ComboBox fx:id="categoryFilterComboBox" prefWidth="200" promptText="All categories"/>
+
             <ListView fx:id="habitListView" VBox.vgrow="ALWAYS" prefWidth="200"/>
 
             <HBox spacing="5">
@@ -54,6 +56,11 @@
                 <Label text="Description:" prefWidth="80"/>
                 <TextArea fx:id="habitDescriptionArea" HBox.hgrow="ALWAYS"
                           prefRowCount="3" promptText="Enter habit description"/>
+            </HBox>
+
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <Label text="Category:" prefWidth="80"/>
+                <ComboBox fx:id="categoryComboBox" HBox.hgrow="ALWAYS" promptText="Select category"/>
             </HBox>
 
             <Button text="Add Habit" onAction="#handleAddHabit" styleClass="primary-button"/>

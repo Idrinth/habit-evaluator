@@ -40,4 +40,9 @@ public class DatabaseHabitCategoryRepository implements HabitCategoryRepository 
     public boolean existsById(String id) {
         return jpaRepository.existsById(id);
     }
+
+    @Override
+    public List<HabitCategory> findByUserId(String userId) {
+        return jpaRepository.findByUserId(userId);
+    }
 }
