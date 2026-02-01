@@ -15,6 +15,7 @@ class HabitTest {
         assertTrue(habit.getEntries().isEmpty());
         assertEquals(FrequencyType.DAILY, habit.getFrequencyType());
         assertEquals(1, habit.getTargetFrequency());
+        assertTrue(habit.isPositiveScoring());
         assertNotNull(habit.getScoringRule());
     }
 
@@ -91,6 +92,14 @@ class HabitTest {
     void testEqualsSameObject() {
         Habit h = new Habit();
         assertEquals(h, h);
+    }
+
+    @Test
+    void testSetPositiveScoring() {
+        Habit habit = new Habit();
+        assertTrue(habit.isPositiveScoring());
+        habit.setPositiveScoring(false);
+        assertFalse(habit.isPositiveScoring());
     }
 
     @Test

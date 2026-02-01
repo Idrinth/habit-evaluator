@@ -37,6 +37,9 @@ public class HabitScoringService {
         }
 
         int score = rule.calculateScore(completionCount);
+        if (!habit.isPositiveScoring()) {
+            score = -score;
+        }
 
         HabitScore habitScore = new HabitScore(habit.getId(), habit.getName(), completionCount, score);
         habitScore.setCategoryId(habit.getCategoryId());
@@ -146,6 +149,9 @@ public class HabitScoringService {
         }
 
         int currentScore = rule.calculateScore(currentCompletions);
+        if (!habit.isPositiveScoring()) {
+            currentScore = -currentScore;
+        }
 
         // Calculate elapsed hours from week start to now for sub-day precision
         LocalDateTime weekStartTime = weekStart.atStartOfDay();
@@ -170,6 +176,9 @@ public class HabitScoringService {
         }
 
         int predictedScore = rule.calculateScore(predictedCompletions);
+        if (!habit.isPositiveScoring()) {
+            predictedScore = -predictedScore;
+        }
 
         PredictedHabitScore prediction = new PredictedHabitScore(
                 habit.getId(), habit.getName(),
