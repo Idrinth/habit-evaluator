@@ -106,8 +106,20 @@ public class MainController {
     @FXML
     private Label monthlyPointsLabel;
 
+    @FXML
+    private VBox editHabitsContainer;
+
+    @FXML
+    private Label editMessage;
+
     private final Map<String, CheckBox> trackCheckBoxes = new HashMap<>();
-    private final Map<String, TextField> trackValueFields = new HashMap<>();
+    private final Map<String, TextField> editTargetFields = new HashMap<>();
+    private final Map<String, TextField> editMaxEntriesFields = new HashMap<>();
+    private final Map<String, CheckBox> editPositiveScoringBoxes = new HashMap<>();
+    private final Map<String, TextField> editThreshold1Fields = new HashMap<>();
+    private final Map<String, TextField> editThreshold2Fields = new HashMap<>();
+    private final Map<String, TextField> editThreshold4Fields = new HashMap<>();
+    private final Map<String, TextField> editThreshold8Fields = new HashMap<>();
     private final ObservableList<Habit> habits = FXCollections.observableArrayList();
     private final ObservableList<Habit> filteredHabits = FXCollections.observableArrayList();
     private final HabitEvaluatorService evaluatorService = new HabitEvaluatorService();
@@ -160,9 +172,11 @@ public class MainController {
                 (observable, oldValue, newValue) -> applyFilter());
 
         refreshTrackHabits();
+        refreshEditHabits();
         habits.addListener((javafx.collections.ListChangeListener<Habit>) change -> {
             applyFilter();
             refreshTrackHabits();
+            refreshEditHabits();
         });
     }
 
@@ -320,7 +334,6 @@ public class MainController {
     private void refreshTrackHabits() {
         trackHabitsContainer.getChildren().clear();
         trackCheckBoxes.clear();
-        trackValueFields.clear();
         trackMessage.setText("");
         if (habits.isEmpty()) {
             trackHabitsContainer.getChildren().add(new Label("No habits found. Add a habit first."));
@@ -377,7 +390,7 @@ public class MainController {
             checkBox.setTooltip(new Tooltip(habit.getDescription()));
         }
 
-        // Build info tooltip with habit parameters
+        // Build info label with habit parameters
         StringBuilder info = new StringBuilder();
         info.append(habit.getFrequencyType().name().toLowerCase());
         info.append(", target: ").append(habit.getTargetFrequency());
@@ -397,19 +410,13 @@ public class MainController {
         Label infoLabel = new Label(info.toString());
         infoLabel.setStyle("-fx-font-size: 10px; -fx-text-fill: #888;");
 
-        TextField valueField = new TextField("1");
-        valueField.setPrefWidth(50);
-        valueField.setPromptText("Val");
-        valueField.setDisable(atLimit);
-
-        HBox row = new HBox(8, checkBox, valueField, infoLabel);
+        HBox row = new HBox(8, checkBox, infoLabel);
         row.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
         if (atLimit) {
             row.setOpacity(0.5);
         }
 
         trackCheckBoxes.put(habit.getId(), checkBox);
-        trackValueFields.put(habit.getId(), valueField);
         trackHabitsContainer.getChildren().add(row);
     }
 
@@ -513,18 +520,6 @@ public class MainController {
                 continue;
             }
             HabitEntry entry = new HabitEntry(habit.getId());
-            // Read value from input field
-            TextField valueField = trackValueFields.get(habit.getId());
-            if (valueField != null) {
-                try {
-                    int val = Integer.parseInt(valueField.getText().trim());
-                    if (val > 0) {
-                        entry.setValue(val);
-                    }
-                } catch (NumberFormatException e) {
-                    // keep default value of 1
-                }
-            }
             habit.addEntry(entry);
             habitRepository.save(habit);
             count++;
@@ -536,12 +531,9 @@ public class MainController {
         trackMessage.setText(message);
         trackMessage.setStyle("-fx-text-fill: green;");
 
-        // Uncheck all boxes and reset values
+        // Uncheck all boxes
         for (CheckBox checkBox : trackCheckBoxes.values()) {
             checkBox.setSelected(false);
-        }
-        for (TextField valueField : trackValueFields.values()) {
-            valueField.setText("1");
         }
     }
 
@@ -627,6 +619,170 @@ public class MainController {
                 Platform.runLater(() -> showAlert("Error", "Failed to load default habits: " + e.getMessage()));
             }
         }).start();
+    }
+
+    private void refreshEditHabits() {
+        editHabitsContainer.getChildren().clear();
+        editTargetFields.clear();
+        editMaxEntriesFields.clear();
+        editPositiveScoringBoxes.clear();
+        editThreshold1Fields.clear();
+        editThreshold2Fields.clear();
+        editThreshold4Fields.clear();
+        editThreshold8Fields.clear();
+        editMessage.setText("");
+
+        if (habits.isEmpty()) {
+            editHabitsContainer.getChildren().add(new Label("No habits found. Add a habit first."));
+            return;
+        }
+
+        for (Habit habit : habits) {
+            VBox habitBox = new VBox(4);
+            habitBox.setStyle("-fx-border-color: #444; -fx-border-radius: 4; -fx-padding: 8; -fx-background-color: #333; -fx-background-radius: 4;");
+
+            Label nameLabel = new Label(habit.getName());
+            nameLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 13px;");
+
+            if (habit.getDescription() != null && !habit.getDescription().isEmpty()) {
+                Label descLabel = new Label(habit.getDescription());
+                descLabel.setStyle("-fx-font-size: 11px; -fx-text-fill: #888;");
+                habitBox.getChildren().addAll(nameLabel, descLabel);
+            } else {
+                habitBox.getChildren().add(nameLabel);
+            }
+
+            // Target and max/day row
+            TextField targetField = new TextField(String.valueOf(habit.getTargetFrequency()));
+            targetField.setPrefWidth(60);
+            targetField.setPromptText("Target");
+
+            TextField maxEntriesField = new TextField(String.valueOf(habit.getMaxEntriesPerDay()));
+            maxEntriesField.setPrefWidth(60);
+            maxEntriesField.setPromptText("Max/day");
+
+            CheckBox positiveScoringBox = new CheckBox("Positive scoring");
+            positiveScoringBox.setSelected(habit.isPositiveScoring());
+
+            HBox paramsRow = new HBox(8,
+                    new Label("Target:"), targetField,
+                    new Label("Max/day:"), maxEntriesField,
+                    positiveScoringBox);
+            paramsRow.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+            habitBox.getChildren().add(paramsRow);
+
+            // Scoring thresholds row
+            ScoringRule rule = habit.getScoringRule();
+            TextField t1 = new TextField(String.valueOf(rule != null ? rule.getThresholdFor1Point() : 1));
+            t1.setPrefWidth(45);
+            t1.setPromptText("1pt");
+            TextField t2 = new TextField(String.valueOf(rule != null ? rule.getThresholdFor2Points() : 2));
+            t2.setPrefWidth(45);
+            t2.setPromptText("2pt");
+            TextField t4 = new TextField(String.valueOf(rule != null ? rule.getThresholdFor4Points() : 4));
+            t4.setPrefWidth(45);
+            t4.setPromptText("4pt");
+            TextField t8 = new TextField(String.valueOf(rule != null ? rule.getThresholdFor8Points() : 7));
+            t8.setPrefWidth(45);
+            t8.setPromptText("8pt");
+
+            Label thresholdLabel = new Label("Scoring thresholds:");
+            thresholdLabel.setStyle("-fx-font-size: 11px;");
+
+            HBox thresholdRow = new HBox(6,
+                    thresholdLabel,
+                    new Label("1pt:"), t1,
+                    new Label("2pt:"), t2,
+                    new Label("4pt:"), t4,
+                    new Label("8pt:"), t8);
+            thresholdRow.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+            habitBox.getChildren().add(thresholdRow);
+
+            editTargetFields.put(habit.getId(), targetField);
+            editMaxEntriesFields.put(habit.getId(), maxEntriesField);
+            editPositiveScoringBoxes.put(habit.getId(), positiveScoringBox);
+            editThreshold1Fields.put(habit.getId(), t1);
+            editThreshold2Fields.put(habit.getId(), t2);
+            editThreshold4Fields.put(habit.getId(), t4);
+            editThreshold8Fields.put(habit.getId(), t8);
+
+            editHabitsContainer.getChildren().add(habitBox);
+        }
+    }
+
+    @FXML
+    private void handleSaveEditedHabits() {
+        int count = 0;
+        for (Habit habit : habits) {
+            boolean changed = false;
+
+            TextField targetField = editTargetFields.get(habit.getId());
+            if (targetField != null) {
+                try {
+                    int val = Integer.parseInt(targetField.getText().trim());
+                    if (val > 0 && val != habit.getTargetFrequency()) {
+                        habit.setTargetFrequency(val);
+                        changed = true;
+                    }
+                } catch (NumberFormatException e) {
+                    // ignore
+                }
+            }
+
+            TextField maxField = editMaxEntriesFields.get(habit.getId());
+            if (maxField != null) {
+                try {
+                    int val = Integer.parseInt(maxField.getText().trim());
+                    if (val >= 0 && val != habit.getMaxEntriesPerDay()) {
+                        habit.setMaxEntriesPerDay(val);
+                        changed = true;
+                    }
+                } catch (NumberFormatException e) {
+                    // ignore
+                }
+            }
+
+            CheckBox posBox = editPositiveScoringBoxes.get(habit.getId());
+            if (posBox != null && posBox.isSelected() != habit.isPositiveScoring()) {
+                habit.setPositiveScoring(posBox.isSelected());
+                changed = true;
+            }
+
+            TextField t1 = editThreshold1Fields.get(habit.getId());
+            TextField t2 = editThreshold2Fields.get(habit.getId());
+            TextField t4 = editThreshold4Fields.get(habit.getId());
+            TextField t8 = editThreshold8Fields.get(habit.getId());
+            if (t1 != null && t2 != null && t4 != null && t8 != null) {
+                try {
+                    int v1 = Integer.parseInt(t1.getText().trim());
+                    int v2 = Integer.parseInt(t2.getText().trim());
+                    int v4 = Integer.parseInt(t4.getText().trim());
+                    int v8 = Integer.parseInt(t8.getText().trim());
+                    if (v1 >= 0 && v2 >= v1 && v4 >= v2 && v8 >= v4) {
+                        ScoringRule rule = habit.getScoringRule();
+                        if (rule == null || rule.getThresholdFor1Point() != v1
+                                || rule.getThresholdFor2Points() != v2
+                                || rule.getThresholdFor4Points() != v4
+                                || rule.getThresholdFor8Points() != v8) {
+                            String ruleName = rule != null ? rule.getName() : "custom";
+                            habit.setScoringRule(new ScoringRule(ruleName, v1, v2, v4, v8));
+                            changed = true;
+                        }
+                    }
+                } catch (NumberFormatException e) {
+                    // ignore invalid thresholds
+                }
+            }
+
+            if (changed) {
+                habitRepository.save(habit);
+                count++;
+            }
+        }
+
+        editMessage.setText(count + " habit(s) saved successfully");
+        editMessage.setStyle("-fx-text-fill: green;");
+        refreshTrackHabits();
     }
 
     private static boolean isValidColor(String color) {

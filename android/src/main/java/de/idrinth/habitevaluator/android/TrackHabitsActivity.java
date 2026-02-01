@@ -75,7 +75,6 @@ public class TrackHabitsActivity extends AppCompatActivity {
                     continue;
                 }
                 HabitEntry entry = new HabitEntry(habit.getId());
-                entry.setValue(adapter.getHabitValue(habit.getId()));
                 habit.addEntry(entry);
                 count++;
             }

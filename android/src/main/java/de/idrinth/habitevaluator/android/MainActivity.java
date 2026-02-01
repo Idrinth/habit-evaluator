@@ -46,9 +46,28 @@ public class MainActivity extends AppCompatActivity implements HabitAdapter.OnHa
 
     private static final String PLACEHOLDER_USERNAME = "android_user";
     private static List<Habit> sharedHabits;
+    private static HabitRepository sharedHabitRepository;
+    private static boolean sharedUsingRemoteStorage;
 
     public static List<Habit> getSharedHabits() {
         return sharedHabits;
+    }
+
+    public static void saveAllHabits() {
+        if (sharedHabitRepository == null || sharedHabits == null) {
+            return;
+        }
+        if (sharedUsingRemoteStorage) {
+            new Thread(() -> {
+                for (Habit habit : sharedHabits) {
+                    sharedHabitRepository.save(habit);
+                }
+            }).start();
+        } else {
+            for (Habit habit : sharedHabits) {
+                sharedHabitRepository.save(habit);
+            }
+        }
     }
 
     private ActivityMainBinding binding;
@@ -112,6 +131,8 @@ public class MainActivity extends AppCompatActivity implements HabitAdapter.OnHa
         categoryRepository = new FileSystemHabitCategoryRepository(storageDir);
         apiClient = null;
         currentUser = new User(PLACEHOLDER_USERNAME, "placeholder");
+        sharedHabitRepository = habitRepository;
+        sharedUsingRemoteStorage = false;
     }
 
     private void initializeRemoteStorage(SharedPreferences prefs) {
@@ -129,6 +150,8 @@ public class MainActivity extends AppCompatActivity implements HabitAdapter.OnHa
                     RemoteUserRepository userRepo = new RemoteUserRepository(apiClient);
                     currentUser = userRepo.findAll().stream().findFirst().orElse(null);
                     usingRemoteStorage = true;
+                    sharedHabitRepository = habitRepository;
+                    sharedUsingRemoteStorage = true;
                     runOnUiThread(() -> {
                         updateStorageModeLabel();
                         loadCategories();
@@ -299,6 +322,10 @@ public class MainActivity extends AppCompatActivity implements HabitAdapter.OnHa
         binding.completeButton.setOnClickListener(v -> completeHabit());
         binding.trackHabitsButton.setOnClickListener(v -> {
             Intent intent = new Intent(this, TrackHabitsActivity.class);
+            startActivity(intent);
+        });
+        binding.editHabitsButton.setOnClickListener(v -> {
+            Intent intent = new Intent(this, EditHabitsActivity.class);
             startActivity(intent);
         });
         binding.settingsButton.setOnClickListener(v -> {
