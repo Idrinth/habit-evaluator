@@ -148,9 +148,9 @@ public class DefaultDataInitializer {
         logger.info("Initializing default categories and habits for user: {}", user.getUsername());
         Map<HabitCategory, List<HabitDefinition>> defaults = buildDefaults();
 
-        // Build lookup of existing categories by name
+        // Build lookup of existing categories by name for this user
         Map<String, HabitCategory> existingCategoriesByName = new HashMap<>();
-        for (HabitCategory cat : categoryRepository.findAll()) {
+        for (HabitCategory cat : categoryRepository.findByUserId(user.getId())) {
             existingCategoriesByName.put(cat.getName(), cat);
         }
 
@@ -164,12 +164,13 @@ public class DefaultDataInitializer {
             HabitCategory category = existingCategoriesByName.get(defaultCategory.getName());
             if (category == null) {
                 try {
+                    defaultCategory.setUser(user);
                     category = categoryRepository.save(defaultCategory);
                     logger.info("Created default category: {}", category.getName());
                 } catch (RuntimeException e) {
                     logger.info("Category already exists (concurrent insert), reloading: {}", defaultCategory.getName());
-                    // Reload categories after concurrent insert
-                    for (HabitCategory cat : categoryRepository.findAll()) {
+                    // Reload categories for this user after concurrent insert
+                    for (HabitCategory cat : categoryRepository.findByUserId(user.getId())) {
                         existingCategoriesByName.put(cat.getName(), cat);
                     }
                     category = existingCategoriesByName.get(defaultCategory.getName());
