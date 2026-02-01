@@ -2,6 +2,7 @@ module de.idrinth.habitevaluator.desktop {
     requires javafx.controls;
     requires javafx.fxml;
     requires de.idrinth.habitevaluator.shared;
+    requires com.google.gson;
 
     // Database persistence
     requires jakarta.persistence;
