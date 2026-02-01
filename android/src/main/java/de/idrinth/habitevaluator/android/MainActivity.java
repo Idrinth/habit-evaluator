@@ -135,9 +135,21 @@ public class MainActivity extends AppCompatActivity implements HabitAdapter.OnHa
         habitRepository = new FileSystemHabitRepository(storageDir);
         categoryRepository = new FileSystemHabitCategoryRepository(storageDir);
         apiClient = null;
-        currentUser = new User(PLACEHOLDER_USERNAME, "placeholder");
+        currentUser = getOrCreateLocalUser();
         sharedHabitRepository = habitRepository;
         sharedUsingRemoteStorage = false;
+    }
+
+    private User getOrCreateLocalUser() {
+        SharedPreferences prefs = getSharedPreferences(SettingsActivity.PREFS_NAME, MODE_PRIVATE);
+        String userId = prefs.getString("local_user_id", null);
+        User user = new User(PLACEHOLDER_USERNAME, "placeholder");
+        if (userId != null) {
+            user.setId(userId);
+        } else {
+            prefs.edit().putString("local_user_id", user.getId()).apply();
+        }
+        return user;
     }
 
     private void initializeRemoteStorage(SharedPreferences prefs) {
