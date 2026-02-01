@@ -27,5 +27,9 @@
         <activity
             android:name=".SettingsActivity"
             android:exported="false" />
+
+        <activity
+            android:name=".AddHabitActivity"
+            android:exported="false" />
     </application>
 </manifest>

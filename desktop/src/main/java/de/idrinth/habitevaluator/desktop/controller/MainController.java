@@ -8,7 +8,6 @@ import de.idrinth.habitevaluator.shared.api.RemoteHabitRepository;
 import de.idrinth.habitevaluator.shared.api.RemoteUserRepository;
 import de.idrinth.habitevaluator.shared.api.StorageConfig;
 import de.idrinth.habitevaluator.shared.model.Evaluation;
-import de.idrinth.habitevaluator.shared.model.FrequencyType;
 import de.idrinth.habitevaluator.shared.model.Habit;
 import de.idrinth.habitevaluator.shared.model.HabitCategory;
 import de.idrinth.habitevaluator.shared.model.HabitEntry;
@@ -32,8 +31,6 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import java.util.Optional;
-
 import com.google.gson.reflect.TypeToken;
 
 import java.io.File;
@@ -52,34 +49,12 @@ public class MainController {
     private static final String CONFIG_DIR = System.getProperty("user.home") + "/.habit-evaluator";
     private static final String CONFIG_FILE = CONFIG_DIR + "/storage.properties";
     private static final String ALL_CATEGORIES = "All categories";
-    private static final String NEW_CATEGORY = "New category";
 
     @FXML
     private ListView<Habit> habitListView;
 
     @FXML
-    private TextField habitNameField;
-
-    @FXML
-    private TextArea habitDescriptionArea;
-
-    @FXML
-    private ComboBox<String> categoryComboBox;
-
-    @FXML
     private ComboBox<String> categoryFilterComboBox;
-
-    @FXML
-    private ComboBox<String> frequencyTypeComboBox;
-
-    @FXML
-    private TextField targetFrequencyField;
-
-    @FXML
-    private TextField maxEntriesPerDayField;
-
-    @FXML
-    private CheckBox positiveScoringCheckBox;
 
     @FXML
     private Label streakLabel;
@@ -138,14 +113,6 @@ public class MainController {
         loadCategories();
         loadHabits();
 
-        // Populate frequency type combo box
-        ObservableList<String> frequencyTypes = FXCollections.observableArrayList();
-        for (FrequencyType ft : FrequencyType.values()) {
-            frequencyTypes.add(ft.name().substring(0, 1) + ft.name().substring(1).toLowerCase());
-        }
-        frequencyTypeComboBox.setItems(frequencyTypes);
-        frequencyTypeComboBox.getSelectionModel().selectFirst();
-
         habitListView.setItems(filteredHabits);
         habitListView.setCellFactory(param -> new ListCell<>() {
             @Override
@@ -197,22 +164,10 @@ public class MainController {
     }
 
     private void populateCategoryComboBoxes() {
-        // Populate the creation combo box
-        ObservableList<String> categoryNames = FXCollections.observableArrayList();
-        categoryNames.add(NEW_CATEGORY);
         categoryNameToId.clear();
         for (HabitCategory cat : categoryList) {
-            categoryNames.add(cat.getName());
             categoryNameToId.put(cat.getName(), cat.getId());
         }
-        categoryComboBox.setItems(categoryNames);
-        // Select first actual category if available
-        if (categoryList.size() > 0) {
-            categoryComboBox.getSelectionModel().select(1);
-        } else {
-            categoryComboBox.getSelectionModel().selectFirst();
-        }
-        // No listener needed - category creation is handled when the add habit button is clicked
 
         // Populate the filter combo box
         ObservableList<String> filterNames = FXCollections.observableArrayList();
@@ -223,45 +178,6 @@ public class MainController {
         filterNames.add("Uncategorized");
         categoryFilterComboBox.setItems(filterNames);
         categoryFilterComboBox.getSelectionModel().selectFirst();
-    }
-
-    private void showNewCategoryDialog(Habit habit) {
-        TextInputDialog dialog = new TextInputDialog();
-        dialog.setTitle("Create New Category");
-        dialog.setHeaderText(null);
-        dialog.setContentText("Category name:");
-        Optional<String> result = dialog.showAndWait();
-        if (result.isPresent() && !result.get().trim().isEmpty()) {
-            createCategoryAndSaveHabit(result.get().trim(), habit);
-        }
-    }
-
-    private void createCategoryAndSaveHabit(String name, Habit habit) {
-        HabitCategory category = new HabitCategory(name);
-        category.setUser(currentUser);
-        if (categoryRepository != null) {
-            categoryRepository.save(category);
-            categoryList.add(category);
-            populateCategoryComboBoxes();
-            habit.setCategoryId(category.getId());
-            saveHabit(habit);
-        } else if (storageConfig.isRemote() && apiClient != null) {
-            new Thread(() -> {
-                try {
-                    Map<String, String> body = new LinkedHashMap<>();
-                    body.put("name", name);
-                    HabitCategory created = apiClient.post("/api/categories", body, HabitCategory.class);
-                    Platform.runLater(() -> {
-                        categoryList.add(created);
-                        populateCategoryComboBoxes();
-                        habit.setCategoryId(created.getId());
-                        saveHabit(habit);
-                    });
-                } catch (IOException e) {
-                    Platform.runLater(() -> showAlert("Error", "Failed to create category: " + e.getMessage()));
-                }
-            }).start();
-        }
     }
 
     private void applyFilter() {
@@ -384,65 +300,35 @@ public class MainController {
     }
 
     @FXML
-    private void handleAddHabit() {
-        String name = habitNameField.getText().trim();
-        String description = habitDescriptionArea.getText().trim();
+    private void handleOpenAddHabit() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/add-habit.fxml"));
+            Parent root = loader.load();
 
-        if (!name.isEmpty()) {
-            Habit habit = new Habit(name, description);
-            habit.setUser(currentUser);
+            AddHabitController controller = loader.getController();
+            controller.setHabitRepository(habitRepository);
+            controller.setCategoryRepository(categoryRepository);
+            controller.setApiClient(apiClient);
+            controller.setCurrentUser(currentUser);
+            controller.setCategoryList(categoryList);
 
-            // Set frequency type
-            int freqIdx = frequencyTypeComboBox.getSelectionModel().getSelectedIndex();
-            if (freqIdx >= 0 && freqIdx < FrequencyType.values().length) {
-                habit.setFrequencyType(FrequencyType.values()[freqIdx]);
+            Stage dialogStage = new Stage();
+            dialogStage.setTitle("Add Habit");
+            dialogStage.initModality(Modality.APPLICATION_MODAL);
+            dialogStage.initOwner(habitListView.getScene().getWindow());
+
+            Scene scene = new Scene(root);
+            scene.getStylesheets().addAll(habitListView.getScene().getStylesheets());
+            dialogStage.setScene(scene);
+            dialogStage.showAndWait();
+
+            if (controller.getAddedHabit() != null) {
+                habits.add(controller.getAddedHabit());
+                loadCategories();
             }
-
-            // Set target frequency
-            try {
-                int targetFreq = Integer.parseInt(targetFrequencyField.getText().trim());
-                if (targetFreq > 0) {
-                    habit.setTargetFrequency(targetFreq);
-                }
-            } catch (NumberFormatException e) {
-                // keep default
-            }
-
-            // Set max entries per day
-            try {
-                int maxEntries = Integer.parseInt(maxEntriesPerDayField.getText().trim());
-                if (maxEntries > 0) {
-                    habit.setMaxEntriesPerDay(maxEntries);
-                }
-            } catch (NumberFormatException e) {
-                // keep default
-            }
-
-            // Set positive/negative scoring
-            habit.setPositiveScoring(positiveScoringCheckBox.isSelected());
-
-            String selectedCategory = categoryComboBox.getSelectionModel().getSelectedItem();
-            if (selectedCategory == null) {
-                showAlert("Category Required", "Please select or create a category before adding a habit.");
-                return;
-            }
-            if (NEW_CATEGORY.equals(selectedCategory)) {
-                showNewCategoryDialog(habit);
-                return;
-            }
-            String catId = categoryNameToId.get(selectedCategory);
-            if (catId != null) {
-                habit.setCategoryId(catId);
-            }
-
-            saveHabit(habit);
+        } catch (IOException e) {
+            showAlert("Error", "Failed to open add habit dialog: " + e.getMessage());
         }
-    }
-
-    private void saveHabit(Habit habit) {
-        habitRepository.save(habit);
-        habits.add(habit);
-        clearInputFields();
     }
 
     @FXML
@@ -492,16 +378,6 @@ public class MainController {
         dailyPointsLabel.setText("Today: " + scoringService.getCurrentDayScore(habit) + " pts");
         weeklyPointsLabel.setText("This Week: " + scoringService.getCurrentWeekScore(habit) + " pts");
         monthlyPointsLabel.setText("This Month: " + scoringService.getCurrentMonthScore(habit) + " pts");
-    }
-
-    private void clearInputFields() {
-        habitNameField.clear();
-        habitDescriptionArea.clear();
-        categoryComboBox.getSelectionModel().selectFirst();
-        frequencyTypeComboBox.getSelectionModel().selectFirst();
-        targetFrequencyField.setText("1");
-        maxEntriesPerDayField.setText("1");
-        positiveScoringCheckBox.setSelected(true);
     }
 
     private void clearEvaluationDisplay() {

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns:fx="http://javafx.com/fxml"
+      fx:controller="de.idrinth.habitevaluator.desktop.controller.AddHabitController"
+      spacing="15" prefWidth="450">
+
+    <padding>
+        <Insets top="20" right="20" bottom="20" left="20"/>
+    </padding>
+
+    <Label text="Add New Habit" styleClass="section-title"/>
+
+    <HBox spacing="10" alignment="CENTER_LEFT">
+        <Label text="Name:" prefWidth="80"/>
+        <TextField fx:id="habitNameField" HBox.hgrow="ALWAYS" promptText="Enter habit name"/>
+    </HBox>
+
+    <HBox spacing="10" alignment="TOP_LEFT">
+        <Label text="Description:" prefWidth="80"/>
+        <TextArea fx:id="habitDescriptionArea" HBox.hgrow="ALWAYS"
+                  prefRowCount="3" promptText="Enter habit description"/>
+    </HBox>
+
+    <HBox spacing="10" alignment="CENTER_LEFT">
+        <Label text="Category:" prefWidth="80"/>
+        <ComboBox fx:id="categoryComboBox" HBox.hgrow="ALWAYS" promptText="Select category"/>
+    </HBox>
+
+    <HBox spacing="10" alignment="CENTER_LEFT">
+        <Label text="Frequency:" prefWidth="80"/>
+        <ComboBox fx:id="frequencyTypeComboBox" promptText="Daily"/>
+        <Label text="Target:" prefWidth="50"/>
+        <TextField fx:id="targetFrequencyField" prefWidth="60" promptText="1" text="1"/>
+    </HBox>
+
+    <HBox spacing="10" alignment="CENTER_LEFT">
+        <Label text="Max/day:" prefWidth="80"/>
+        <TextField fx:id="maxEntriesPerDayField" prefWidth="60" promptText="1" text="1"/>
+        <CheckBox fx:id="positiveScoringCheckBox" text="Positive scoring" selected="true"/>
+    </HBox>
+
+    <Button text="Add Habit" onAction="#handleAddHabit" styleClass="primary-button"/>
+</VBox>
