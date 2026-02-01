@@ -6,7 +6,7 @@
 
 <nav>
 	<div class="nav-inner">
-		<a href="/" class="logo">Habit Evaluator</a>
+		<a href="/" class="logo"><img src="/logo.svg" alt="Habit Evaluator" class="logo-icon" />Habit Evaluator</a>
 		<div class="nav-links">
 			<a href="/features">Features</a>
 			<a href="/docs">Setup Guide</a>
@@ -47,6 +47,13 @@
 		font-weight: 700;
 		font-size: 1.15rem;
 		color: var(--color-primary);
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+	}
+	.logo-icon {
+		width: 1.75rem;
+		height: 1.75rem;
 	}
 	.logo:hover {
 		text-decoration: none;
