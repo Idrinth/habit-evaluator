@@ -60,6 +60,12 @@ scoring:
   hint_4_points: "Mindestanzahl wöchentlicher Abschlüsse für 4 Punkte"
   hint_8_points: "Mindestanzahl wöchentlicher Abschlüsse für 8 Punkte"
 
+defaults:
+  load_button: "Standards laden"
+  requires_remote: "Das Laden von Standardgewohnheiten erfordert Remote-Speicher. Bitte konfigurieren Sie eine Remote-API-Verbindung in den Einstellungen."
+  loaded: "Standardkategorien und Gewohnheiten geladen"
+  load_failed: "Fehler beim Laden der Standards: %s"
+
 settings:
   storage_settings: "Speichereinstellungen"
   storage_mode_label: "Wählen Sie, wo Ihre Daten gespeichert werden:"
