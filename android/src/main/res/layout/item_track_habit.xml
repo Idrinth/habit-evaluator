@@ -39,6 +39,25 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
                 android:textColor="@color/text_secondary" />
+
+            <TextView
+                android:id="@+id/trackHabitInfo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:textSize="11sp"
+                android:textColor="@color/text_secondary" />
         </LinearLayout>
+
+        <EditText
+            android:id="@+id/habitValueInput"
+            android:layout_width="60dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:inputType="number"
+            android:text="1"
+            android:textAlignment="center"
+            android:hint="@string/value_hint"
+            android:minWidth="48dp" />
     </LinearLayout>
 </androidx.cardview.widget.CardView>

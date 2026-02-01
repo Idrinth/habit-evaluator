@@ -75,12 +75,17 @@ public class TrackHabitsActivity extends AppCompatActivity {
                     continue;
                 }
                 HabitEntry entry = new HabitEntry(habit.getId());
+                entry.setValue(adapter.getHabitValue(habit.getId()));
                 habit.addEntry(entry);
                 count++;
             }
         }
 
-        binding.trackMessage.setText(getString(R.string.habits_tracked_success, count));
+        String message = getString(R.string.habits_tracked_success, count);
+        if (skipped > 0) {
+            message += " (" + skipped + " skipped - daily limit reached)";
+        }
+        binding.trackMessage.setText(message);
         binding.trackMessage.setTextColor(getResources().getColor(android.R.color.holo_green_dark, getTheme()));
         binding.trackMessage.setVisibility(View.VISIBLE);
         Toast.makeText(this, getString(R.string.habits_tracked_success, count), Toast.LENGTH_SHORT).show();

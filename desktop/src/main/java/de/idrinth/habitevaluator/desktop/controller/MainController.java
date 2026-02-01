@@ -8,9 +8,11 @@ import de.idrinth.habitevaluator.shared.api.RemoteHabitRepository;
 import de.idrinth.habitevaluator.shared.api.RemoteUserRepository;
 import de.idrinth.habitevaluator.shared.api.StorageConfig;
 import de.idrinth.habitevaluator.shared.model.Evaluation;
+import de.idrinth.habitevaluator.shared.model.FrequencyType;
 import de.idrinth.habitevaluator.shared.model.Habit;
 import de.idrinth.habitevaluator.shared.model.HabitCategory;
 import de.idrinth.habitevaluator.shared.model.HabitEntry;
+import de.idrinth.habitevaluator.shared.model.ScoringRule;
 import de.idrinth.habitevaluator.shared.model.User;
 import de.idrinth.habitevaluator.shared.repository.HabitRepository;
 import de.idrinth.habitevaluator.shared.repository.UserRepository;
@@ -26,6 +28,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -65,6 +68,18 @@ public class MainController {
     private ComboBox<String> categoryFilterComboBox;
 
     @FXML
+    private ComboBox<String> frequencyTypeComboBox;
+
+    @FXML
+    private TextField targetFrequencyField;
+
+    @FXML
+    private TextField maxEntriesPerDayField;
+
+    @FXML
+    private CheckBox positiveScoringCheckBox;
+
+    @FXML
     private Label streakLabel;
 
     @FXML
@@ -92,6 +107,7 @@ public class MainController {
     private Label monthlyPointsLabel;
 
     private final Map<String, CheckBox> trackCheckBoxes = new HashMap<>();
+    private final Map<String, TextField> trackValueFields = new HashMap<>();
     private final ObservableList<Habit> habits = FXCollections.observableArrayList();
     private final ObservableList<Habit> filteredHabits = FXCollections.observableArrayList();
     private final HabitEvaluatorService evaluatorService = new HabitEvaluatorService();
@@ -111,6 +127,14 @@ public class MainController {
         initializeStorage();
         loadCategories();
         loadHabits();
+
+        // Populate frequency type combo box
+        ObservableList<String> frequencyTypes = FXCollections.observableArrayList();
+        for (FrequencyType ft : FrequencyType.values()) {
+            frequencyTypes.add(ft.name().substring(0, 1) + ft.name().substring(1).toLowerCase());
+        }
+        frequencyTypeComboBox.setItems(frequencyTypes);
+        frequencyTypeComboBox.getSelectionModel().selectFirst();
 
         habitListView.setItems(filteredHabits);
         habitListView.setCellFactory(param -> new ListCell<>() {
@@ -296,6 +320,7 @@ public class MainController {
     private void refreshTrackHabits() {
         trackHabitsContainer.getChildren().clear();
         trackCheckBoxes.clear();
+        trackValueFields.clear();
         trackMessage.setText("");
         if (habits.isEmpty()) {
             trackHabitsContainer.getChildren().add(new Label("No habits found. Add a habit first."));
@@ -342,12 +367,50 @@ public class MainController {
     }
 
     private void addTrackCheckBox(Habit habit) {
+        boolean atLimit = habit.hasReachedDailyLimit(LocalDate.now());
+
         CheckBox checkBox = new CheckBox(habit.getName());
-        if (habit.getDescription() != null && !habit.getDescription().isEmpty()) {
+        if (atLimit) {
+            checkBox.setDisable(true);
+            checkBox.setTooltip(new Tooltip("Daily limit reached"));
+        } else if (habit.getDescription() != null && !habit.getDescription().isEmpty()) {
             checkBox.setTooltip(new Tooltip(habit.getDescription()));
         }
+
+        // Build info tooltip with habit parameters
+        StringBuilder info = new StringBuilder();
+        info.append(habit.getFrequencyType().name().toLowerCase());
+        info.append(", target: ").append(habit.getTargetFrequency());
+        if (habit.getMaxEntriesPerDay() > 0) {
+            info.append(", max/day: ").append(habit.getMaxEntriesPerDay());
+        }
+        info.append(", scoring: ").append(habit.isPositiveScoring() ? "+" : "-");
+        ScoringRule rule = habit.getScoringRule();
+        if (rule != null) {
+            info.append(" (").append(rule.getThresholdFor1Point())
+                .append("/").append(rule.getThresholdFor2Points())
+                .append("/").append(rule.getThresholdFor4Points())
+                .append("/").append(rule.getThresholdFor8Points())
+                .append(")");
+        }
+
+        Label infoLabel = new Label(info.toString());
+        infoLabel.setStyle("-fx-font-size: 10px; -fx-text-fill: #888;");
+
+        TextField valueField = new TextField("1");
+        valueField.setPrefWidth(50);
+        valueField.setPromptText("Val");
+        valueField.setDisable(atLimit);
+
+        HBox row = new HBox(8, checkBox, valueField, infoLabel);
+        row.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+        if (atLimit) {
+            row.setOpacity(0.5);
+        }
+
         trackCheckBoxes.put(habit.getId(), checkBox);
-        trackHabitsContainer.getChildren().add(checkBox);
+        trackValueFields.put(habit.getId(), valueField);
+        trackHabitsContainer.getChildren().add(row);
     }
 
     @FXML
@@ -366,6 +429,35 @@ public class MainController {
                     habit.setCategoryId(catId);
                 }
             }
+
+            // Set frequency type
+            int freqIdx = frequencyTypeComboBox.getSelectionModel().getSelectedIndex();
+            if (freqIdx >= 0 && freqIdx < FrequencyType.values().length) {
+                habit.setFrequencyType(FrequencyType.values()[freqIdx]);
+            }
+
+            // Set target frequency
+            try {
+                int targetFreq = Integer.parseInt(targetFrequencyField.getText().trim());
+                if (targetFreq > 0) {
+                    habit.setTargetFrequency(targetFreq);
+                }
+            } catch (NumberFormatException e) {
+                // keep default
+            }
+
+            // Set max entries per day
+            try {
+                int maxEntries = Integer.parseInt(maxEntriesPerDayField.getText().trim());
+                if (maxEntries > 0) {
+                    habit.setMaxEntriesPerDay(maxEntries);
+                }
+            } catch (NumberFormatException e) {
+                // keep default
+            }
+
+            // Set positive/negative scoring
+            habit.setPositiveScoring(positiveScoringCheckBox.isSelected());
 
             habitRepository.save(habit);
             habits.add(habit);
@@ -421,6 +513,18 @@ public class MainController {
                 continue;
             }
             HabitEntry entry = new HabitEntry(habit.getId());
+            // Read value from input field
+            TextField valueField = trackValueFields.get(habit.getId());
+            if (valueField != null) {
+                try {
+                    int val = Integer.parseInt(valueField.getText().trim());
+                    if (val > 0) {
+                        entry.setValue(val);
+                    }
+                } catch (NumberFormatException e) {
+                    // keep default value of 1
+                }
+            }
             habit.addEntry(entry);
             habitRepository.save(habit);
             count++;
@@ -432,9 +536,12 @@ public class MainController {
         trackMessage.setText(message);
         trackMessage.setStyle("-fx-text-fill: green;");
 
-        // Uncheck all boxes
+        // Uncheck all boxes and reset values
         for (CheckBox checkBox : trackCheckBoxes.values()) {
             checkBox.setSelected(false);
+        }
+        for (TextField valueField : trackValueFields.values()) {
+            valueField.setText("1");
         }
     }
 
@@ -458,6 +565,10 @@ public class MainController {
         habitNameField.clear();
         habitDescriptionArea.clear();
         categoryComboBox.getSelectionModel().selectFirst();
+        frequencyTypeComboBox.getSelectionModel().selectFirst();
+        targetFrequencyField.setText("1");
+        maxEntriesPerDayField.setText("1");
+        positiveScoringCheckBox.setSelected(true);
     }
 
     private void clearEvaluationDisplay() {

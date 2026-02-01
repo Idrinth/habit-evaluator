@@ -31,6 +31,7 @@ import de.idrinth.habitevaluator.shared.api.ApiClient;
 import de.idrinth.habitevaluator.shared.api.RemoteHabitRepository;
 import de.idrinth.habitevaluator.shared.api.RemoteUserRepository;
 import de.idrinth.habitevaluator.shared.model.Evaluation;
+import de.idrinth.habitevaluator.shared.model.FrequencyType;
 import de.idrinth.habitevaluator.shared.model.Habit;
 import de.idrinth.habitevaluator.shared.model.HabitCategory;
 import de.idrinth.habitevaluator.shared.model.HabitEntry;
@@ -85,6 +86,7 @@ public class MainActivity extends AppCompatActivity implements HabitAdapter.OnHa
         scoringService = new HabitScoringService();
 
         setupRecyclerView();
+        setupFrequencyTypeSpinner();
         initializeStorage();
         setupClickListeners();
         setupCategoryFilterSpinner();
@@ -205,6 +207,17 @@ public class MainActivity extends AppCompatActivity implements HabitAdapter.OnHa
                 android.R.layout.simple_spinner_item, filterNames);
         filterAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         binding.categoryFilterSpinner.setAdapter(filterAdapter);
+    }
+
+    private void setupFrequencyTypeSpinner() {
+        List<String> frequencyTypes = new ArrayList<>();
+        for (FrequencyType ft : FrequencyType.values()) {
+            frequencyTypes.add(ft.name().substring(0, 1) + ft.name().substring(1).toLowerCase());
+        }
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
+                android.R.layout.simple_spinner_item, frequencyTypes);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        binding.frequencyTypeSpinner.setAdapter(adapter);
     }
 
     private void setupCategoryFilterSpinner() {
@@ -336,6 +349,35 @@ public class MainActivity extends AppCompatActivity implements HabitAdapter.OnHa
             }
         }
 
+        // Set frequency type
+        int freqPos = binding.frequencyTypeSpinner.getSelectedItemPosition();
+        if (freqPos >= 0 && freqPos < FrequencyType.values().length) {
+            habit.setFrequencyType(FrequencyType.values()[freqPos]);
+        }
+
+        // Set target frequency
+        try {
+            int targetFreq = Integer.parseInt(binding.targetFrequencyInput.getText().toString().trim());
+            if (targetFreq > 0) {
+                habit.setTargetFrequency(targetFreq);
+            }
+        } catch (NumberFormatException e) {
+            // keep default
+        }
+
+        // Set max entries per day
+        try {
+            int maxEntries = Integer.parseInt(binding.maxEntriesPerDayInput.getText().toString().trim());
+            if (maxEntries > 0) {
+                habit.setMaxEntriesPerDay(maxEntries);
+            }
+        } catch (NumberFormatException e) {
+            // keep default
+        }
+
+        // Set positive/negative scoring
+        habit.setPositiveScoring(binding.positiveScoringSwitch.isChecked());
+
         if (habitRepository != null) {
             if (usingRemoteStorage) {
                 new Thread(() -> {
@@ -358,6 +400,10 @@ public class MainActivity extends AppCompatActivity implements HabitAdapter.OnHa
         binding.habitNameInput.setText("");
         binding.habitDescriptionInput.setText("");
         binding.categorySpinner.setSelection(0);
+        binding.frequencyTypeSpinner.setSelection(0);
+        binding.targetFrequencyInput.setText("1");
+        binding.maxEntriesPerDayInput.setText("1");
+        binding.positiveScoringSwitch.setChecked(true);
     }
 
     private void completeHabit() {

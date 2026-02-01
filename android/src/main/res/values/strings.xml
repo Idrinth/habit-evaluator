@@ -43,4 +43,8 @@
     <string name="daily_points">Today: %d pts</string>
     <string name="weekly_points">Week: %d pts</string>
     <string name="monthly_points">Month: %d pts</string>
+    <string name="target_frequency_hint">Target freq.</string>
+    <string name="max_entries_per_day_hint">Max/day</string>
+    <string name="positive_scoring">Positive</string>
+    <string name="value_hint">Val</string>
 </resources>
