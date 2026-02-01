@@ -43,7 +43,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/no_habits_found"
-        android:textColor="@android:color/darker_gray"
+        android:textColor="@color/text_secondary"
         android:visibility="gone"
         app:layout_constraintBottom_toTopOf="@id/submitButton"
         app:layout_constraintEnd_toEndOf="parent"

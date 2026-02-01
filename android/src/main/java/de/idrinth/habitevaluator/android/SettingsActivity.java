@@ -85,7 +85,7 @@ public class SettingsActivity extends AppCompatActivity {
         }
 
         binding.connectionStatusText.setText(R.string.testing_connection);
-        binding.connectionStatusText.setTextColor(getColor(android.R.color.darker_gray));
+        binding.connectionStatusText.setTextColor(getColor(R.color.text_secondary));
 
         new Thread(() -> {
             try {

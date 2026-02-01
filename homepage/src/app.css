@@ -12,6 +12,21 @@
 	--max-width: 960px;
 }
 
+@media (prefers-color-scheme: dark) {
+	:root {
+		--color-primary: #60a5fa;
+		--color-primary-dark: #3b82f6;
+		--color-secondary: #a78bfa;
+		--color-bg: #0f172a;
+		--color-bg-alt: #1e293b;
+		--color-bg-code: #1e293b;
+		--color-text: #e2e8f0;
+		--color-text-muted: #94a3b8;
+		--color-border: #334155;
+		--color-success: #4ade80;
+	}
+}
+
 * {
 	margin: 0;
 	padding: 0;

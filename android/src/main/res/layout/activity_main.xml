@@ -24,7 +24,7 @@
             android:layout_weight="1"
             android:text="@string/storage_mode_local"
             android:textSize="12sp"
-            android:textColor="@android:color/darker_gray" />
+            android:textColor="@color/text_secondary" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/settingsButton"
