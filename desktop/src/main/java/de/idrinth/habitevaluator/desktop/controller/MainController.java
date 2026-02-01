@@ -95,6 +95,9 @@ public class MainController {
     private Label trackMessage;
 
     @FXML
+    private Button loadDefaultsButton;
+
+    @FXML
     private Label storageModeLabel;
 
     @FXML
@@ -183,6 +186,7 @@ public class MainController {
             }
         }
         populateCategoryComboBoxes();
+        updateLoadDefaultsButtonVisibility();
     }
 
     private void populateCategoryComboBoxes() {
@@ -279,6 +283,15 @@ public class MainController {
         habits.clear();
         if (currentUser != null) {
             habits.addAll(habitRepository.findByUserId(currentUser.getId()));
+        }
+        updateLoadDefaultsButtonVisibility();
+    }
+
+    private void updateLoadDefaultsButtonVisibility() {
+        if (loadDefaultsButton != null) {
+            boolean hasData = !categoryList.isEmpty() || !habits.isEmpty();
+            loadDefaultsButton.setVisible(!hasData);
+            loadDefaultsButton.setManaged(!hasData);
         }
     }
 
