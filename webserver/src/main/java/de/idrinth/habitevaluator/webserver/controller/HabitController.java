@@ -5,6 +5,7 @@ import de.idrinth.habitevaluator.shared.model.Habit;
 import de.idrinth.habitevaluator.shared.model.HabitEntry;
 import de.idrinth.habitevaluator.shared.model.PredictedWeeklyScore;
 import de.idrinth.habitevaluator.shared.model.User;
+import de.idrinth.habitevaluator.shared.repository.HabitCategoryRepository;
 import de.idrinth.habitevaluator.shared.repository.HabitRepository;
 import de.idrinth.habitevaluator.shared.repository.UserRepository;
 import de.idrinth.habitevaluator.shared.service.HabitEvaluatorService;
@@ -23,13 +24,16 @@ import java.util.Optional;
 public class HabitController {
 
     private final HabitRepository habitRepository;
+    private final HabitCategoryRepository habitCategoryRepository;
     private final UserRepository userRepository;
     private final HabitEvaluatorService evaluatorService;
     private final HabitScoringService scoringService;
 
-    public HabitController(HabitRepository habitRepository, UserRepository userRepository,
+    public HabitController(HabitRepository habitRepository, HabitCategoryRepository habitCategoryRepository,
+                           UserRepository userRepository,
                            HabitEvaluatorService evaluatorService, HabitScoringService scoringService) {
         this.habitRepository = habitRepository;
+        this.habitCategoryRepository = habitCategoryRepository;
         this.userRepository = userRepository;
         this.evaluatorService = evaluatorService;
         this.scoringService = scoringService;
@@ -103,7 +107,15 @@ public class HabitController {
         if (existing.getUser() == null || !userId.equals(existing.getUser().getId())) {
             return ResponseEntity.notFound().build();
         }
+        String categoryId = existing.getCategoryId();
         habitRepository.deleteById(id);
+        if (categoryId != null && !categoryId.isEmpty()) {
+            boolean categoryStillUsed = habitRepository.findByUserId(userId).stream()
+                    .anyMatch(h -> categoryId.equals(h.getCategoryId()));
+            if (!categoryStillUsed) {
+                habitCategoryRepository.deleteById(categoryId);
+            }
+        }
         return ResponseEntity.noContent().build();
     }
 

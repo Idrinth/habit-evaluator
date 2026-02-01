@@ -485,8 +485,17 @@ public class MainController {
     private void handleDeleteHabit() {
         Habit selectedHabit = habitListView.getSelectionModel().getSelectedItem();
         if (selectedHabit != null) {
+            String categoryId = selectedHabit.getCategoryId();
             habitRepository.deleteById(selectedHabit.getId());
             habits.remove(selectedHabit);
+            if (categoryId != null && !categoryId.isEmpty() && categoryRepository != null && currentUser != null) {
+                boolean categoryStillUsed = habits.stream()
+                        .anyMatch(h -> categoryId.equals(h.getCategoryId()));
+                if (!categoryStillUsed) {
+                    categoryRepository.deleteById(categoryId);
+                    loadCategories();
+                }
+            }
             clearEvaluationDisplay();
         }
     }
