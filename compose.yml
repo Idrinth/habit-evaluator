@@ -21,6 +21,13 @@ services:
     depends_on:
       - database
 
+  homepage:
+    build:
+      context: homepage
+      dockerfile: Dockerfile
+    ports:
+      - "${HOMEPAGE_PORT:-8081}:80"
+
   website:
     build:
       context: website
