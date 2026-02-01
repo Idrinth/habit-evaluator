@@ -63,6 +63,19 @@
                 <ComboBox fx:id="categoryComboBox" HBox.hgrow="ALWAYS" promptText="Select category"/>
             </HBox>
 
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <Label text="Frequency:" prefWidth="80"/>
+                <ComboBox fx:id="frequencyTypeComboBox" promptText="Daily"/>
+                <Label text="Target:" prefWidth="50"/>
+                <TextField fx:id="targetFrequencyField" prefWidth="60" promptText="1" text="1"/>
+            </HBox>
+
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <Label text="Max/day:" prefWidth="80"/>
+                <TextField fx:id="maxEntriesPerDayField" prefWidth="60" promptText="1" text="1"/>
+                <CheckBox fx:id="positiveScoringCheckBox" text="Positive scoring" selected="true"/>
+            </HBox>
+
             <Button text="Add Habit" onAction="#handleAddHabit" styleClass="primary-button"/>
 
             <Separator/>
