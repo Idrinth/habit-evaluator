@@ -11,7 +11,12 @@ class LocalizerTest {
 
     @BeforeEach
     void setUp() {
-        localizer = new Localizer();
+        localizer = new Localizer() {
+            @Override
+            java.io.InputStream getResourceStream(String path) {
+                return super.getResourceStream(path.replace("localization/", "test-localization/"));
+            }
+        };
     }
 
     @Test
