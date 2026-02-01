@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -17,6 +19,7 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -27,6 +30,7 @@ import de.idrinth.habitevaluator.shared.api.RemoteHabitRepository;
 import de.idrinth.habitevaluator.shared.api.RemoteUserRepository;
 import de.idrinth.habitevaluator.shared.model.Evaluation;
 import de.idrinth.habitevaluator.shared.model.Habit;
+import de.idrinth.habitevaluator.shared.model.HabitCategory;
 import de.idrinth.habitevaluator.shared.model.HabitEntry;
 import de.idrinth.habitevaluator.shared.model.User;
 import de.idrinth.habitevaluator.shared.repository.HabitRepository;
@@ -44,12 +48,15 @@ public class MainActivity extends AppCompatActivity implements HabitAdapter.OnHa
     private ActivityMainBinding binding;
     private HabitAdapter habitAdapter;
     private List<Habit> habits;
+    private List<Habit> filteredHabits;
     private HabitEvaluatorService evaluatorService;
     private Habit selectedHabit;
     private User currentUser;
     private HabitRepository habitRepository;
     private ApiClient apiClient;
     private boolean usingRemoteStorage;
+    private List<HabitCategory> categoryList = new ArrayList<>();
+    private final Map<String, String> categoryNameToId = new LinkedHashMap<>();
 
     private final ActivityResultLauncher<Intent> settingsLauncher =
             registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
@@ -65,12 +72,14 @@ public class MainActivity extends AppCompatActivity implements HabitAdapter.OnHa
         setContentView(binding.getRoot());
 
         habits = new ArrayList<>();
+        filteredHabits = new ArrayList<>();
         sharedHabits = habits;
         evaluatorService = new HabitEvaluatorService();
 
         setupRecyclerView();
         initializeStorage();
         setupClickListeners();
+        setupCategoryFilterSpinner();
     }
 
     private void initializeStorage() {
@@ -83,6 +92,7 @@ public class MainActivity extends AppCompatActivity implements HabitAdapter.OnHa
             initializeLocalStorage();
         }
         updateStorageModeLabel();
+        loadCategories();
         loadHabits();
     }
 
@@ -110,6 +120,7 @@ public class MainActivity extends AppCompatActivity implements HabitAdapter.OnHa
                     usingRemoteStorage = true;
                     runOnUiThread(() -> {
                         updateStorageModeLabel();
+                        loadCategories();
                         loadHabits();
                     });
                     return;
@@ -122,9 +133,102 @@ public class MainActivity extends AppCompatActivity implements HabitAdapter.OnHa
             runOnUiThread(() -> {
                 initializeLocalStorage();
                 updateStorageModeLabel();
+                loadCategories();
                 loadHabits();
             });
         }).start();
+    }
+
+    private void loadCategories() {
+        categoryList.clear();
+        categoryNameToId.clear();
+        if (usingRemoteStorage && apiClient != null) {
+            new Thread(() -> {
+                try {
+                    List<HabitCategory> remoteCats = apiClient.get("/api/categories",
+                            new TypeToken<List<HabitCategory>>() {}.getType());
+                    if (remoteCats != null) {
+                        runOnUiThread(() -> {
+                            categoryList.addAll(remoteCats);
+                            populateCategorySpinners();
+                        });
+                    }
+                } catch (IOException e) {
+                    // categories are optional, ignore
+                }
+            }).start();
+        } else {
+            populateCategorySpinners();
+        }
+    }
+
+    private void populateCategorySpinners() {
+        categoryNameToId.clear();
+
+        // Category creation spinner
+        List<String> categoryNames = new ArrayList<>();
+        categoryNames.add(getString(R.string.no_category));
+        for (HabitCategory cat : categoryList) {
+            categoryNames.add(cat.getName());
+            categoryNameToId.put(cat.getName(), cat.getId());
+        }
+        ArrayAdapter<String> createAdapter = new ArrayAdapter<>(this,
+                android.R.layout.simple_spinner_item, categoryNames);
+        createAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        binding.categorySpinner.setAdapter(createAdapter);
+
+        // Category filter spinner
+        List<String> filterNames = new ArrayList<>();
+        filterNames.add(getString(R.string.all_categories));
+        for (HabitCategory cat : categoryList) {
+            filterNames.add(cat.getName());
+        }
+        filterNames.add(getString(R.string.uncategorized));
+        ArrayAdapter<String> filterAdapter = new ArrayAdapter<>(this,
+                android.R.layout.simple_spinner_item, filterNames);
+        filterAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        binding.categoryFilterSpinner.setAdapter(filterAdapter);
+    }
+
+    private void setupCategoryFilterSpinner() {
+        binding.categoryFilterSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                applyFilter();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                applyFilter();
+            }
+        });
+    }
+
+    private void applyFilter() {
+        filteredHabits.clear();
+        String selected = (String) binding.categoryFilterSpinner.getSelectedItem();
+        String allCategories = getString(R.string.all_categories);
+        String uncategorized = getString(R.string.uncategorized);
+
+        if (selected == null || allCategories.equals(selected)) {
+            filteredHabits.addAll(habits);
+        } else if (uncategorized.equals(selected)) {
+            for (Habit h : habits) {
+                if (h.getCategoryId() == null || h.getCategoryId().isEmpty()) {
+                    filteredHabits.add(h);
+                }
+            }
+        } else {
+            String categoryId = categoryNameToId.get(selected);
+            if (categoryId != null) {
+                for (Habit h : habits) {
+                    if (categoryId.equals(h.getCategoryId())) {
+                        filteredHabits.add(h);
+                    }
+                }
+            }
+        }
+        habitAdapter.notifyDataSetChanged();
     }
 
     private void loadHabits() {
@@ -134,11 +238,11 @@ public class MainActivity extends AppCompatActivity implements HabitAdapter.OnHa
                 List<Habit> remoteHabits = habitRepository.findByUserId(currentUser.getId());
                 runOnUiThread(() -> {
                     habits.addAll(remoteHabits);
-                    habitAdapter.notifyDataSetChanged();
+                    applyFilter();
                 });
             }).start();
         }
-        habitAdapter.notifyDataSetChanged();
+        applyFilter();
     }
 
     private void updateStorageModeLabel() {
@@ -150,7 +254,7 @@ public class MainActivity extends AppCompatActivity implements HabitAdapter.OnHa
     }
 
     private void setupRecyclerView() {
-        habitAdapter = new HabitAdapter(habits, this);
+        habitAdapter = new HabitAdapter(filteredHabits, this);
         binding.habitsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         binding.habitsRecyclerView.setAdapter(habitAdapter);
     }
@@ -180,6 +284,7 @@ public class MainActivity extends AppCompatActivity implements HabitAdapter.OnHa
                         new TypeToken<Map<String, Object>>() {}.getType());
                 runOnUiThread(() -> {
                     Toast.makeText(this, R.string.defaults_loaded, Toast.LENGTH_SHORT).show();
+                    loadCategories();
                     loadHabits();
                 });
             } catch (IOException e) {
@@ -202,21 +307,30 @@ public class MainActivity extends AppCompatActivity implements HabitAdapter.OnHa
         Habit habit = new Habit(name, description);
         habit.setUser(currentUser);
 
+        String selectedCategory = (String) binding.categorySpinner.getSelectedItem();
+        if (selectedCategory != null && !getString(R.string.no_category).equals(selectedCategory)) {
+            String catId = categoryNameToId.get(selectedCategory);
+            if (catId != null) {
+                habit.setCategoryId(catId);
+            }
+        }
+
         if (usingRemoteStorage && habitRepository != null) {
             new Thread(() -> {
                 habitRepository.save(habit);
                 runOnUiThread(() -> {
                     habits.add(habit);
-                    habitAdapter.notifyItemInserted(habits.size() - 1);
+                    applyFilter();
                 });
             }).start();
         } else {
             habits.add(habit);
-            habitAdapter.notifyItemInserted(habits.size() - 1);
+            applyFilter();
         }
 
         binding.habitNameInput.setText("");
         binding.habitDescriptionInput.setText("");
+        binding.categorySpinner.setSelection(0);
     }
 
     private void completeHabit() {

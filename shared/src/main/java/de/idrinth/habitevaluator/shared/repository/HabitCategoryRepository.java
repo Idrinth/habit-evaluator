@@ -48,4 +48,12 @@ public interface HabitCategoryRepository {
      * @return true if exists, false otherwise
      */
     boolean existsById(String id);
+
+    /**
+     * Finds all habit categories for a specific user.
+     *
+     * @param userId the user ID
+     * @return list of categories belonging to the user
+     */
+    List<HabitCategory> findByUserId(String userId);
 }

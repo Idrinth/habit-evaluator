@@ -1,13 +1,24 @@
 <script lang="ts">
-	import { habits } from '$lib/api';
+	import { onMount } from 'svelte';
+	import { habits, categories, type HabitCategory } from '$lib/api';
 
 	let name = $state('');
 	let description = $state('');
+	let categoryId = $state('');
 	let frequencyType = $state('DAILY');
 	let targetFrequency = $state(1);
 	let positiveScoring = $state(true);
 	let error = $state('');
 	let success = $state('');
+	let categoryList: HabitCategory[] = $state([]);
+
+	onMount(async () => {
+		try {
+			categoryList = await categories.list();
+		} catch {
+			// categories are optional
+		}
+	});
 
 	async function handleSubmit(e: Event) {
 		e.preventDefault();
@@ -15,10 +26,18 @@
 		success = '';
 
 		try {
-			await habits.create({ name, description: description || undefined, frequencyType, targetFrequency, positiveScoring });
+			await habits.create({
+				name,
+				description: description || undefined,
+				categoryId: categoryId || undefined,
+				frequencyType,
+				targetFrequency,
+				positiveScoring
+			});
 			success = `Habit "${name}" created successfully`;
 			name = '';
 			description = '';
+			categoryId = '';
 			frequencyType = 'DAILY';
 			targetFrequency = 1;
 			positiveScoring = true;
@@ -42,6 +61,14 @@
 
 		<label for="description">Description</label>
 		<textarea id="description" bind:value={description} maxlength="1000"></textarea>
+
+		<label for="categoryId">Category</label>
+		<select id="categoryId" bind:value={categoryId}>
+			<option value="">No category</option>
+			{#each categoryList as cat (cat.id)}
+				<option value={cat.id}>{cat.name}</option>
+			{/each}
+		</select>
 
 		<label for="frequencyType">Frequency</label>
 		<select id="frequencyType" bind:value={frequencyType} required>

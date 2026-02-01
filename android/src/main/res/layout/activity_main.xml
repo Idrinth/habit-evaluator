@@ -68,6 +68,15 @@
             android:minLines="2" />
     </com.google.android.material.textfield.TextInputLayout>
 
+    <Spinner
+        android:id="@+id/categorySpinner"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/habitDescriptionLayout" />
+
     <com.google.android.material.button.MaterialButton
         android:id="@+id/addHabitButton"
         android:layout_width="wrap_content"
@@ -75,7 +84,7 @@
         android:layout_marginTop="8dp"
         android:text="@string/add_habit"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/habitDescriptionLayout" />
+        app:layout_constraintTop_toBottomOf="@id/categorySpinner" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/trackHabitsButton"
@@ -86,7 +95,7 @@
         android:text="@string/track_habits"
         style="@style/Widget.MaterialComponents.Button.OutlinedButton"
         app:layout_constraintStart_toEndOf="@id/addHabitButton"
-        app:layout_constraintTop_toBottomOf="@id/habitDescriptionLayout" />
+        app:layout_constraintTop_toBottomOf="@id/categorySpinner" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/loadDefaultsButton"
@@ -109,6 +118,16 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/loadDefaultsButton" />
 
+    <Spinner
+        android:id="@+id/categoryFilterSpinner"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/habitsLabel"
+        app:layout_constraintTop_toBottomOf="@id/loadDefaultsButton"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp" />
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/habitsRecyclerView"
         android:layout_width="0dp"
@@ -117,7 +136,7 @@
         app:layout_constraintBottom_toTopOf="@id/evaluationCard"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/habitsLabel" />
+        app:layout_constraintTop_toBottomOf="@id/categoryFilterSpinner" />
 
     <androidx.cardview.widget.CardView
         android:id="@+id/evaluationCard"
