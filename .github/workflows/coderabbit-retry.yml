@@ -2,8 +2,8 @@ name: CodeRabbit Retry
 
 on:
   schedule:
-    - cron: '0 * * * *'  # Run every hour
-  workflow_dispatch:      # Allow manual trigger
+    - cron: '0 * * * *'
+  workflow_dispatch:
 
 jobs:
   retry:
