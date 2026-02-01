@@ -271,6 +271,7 @@ public class MainActivity extends AppCompatActivity implements HabitAdapter.OnHa
                     runOnUiThread(() -> {
                         habits.addAll(remoteHabits);
                         applyFilter();
+                        updateLoadDefaultsButtonVisibility();
                     });
                 }).start();
             } else {
@@ -278,6 +279,15 @@ public class MainActivity extends AppCompatActivity implements HabitAdapter.OnHa
             }
         }
         applyFilter();
+        updateLoadDefaultsButtonVisibility();
+    }
+
+    private void updateLoadDefaultsButtonVisibility() {
+        if (!categoryList.isEmpty() || !habits.isEmpty()) {
+            binding.loadDefaultsButton.setVisibility(View.GONE);
+        } else {
+            binding.loadDefaultsButton.setVisibility(View.VISIBLE);
+        }
     }
 
     private void updateStorageModeLabel() {

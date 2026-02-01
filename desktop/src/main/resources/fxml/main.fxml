@@ -14,7 +14,7 @@
                 <Insets top="5" right="10" bottom="5" left="10"/>
             </padding>
             <Label fx:id="storageModeLabel" text="Storage: Local" HBox.hgrow="ALWAYS"/>
-            <Button text="Load Default Habits" onAction="#handleLoadDefaults"/>
+            <Button fx:id="loadDefaultsButton" text="Load Default Habits" onAction="#handleLoadDefaults"/>
             <Button text="Sync" onAction="#handleSync"/>
             <Button text="Settings" onAction="#handleOpenSettings"/>
         </HBox>
