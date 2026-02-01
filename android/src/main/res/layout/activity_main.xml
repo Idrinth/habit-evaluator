@@ -17,11 +17,19 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
+        <ImageView
+            android:id="@+id/appLogo"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:src="@drawable/ic_launcher"
+            android:contentDescription="@string/app_name" />
+
         <TextView
             android:id="@+id/storageModeText"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:layout_marginStart="8dp"
             android:text="@string/storage_mode_local"
             android:textSize="12sp"
             android:textColor="@color/text_secondary" />
