@@ -24,6 +24,8 @@ import java.util.List;
 import java.util.Map;
 
 import de.idrinth.habitevaluator.android.databinding.ActivityMainBinding;
+import de.idrinth.habitevaluator.android.persistence.InMemoryHabitCategoryRepository;
+import de.idrinth.habitevaluator.android.persistence.InMemoryHabitRepository;
 import de.idrinth.habitevaluator.android.ui.HabitAdapter;
 import de.idrinth.habitevaluator.shared.api.ApiClient;
 import de.idrinth.habitevaluator.shared.api.RemoteHabitRepository;
@@ -33,8 +35,11 @@ import de.idrinth.habitevaluator.shared.model.Habit;
 import de.idrinth.habitevaluator.shared.model.HabitCategory;
 import de.idrinth.habitevaluator.shared.model.HabitEntry;
 import de.idrinth.habitevaluator.shared.model.User;
+import de.idrinth.habitevaluator.shared.repository.HabitCategoryRepository;
 import de.idrinth.habitevaluator.shared.repository.HabitRepository;
+import de.idrinth.habitevaluator.shared.service.DefaultDataInitializer;
 import de.idrinth.habitevaluator.shared.service.HabitEvaluatorService;
+import de.idrinth.habitevaluator.shared.service.HabitScoringService;
 
 public class MainActivity extends AppCompatActivity implements HabitAdapter.OnHabitClickListener {
 
@@ -50,9 +55,11 @@ public class MainActivity extends AppCompatActivity implements HabitAdapter.OnHa
     private List<Habit> habits;
     private List<Habit> filteredHabits;
     private HabitEvaluatorService evaluatorService;
+    private HabitScoringService scoringService;
     private Habit selectedHabit;
     private User currentUser;
     private HabitRepository habitRepository;
+    private HabitCategoryRepository categoryRepository;
     private ApiClient apiClient;
     private boolean usingRemoteStorage;
     private List<HabitCategory> categoryList = new ArrayList<>();
@@ -75,6 +82,7 @@ public class MainActivity extends AppCompatActivity implements HabitAdapter.OnHa
         filteredHabits = new ArrayList<>();
         sharedHabits = habits;
         evaluatorService = new HabitEvaluatorService();
+        scoringService = new HabitScoringService();
 
         setupRecyclerView();
         initializeStorage();
@@ -98,7 +106,8 @@ public class MainActivity extends AppCompatActivity implements HabitAdapter.OnHa
 
     private void initializeLocalStorage() {
         usingRemoteStorage = false;
-        habitRepository = null;
+        habitRepository = new InMemoryHabitRepository();
+        categoryRepository = new InMemoryHabitCategoryRepository();
         apiClient = null;
         currentUser = new User(PLACEHOLDER_USERNAME, "placeholder");
     }
@@ -233,14 +242,18 @@ public class MainActivity extends AppCompatActivity implements HabitAdapter.OnHa
 
     private void loadHabits() {
         habits.clear();
-        if (usingRemoteStorage && habitRepository != null && currentUser != null) {
-            new Thread(() -> {
-                List<Habit> remoteHabits = habitRepository.findByUserId(currentUser.getId());
-                runOnUiThread(() -> {
-                    habits.addAll(remoteHabits);
-                    applyFilter();
-                });
-            }).start();
+        if (habitRepository != null && currentUser != null) {
+            if (usingRemoteStorage) {
+                new Thread(() -> {
+                    List<Habit> remoteHabits = habitRepository.findByUserId(currentUser.getId());
+                    runOnUiThread(() -> {
+                        habits.addAll(remoteHabits);
+                        applyFilter();
+                    });
+                }).start();
+            } else {
+                habits.addAll(habitRepository.findByUserId(currentUser.getId()));
+            }
         }
         applyFilter();
     }
@@ -274,14 +287,15 @@ public class MainActivity extends AppCompatActivity implements HabitAdapter.OnHa
     }
 
     private void loadDefaults() {
-        if (!usingRemoteStorage || apiClient == null) {
-            Toast.makeText(this, R.string.load_defaults_requires_remote, Toast.LENGTH_LONG).show();
-            return;
-        }
         new Thread(() -> {
             try {
-                apiClient.post("/api/init-defaults", Collections.emptyMap(),
-                        new TypeToken<Map<String, Object>>() {}.getType());
+                if (usingRemoteStorage && apiClient != null) {
+                    apiClient.post("/api/init-defaults", Collections.emptyMap(),
+                            new TypeToken<Map<String, Object>>() {}.getType());
+                } else if (categoryRepository != null && habitRepository != null && currentUser != null) {
+                    DefaultDataInitializer initializer = new DefaultDataInitializer(categoryRepository, habitRepository);
+                    initializer.initializeDefaults(currentUser);
+                }
                 runOnUiThread(() -> {
                     Toast.makeText(this, R.string.defaults_loaded, Toast.LENGTH_SHORT).show();
                     loadCategories();
@@ -315,14 +329,20 @@ public class MainActivity extends AppCompatActivity implements HabitAdapter.OnHa
             }
         }
 
-        if (usingRemoteStorage && habitRepository != null) {
-            new Thread(() -> {
+        if (habitRepository != null) {
+            if (usingRemoteStorage) {
+                new Thread(() -> {
+                    habitRepository.save(habit);
+                    runOnUiThread(() -> {
+                        habits.add(habit);
+                        applyFilter();
+                    });
+                }).start();
+            } else {
                 habitRepository.save(habit);
-                runOnUiThread(() -> {
-                    habits.add(habit);
-                    applyFilter();
-                });
-            }).start();
+                habits.add(habit);
+                applyFilter();
+            }
         } else {
             habits.add(habit);
             applyFilter();
@@ -342,14 +362,20 @@ public class MainActivity extends AppCompatActivity implements HabitAdapter.OnHa
         HabitEntry entry = new HabitEntry(selectedHabit.getId());
         selectedHabit.addEntry(entry);
 
-        if (usingRemoteStorage && habitRepository != null) {
-            new Thread(() -> {
+        if (habitRepository != null) {
+            if (usingRemoteStorage) {
+                new Thread(() -> {
+                    habitRepository.save(selectedHabit);
+                    runOnUiThread(() -> {
+                        updateEvaluationDisplay(selectedHabit);
+                        Toast.makeText(this, "Habit completed!", Toast.LENGTH_SHORT).show();
+                    });
+                }).start();
+            } else {
                 habitRepository.save(selectedHabit);
-                runOnUiThread(() -> {
-                    updateEvaluationDisplay(selectedHabit);
-                    Toast.makeText(this, "Habit completed!", Toast.LENGTH_SHORT).show();
-                });
-            }).start();
+                updateEvaluationDisplay(selectedHabit);
+                Toast.makeText(this, "Habit completed!", Toast.LENGTH_SHORT).show();
+            }
         } else {
             updateEvaluationDisplay(selectedHabit);
             Toast.makeText(this, "Habit completed!", Toast.LENGTH_SHORT).show();
@@ -375,5 +401,9 @@ public class MainActivity extends AppCompatActivity implements HabitAdapter.OnHa
         binding.streakText.setText(String.format("Current Streak: %d days", evaluation.getCurrentStreak()));
         binding.completionRateText.setText(String.format("Completion Rate: %.1f%%", evaluation.getCompletionRate() * 100));
         binding.completionProgress.setProgress((int) (evaluation.getCompletionRate() * 100));
+
+        binding.dailyPointsText.setText(getString(R.string.daily_points, scoringService.getCurrentDayScore(habit)));
+        binding.weeklyPointsText.setText(getString(R.string.weekly_points, scoringService.getCurrentWeekScore(habit)));
+        binding.monthlyPointsText.setText(getString(R.string.monthly_points, scoringService.getCurrentMonthScore(habit)));
     }
 }

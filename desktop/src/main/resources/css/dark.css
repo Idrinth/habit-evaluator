@@ -1,0 +1,145 @@
+/* Dark mode styles for Habit Evaluator Desktop App */
+
+.root {
+    -fx-base: #1e1e2e;
+    -fx-background: #1e1e2e;
+    -fx-control-inner-background: #2a2a3e;
+    -fx-accent: #4CAF50;
+    -fx-focus-color: #4CAF50;
+    -fx-faint-focus-color: transparent;
+    -fx-text-fill: #e0e0e0;
+    -fx-text-background-color: #e0e0e0;
+}
+
+.sidebar {
+    -fx-background-color: #181828;
+    -fx-border-color: #3a3a5c;
+    -fx-border-width: 0 1 0 0;
+}
+
+.main-content {
+    -fx-background-color: #1e1e2e;
+}
+
+.section-title {
+    -fx-text-fill: #e0e0e0;
+}
+
+.label {
+    -fx-text-fill: #c0c0c0;
+}
+
+.evaluation-panel {
+    -fx-background-color: #252540;
+    -fx-border-color: #3a3a5c;
+}
+
+.list-view {
+    -fx-background-color: #1e1e2e;
+    -fx-border-color: #3a3a5c;
+}
+
+.list-view .list-cell {
+    -fx-background-color: #1e1e2e;
+    -fx-text-fill: #e0e0e0;
+}
+
+.list-view .list-cell:filled:hover {
+    -fx-background-color: #2a2a4a;
+}
+
+.list-cell:selected {
+    -fx-background-color: #1a3a5c;
+    -fx-text-fill: #60a5fa;
+}
+
+.toolbar {
+    -fx-background-color: #181828;
+    -fx-border-color: #3a3a5c;
+    -fx-border-width: 0 0 1 0;
+}
+
+.text-field, .text-area {
+    -fx-background-color: #2a2a3e;
+    -fx-text-fill: #e0e0e0;
+    -fx-border-color: #3a3a5c;
+    -fx-prompt-text-fill: #666680;
+}
+
+.text-area .content {
+    -fx-background-color: #2a2a3e;
+}
+
+.button {
+    -fx-background-color: #3a3a5c;
+    -fx-text-fill: #e0e0e0;
+}
+
+.button:hover {
+    -fx-background-color: #4a4a6c;
+}
+
+.primary-button {
+    -fx-background-color: #4CAF50;
+    -fx-text-fill: white;
+}
+
+.primary-button:hover {
+    -fx-background-color: #45a049;
+}
+
+.danger-button {
+    -fx-background-color: #f44336;
+    -fx-text-fill: white;
+}
+
+.danger-button:hover {
+    -fx-background-color: #da190b;
+}
+
+.progress-bar > .track {
+    -fx-background-color: #2a2a3e;
+}
+
+.progress-bar > .bar {
+    -fx-background-color: #4CAF50;
+}
+
+.scroll-pane {
+    -fx-background-color: #1e1e2e;
+}
+
+.scroll-pane > .viewport {
+    -fx-background-color: #1e1e2e;
+}
+
+.separator *.line {
+    -fx-border-color: #3a3a5c;
+}
+
+.check-box {
+    -fx-text-fill: #e0e0e0;
+}
+
+.check-box > .box {
+    -fx-background-color: #2a2a3e;
+    -fx-border-color: #3a3a5c;
+}
+
+.tooltip {
+    -fx-background-color: #2a2a3e;
+    -fx-text-fill: #e0e0e0;
+    -fx-border-color: #3a3a5c;
+}
+
+.scroll-bar {
+    -fx-background-color: #1e1e2e;
+}
+
+.scroll-bar > .thumb {
+    -fx-background-color: #3a3a5c;
+}
+
+.scroll-bar > .thumb:hover {
+    -fx-background-color: #4a4a6c;
+}

@@ -19,5 +19,5 @@
 
 <div class="container">
 	<h1>Habit Evaluator</h1>
-	<p style="text-align: center; color: #777;">Loading...</p>
+	<p style="text-align: center; color: var(--color-text-muted);">Loading...</p>
 </div>

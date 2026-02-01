@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -115,6 +116,9 @@ public class HabitController {
         return habitRepository.findById(id)
                 .filter(habit -> userId.equals(habit.getUser() != null ? habit.getUser().getId() : null))
                 .map(habit -> {
+                    if (habit.hasReachedDailyLimit(LocalDate.now())) {
+                        return ResponseEntity.badRequest().<HabitEntry>body(null);
+                    }
                     habit.addEntry(entry);
                     habitRepository.save(habit);
                     return ResponseEntity.ok(entry);

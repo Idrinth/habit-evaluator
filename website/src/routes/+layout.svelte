@@ -24,7 +24,7 @@
 		<a href="/habits/add">Add Habit</a>
 		<a href="/categories/add">Add Category</a>
 		<a href="/score-rules/add">Scoring Rules</a>
-		<span style="margin-left: auto; color: #fff;">{data.username}</span>
+		<span style="margin-left: auto; color: var(--color-nav-text);">{data.username}</span>
 		<button onclick={handleLogout} style="padding: 0.25rem 0.5rem; font-size: 0.85rem;"
 			>Logout</button
 		>

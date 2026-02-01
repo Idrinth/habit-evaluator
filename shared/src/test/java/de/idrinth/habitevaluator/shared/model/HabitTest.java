@@ -2,6 +2,9 @@ package de.idrinth.habitevaluator.shared.model;
 
 import org.junit.jupiter.api.Test;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class HabitTest {
@@ -15,6 +18,7 @@ class HabitTest {
         assertTrue(habit.getEntries().isEmpty());
         assertEquals(FrequencyType.DAILY, habit.getFrequencyType());
         assertEquals(1, habit.getTargetFrequency());
+        assertEquals(1, habit.getMaxEntriesPerDay());
         assertTrue(habit.isPositiveScoring());
         assertNotNull(habit.getScoringRule());
     }
@@ -108,5 +112,61 @@ class HabitTest {
         Habit h2 = new Habit();
         h2.setId(h1.getId());
         assertEquals(h1.hashCode(), h2.hashCode());
+    }
+
+    @Test
+    void testSetMaxEntriesPerDay() {
+        Habit habit = new Habit();
+        habit.setMaxEntriesPerDay(3);
+        assertEquals(3, habit.getMaxEntriesPerDay());
+    }
+
+    @Test
+    void testHasReachedDailyLimitWithNoEntries() {
+        Habit habit = new Habit();
+        habit.setMaxEntriesPerDay(1);
+        assertFalse(habit.hasReachedDailyLimit(LocalDate.now()));
+    }
+
+    @Test
+    void testHasReachedDailyLimitWithEntriesAtLimit() {
+        Habit habit = new Habit("Test", "Test");
+        habit.setMaxEntriesPerDay(1);
+        HabitEntry entry = new HabitEntry();
+        entry.setCompletedAt(LocalDateTime.now());
+        habit.addEntry(entry);
+        assertTrue(habit.hasReachedDailyLimit(LocalDate.now()));
+    }
+
+    @Test
+    void testHasReachedDailyLimitWithEntriesBelowLimit() {
+        Habit habit = new Habit("Test", "Test");
+        habit.setMaxEntriesPerDay(2);
+        HabitEntry entry = new HabitEntry();
+        entry.setCompletedAt(LocalDateTime.now());
+        habit.addEntry(entry);
+        assertFalse(habit.hasReachedDailyLimit(LocalDate.now()));
+    }
+
+    @Test
+    void testHasReachedDailyLimitUnlimited() {
+        Habit habit = new Habit("Test", "Test");
+        habit.setMaxEntriesPerDay(0);
+        for (int i = 0; i < 10; i++) {
+            HabitEntry entry = new HabitEntry();
+            entry.setCompletedAt(LocalDateTime.now());
+            habit.addEntry(entry);
+        }
+        assertFalse(habit.hasReachedDailyLimit(LocalDate.now()));
+    }
+
+    @Test
+    void testHasReachedDailyLimitOnlyCountsToday() {
+        Habit habit = new Habit("Test", "Test");
+        habit.setMaxEntriesPerDay(1);
+        HabitEntry yesterdayEntry = new HabitEntry();
+        yesterdayEntry.setCompletedAt(LocalDateTime.now().minusDays(1));
+        habit.addEntry(yesterdayEntry);
+        assertFalse(habit.hasReachedDailyLimit(LocalDate.now()));
     }
 }

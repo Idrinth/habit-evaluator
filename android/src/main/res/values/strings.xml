@@ -39,4 +39,8 @@
     <string name="no_category">No category</string>
     <string name="all_categories">All categories</string>
     <string name="uncategorized">Uncategorized</string>
+    <string name="completion_points">Completion Points</string>
+    <string name="daily_points">Today: %d pts</string>
+    <string name="weekly_points">Week: %d pts</string>
+    <string name="monthly_points">Month: %d pts</string>
 </resources>
