@@ -1,0 +1,83 @@
+<script>
+	import '../app.css';
+
+	let { children } = $props();
+</script>
+
+<nav>
+	<div class="nav-inner">
+		<a href="/" class="logo">Habit Evaluator</a>
+		<div class="nav-links">
+			<a href="/features">Features</a>
+			<a href="/docs">Setup Guide</a>
+			<a href="/docs/api">API Reference</a>
+		</div>
+	</div>
+</nav>
+
+<main>
+	{@render children()}
+</main>
+
+<footer>
+	<div class="footer-inner">
+		<p>Habit Evaluator is open source software licensed under the <a href="https://opensource.org/licenses/MIT">MIT License</a>.</p>
+	</div>
+</footer>
+
+<style>
+	nav {
+		border-bottom: 1px solid var(--color-border);
+		padding: 0.75rem 1.5rem;
+		position: sticky;
+		top: 0;
+		background: var(--color-bg);
+		z-index: 10;
+	}
+	.nav-inner {
+		max-width: var(--max-width);
+		margin: 0 auto;
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		flex-wrap: wrap;
+		gap: 0.5rem;
+	}
+	.logo {
+		font-weight: 700;
+		font-size: 1.15rem;
+		color: var(--color-primary);
+	}
+	.logo:hover {
+		text-decoration: none;
+	}
+	.nav-links {
+		display: flex;
+		gap: 1.5rem;
+	}
+	.nav-links a {
+		color: var(--color-text-muted);
+		font-size: 0.95rem;
+	}
+	.nav-links a:hover {
+		color: var(--color-primary);
+		text-decoration: none;
+	}
+	main {
+		max-width: var(--max-width);
+		margin: 0 auto;
+		padding: 2rem 1.5rem;
+	}
+	footer {
+		border-top: 1px solid var(--color-border);
+		padding: 1.5rem;
+		margin-top: 3rem;
+	}
+	.footer-inner {
+		max-width: var(--max-width);
+		margin: 0 auto;
+		text-align: center;
+		color: var(--color-text-muted);
+		font-size: 0.875rem;
+	}
+</style>
