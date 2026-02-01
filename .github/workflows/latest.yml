@@ -1,0 +1,46 @@
+name: Build Latest
+
+on:
+  push:
+    branches:
+      - the-one
+
+permissions:
+  packages: write
+
+jobs:
+  docker:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - image: webserver
+            context: .
+            dockerfile: webserver/Dockerfile
+          - image: website
+            context: website
+            dockerfile: website/Dockerfile
+          - image: homepage
+            context: homepage
+            dockerfile: homepage/Dockerfile
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Lowercase repository
+        id: repo
+        run: echo "repo_lc=${GITHUB_REPOSITORY,,}" >> "$GITHUB_OUTPUT"
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: ${{ matrix.context }}
+          file: ${{ matrix.dockerfile }}
+          push: true
+          tags: ghcr.io/${{ steps.repo.outputs.repo_lc }}/${{ matrix.image }}:latest
