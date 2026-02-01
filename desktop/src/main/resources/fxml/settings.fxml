@@ -32,7 +32,7 @@
 
         <HBox spacing="10" alignment="CENTER_LEFT">
             <Label text="Server URL:" prefWidth="100"/>
-            <TextField fx:id="apiUrlField" HBox.hgrow="ALWAYS" promptText="http://localhost:8080"/>
+            <TextField fx:id="apiUrlField" HBox.hgrow="ALWAYS" promptText="http://your-server:8080"/>
         </HBox>
 
         <HBox spacing="10" alignment="CENTER_LEFT">
