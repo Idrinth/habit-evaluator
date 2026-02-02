@@ -28,6 +28,7 @@ import de.idrinth.habitevaluator.shared.model.Evaluation;
 import de.idrinth.habitevaluator.shared.model.Habit;
 import de.idrinth.habitevaluator.shared.model.HabitCategory;
 import de.idrinth.habitevaluator.shared.model.HabitEntry;
+import de.idrinth.habitevaluator.shared.repository.HabitCategoryRepository;
 import de.idrinth.habitevaluator.shared.repository.HabitRepository;
 import de.idrinth.habitevaluator.shared.service.HabitEvaluatorService;
 import de.idrinth.habitevaluator.shared.service.HabitScoringService;
@@ -326,10 +327,14 @@ public class HomeFragment extends Fragment implements HabitAdapter.OnHabitClickL
             binding.evaluationCard.setVisibility(View.GONE);
         }
 
+        String categoryId = habit.getCategoryId();
+        HabitCategoryRepository categoryRepository = MainActivity.getSharedCategoryRepository();
+
         if (habitRepository != null) {
             if (usingRemote) {
                 new Thread(() -> {
                     habitRepository.deleteById(habit.getId());
+                    cleanupOrphanedCategory(categoryId, allHabits, categoryRepository);
                     if (isAdded()) {
                         requireActivity().runOnUiThread(() -> {
                             applyFilter();
@@ -339,12 +344,25 @@ public class HomeFragment extends Fragment implements HabitAdapter.OnHabitClickL
                 }).start();
             } else {
                 habitRepository.deleteById(habit.getId());
+                cleanupOrphanedCategory(categoryId, allHabits, categoryRepository);
                 applyFilter();
                 Toast.makeText(requireContext(), R.string.habit_deleted, Toast.LENGTH_SHORT).show();
             }
         } else {
+            cleanupOrphanedCategory(categoryId, allHabits, categoryRepository);
             applyFilter();
             Toast.makeText(requireContext(), R.string.habit_deleted, Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void cleanupOrphanedCategory(String categoryId, List<Habit> allHabits, HabitCategoryRepository categoryRepository) {
+        if (categoryId == null || categoryId.isEmpty() || categoryRepository == null) {
+            return;
+        }
+        boolean categoryStillUsed = allHabits != null && allHabits.stream()
+                .anyMatch(h -> categoryId.equals(h.getCategoryId()));
+        if (!categoryStillUsed) {
+            categoryRepository.deleteById(categoryId);
         }
     }
 
