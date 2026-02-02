@@ -6,8 +6,11 @@ import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -17,13 +20,17 @@ import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import de.idrinth.habitevaluator.android.R;
 import de.idrinth.habitevaluator.android.SettingsActivity;
+import de.idrinth.habitevaluator.shared.model.FrequencyType;
 import de.idrinth.habitevaluator.shared.model.Habit;
+import de.idrinth.habitevaluator.shared.model.HabitCategory;
 import de.idrinth.habitevaluator.shared.model.ScoringRule;
 
 public class EditHabitAdapter extends RecyclerView.Adapter<EditHabitAdapter.EditHabitViewHolder> {
@@ -39,10 +46,23 @@ public class EditHabitAdapter extends RecyclerView.Adapter<EditHabitAdapter.Edit
     private final List<Habit> habits;
     private final Map<String, EditedHabitValues> editedValues = new HashMap<>();
     private final boolean translationsEnabled;
+    private final List<HabitCategory> categories;
+    private final List<String> categoryNames = new ArrayList<>();
+    private final Map<String, String> categoryDisplayNameToId = new LinkedHashMap<>();
+    private final List<String> frequencyTypeLabels = new ArrayList<>();
+    private final String displayLanguage;
 
-    public EditHabitAdapter(List<Habit> habits, boolean translationsEnabled) {
+    public EditHabitAdapter(List<Habit> habits, boolean translationsEnabled,
+                            List<HabitCategory> categories, String displayLanguage) {
         this.habits = habits;
         this.translationsEnabled = translationsEnabled;
+        this.categories = categories;
+        this.displayLanguage = displayLanguage;
+        for (HabitCategory cat : categories) {
+            String displayName = displayLanguage != null ? cat.getDisplayName(displayLanguage) : cat.getName();
+            categoryNames.add(displayName);
+            categoryDisplayNameToId.put(displayName, cat.getId());
+        }
         for (Habit habit : habits) {
             ScoringRule rule = habit.getScoringRule();
             EditedHabitValues values = new EditedHabitValues(
@@ -52,7 +72,9 @@ public class EditHabitAdapter extends RecyclerView.Adapter<EditHabitAdapter.Edit
                     rule != null ? rule.getThresholdFor1Point() : 1,
                     rule != null ? rule.getThresholdFor2Points() : 2,
                     rule != null ? rule.getThresholdFor4Points() : 4,
-                    rule != null ? rule.getThresholdFor8Points() : 7
+                    rule != null ? rule.getThresholdFor8Points() : 7,
+                    habit.getCategoryId(),
+                    habit.getFrequencyType()
             );
             if (translationsEnabled) {
                 for (String lang : LANGUAGES) {
@@ -82,16 +104,86 @@ public class EditHabitAdapter extends RecyclerView.Adapter<EditHabitAdapter.Edit
         return new EditHabitViewHolder(view);
     }
 
+    private String getFrequencyTypeLabel(Context context, FrequencyType ft) {
+        switch (ft) {
+            case DAILY:
+                return context.getString(R.string.frequency_daily);
+            case WEEKLY:
+                return context.getString(R.string.frequency_weekly);
+            case MONTHLY:
+                return context.getString(R.string.frequency_monthly);
+            default:
+                return ft.name().substring(0, 1) + ft.name().substring(1).toLowerCase();
+        }
+    }
+
+    private int findCategoryPosition(String categoryId) {
+        if (categoryId == null) {
+            return 0;
+        }
+        for (int i = 0; i < categories.size(); i++) {
+            if (categories.get(i).getId().equals(categoryId)) {
+                return i;
+            }
+        }
+        return 0;
+    }
+
     @Override
     public void onBindViewHolder(@NonNull EditHabitViewHolder holder, int position) {
         Habit habit = habits.get(position);
         EditedHabitValues values = editedValues.get(habit.getId());
+        Context context = holder.itemView.getContext();
 
         holder.nameText.setText(habit.getName());
         holder.descriptionText.setText(habit.getDescription());
 
         // Remove previous watchers
         removeWatchers(holder);
+
+        // Category spinner
+        ArrayAdapter<String> categoryAdapter = new ArrayAdapter<>(context,
+                android.R.layout.simple_spinner_item, categoryNames);
+        categoryAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        holder.categorySpinner.setAdapter(categoryAdapter);
+        holder.categorySpinner.setSelection(findCategoryPosition(values.categoryId));
+        holder.categorySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+                String selectedName = categoryNames.get(pos);
+                String catId = categoryDisplayNameToId.get(selectedName);
+                if (catId != null) {
+                    values.categoryId = catId;
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
+        });
+
+        // Frequency type spinner
+        List<String> freqLabels = new ArrayList<>();
+        for (FrequencyType ft : FrequencyType.values()) {
+            freqLabels.add(getFrequencyTypeLabel(context, ft));
+        }
+        ArrayAdapter<String> freqAdapter = new ArrayAdapter<>(context,
+                android.R.layout.simple_spinner_item, freqLabels);
+        freqAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        holder.frequencyTypeSpinner.setAdapter(freqAdapter);
+        holder.frequencyTypeSpinner.setSelection(values.frequencyType.ordinal());
+        holder.frequencyTypeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+                if (pos >= 0 && pos < FrequencyType.values().length) {
+                    values.frequencyType = FrequencyType.values()[pos];
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
+        });
 
         holder.targetFrequency.setText(String.valueOf(values.targetFrequency));
         holder.maxEntriesPerDay.setText(String.valueOf(values.maxEntriesPerDay));
@@ -264,11 +356,14 @@ public class EditHabitAdapter extends RecyclerView.Adapter<EditHabitAdapter.Edit
         public int threshold2;
         public int threshold4;
         public int threshold8;
+        public String categoryId;
+        public FrequencyType frequencyType;
         public Map<String, String> nameTranslations = new HashMap<>();
         public Map<String, String> descriptionTranslations = new HashMap<>();
 
         public EditedHabitValues(int targetFrequency, int maxEntriesPerDay, boolean positiveScoring,
-                                 int threshold1, int threshold2, int threshold4, int threshold8) {
+                                 int threshold1, int threshold2, int threshold4, int threshold8,
+                                 String categoryId, FrequencyType frequencyType) {
             this.targetFrequency = targetFrequency;
             this.maxEntriesPerDay = maxEntriesPerDay;
             this.positiveScoring = positiveScoring;
@@ -276,6 +371,8 @@ public class EditHabitAdapter extends RecyclerView.Adapter<EditHabitAdapter.Edit
             this.threshold2 = threshold2;
             this.threshold4 = threshold4;
             this.threshold8 = threshold8;
+            this.categoryId = categoryId;
+            this.frequencyType = frequencyType;
         }
     }
 
@@ -290,6 +387,8 @@ public class EditHabitAdapter extends RecyclerView.Adapter<EditHabitAdapter.Edit
     static class EditHabitViewHolder extends RecyclerView.ViewHolder {
         private final TextView nameText;
         private final TextView descriptionText;
+        private final Spinner categorySpinner;
+        private final Spinner frequencyTypeSpinner;
         private final EditText targetFrequency;
         private final EditText maxEntriesPerDay;
         private final SwitchMaterial positiveScoring;
@@ -309,6 +408,8 @@ public class EditHabitAdapter extends RecyclerView.Adapter<EditHabitAdapter.Edit
             super(itemView);
             nameText = itemView.findViewById(R.id.editHabitName);
             descriptionText = itemView.findViewById(R.id.editHabitDescription);
+            categorySpinner = itemView.findViewById(R.id.editCategorySpinner);
+            frequencyTypeSpinner = itemView.findViewById(R.id.editFrequencyTypeSpinner);
             targetFrequency = itemView.findViewById(R.id.editTargetFrequency);
             maxEntriesPerDay = itemView.findViewById(R.id.editMaxEntriesPerDay);
             positiveScoring = itemView.findViewById(R.id.editPositiveScoring);
