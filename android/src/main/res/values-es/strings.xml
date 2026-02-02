@@ -72,4 +72,21 @@
     <string name="frequency_daily">Diario</string>
     <string name="frequency_weekly">Semanal</string>
     <string name="frequency_monthly">Mensual</string>
+    <string name="nav_diary">Diario</string>
+    <string name="diary_positive_events">Eventos positivos</string>
+    <string name="diary_event_hint">¿Qué cosa positiva sucedió?</string>
+    <string name="diary_add_event">Añadir evento</string>
+    <string name="diary_minor">Menor</string>
+    <string name="diary_normal">Normal</string>
+    <string name="diary_major">Mayor</string>
+    <string name="diary_points_value">%d pts</string>
+    <string name="diary_today_points">Hoy: %d pts</string>
+    <string name="diary_week_points">Semana: %d pts</string>
+    <string name="diary_month_points">Mes: %d pts</string>
+    <string name="diary_weekly_avg">Prom. semanal: %.1f pts</string>
+    <string name="diary_trend_up">Tendencia: +%.0f%%</string>
+    <string name="diary_trend_down">Tendencia: -%.0f%%</string>
+    <string name="diary_trend_stable">Tendencia: estable</string>
+    <string name="diary_event_added">¡Evento positivo registrado!</string>
+    <string name="diary_description_required">Por favor, describa el evento positivo</string>
 </resources>

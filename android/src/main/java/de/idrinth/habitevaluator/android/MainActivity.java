@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 import de.idrinth.habitevaluator.android.databinding.ActivityMainBinding;
+import de.idrinth.habitevaluator.android.persistence.FileSystemDiaryEntryRepository;
 import de.idrinth.habitevaluator.android.persistence.FileSystemHabitCategoryRepository;
 import de.idrinth.habitevaluator.android.persistence.FileSystemHabitRepository;
 import de.idrinth.habitevaluator.android.ui.ScreenPagerAdapter;
@@ -25,6 +26,7 @@ import de.idrinth.habitevaluator.shared.api.RemoteUserRepository;
 import de.idrinth.habitevaluator.shared.model.Habit;
 import de.idrinth.habitevaluator.shared.model.HabitCategory;
 import de.idrinth.habitevaluator.shared.model.User;
+import de.idrinth.habitevaluator.shared.repository.DiaryEntryRepository;
 import de.idrinth.habitevaluator.shared.repository.HabitCategoryRepository;
 import de.idrinth.habitevaluator.shared.repository.HabitRepository;
 import de.idrinth.habitevaluator.shared.service.DefaultDataInitializer;
@@ -39,6 +41,7 @@ public class MainActivity extends AppCompatActivity {
     private static HabitCategoryRepository sharedCategoryRepository;
     private static ApiClient sharedApiClient;
     private static User sharedCurrentUser;
+    private static DiaryEntryRepository sharedDiaryEntryRepository;
 
     public static List<Habit> getSharedHabits() {
         return sharedHabits;
@@ -66,6 +69,10 @@ public class MainActivity extends AppCompatActivity {
 
     public static User getSharedCurrentUser() {
         return sharedCurrentUser;
+    }
+
+    public static DiaryEntryRepository getSharedDiaryEntryRepository() {
+        return sharedDiaryEntryRepository;
     }
 
     public static void saveAllHabits() {
@@ -128,6 +135,9 @@ public class MainActivity extends AppCompatActivity {
                     case ScreenPagerAdapter.PAGE_HOME:
                         binding.bottomNavigation.setSelectedItemId(R.id.nav_home);
                         break;
+                    case ScreenPagerAdapter.PAGE_DIARY:
+                        binding.bottomNavigation.setSelectedItemId(R.id.nav_diary);
+                        break;
                     case ScreenPagerAdapter.PAGE_ADD_HABIT:
                         binding.bottomNavigation.setSelectedItemId(R.id.nav_add_habit);
                         break;
@@ -148,6 +158,9 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             } else if (id == R.id.nav_home) {
                 binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_HOME, true);
+                return true;
+            } else if (id == R.id.nav_diary) {
+                binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_DIARY, true);
                 return true;
             } else if (id == R.id.nav_add_habit) {
                 binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_ADD_HABIT, true);
@@ -189,6 +202,7 @@ public class MainActivity extends AppCompatActivity {
         sharedCategoryRepository = categoryRepository;
         sharedApiClient = null;
         sharedCurrentUser = currentUser;
+        sharedDiaryEntryRepository = new FileSystemDiaryEntryRepository(storageDir);
     }
 
     private User getOrCreateLocalUser() {
