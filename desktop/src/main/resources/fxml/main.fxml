@@ -33,7 +33,7 @@
             <ListView fx:id="habitListView" VBox.vgrow="ALWAYS" prefWidth="200"/>
 
             <HBox spacing="5">
-                <Button text="Complete" onAction="#handleCompleteHabit" styleClass="primary-button"/>
+                <Button fx:id="completeButton" text="Complete" onAction="#handleCompleteHabit" styleClass="primary-button"/>
                 <Button text="Delete" onAction="#handleDeleteHabit" styleClass="danger-button"/>
             </HBox>
         </VBox>

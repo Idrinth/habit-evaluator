@@ -481,12 +481,19 @@ public class MainActivity extends AppCompatActivity implements HabitAdapter.OnHa
                 LocalDate.now()
         );
 
-        binding.streakText.setText(String.format("Current Streak: %d days", evaluation.getCurrentStreak()));
-        binding.completionRateText.setText(String.format("Completion Rate: %.1f%%", evaluation.getCompletionRate() * 100));
+        binding.streakText.setText(String.format("Streak: %d days", evaluation.getCurrentStreak()));
+        binding.completionRateText.setText(String.format("Rate: %.1f%%", evaluation.getCompletionRate() * 100));
+        binding.completedActivitiesText.setText(getString(R.string.completed_activities, evaluation.getTotalEntries()));
         binding.completionProgress.setProgress((int) (evaluation.getCompletionRate() * 100));
 
         binding.dailyPointsText.setText(getString(R.string.daily_points, scoringService.getCurrentDayScore(habit)));
         binding.weeklyPointsText.setText(getString(R.string.weekly_points, scoringService.getCurrentWeekScore(habit)));
         binding.monthlyPointsText.setText(getString(R.string.monthly_points, scoringService.getCurrentMonthScore(habit)));
+
+        if (habit.getMaxEntriesPerDay() != 1) {
+            binding.completeButton.setText(R.string.add_completion);
+        } else {
+            binding.completeButton.setText(R.string.mark_complete);
+        }
     }
 }
