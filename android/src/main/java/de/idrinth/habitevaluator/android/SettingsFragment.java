@@ -180,6 +180,7 @@ public class SettingsFragment extends Fragment {
 
         editor.apply();
         SettingsActivity.applyThemeMode(themeMode);
+        SettingsActivity.applyLanguage(language);
         Toast.makeText(requireContext(), R.string.settings_saved, Toast.LENGTH_SHORT).show();
 
         if (getActivity() instanceof MainActivity) {
