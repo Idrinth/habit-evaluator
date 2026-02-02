@@ -133,6 +133,7 @@ public class MainActivity extends AppCompatActivity {
     private List<HabitCategory> categoryList = new ArrayList<>();
     private SleepEntryRepository sleepEntryRepository;
     private List<SleepEntry> sleepEntries = new ArrayList<>();
+    private boolean isProgrammaticNavigation = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -155,11 +156,13 @@ public class MainActivity extends AppCompatActivity {
 
     public void navigateToEditHabit(String habitId) {
         setEditHabitId(habitId);
+        isProgrammaticNavigation = true;
         binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_EDIT_HABITS, true);
     }
 
     public void navigateToPointDevelopment(String habitId) {
         setPointDevelopmentHabitId(habitId);
+        isProgrammaticNavigation = true;
         binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_POINT_DEVELOPMENT, true);
     }
 
@@ -178,8 +181,18 @@ public class MainActivity extends AppCompatActivity {
             public void onPageSelected(int position) {
                 switch (position) {
                     case ScreenPagerAdapter.PAGE_EDIT_HABITS:
+                        if (isProgrammaticNavigation) {
+                            isProgrammaticNavigation = false;
+                        } else {
+                            binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_HOME, false);
+                        }
+                        break;
                     case ScreenPagerAdapter.PAGE_POINT_DEVELOPMENT:
-                        // Accessed via buttons, not bottom nav
+                        if (isProgrammaticNavigation) {
+                            isProgrammaticNavigation = false;
+                        } else {
+                            binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_STATS, false);
+                        }
                         break;
                     case ScreenPagerAdapter.PAGE_HOME:
                         binding.bottomNavigation.setSelectedItemId(R.id.nav_home);
