@@ -9,10 +9,6 @@
         android:icon="@drawable/ic_diary"
         android:title="@string/nav_diary" />
     <item
-        android:id="@+id/nav_add_habit"
-        android:icon="@drawable/ic_add"
-        android:title="@string/add_habit" />
-    <item
         android:id="@+id/nav_settings"
         android:icon="@drawable/ic_settings"
         android:title="@string/settings" />
