@@ -23,6 +23,7 @@ public class HabitAdapter extends RecyclerView.Adapter<HabitAdapter.HabitViewHol
     private final List<Habit> habits;
     private final OnHabitClickListener listener;
     private OnHabitEditListener editListener;
+    private OnHabitDeleteListener deleteListener;
     private String displayLanguage;
     private int selectedPosition = -1;
 
@@ -34,6 +35,10 @@ public class HabitAdapter extends RecyclerView.Adapter<HabitAdapter.HabitViewHol
         void onHabitEdit(Habit habit);
     }
 
+    public interface OnHabitDeleteListener {
+        void onHabitDelete(Habit habit);
+    }
+
     public HabitAdapter(List<Habit> habits, OnHabitClickListener listener) {
         this.habits = habits;
         this.listener = listener;
@@ -41,6 +46,10 @@ public class HabitAdapter extends RecyclerView.Adapter<HabitAdapter.HabitViewHol
 
     public void setOnHabitEditListener(OnHabitEditListener editListener) {
         this.editListener = editListener;
+    }
+
+    public void setOnHabitDeleteListener(OnHabitDeleteListener deleteListener) {
+        this.deleteListener = deleteListener;
     }
 
     public void setDisplayLanguage(String displayLanguage) {
@@ -77,6 +86,12 @@ public class HabitAdapter extends RecyclerView.Adapter<HabitAdapter.HabitViewHol
                 editListener.onHabitEdit(habit);
             }
         });
+
+        holder.deleteButton.setOnClickListener(v -> {
+            if (deleteListener != null) {
+                deleteListener.onHabitDelete(habit);
+            }
+        });
     }
 
     @Override
@@ -90,6 +105,7 @@ public class HabitAdapter extends RecyclerView.Adapter<HabitAdapter.HabitViewHol
         private final TextView entriesCountText;
         private final MaterialCardView cardView;
         private final ImageButton editButton;
+        private final ImageButton deleteButton;
 
         HabitViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -98,6 +114,7 @@ public class HabitAdapter extends RecyclerView.Adapter<HabitAdapter.HabitViewHol
             descriptionText = itemView.findViewById(R.id.habitDescription);
             entriesCountText = itemView.findViewById(R.id.entriesCount);
             editButton = itemView.findViewById(R.id.editHabitButton);
+            deleteButton = itemView.findViewById(R.id.deleteHabitButton);
         }
 
         void bind(Habit habit, boolean isSelected, String language) {

@@ -1,5 +1,6 @@
 package de.idrinth.habitevaluator.android;
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -95,6 +96,7 @@ public class HomeFragment extends Fragment implements HabitAdapter.OnHabitClickL
                 ((MainActivity) getActivity()).navigateToEditHabit(habit.getId());
             }
         });
+        habitAdapter.setOnHabitDeleteListener(this::confirmDeleteHabit);
         binding.habitsRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
         binding.habitsRecyclerView.setAdapter(habitAdapter);
     }
@@ -298,6 +300,51 @@ public class HomeFragment extends Fragment implements HabitAdapter.OnHabitClickL
             binding.completeButton.setText(R.string.add_completion);
         } else {
             binding.completeButton.setText(R.string.mark_complete);
+        }
+    }
+
+    private void confirmDeleteHabit(Habit habit) {
+        new AlertDialog.Builder(requireContext())
+                .setTitle(R.string.delete_habit)
+                .setMessage(getString(R.string.delete_habit_confirmation, habit.getName()))
+                .setPositiveButton(android.R.string.ok, (dialog, which) -> deleteHabit(habit))
+                .setNegativeButton(android.R.string.cancel, null)
+                .show();
+    }
+
+    private void deleteHabit(Habit habit) {
+        HabitRepository habitRepository = MainActivity.getSharedHabitRepository();
+        boolean usingRemote = MainActivity.isSharedUsingRemoteStorage();
+        List<Habit> allHabits = MainActivity.getSharedHabits();
+
+        if (allHabits != null) {
+            allHabits.remove(habit);
+        }
+
+        if (selectedHabit != null && selectedHabit.getId().equals(habit.getId())) {
+            selectedHabit = null;
+            binding.evaluationCard.setVisibility(View.GONE);
+        }
+
+        if (habitRepository != null) {
+            if (usingRemote) {
+                new Thread(() -> {
+                    habitRepository.deleteById(habit.getId());
+                    if (isAdded()) {
+                        requireActivity().runOnUiThread(() -> {
+                            applyFilter();
+                            Toast.makeText(requireContext(), R.string.habit_deleted, Toast.LENGTH_SHORT).show();
+                        });
+                    }
+                }).start();
+            } else {
+                habitRepository.deleteById(habit.getId());
+                applyFilter();
+                Toast.makeText(requireContext(), R.string.habit_deleted, Toast.LENGTH_SHORT).show();
+            }
+        } else {
+            applyFilter();
+            Toast.makeText(requireContext(), R.string.habit_deleted, Toast.LENGTH_SHORT).show();
         }
     }
 
