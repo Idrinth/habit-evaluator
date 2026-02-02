@@ -48,7 +48,7 @@ public class HabitAdapter extends RecyclerView.Adapter<HabitAdapter.HabitViewHol
 
         holder.itemView.setOnClickListener(v -> {
             int previousSelected = selectedPosition;
-            selectedPosition = holder.getAdapterPosition();
+            selectedPosition = holder.getBindingAdapterPosition();
 
             if (previousSelected != -1) {
                 notifyItemChanged(previousSelected);
