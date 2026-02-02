@@ -18,15 +18,18 @@ import java.util.Map;
 import de.idrinth.habitevaluator.android.databinding.ActivityMainBinding;
 import de.idrinth.habitevaluator.android.persistence.FileSystemHabitCategoryRepository;
 import de.idrinth.habitevaluator.android.persistence.FileSystemHabitRepository;
+import de.idrinth.habitevaluator.android.persistence.FileSystemSleepEntryRepository;
 import de.idrinth.habitevaluator.android.ui.ScreenPagerAdapter;
 import de.idrinth.habitevaluator.shared.api.ApiClient;
 import de.idrinth.habitevaluator.shared.api.RemoteHabitRepository;
 import de.idrinth.habitevaluator.shared.api.RemoteUserRepository;
 import de.idrinth.habitevaluator.shared.model.Habit;
 import de.idrinth.habitevaluator.shared.model.HabitCategory;
+import de.idrinth.habitevaluator.shared.model.SleepEntry;
 import de.idrinth.habitevaluator.shared.model.User;
 import de.idrinth.habitevaluator.shared.repository.HabitCategoryRepository;
 import de.idrinth.habitevaluator.shared.repository.HabitRepository;
+import de.idrinth.habitevaluator.shared.repository.SleepEntryRepository;
 import de.idrinth.habitevaluator.shared.service.DefaultDataInitializer;
 
 public class MainActivity extends AppCompatActivity {
@@ -39,6 +42,16 @@ public class MainActivity extends AppCompatActivity {
     private static HabitCategoryRepository sharedCategoryRepository;
     private static ApiClient sharedApiClient;
     private static User sharedCurrentUser;
+    private static List<SleepEntry> sharedSleepEntries = new ArrayList<>();
+    private static SleepEntryRepository sharedSleepEntryRepository;
+
+    public static List<SleepEntry> getSharedSleepEntries() {
+        return sharedSleepEntries;
+    }
+
+    public static SleepEntryRepository getSharedSleepEntryRepository() {
+        return sharedSleepEntryRepository;
+    }
 
     public static List<Habit> getSharedHabits() {
         return sharedHabits;
@@ -93,6 +106,8 @@ public class MainActivity extends AppCompatActivity {
     private ApiClient apiClient;
     private boolean usingRemoteStorage;
     private List<HabitCategory> categoryList = new ArrayList<>();
+    private SleepEntryRepository sleepEntryRepository;
+    private List<SleepEntry> sleepEntries = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -134,6 +149,9 @@ public class MainActivity extends AppCompatActivity {
                     case ScreenPagerAdapter.PAGE_EDIT_HABITS:
                         binding.bottomNavigation.setSelectedItemId(R.id.nav_edit_habits);
                         break;
+                    case ScreenPagerAdapter.PAGE_SLEEP:
+                        binding.bottomNavigation.setSelectedItemId(R.id.nav_sleep);
+                        break;
                 }
             }
         });
@@ -154,6 +172,9 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             } else if (id == R.id.nav_edit_habits) {
                 binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_EDIT_HABITS, true);
+                return true;
+            } else if (id == R.id.nav_sleep) {
+                binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_SLEEP, true);
                 return true;
             }
             return false;
@@ -182,13 +203,16 @@ public class MainActivity extends AppCompatActivity {
         java.io.File storageDir = new java.io.File(getFilesDir(), "habit-data");
         habitRepository = new FileSystemHabitRepository(storageDir);
         categoryRepository = new FileSystemHabitCategoryRepository(storageDir);
+        sleepEntryRepository = new FileSystemSleepEntryRepository(storageDir);
         apiClient = null;
         currentUser = getOrCreateLocalUser();
         sharedHabitRepository = habitRepository;
         sharedUsingRemoteStorage = false;
         sharedCategoryRepository = categoryRepository;
+        sharedSleepEntryRepository = sleepEntryRepository;
         sharedApiClient = null;
         sharedCurrentUser = currentUser;
+        loadSleepEntries();
     }
 
     private User getOrCreateLocalUser() {
@@ -299,6 +323,15 @@ public class MainActivity extends AppCompatActivity {
             binding.storageModeText.setText(R.string.storage_mode_remote);
         } else {
             binding.storageModeText.setText(R.string.storage_mode_local);
+        }
+    }
+
+    private void loadSleepEntries() {
+        sleepEntries.clear();
+        sharedSleepEntries.clear();
+        if (sleepEntryRepository != null && currentUser != null) {
+            sleepEntries.addAll(sleepEntryRepository.findByUserId(currentUser.getId()));
+            sharedSleepEntries.addAll(sleepEntries);
         }
     }
 

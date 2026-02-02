@@ -72,4 +72,18 @@
     <string name="frequency_daily">Quotidien</string>
     <string name="frequency_weekly">Hebdomadaire</string>
     <string name="frequency_monthly">Mensuel</string>
+    <string name="sleep_tracking">Sommeil</string>
+    <string name="sleep_hours_hint">Heures dormies</string>
+    <string name="sleep_notes_hint">Notes (facultatif)</string>
+    <string name="add_sleep_entry">Ajouter</string>
+    <string name="sleep_entry_added">Entrée de sommeil ajoutée</string>
+    <string name="sleep_entry_removed">Entrée de sommeil supprimée</string>
+    <string name="sleep_hours_required">Veuillez entrer les heures dormies</string>
+    <string name="sleep_hours_invalid">Veuillez entrer un nombre valide entre 0 et 24</string>
+    <string name="weekly_sleep_stats">Statistiques hebdomadaires de sommeil</string>
+    <string name="monthly_sleep_stats">Statistiques mensuelles de sommeil</string>
+    <string name="recent_sleep_entries">Entrées récentes</string>
+    <string name="sleep_avg">Moy : %.1f h</string>
+    <string name="sleep_min">Min : %.1f h</string>
+    <string name="sleep_max">Max : %.1f h</string>
 </resources>

@@ -73,4 +73,18 @@
     <string name="frequency_daily">Daily</string>
     <string name="frequency_weekly">Weekly</string>
     <string name="frequency_monthly">Monthly</string>
+    <string name="sleep_tracking">Sleep</string>
+    <string name="sleep_hours_hint">Hours slept</string>
+    <string name="sleep_notes_hint">Notes (optional)</string>
+    <string name="add_sleep_entry">Add</string>
+    <string name="sleep_entry_added">Sleep entry added</string>
+    <string name="sleep_entry_removed">Sleep entry removed</string>
+    <string name="sleep_hours_required">Please enter hours slept</string>
+    <string name="sleep_hours_invalid">Please enter a valid number between 0 and 24</string>
+    <string name="weekly_sleep_stats">Weekly Sleep Stats</string>
+    <string name="monthly_sleep_stats">Monthly Sleep Stats</string>
+    <string name="recent_sleep_entries">Recent Entries</string>
+    <string name="sleep_avg">Avg: %.1f h</string>
+    <string name="sleep_min">Min: %.1f h</string>
+    <string name="sleep_max">Max: %.1f h</string>
 </resources>
