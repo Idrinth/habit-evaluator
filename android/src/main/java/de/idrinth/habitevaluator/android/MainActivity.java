@@ -141,6 +141,7 @@ public class MainActivity extends AppCompatActivity {
         initializeStorage();
         setupViewPager();
         setupBottomNavigation();
+        setupAddHabitButton();
     }
 
     public void navigateToEditHabit(String habitId) {
@@ -177,7 +178,7 @@ public class MainActivity extends AppCompatActivity {
                         binding.bottomNavigation.setSelectedItemId(R.id.nav_diary);
                         break;
                     case ScreenPagerAdapter.PAGE_ADD_HABIT:
-                        binding.bottomNavigation.setSelectedItemId(R.id.nav_add_habit);
+                        // Add habit is accessed via top-right icon, not bottom nav
                         break;
                     case ScreenPagerAdapter.PAGE_SETTINGS:
                         binding.bottomNavigation.setSelectedItemId(R.id.nav_settings);
@@ -200,9 +201,6 @@ public class MainActivity extends AppCompatActivity {
             } else if (id == R.id.nav_diary) {
                 binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_DIARY, true);
                 return true;
-            } else if (id == R.id.nav_add_habit) {
-                binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_ADD_HABIT, true);
-                return true;
             } else if (id == R.id.nav_settings) {
                 binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_SETTINGS, true);
                 return true;
@@ -215,6 +213,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+
+    private void setupAddHabitButton() {
+        binding.addHabitButton.setOnClickListener(v ->
+                binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_ADD_HABIT, true));
+    }
 
     public void onSettingsChanged() {
         initializeStorage();
