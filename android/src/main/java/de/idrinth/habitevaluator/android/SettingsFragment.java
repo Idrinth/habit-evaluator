@@ -78,6 +78,9 @@ public class SettingsFragment extends Fragment {
         binding.apiUrlInput.setText(url);
         binding.apiUsernameInput.setText(username);
         binding.apiPasswordInput.setText(password);
+
+        boolean customTranslations = prefs.getBoolean(SettingsActivity.KEY_CUSTOM_TRANSLATIONS, false);
+        binding.customTranslationsSwitch.setChecked(customTranslations);
     }
 
     private void setupListeners() {
@@ -177,6 +180,7 @@ public class SettingsFragment extends Fragment {
         editor.putString(SettingsActivity.KEY_API_URL, url);
         editor.putString(SettingsActivity.KEY_API_USERNAME, username);
         editor.putString(SettingsActivity.KEY_API_PASSWORD, password);
+        editor.putBoolean(SettingsActivity.KEY_CUSTOM_TRANSLATIONS, binding.customTranslationsSwitch.isChecked());
 
         editor.apply();
         SettingsActivity.applyThemeMode(themeMode);

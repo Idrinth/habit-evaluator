@@ -29,6 +29,7 @@ import java.lang.reflect.Type;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -168,6 +169,21 @@ public class FileSystemHabitRepository implements HabitRepository {
         }
         obj.add("entries", entriesArray);
 
+        if (habit.getNameTranslations() != null && !habit.getNameTranslations().isEmpty()) {
+            JsonObject nameTransObj = new JsonObject();
+            for (Map.Entry<String, String> e : habit.getNameTranslations().entrySet()) {
+                nameTransObj.addProperty(e.getKey(), e.getValue());
+            }
+            obj.add("nameTranslations", nameTransObj);
+        }
+        if (habit.getDescriptionTranslations() != null && !habit.getDescriptionTranslations().isEmpty()) {
+            JsonObject descTransObj = new JsonObject();
+            for (Map.Entry<String, String> e : habit.getDescriptionTranslations().entrySet()) {
+                descTransObj.addProperty(e.getKey(), e.getValue());
+            }
+            obj.add("descriptionTranslations", descTransObj);
+        }
+
         return obj;
     }
 
@@ -234,6 +250,27 @@ public class FileSystemHabitRepository implements HabitRepository {
             }
         }
         habit.setEntries(entries);
+
+        if (obj.has("nameTranslations") && !obj.get("nameTranslations").isJsonNull()) {
+            Map<String, String> nameTrans = new HashMap<>();
+            JsonObject ntObj = obj.getAsJsonObject("nameTranslations");
+            for (String key : ntObj.keySet()) {
+                if (!ntObj.get(key).isJsonNull()) {
+                    nameTrans.put(key, ntObj.get(key).getAsString());
+                }
+            }
+            habit.setNameTranslations(nameTrans);
+        }
+        if (obj.has("descriptionTranslations") && !obj.get("descriptionTranslations").isJsonNull()) {
+            Map<String, String> descTrans = new HashMap<>();
+            JsonObject dtObj = obj.getAsJsonObject("descriptionTranslations");
+            for (String key : dtObj.keySet()) {
+                if (!dtObj.get(key).isJsonNull()) {
+                    descTrans.put(key, dtObj.get(key).getAsString());
+                }
+            }
+            habit.setDescriptionTranslations(descTrans);
+        }
 
         return habit;
     }

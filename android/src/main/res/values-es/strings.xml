@@ -105,4 +105,10 @@
     <string name="sleep_min">Mín: %.1f h</string>
     <string name="sleep_max">Máx: %.1f h</string>
     <string name="sleep_entry_format">%s - %s (%.1f h)</string>
+    <string name="translation_settings">Configuración de traducción</string>
+    <string name="custom_translations_label">Permitir traducciones personalizadas para nombres de hábitos y categorías</string>
+    <string name="custom_translations_enabled">Traducciones personalizadas</string>
+    <string name="translations_section">Traducciones</string>
+    <string name="translation_name_hint">Nombre (%s)</string>
+    <string name="translation_description_hint">Descripción (%s)</string>
 </resources>
