@@ -40,6 +40,7 @@
     <string name="category_required">Veuillez sélectionner ou créer une catégorie</string>
     <string name="category_name_required">Veuillez entrer un nom de catégorie</string>
     <string name="all_categories">Toutes les catégories</string>
+    <string name="your_category_habits">Vos habitudes de %s</string>
     <string name="completion_points">Points de complétion</string>
     <string name="daily_points">Aujourd\'hui : %d pts</string>
     <string name="weekly_points">Semaine : %d pts</string>

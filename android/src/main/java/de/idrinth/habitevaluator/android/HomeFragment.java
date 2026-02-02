@@ -124,14 +124,15 @@ public class HomeFragment extends Fragment implements HabitAdapter.OnHabitClickL
         String displayLanguage = getDisplayLanguage();
 
         List<String> filterNames = new ArrayList<>();
-        filterNames.add(getString(R.string.all_categories));
+        filterNames.add(getString(R.string.your_habits));
         for (HabitCategory cat : categoryList) {
             String displayName = displayLanguage != null ? cat.getDisplayName(displayLanguage) : cat.getName();
-            filterNames.add(displayName);
-            categoryDisplayNameToId.put(displayName, cat.getId());
+            String headerName = getString(R.string.your_category_habits, displayName);
+            filterNames.add(headerName);
+            categoryDisplayNameToId.put(headerName, cat.getId());
         }
         ArrayAdapter<String> filterAdapter = new ArrayAdapter<>(requireContext(),
-                android.R.layout.simple_spinner_item, filterNames);
+                R.layout.spinner_header_item, filterNames);
         filterAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         binding.categoryFilterSpinner.setAdapter(filterAdapter);
     }
@@ -139,7 +140,7 @@ public class HomeFragment extends Fragment implements HabitAdapter.OnHabitClickL
     private void applyFilter() {
         filteredHabits.clear();
         String selected = (String) binding.categoryFilterSpinner.getSelectedItem();
-        String allCategories = getString(R.string.all_categories);
+        String yourHabits = getString(R.string.your_habits);
         List<Habit> habits = MainActivity.getSharedHabits();
 
         if (habits == null) {
@@ -147,7 +148,7 @@ public class HomeFragment extends Fragment implements HabitAdapter.OnHabitClickL
             return;
         }
 
-        if (selected == null || allCategories.equals(selected)) {
+        if (selected == null || yourHabits.equals(selected)) {
             filteredHabits.addAll(habits);
         } else {
             String categoryId = categoryDisplayNameToId.get(selected);
