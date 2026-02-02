@@ -90,6 +90,7 @@
     <string name="diary_trend_stable">Trend: stable</string>
     <string name="diary_event_added">Positive event recorded!</string>
     <string name="diary_description_required">Please describe the positive event</string>
+    <string name="diary_date_hint">Date (YYYY-MM-DD)</string>
     <string name="sleep_tracking">Sleep</string>
     <string name="sleep_from_hint">From (HH:MM)</string>
     <string name="sleep_until_hint">Until (HH:MM)</string>
