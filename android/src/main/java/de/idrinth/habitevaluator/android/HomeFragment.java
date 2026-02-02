@@ -108,8 +108,8 @@ public class HomeFragment extends Fragment implements HabitAdapter.OnHabitClickL
             }
         });
         binding.viewPointsButton.setOnClickListener(v -> {
-            if (getActivity() instanceof MainActivity) {
-                ((MainActivity) getActivity()).navigateToPointDevelopment();
+            if (selectedHabit != null && getActivity() instanceof MainActivity) {
+                ((MainActivity) getActivity()).navigateToPointDevelopment(selectedHabit.getId());
             }
         });
     }

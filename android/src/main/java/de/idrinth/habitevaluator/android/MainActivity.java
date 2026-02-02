@@ -48,6 +48,7 @@ public class MainActivity extends AppCompatActivity {
     private static SleepEntryRepository sharedSleepEntryRepository;
     private static DiaryEntryRepository sharedDiaryEntryRepository;
     private static String editHabitId;
+    private static String pointDevelopmentHabitId;
 
     public static List<SleepEntry> getSharedSleepEntries() {
         return sharedSleepEntries;
@@ -95,6 +96,14 @@ public class MainActivity extends AppCompatActivity {
 
     public static void setEditHabitId(String habitId) {
         editHabitId = habitId;
+    }
+
+    public static String getPointDevelopmentHabitId() {
+        return pointDevelopmentHabitId;
+    }
+
+    public static void setPointDevelopmentHabitId(String habitId) {
+        pointDevelopmentHabitId = habitId;
     }
 
     public static void saveAllHabits() {
@@ -149,7 +158,8 @@ public class MainActivity extends AppCompatActivity {
         binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_EDIT_HABITS, true);
     }
 
-    public void navigateToPointDevelopment() {
+    public void navigateToPointDevelopment(String habitId) {
+        setPointDevelopmentHabitId(habitId);
         binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_POINT_DEVELOPMENT, true);
     }
 

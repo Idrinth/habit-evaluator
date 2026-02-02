@@ -62,7 +62,19 @@ public class PointDevelopmentFragment extends Fragment {
 
     private void updateCharts() {
         List<Habit> habits = MainActivity.getSharedHabits();
-        if (habits == null || habits.isEmpty()) {
+        String habitId = MainActivity.getPointDevelopmentHabitId();
+        Habit selectedHabit = null;
+
+        if (habits != null && habitId != null) {
+            for (Habit h : habits) {
+                if (habitId.equals(h.getId())) {
+                    selectedHabit = h;
+                    break;
+                }
+            }
+        }
+
+        if (selectedHabit == null) {
             binding.dailyChart.setData(new ArrayList<>(), new ArrayList<>(), 0);
             binding.averageChart.setData(new ArrayList<>(), new ArrayList<>(), 0);
             binding.totalPointsText.setText(getString(R.string.total_points, 0));
@@ -71,13 +83,13 @@ public class PointDevelopmentFragment extends Fragment {
         }
 
         if (showingWeek) {
-            showWeekView(habits);
+            showWeekView(selectedHabit);
         } else {
-            showMonthView(habits);
+            showMonthView(selectedHabit);
         }
     }
 
-    private void showWeekView(List<Habit> habits) {
+    private void showWeekView(Habit habit) {
         LocalDate today = LocalDate.now();
         LocalDate weekStart = today.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
 
@@ -88,7 +100,7 @@ public class PointDevelopmentFragment extends Fragment {
         int totalPoints = 0;
         for (int i = 0; i < 7; i++) {
             LocalDate date = weekStart.plusDays(i);
-            int dayTotal = calculateDayTotal(habits, date);
+            int dayTotal = calculateDayTotal(habit, date);
             dailyPoints.add(dayTotal);
             dayLabels.add(date.format(dayFormat));
             totalPoints += dayTotal;
@@ -112,7 +124,7 @@ public class PointDevelopmentFragment extends Fragment {
         binding.averageChart.setData(runningAvgs, avgLabels, average);
     }
 
-    private void showMonthView(List<Habit> habits) {
+    private void showMonthView(Habit habit) {
         LocalDate today = LocalDate.now();
         LocalDate monthStart = today.with(TemporalAdjusters.firstDayOfMonth());
         LocalDate monthEnd = today.with(TemporalAdjusters.lastDayOfMonth());
@@ -125,7 +137,7 @@ public class PointDevelopmentFragment extends Fragment {
         int totalPoints = 0;
         for (int i = 0; i < daysInMonth; i++) {
             LocalDate date = monthStart.plusDays(i);
-            int dayTotal = calculateDayTotal(habits, date);
+            int dayTotal = calculateDayTotal(habit, date);
             dailyPoints.add(dayTotal);
             // Show label every few days to avoid crowding
             if (i == 0 || i == daysInMonth - 1 || (i + 1) % 5 == 0) {
@@ -165,12 +177,8 @@ public class PointDevelopmentFragment extends Fragment {
         binding.averageChart.setData(weeklyAvgs, weekLabels, average);
     }
 
-    private int calculateDayTotal(List<Habit> habits, LocalDate date) {
-        int total = 0;
-        for (Habit habit : habits) {
-            total += scoringService.calculateHabitScore(habit, date, date).getScore();
-        }
-        return total;
+    private int calculateDayTotal(Habit habit, LocalDate date) {
+        return scoringService.calculateHabitScore(habit, date, date).getScore();
     }
 
     @Override
