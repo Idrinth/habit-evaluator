@@ -158,6 +158,15 @@
                     android:text="@string/remove_completion"
                     style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
             </LinearLayout>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/viewPointsButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/view_points"
+                app:icon="@drawable/ic_chart"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 </androidx.constraintlayout.widget.ConstraintLayout>

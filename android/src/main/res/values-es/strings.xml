@@ -116,4 +116,14 @@
     <string name="translations_section">Traducciones</string>
     <string name="translation_name_hint">Nombre (%s)</string>
     <string name="translation_description_hint">Descripción (%s)</string>
+    <string name="point_development">Desarrollo de puntos</string>
+    <string name="view_points">Ver puntos</string>
+    <string name="period_week">Semana</string>
+    <string name="period_month">Mes</string>
+    <string name="daily_points_chart">Puntos diarios</string>
+    <string name="average_points_chart">Puntos promedio</string>
+    <string name="total_points">Total: %d pts</string>
+    <string name="average_points">Promedio: %.1f pts/día</string>
+    <string name="back_to_home">Volver al inicio</string>
+    <string name="week_label">S%d</string>
 </resources>
