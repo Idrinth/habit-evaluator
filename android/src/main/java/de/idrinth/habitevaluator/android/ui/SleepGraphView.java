@@ -24,7 +24,7 @@ public class SleepGraphView extends View {
     private List<Float> values = new ArrayList<>();
     private float averageValue = 0f;
     private int barColor = 0xFF4CAF50;
-    private int averageColor = 0xFF1B5E20;
+    private int averageColor = 0xFFA5D6A7;
     private String valueFormat = "%.1f";
 
     private static final float PADDING_LEFT = 60f;
@@ -73,12 +73,24 @@ public class SleepGraphView extends View {
 
     public void setBarColor(int color) {
         this.barColor = color;
+        this.averageColor = lightenColor(color, 0.45f);
         invalidate();
     }
 
     public void setAverageColor(int color) {
         this.averageColor = color;
         invalidate();
+    }
+
+    private static int lightenColor(int color, float factor) {
+        int a = (color >> 24) & 0xFF;
+        int r = (color >> 16) & 0xFF;
+        int g = (color >> 8) & 0xFF;
+        int b = color & 0xFF;
+        r = r + (int) ((255 - r) * factor);
+        g = g + (int) ((255 - g) * factor);
+        b = b + (int) ((255 - b) * factor);
+        return (a << 24) | (r << 16) | (g << 8) | b;
     }
 
     public void setValueFormat(String format) {
