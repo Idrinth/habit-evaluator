@@ -10,13 +10,11 @@ general:
   daily: "Quotidien"
   weekly: "Hebdomadaire"
   monthly: "Mensuel"
-
 login:
   title: "Habit Evaluator - Connexion"
   username: "Nom d'utilisateur"
   password: "Mot de passe"
   login: "Se connecter"
-
 habits:
   add_title: "Habit Evaluator - Ajouter une habitude"
   add_heading: "Ajouter une habitude"
@@ -31,19 +29,16 @@ habits:
   add_completion: "Ajouter une complétion"
   complete: "Terminé"
   delete: "Supprimer"
-
 evaluation:
   current_streak: "Série en cours"
   completion_rate: "Taux de complétion"
   current_streak_default: "Série en cours : -"
   completion_rate_default: "Taux de complétion : -"
-
 categories:
   add_title: "Habit Evaluator - Ajouter une catégorie"
   add_heading: "Ajouter une catégorie"
   add_button: "Ajouter une catégorie"
   color: "Couleur"
-
 scoring:
   add_title: "Habit Evaluator - Ajouter une règle de notation"
   add_heading: "Ajouter une règle de notation"
@@ -56,13 +51,11 @@ scoring:
   hint_2_points: "Nombre minimum de complétions hebdomadaires pour obtenir 2 points"
   hint_4_points: "Nombre minimum de complétions hebdomadaires pour obtenir 4 points"
   hint_8_points: "Nombre minimum de complétions hebdomadaires pour obtenir 8 points"
-
 defaults:
   load_button: "Charger les valeurs par défaut"
   requires_remote: "Le chargement des habitudes par défaut nécessite un stockage distant. Veuillez configurer une connexion API distante dans les Paramètres."
   loaded: "Catégories et habitudes par défaut chargées"
   load_failed: "Échec du chargement des valeurs par défaut : %s"
-
 settings:
   storage_settings: "Paramètres de stockage"
   storage_mode_label: "Choisissez où stocker vos données :"
@@ -89,14 +82,13 @@ settings:
   connection_error_message: "Échec de la connexion à l'API distante : %s\nRetour au stockage local."
   incomplete_settings: "Paramètres incomplets"
   failed_to_open: "Impossible d'ouvrir les paramètres : %s"
-  language_settings: "Paramètres de langue"
-  language_mode_label: "Choisir la langue de l'application :"
-  language_system: "Par défaut du système"
+  language_settings: "Language Settings"
+  language_mode_label: "Choose app language:"
+  language_system: "System default"
   language_en: "English"
   language_de: "Deutsch"
   language_es: "Español"
   language_fr: "Français"
-
 sync:
   title: "Synchroniser avec le serveur distant"
   description: "Entrez les détails du serveur distant pour synchroniser vos habitudes :"
