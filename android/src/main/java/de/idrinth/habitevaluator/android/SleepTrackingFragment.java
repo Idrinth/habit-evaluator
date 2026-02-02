@@ -1,5 +1,6 @@
 package de.idrinth.habitevaluator.android;
 
+import android.app.DatePickerDialog;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -30,11 +31,13 @@ import de.idrinth.habitevaluator.shared.service.SleepEvaluationService;
 public class SleepTrackingFragment extends Fragment implements SleepEntryAdapter.OnSleepEntryDeleteListener {
 
     private static final DateTimeFormatter TIME_FORMAT = DateTimeFormatter.ofPattern("HH:mm");
+    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     private FragmentSleepTrackingBinding binding;
     private SleepEntryAdapter adapter;
     private List<SleepEntry> displayedEntries;
     private SleepEvaluationService evaluationService;
+    private LocalDate selectedDate;
 
     @Nullable
     @Override
@@ -50,8 +53,10 @@ public class SleepTrackingFragment extends Fragment implements SleepEntryAdapter
 
         displayedEntries = new ArrayList<>();
         evaluationService = new SleepEvaluationService();
+        selectedDate = LocalDate.now();
 
         setupRecyclerView();
+        setupDatePicker();
         binding.addSleepEntryButton.setOnClickListener(v -> addSleepEntry());
     }
 
@@ -65,6 +70,26 @@ public class SleepTrackingFragment extends Fragment implements SleepEntryAdapter
         adapter = new SleepEntryAdapter(displayedEntries, this);
         binding.sleepEntriesRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
         binding.sleepEntriesRecyclerView.setAdapter(adapter);
+    }
+
+    private void setupDatePicker() {
+        binding.sleepDateInput.setText(selectedDate.format(DATE_FORMAT));
+        binding.sleepDateInput.setOnClickListener(v -> showDatePicker());
+    }
+
+    private void showDatePicker() {
+        DatePickerDialog dialog = new DatePickerDialog(
+                requireContext(),
+                (view, year, month, dayOfMonth) -> {
+                    selectedDate = LocalDate.of(year, month + 1, dayOfMonth);
+                    binding.sleepDateInput.setText(selectedDate.format(DATE_FORMAT));
+                },
+                selectedDate.getYear(),
+                selectedDate.getMonthValue() - 1,
+                selectedDate.getDayOfMonth()
+        );
+        dialog.getDatePicker().setMaxDate(System.currentTimeMillis());
+        dialog.show();
     }
 
     private void addSleepEntry() {
@@ -86,8 +111,13 @@ public class SleepTrackingFragment extends Fragment implements SleepEntryAdapter
             return;
         }
 
+        if (hasOverlap(selectedDate, fromTime, untilTime)) {
+            Toast.makeText(requireContext(), R.string.sleep_entry_overlap, Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         User currentUser = MainActivity.getSharedCurrentUser();
-        SleepEntry entry = new SleepEntry(fromTime, untilTime, LocalDate.now());
+        SleepEntry entry = new SleepEntry(fromTime, untilTime, selectedDate);
         entry.setUser(currentUser);
 
         String notes = binding.sleepNotesInput.getText().toString().trim();
@@ -111,6 +141,35 @@ public class SleepTrackingFragment extends Fragment implements SleepEntryAdapter
 
         Toast.makeText(requireContext(), R.string.sleep_entry_added, Toast.LENGTH_SHORT).show();
         refreshData();
+    }
+
+    private boolean hasOverlap(LocalDate date, LocalTime newFrom, LocalTime newUntil) {
+        List<SleepEntry> allEntries = MainActivity.getSharedSleepEntries();
+        if (allEntries == null) {
+            return false;
+        }
+
+        int newFromMinutes = newFrom.getHour() * 60 + newFrom.getMinute();
+        int newUntilMinutes = newUntil.getHour() * 60 + newUntil.getMinute();
+        if (newUntilMinutes <= newFromMinutes) {
+            newUntilMinutes += 24 * 60;
+        }
+
+        for (SleepEntry existing : allEntries) {
+            if (!existing.getDate().equals(date)) {
+                continue;
+            }
+            int existingFrom = existing.getFromTime().getHour() * 60 + existing.getFromTime().getMinute();
+            int existingUntil = existing.getUntilTime().getHour() * 60 + existing.getUntilTime().getMinute();
+            if (existingUntil <= existingFrom) {
+                existingUntil += 24 * 60;
+            }
+
+            if (newFromMinutes < existingUntil && newUntilMinutes > existingFrom) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
