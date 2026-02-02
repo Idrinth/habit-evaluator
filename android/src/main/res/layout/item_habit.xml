@@ -51,5 +51,14 @@
             android:src="@drawable/ic_edit"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="@string/edit_habits" />
+
+        <ImageButton
+            android:id="@+id/deleteHabitButton"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_marginStart="4dp"
+            android:src="@android:drawable/ic_menu_close_clear_cancel"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/delete_habit" />
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>
