@@ -7,7 +7,9 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.temporal.TemporalAdjusters;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -32,21 +34,26 @@ public class SleepEvaluationService {
             return new SleepStats(periodStart, periodEnd, 0, 0, 0, 0);
         }
 
+        Map<LocalDate, Double> hoursPerDay = new HashMap<>();
+        for (SleepEntry entry : periodEntries) {
+            hoursPerDay.merge(entry.getDate(), entry.getHours(), Double::sum);
+        }
+
         double totalHours = 0;
         double min = Double.MAX_VALUE;
         double max = Double.MIN_VALUE;
 
-        for (SleepEntry entry : periodEntries) {
-            totalHours += entry.getHours();
-            if (entry.getHours() < min) {
-                min = entry.getHours();
+        for (double dayHours : hoursPerDay.values()) {
+            totalHours += dayHours;
+            if (dayHours < min) {
+                min = dayHours;
             }
-            if (entry.getHours() > max) {
-                max = entry.getHours();
+            if (dayHours > max) {
+                max = dayHours;
             }
         }
 
-        double average = totalHours / periodEntries.size();
+        double average = totalHours / hoursPerDay.size();
 
         return new SleepStats(periodStart, periodEnd, average, min, max, periodEntries.size());
     }
