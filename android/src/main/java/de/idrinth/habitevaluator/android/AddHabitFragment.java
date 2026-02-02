@@ -2,13 +2,17 @@ package de.idrinth.habitevaluator.android;
 
 import android.app.AlertDialog;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AppCompatActivity;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -16,7 +20,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import de.idrinth.habitevaluator.android.databinding.ActivityAddHabitBinding;
+import de.idrinth.habitevaluator.android.databinding.FragmentAddHabitBinding;
 import de.idrinth.habitevaluator.shared.api.ApiClient;
 import de.idrinth.habitevaluator.shared.model.FrequencyType;
 import de.idrinth.habitevaluator.shared.model.Habit;
@@ -25,23 +29,32 @@ import de.idrinth.habitevaluator.shared.model.User;
 import de.idrinth.habitevaluator.shared.repository.HabitCategoryRepository;
 import de.idrinth.habitevaluator.shared.repository.HabitRepository;
 
-public class AddHabitActivity extends AppCompatActivity {
+public class AddHabitFragment extends Fragment {
 
-    private ActivityAddHabitBinding binding;
+    private FragmentAddHabitBinding binding;
     private List<HabitCategory> categoryList = new ArrayList<>();
     private final Map<String, String> categoryNameToId = new LinkedHashMap<>();
 
+    @Nullable
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        binding = ActivityAddHabitBinding.inflate(getLayoutInflater());
-        setContentView(binding.getRoot());
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
+        binding = FragmentAddHabitBinding.inflate(inflater, container, false);
+        return binding.getRoot();
+    }
 
-        categoryList = new ArrayList<>(MainActivity.getSharedCategories());
-
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
         setupFrequencyTypeSpinner();
-        populateCategorySpinner();
         binding.addHabitButton.setOnClickListener(v -> addHabit());
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        categoryList = new ArrayList<>(MainActivity.getSharedCategories());
+        populateCategorySpinner();
     }
 
     private void setupFrequencyTypeSpinner() {
@@ -49,7 +62,7 @@ public class AddHabitActivity extends AppCompatActivity {
         for (FrequencyType ft : FrequencyType.values()) {
             frequencyTypes.add(ft.name().substring(0, 1) + ft.name().substring(1).toLowerCase());
         }
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(),
                 android.R.layout.simple_spinner_item, frequencyTypes);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         binding.frequencyTypeSpinner.setAdapter(adapter);
@@ -63,7 +76,7 @@ public class AddHabitActivity extends AppCompatActivity {
             categoryNames.add(cat.getName());
             categoryNameToId.put(cat.getName(), cat.getId());
         }
-        ArrayAdapter<String> createAdapter = new ArrayAdapter<>(this,
+        ArrayAdapter<String> createAdapter = new ArrayAdapter<>(requireContext(),
                 android.R.layout.simple_spinner_item, categoryNames);
         createAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         binding.categorySpinner.setAdapter(createAdapter);
@@ -86,15 +99,15 @@ public class AddHabitActivity extends AppCompatActivity {
     }
 
     private void showNewCategoryDialog() {
-        EditText input = new EditText(this);
+        EditText input = new EditText(requireContext());
         input.setHint(R.string.new_category_hint);
-        new AlertDialog.Builder(this)
+        new AlertDialog.Builder(requireContext())
                 .setTitle(R.string.new_category_dialog_title)
                 .setView(input)
                 .setPositiveButton(android.R.string.ok, (dialog, which) -> {
                     String categoryName = input.getText().toString().trim();
                     if (categoryName.isEmpty()) {
-                        Toast.makeText(this, R.string.category_name_required, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(requireContext(), R.string.category_name_required, Toast.LENGTH_SHORT).show();
                         binding.categorySpinner.setSelection(0);
                         return;
                     }
@@ -124,17 +137,21 @@ public class AddHabitActivity extends AppCompatActivity {
                     Map<String, String> body = new LinkedHashMap<>();
                     body.put("name", name);
                     HabitCategory created = apiClient.post("/api/categories", body, HabitCategory.class);
-                    runOnUiThread(() -> {
-                        categoryList.add(created);
-                        MainActivity.getSharedCategories().add(created);
-                        populateCategorySpinner();
-                        int position = findCategorySpinnerPosition(created.getName());
-                        binding.categorySpinner.setSelection(position);
-                    });
+                    if (isAdded()) {
+                        requireActivity().runOnUiThread(() -> {
+                            categoryList.add(created);
+                            MainActivity.getSharedCategories().add(created);
+                            populateCategorySpinner();
+                            int position = findCategorySpinnerPosition(created.getName());
+                            binding.categorySpinner.setSelection(position);
+                        });
+                    }
                 } catch (IOException e) {
-                    runOnUiThread(() ->
-                            Toast.makeText(this, "Failed to create category: " + e.getMessage(),
-                                    Toast.LENGTH_LONG).show());
+                    if (isAdded()) {
+                        requireActivity().runOnUiThread(() ->
+                                Toast.makeText(requireContext(), "Failed to create category: " + e.getMessage(),
+                                        Toast.LENGTH_LONG).show());
+                    }
                 }
             }).start();
         } else if (categoryRepository != null) {
@@ -161,7 +178,7 @@ public class AddHabitActivity extends AppCompatActivity {
         String description = binding.habitDescriptionInput.getText().toString().trim();
 
         if (name.isEmpty()) {
-            Toast.makeText(this, "Please enter a habit name", Toast.LENGTH_SHORT).show();
+            Toast.makeText(requireContext(), "Please enter a habit name", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -171,7 +188,7 @@ public class AddHabitActivity extends AppCompatActivity {
 
         String selectedCategory = (String) binding.categorySpinner.getSelectedItem();
         if (selectedCategory == null || getString(R.string.new_category).equals(selectedCategory)) {
-            Toast.makeText(this, R.string.category_required, Toast.LENGTH_SHORT).show();
+            Toast.makeText(requireContext(), R.string.category_required, Toast.LENGTH_SHORT).show();
             return;
         }
         String catId = categoryNameToId.get(selectedCategory);
@@ -212,28 +229,50 @@ public class AddHabitActivity extends AppCompatActivity {
             if (usingRemote) {
                 new Thread(() -> {
                     habitRepository.save(habit);
-                    runOnUiThread(() -> {
-                        if (habits != null) {
-                            habits.add(habit);
-                        }
-                        Toast.makeText(this, "Habit added", Toast.LENGTH_SHORT).show();
-                        finish();
-                    });
+                    if (isAdded()) {
+                        requireActivity().runOnUiThread(() -> {
+                            if (habits != null) {
+                                habits.add(habit);
+                            }
+                            Toast.makeText(requireContext(), "Habit added", Toast.LENGTH_SHORT).show();
+                            clearForm();
+                        });
+                    }
                 }).start();
             } else {
                 habitRepository.save(habit);
                 if (habits != null) {
                     habits.add(habit);
                 }
-                Toast.makeText(this, "Habit added", Toast.LENGTH_SHORT).show();
-                finish();
+                Toast.makeText(requireContext(), "Habit added", Toast.LENGTH_SHORT).show();
+                clearForm();
             }
         } else {
             if (habits != null) {
                 habits.add(habit);
             }
-            Toast.makeText(this, "Habit added", Toast.LENGTH_SHORT).show();
-            finish();
+            Toast.makeText(requireContext(), "Habit added", Toast.LENGTH_SHORT).show();
+            clearForm();
         }
+    }
+
+    private void clearForm() {
+        binding.habitNameInput.setText("");
+        binding.habitDescriptionInput.setText("");
+        binding.targetFrequencyInput.setText("1");
+        binding.maxEntriesPerDayInput.setText("1");
+        binding.positiveScoringSwitch.setChecked(true);
+        if (binding.frequencyTypeSpinner.getAdapter() != null && binding.frequencyTypeSpinner.getAdapter().getCount() > 0) {
+            binding.frequencyTypeSpinner.setSelection(0);
+        }
+        if (!categoryList.isEmpty()) {
+            binding.categorySpinner.setSelection(1);
+        }
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        binding = null;
     }
 }

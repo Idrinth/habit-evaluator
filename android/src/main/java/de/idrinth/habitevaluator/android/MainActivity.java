@@ -1,47 +1,35 @@
 package de.idrinth.habitevaluator.android;
 
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.viewpager2.widget.ViewPager2;
 
 import com.google.gson.reflect.TypeToken;
 
 import java.io.IOException;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import de.idrinth.habitevaluator.android.databinding.ActivityMainBinding;
 import de.idrinth.habitevaluator.android.persistence.FileSystemHabitCategoryRepository;
 import de.idrinth.habitevaluator.android.persistence.FileSystemHabitRepository;
-import de.idrinth.habitevaluator.android.ui.HabitAdapter;
+import de.idrinth.habitevaluator.android.ui.ScreenPagerAdapter;
 import de.idrinth.habitevaluator.shared.api.ApiClient;
 import de.idrinth.habitevaluator.shared.api.RemoteHabitRepository;
 import de.idrinth.habitevaluator.shared.api.RemoteUserRepository;
-import de.idrinth.habitevaluator.shared.model.Evaluation;
 import de.idrinth.habitevaluator.shared.model.Habit;
 import de.idrinth.habitevaluator.shared.model.HabitCategory;
-import de.idrinth.habitevaluator.shared.model.HabitEntry;
 import de.idrinth.habitevaluator.shared.model.User;
 import de.idrinth.habitevaluator.shared.repository.HabitCategoryRepository;
 import de.idrinth.habitevaluator.shared.repository.HabitRepository;
 import de.idrinth.habitevaluator.shared.service.DefaultDataInitializer;
-import de.idrinth.habitevaluator.shared.service.HabitEvaluatorService;
-import de.idrinth.habitevaluator.shared.service.HabitScoringService;
 
-public class MainActivity extends AppCompatActivity implements HabitAdapter.OnHabitClickListener {
+public class MainActivity extends AppCompatActivity {
 
     private static final String PLACEHOLDER_USERNAME = "android_user";
     private static List<Habit> sharedHabits;
@@ -98,26 +86,13 @@ public class MainActivity extends AppCompatActivity implements HabitAdapter.OnHa
     }
 
     private ActivityMainBinding binding;
-    private HabitAdapter habitAdapter;
     private List<Habit> habits;
-    private List<Habit> filteredHabits;
-    private HabitEvaluatorService evaluatorService;
-    private HabitScoringService scoringService;
-    private Habit selectedHabit;
     private User currentUser;
     private HabitRepository habitRepository;
     private HabitCategoryRepository categoryRepository;
     private ApiClient apiClient;
     private boolean usingRemoteStorage;
     private List<HabitCategory> categoryList = new ArrayList<>();
-    private final Map<String, String> categoryNameToId = new LinkedHashMap<>();
-
-    private final ActivityResultLauncher<Intent> settingsLauncher =
-            registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
-                if (result.getResultCode() == RESULT_OK) {
-                    initializeStorage();
-                }
-            });
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -129,22 +104,63 @@ public class MainActivity extends AppCompatActivity implements HabitAdapter.OnHa
         setContentView(binding.getRoot());
 
         habits = new ArrayList<>();
-        filteredHabits = new ArrayList<>();
         sharedHabits = habits;
-        evaluatorService = new HabitEvaluatorService();
-        scoringService = new HabitScoringService();
 
-        setupRecyclerView();
         initializeStorage();
-        setupClickListeners();
-        setupCategoryFilterSpinner();
+        setupViewPager();
+        setupBottomNavigation();
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        applyFilter();
-        updateLoadDefaultsButtonVisibility();
+    private void setupViewPager() {
+        ScreenPagerAdapter pagerAdapter = new ScreenPagerAdapter(this);
+        binding.viewPager.setAdapter(pagerAdapter);
+        binding.viewPager.setOffscreenPageLimit(ScreenPagerAdapter.PAGE_COUNT);
+        binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_HOME, false);
+
+        binding.viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
+            @Override
+            public void onPageSelected(int position) {
+                switch (position) {
+                    case ScreenPagerAdapter.PAGE_SETTINGS:
+                        binding.bottomNavigation.setSelectedItemId(R.id.nav_settings);
+                        break;
+                    case ScreenPagerAdapter.PAGE_HOME:
+                        binding.bottomNavigation.setSelectedItemId(R.id.nav_home);
+                        break;
+                    case ScreenPagerAdapter.PAGE_ADD_HABIT:
+                        binding.bottomNavigation.setSelectedItemId(R.id.nav_add_habit);
+                        break;
+                    case ScreenPagerAdapter.PAGE_EDIT_HABITS:
+                        binding.bottomNavigation.setSelectedItemId(R.id.nav_edit_habits);
+                        break;
+                }
+            }
+        });
+    }
+
+    private void setupBottomNavigation() {
+        binding.bottomNavigation.setSelectedItemId(R.id.nav_home);
+        binding.bottomNavigation.setOnItemSelectedListener(item -> {
+            int id = item.getItemId();
+            if (id == R.id.nav_settings) {
+                binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_SETTINGS, true);
+                return true;
+            } else if (id == R.id.nav_home) {
+                binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_HOME, true);
+                return true;
+            } else if (id == R.id.nav_add_habit) {
+                binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_ADD_HABIT, true);
+                return true;
+            } else if (id == R.id.nav_edit_habits) {
+                binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_EDIT_HABITS, true);
+                return true;
+            }
+            return false;
+        });
+    }
+
+    public void onSettingsChanged() {
+        initializeStorage();
     }
 
     private void initializeStorage() {
@@ -229,7 +245,6 @@ public class MainActivity extends AppCompatActivity implements HabitAdapter.OnHa
 
     private void loadCategories() {
         categoryList.clear();
-        categoryNameToId.clear();
         if (usingRemoteStorage && apiClient != null) {
             new Thread(() -> {
                 try {
@@ -240,13 +255,11 @@ public class MainActivity extends AppCompatActivity implements HabitAdapter.OnHa
                             categoryList.addAll(remoteCats);
                         }
                         syncSharedCategories();
-                        populateCategorySpinners();
                         loadHabits();
                     });
                 } catch (IOException e) {
                     runOnUiThread(() -> {
                         syncSharedCategories();
-                        populateCategorySpinners();
                         loadHabits();
                     });
                 }
@@ -254,11 +267,9 @@ public class MainActivity extends AppCompatActivity implements HabitAdapter.OnHa
         } else if (categoryRepository != null && currentUser != null) {
             categoryList.addAll(categoryRepository.findByUserId(currentUser.getId()));
             syncSharedCategories();
-            populateCategorySpinners();
             loadHabits();
         } else {
             syncSharedCategories();
-            populateCategorySpinners();
             loadHabits();
         }
     }
@@ -268,81 +279,17 @@ public class MainActivity extends AppCompatActivity implements HabitAdapter.OnHa
         sharedCategories.addAll(categoryList);
     }
 
-    private void populateCategorySpinners() {
-        categoryNameToId.clear();
-
-        // Category filter spinner
-        List<String> filterNames = new ArrayList<>();
-        filterNames.add(getString(R.string.all_categories));
-        for (HabitCategory cat : categoryList) {
-            filterNames.add(cat.getName());
-            categoryNameToId.put(cat.getName(), cat.getId());
-        }
-        ArrayAdapter<String> filterAdapter = new ArrayAdapter<>(this,
-                android.R.layout.simple_spinner_item, filterNames);
-        filterAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        binding.categoryFilterSpinner.setAdapter(filterAdapter);
-    }
-
-    private void setupCategoryFilterSpinner() {
-        binding.categoryFilterSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                applyFilter();
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-                applyFilter();
-            }
-        });
-    }
-
-    private void applyFilter() {
-        filteredHabits.clear();
-        String selected = (String) binding.categoryFilterSpinner.getSelectedItem();
-        String allCategories = getString(R.string.all_categories);
-
-        if (selected == null || allCategories.equals(selected)) {
-            filteredHabits.addAll(habits);
-        } else {
-            String categoryId = categoryNameToId.get(selected);
-            if (categoryId != null) {
-                for (Habit h : habits) {
-                    if (categoryId.equals(h.getCategoryId())) {
-                        filteredHabits.add(h);
-                    }
-                }
-            }
-        }
-        habitAdapter.notifyDataSetChanged();
-    }
-
     private void loadHabits() {
         habits.clear();
         if (habitRepository != null && currentUser != null) {
             if (usingRemoteStorage) {
                 new Thread(() -> {
                     List<Habit> remoteHabits = habitRepository.findByUserId(currentUser.getId());
-                    runOnUiThread(() -> {
-                        habits.addAll(remoteHabits);
-                        applyFilter();
-                        updateLoadDefaultsButtonVisibility();
-                    });
+                    runOnUiThread(() -> habits.addAll(remoteHabits));
                 }).start();
             } else {
                 habits.addAll(habitRepository.findByUserId(currentUser.getId()));
             }
-        }
-        applyFilter();
-        updateLoadDefaultsButtonVisibility();
-    }
-
-    private void updateLoadDefaultsButtonVisibility() {
-        if (!categoryList.isEmpty() || !habits.isEmpty()) {
-            binding.loadDefaultsButton.setVisibility(View.GONE);
-        } else {
-            binding.loadDefaultsButton.setVisibility(View.VISIBLE);
         }
     }
 
@@ -354,31 +301,7 @@ public class MainActivity extends AppCompatActivity implements HabitAdapter.OnHa
         }
     }
 
-    private void setupRecyclerView() {
-        habitAdapter = new HabitAdapter(filteredHabits, this);
-        binding.habitsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        binding.habitsRecyclerView.setAdapter(habitAdapter);
-    }
-
-    private void setupClickListeners() {
-        binding.addHabitButton.setOnClickListener(v -> {
-            Intent intent = new Intent(this, AddHabitActivity.class);
-            startActivity(intent);
-        });
-        binding.completeButton.setOnClickListener(v -> completeHabit());
-        binding.removeCompletionButton.setOnClickListener(v -> removeCompletion());
-        binding.editHabitsButton.setOnClickListener(v -> {
-            Intent intent = new Intent(this, EditHabitsActivity.class);
-            startActivity(intent);
-        });
-        binding.settingsButton.setOnClickListener(v -> {
-            Intent intent = new Intent(this, SettingsActivity.class);
-            settingsLauncher.launch(intent);
-        });
-        binding.loadDefaultsButton.setOnClickListener(v -> loadDefaults());
-    }
-
-    private void loadDefaults() {
+    public void loadDefaults() {
         new Thread(() -> {
             try {
                 if (usingRemoteStorage && apiClient != null) {
@@ -398,102 +321,5 @@ public class MainActivity extends AppCompatActivity implements HabitAdapter.OnHa
                                 Toast.LENGTH_LONG).show());
             }
         }).start();
-    }
-
-    private void completeHabit() {
-        if (selectedHabit == null) {
-            Toast.makeText(this, "Please select a habit first", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        if (selectedHabit.hasReachedDailyLimit(LocalDate.now())) {
-            Toast.makeText(this, "Daily limit reached for this habit", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        HabitEntry entry = new HabitEntry(selectedHabit.getId());
-        selectedHabit.addEntry(entry);
-
-        if (habitRepository != null) {
-            if (usingRemoteStorage) {
-                new Thread(() -> {
-                    habitRepository.save(selectedHabit);
-                    runOnUiThread(() -> {
-                        updateEvaluationDisplay(selectedHabit);
-                        Toast.makeText(this, "Habit completed!", Toast.LENGTH_SHORT).show();
-                    });
-                }).start();
-            } else {
-                habitRepository.save(selectedHabit);
-                updateEvaluationDisplay(selectedHabit);
-                Toast.makeText(this, "Habit completed!", Toast.LENGTH_SHORT).show();
-            }
-        } else {
-            updateEvaluationDisplay(selectedHabit);
-            Toast.makeText(this, "Habit completed!", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    private void removeCompletion() {
-        if (selectedHabit == null) {
-            Toast.makeText(this, "Please select a habit first", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        if (!selectedHabit.removeLastEntryForDate(LocalDate.now())) {
-            Toast.makeText(this, "No completion to remove for today", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        if (habitRepository != null) {
-            if (usingRemoteStorage) {
-                new Thread(() -> {
-                    habitRepository.save(selectedHabit);
-                    runOnUiThread(() -> {
-                        updateEvaluationDisplay(selectedHabit);
-                        Toast.makeText(this, "Completion removed", Toast.LENGTH_SHORT).show();
-                    });
-                }).start();
-            } else {
-                habitRepository.save(selectedHabit);
-                updateEvaluationDisplay(selectedHabit);
-                Toast.makeText(this, "Completion removed", Toast.LENGTH_SHORT).show();
-            }
-        } else {
-            updateEvaluationDisplay(selectedHabit);
-            Toast.makeText(this, "Completion removed", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    @Override
-    public void onHabitClick(Habit habit) {
-        selectedHabit = habit;
-        updateEvaluationDisplay(habit);
-    }
-
-    private void updateEvaluationDisplay(Habit habit) {
-        binding.evaluationCard.setVisibility(View.VISIBLE);
-        binding.selectedHabitName.setText(habit.getName());
-
-        Evaluation evaluation = evaluatorService.evaluate(
-                habit,
-                LocalDate.now().minusDays(30),
-                LocalDate.now()
-        );
-
-        binding.streakText.setText(String.format("Streak: %d days", evaluation.getCurrentStreak()));
-        binding.completionRateText.setText(String.format("Rate: %.1f%%", evaluation.getCompletionRate() * 100));
-        binding.completedActivitiesText.setText(getString(R.string.completed_activities, evaluation.getTotalEntries()));
-        binding.completionProgress.setProgress((int) (evaluation.getCompletionRate() * 100));
-
-        binding.dailyPointsText.setText(getString(R.string.daily_points, scoringService.getCurrentDayScore(habit)));
-        binding.weeklyPointsText.setText(getString(R.string.weekly_points, scoringService.getCurrentWeekScore(habit)));
-        binding.monthlyPointsText.setText(getString(R.string.monthly_points, scoringService.getCurrentMonthScore(habit)));
-
-        if (habit.getMaxEntriesPerDay() != 1) {
-            binding.completeButton.setText(R.string.add_completion);
-        } else {
-            binding.completeButton.setText(R.string.mark_complete);
-        }
     }
 }

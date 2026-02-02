@@ -1,33 +1,51 @@
 package de.idrinth.habitevaluator.android;
 
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AppCompatActivity;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import de.idrinth.habitevaluator.android.databinding.ActivityEditHabitsBinding;
+import de.idrinth.habitevaluator.android.databinding.FragmentEditHabitsBinding;
 import de.idrinth.habitevaluator.android.ui.EditHabitAdapter;
 import de.idrinth.habitevaluator.shared.model.Habit;
 import de.idrinth.habitevaluator.shared.model.ScoringRule;
 
-public class EditHabitsActivity extends AppCompatActivity {
+public class EditHabitsFragment extends Fragment {
 
-    private ActivityEditHabitsBinding binding;
+    private FragmentEditHabitsBinding binding;
     private EditHabitAdapter adapter;
     private List<Habit> habits;
 
+    @Nullable
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        binding = ActivityEditHabitsBinding.inflate(getLayoutInflater());
-        setContentView(binding.getRoot());
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
+        binding = FragmentEditHabitsBinding.inflate(inflater, container, false);
+        return binding.getRoot();
+    }
 
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        binding.saveButton.setOnClickListener(v -> saveEditedHabits());
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        refreshHabitsList();
+    }
+
+    private void refreshHabitsList() {
         habits = MainActivity.getSharedHabits();
 
         if (habits == null || habits.isEmpty()) {
@@ -39,11 +57,11 @@ public class EditHabitsActivity extends AppCompatActivity {
             binding.editRecyclerView.setVisibility(View.VISIBLE);
             binding.saveButton.setVisibility(View.VISIBLE);
             adapter = new EditHabitAdapter(habits);
-            binding.editRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+            binding.editRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
             binding.editRecyclerView.setAdapter(adapter);
         }
 
-        binding.saveButton.setOnClickListener(v -> saveEditedHabits());
+        binding.editMessage.setVisibility(View.GONE);
     }
 
     private void saveEditedHabits() {
@@ -93,13 +111,18 @@ public class EditHabitsActivity extends AppCompatActivity {
             }
         }
 
-        // Persist changes via MainActivity's repository
         MainActivity.saveAllHabits();
 
         String message = getString(R.string.habits_saved_success, count);
         binding.editMessage.setText(message);
-        binding.editMessage.setTextColor(getResources().getColor(android.R.color.holo_green_dark, getTheme()));
+        binding.editMessage.setTextColor(requireContext().getResources().getColor(android.R.color.holo_green_dark, requireContext().getTheme()));
         binding.editMessage.setVisibility(View.VISIBLE);
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+        Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        binding = null;
     }
 }
