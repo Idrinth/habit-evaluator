@@ -173,6 +173,16 @@ public class Habit {
         entry.setHabit(this);
     }
 
+    public boolean removeLastEntryForDate(LocalDate date) {
+        for (int i = entries.size() - 1; i >= 0; i--) {
+            if (entries.get(i).getCompletedAt().toLocalDate().equals(date)) {
+                entries.remove(i);
+                return true;
+            }
+        }
+        return false;
+    }
+
     public User getUser() {
         return user;
     }

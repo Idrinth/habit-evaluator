@@ -366,6 +366,7 @@ public class MainActivity extends AppCompatActivity implements HabitAdapter.OnHa
             startActivity(intent);
         });
         binding.completeButton.setOnClickListener(v -> completeHabit());
+        binding.removeCompletionButton.setOnClickListener(v -> removeCompletion());
         binding.editHabitsButton.setOnClickListener(v -> {
             Intent intent = new Intent(this, EditHabitsActivity.class);
             startActivity(intent);
@@ -430,6 +431,37 @@ public class MainActivity extends AppCompatActivity implements HabitAdapter.OnHa
         } else {
             updateEvaluationDisplay(selectedHabit);
             Toast.makeText(this, "Habit completed!", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void removeCompletion() {
+        if (selectedHabit == null) {
+            Toast.makeText(this, "Please select a habit first", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (!selectedHabit.removeLastEntryForDate(LocalDate.now())) {
+            Toast.makeText(this, "No completion to remove for today", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (habitRepository != null) {
+            if (usingRemoteStorage) {
+                new Thread(() -> {
+                    habitRepository.save(selectedHabit);
+                    runOnUiThread(() -> {
+                        updateEvaluationDisplay(selectedHabit);
+                        Toast.makeText(this, "Completion removed", Toast.LENGTH_SHORT).show();
+                    });
+                }).start();
+            } else {
+                habitRepository.save(selectedHabit);
+                updateEvaluationDisplay(selectedHabit);
+                Toast.makeText(this, "Completion removed", Toast.LENGTH_SHORT).show();
+            }
+        } else {
+            updateEvaluationDisplay(selectedHabit);
+            Toast.makeText(this, "Completion removed", Toast.LENGTH_SHORT).show();
         }
     }
 
