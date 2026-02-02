@@ -10,13 +10,11 @@ general:
   daily: "Diario"
   weekly: "Semanal"
   monthly: "Mensual"
-
 login:
   title: "Habit Evaluator - Iniciar sesión"
   username: "Nombre de usuario"
   password: "Contraseña"
   login: "Iniciar sesión"
-
 habits:
   add_title: "Habit Evaluator - Añadir hábito"
   add_heading: "Añadir hábito"
@@ -31,19 +29,16 @@ habits:
   add_completion: "Añadir finalización"
   complete: "Completado"
   delete: "Eliminar"
-
 evaluation:
   current_streak: "Racha actual"
   completion_rate: "Tasa de cumplimiento"
   current_streak_default: "Racha actual: -"
   completion_rate_default: "Tasa de cumplimiento: -"
-
 categories:
   add_title: "Habit Evaluator - Añadir categoría"
   add_heading: "Añadir categoría"
   add_button: "Añadir categoría"
   color: "Color"
-
 scoring:
   add_title: "Habit Evaluator - Añadir regla de puntuación"
   add_heading: "Añadir regla de puntuación"
@@ -56,13 +51,11 @@ scoring:
   hint_2_points: "Mínimo de completaciones semanales para obtener 2 puntos"
   hint_4_points: "Mínimo de completaciones semanales para obtener 4 puntos"
   hint_8_points: "Mínimo de completaciones semanales para obtener 8 puntos"
-
 defaults:
   load_button: "Cargar valores predeterminados"
   requires_remote: "Cargar hábitos predeterminados requiere almacenamiento remoto. Por favor, configure una conexión API remota en Configuración."
   loaded: "Categorías y hábitos predeterminados cargados"
   load_failed: "Error al cargar los valores predeterminados: %s"
-
 settings:
   storage_settings: "Configuración de almacenamiento"
   storage_mode_label: "Elija dónde almacenar sus datos:"
@@ -89,14 +82,13 @@ settings:
   connection_error_message: "Error al conectar con la API remota: %s\nVolviendo al almacenamiento local."
   incomplete_settings: "Configuración incompleta"
   failed_to_open: "Error al abrir la configuración: %s"
-  language_settings: "Configuración de idioma"
-  language_mode_label: "Elegir idioma de la aplicación:"
-  language_system: "Predeterminado del sistema"
+  language_settings: "Language Settings"
+  language_mode_label: "Choose app language:"
+  language_system: "System default"
   language_en: "English"
   language_de: "Deutsch"
   language_es: "Español"
   language_fr: "Français"
-
 sync:
   title: "Sincronizar con servidor remoto"
   description: "Introduzca los datos del servidor remoto para sincronizar sus hábitos:"
