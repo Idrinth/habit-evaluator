@@ -132,6 +132,7 @@ public class MainActivity extends AppCompatActivity {
         initializeStorage();
         setupViewPager();
         setupBottomNavigation();
+        setupSettingsButton();
     }
 
     private void setupViewPager() {
@@ -145,7 +146,7 @@ public class MainActivity extends AppCompatActivity {
             public void onPageSelected(int position) {
                 switch (position) {
                     case ScreenPagerAdapter.PAGE_SETTINGS:
-                        binding.bottomNavigation.setSelectedItemId(R.id.nav_settings);
+                        // Settings is accessed via toolbar button, not bottom nav
                         break;
                     case ScreenPagerAdapter.PAGE_HOME:
                         binding.bottomNavigation.setSelectedItemId(R.id.nav_home);
@@ -167,14 +168,16 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    private void setupSettingsButton() {
+        binding.settingsButton.setOnClickListener(v ->
+                binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_SETTINGS, true));
+    }
+
     private void setupBottomNavigation() {
         binding.bottomNavigation.setSelectedItemId(R.id.nav_home);
         binding.bottomNavigation.setOnItemSelectedListener(item -> {
             int id = item.getItemId();
-            if (id == R.id.nav_settings) {
-                binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_SETTINGS, true);
-                return true;
-            } else if (id == R.id.nav_home) {
+            if (id == R.id.nav_home) {
                 binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_HOME, true);
                 return true;
             } else if (id == R.id.nav_diary) {
@@ -193,6 +196,8 @@ public class MainActivity extends AppCompatActivity {
             return false;
         });
     }
+
+
 
     public void onSettingsChanged() {
         initializeStorage();
