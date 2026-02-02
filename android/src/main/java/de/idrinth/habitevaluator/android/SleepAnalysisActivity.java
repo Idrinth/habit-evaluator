@@ -77,12 +77,10 @@ public class SleepAnalysisActivity extends AppCompatActivity {
         float avgInterruptions = daysWithData > 0 ? totalInterruptions / daysWithData : 0f;
 
         binding.durationGraphView.setBarColor(0xFF4CAF50);
-        binding.durationGraphView.setAverageColor(0xFF1B5E20);
         binding.durationGraphView.setValueFormat("%.1f");
         binding.durationGraphView.setData(labels, durations, avgDuration);
 
         binding.interruptionsGraphView.setBarColor(0xFF81C784);
-        binding.interruptionsGraphView.setAverageColor(0xFF1B5E20);
         binding.interruptionsGraphView.setValueFormat("%.0f");
         binding.interruptionsGraphView.setData(labels, interruptions, avgInterruptions);
     }
