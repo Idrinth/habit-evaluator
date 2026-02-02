@@ -58,9 +58,18 @@ public class DiaryFragment extends Fragment {
     }
 
     private void setupRecyclerView() {
-        adapter = new DiaryEntryAdapter(displayedEntries);
+        adapter = new DiaryEntryAdapter(displayedEntries, this::deleteDiaryEntry);
         binding.diaryRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
         binding.diaryRecyclerView.setAdapter(adapter);
+    }
+
+    private void deleteDiaryEntry(DiaryEntry entry) {
+        DiaryEntryRepository repository = MainActivity.getSharedDiaryEntryRepository();
+        if (repository != null) {
+            repository.deleteById(entry.getId());
+        }
+        loadEntries();
+        Toast.makeText(requireContext(), R.string.diary_entry_removed, Toast.LENGTH_SHORT).show();
     }
 
     private void setupSignificanceSpinner() {
