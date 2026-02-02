@@ -60,12 +60,25 @@ public class AddHabitFragment extends Fragment {
     private void setupFrequencyTypeSpinner() {
         List<String> frequencyTypes = new ArrayList<>();
         for (FrequencyType ft : FrequencyType.values()) {
-            frequencyTypes.add(ft.name().substring(0, 1) + ft.name().substring(1).toLowerCase());
+            frequencyTypes.add(getFrequencyTypeLabel(ft));
         }
         ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(),
                 android.R.layout.simple_spinner_item, frequencyTypes);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         binding.frequencyTypeSpinner.setAdapter(adapter);
+    }
+
+    private String getFrequencyTypeLabel(FrequencyType ft) {
+        switch (ft) {
+            case DAILY:
+                return getString(R.string.frequency_daily);
+            case WEEKLY:
+                return getString(R.string.frequency_weekly);
+            case MONTHLY:
+                return getString(R.string.frequency_monthly);
+            default:
+                return ft.name().substring(0, 1) + ft.name().substring(1).toLowerCase();
+        }
     }
 
     private void populateCategorySpinner() {
