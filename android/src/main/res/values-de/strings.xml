@@ -135,4 +135,7 @@
     <string name="stats_sleep_entries">Schlafeinträge pro Tag</string>
     <string name="stats_diary_points">Tagebuchpunkte pro Tag</string>
     <string name="stats_habit_points">Gewohnheitspunkte pro Tag</string>
+    <string name="avoidance_streak">Vermeidungsserie</string>
+    <string name="avoidance_rate">Vermeidungsrate</string>
+    <string name="occurrences">Vorkommen: %d</string>
 </resources>

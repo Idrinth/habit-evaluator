@@ -135,4 +135,7 @@
     <string name="stats_sleep_entries">Entradas de sueño por día</string>
     <string name="stats_diary_points">Puntos de diario por día</string>
     <string name="stats_habit_points">Puntos de hábitos por día</string>
+    <string name="avoidance_streak">Racha de evitación</string>
+    <string name="avoidance_rate">Tasa de evitación</string>
+    <string name="occurrences">Ocurrencias: %d</string>
 </resources>

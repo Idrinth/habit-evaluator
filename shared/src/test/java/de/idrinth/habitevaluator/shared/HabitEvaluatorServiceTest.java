@@ -267,4 +267,127 @@ class HabitEvaluatorServiceTest {
         Evaluation evaluation = evaluatorService.evaluate(habit, start, end);
         assertEquals(21, evaluation.getTargetEntries()); // 7 days * 3
     }
+
+    @Test
+    void testNegativeHabitStreakCountsAvoidanceDays() {
+        Habit habit = new Habit("Ordering food", "Meals ordered");
+        habit.setFrequencyType(FrequencyType.DAILY);
+        habit.setTargetFrequency(1);
+        habit.setPositiveScoring(false);
+
+        LocalDate today = LocalDate.now();
+
+        // Entry 5 days ago, nothing since then
+        HabitEntry entry = new HabitEntry(habit.getId());
+        entry.setCompletedAt(today.minusDays(5).atTime(12, 0));
+        habit.addEntry(entry);
+
+        Evaluation evaluation = evaluatorService.evaluate(habit, today.minusDays(10), today);
+
+        // Streak should be 5 days of avoidance (today back to day after the entry)
+        // But the avoidance streak counts from today backwards until a completion is found
+        assertEquals(5, evaluation.getCurrentStreak());
+        assertFalse(evaluation.isPositiveScoring());
+    }
+
+    @Test
+    void testNegativeHabitStreakZeroWhenCompletedToday() {
+        Habit habit = new Habit("Ordering food", "Meals ordered");
+        habit.setFrequencyType(FrequencyType.DAILY);
+        habit.setTargetFrequency(1);
+        habit.setPositiveScoring(false);
+
+        LocalDate today = LocalDate.now();
+
+        HabitEntry entry = new HabitEntry(habit.getId());
+        entry.setCompletedAt(today.atTime(12, 0));
+        habit.addEntry(entry);
+
+        Evaluation evaluation = evaluatorService.evaluate(habit, today.minusDays(10), today);
+
+        // Completed today, so avoidance streak is 0
+        assertEquals(0, evaluation.getCurrentStreak());
+    }
+
+    @Test
+    void testNegativeHabitAvoidanceRate() {
+        Habit habit = new Habit("Ordering food", "Meals ordered");
+        habit.setFrequencyType(FrequencyType.DAILY);
+        habit.setTargetFrequency(1);
+        habit.setPositiveScoring(false);
+
+        LocalDate start = LocalDate.of(2024, 1, 1);
+        LocalDate end = LocalDate.of(2024, 1, 10);
+
+        // 3 entries over 10 days => avoidance rate = 1 - 3/10 = 0.7
+        for (int i = 0; i < 3; i++) {
+            HabitEntry entry = new HabitEntry(habit.getId());
+            entry.setCompletedAt(start.plusDays(i * 3).atTime(10, 0));
+            habit.addEntry(entry);
+        }
+
+        Evaluation evaluation = evaluatorService.evaluate(habit, start, end);
+        assertEquals(0.7, evaluation.getCompletionRate(), 0.001);
+    }
+
+    @Test
+    void testNegativeHabitFullAvoidance() {
+        Habit habit = new Habit("Ordering food", "Meals ordered");
+        habit.setFrequencyType(FrequencyType.DAILY);
+        habit.setTargetFrequency(1);
+        habit.setPositiveScoring(false);
+
+        LocalDate start = LocalDate.of(2024, 1, 1);
+        LocalDate end = LocalDate.of(2024, 1, 7);
+
+        // No entries at all => avoidance rate = 1.0
+        Evaluation evaluation = evaluatorService.evaluate(habit, start, end);
+        assertEquals(1.0, evaluation.getCompletionRate());
+        assertTrue(evaluation.isOnTrack());
+    }
+
+    @Test
+    void testNegativeHabitLongestAvoidanceStreak() {
+        Habit habit = new Habit("Ordering food", "Meals ordered");
+        habit.setFrequencyType(FrequencyType.DAILY);
+        habit.setTargetFrequency(1);
+        habit.setPositiveScoring(false);
+
+        LocalDate start = LocalDate.of(2024, 1, 1);
+        LocalDate end = LocalDate.of(2024, 1, 10);
+
+        // Entries on Jan 1 and Jan 5 only
+        HabitEntry entry1 = new HabitEntry(habit.getId());
+        entry1.setCompletedAt(start.atTime(10, 0));
+        habit.addEntry(entry1);
+
+        HabitEntry entry2 = new HabitEntry(habit.getId());
+        entry2.setCompletedAt(LocalDate.of(2024, 1, 5).atTime(10, 0));
+        habit.addEntry(entry2);
+
+        Evaluation evaluation = evaluatorService.evaluate(habit, start, end);
+
+        // Longest avoidance streak: Jan 6-10 = 5 days
+        assertEquals(5, evaluation.getLongestStreak());
+    }
+
+    @Test
+    void testPositiveHabitRetainsOriginalBehavior() {
+        Habit habit = new Habit("Exercise", "Daily workout");
+        habit.setFrequencyType(FrequencyType.DAILY);
+        habit.setTargetFrequency(1);
+        habit.setPositiveScoring(true);
+
+        LocalDate today = LocalDate.now();
+
+        for (int i = 2; i >= 0; i--) {
+            HabitEntry entry = new HabitEntry(habit.getId());
+            entry.setCompletedAt(today.minusDays(i).atTime(10, 0));
+            habit.addEntry(entry);
+        }
+
+        Evaluation evaluation = evaluatorService.evaluate(habit, today.minusDays(6), today);
+        assertEquals(3, evaluation.getCurrentStreak());
+        assertTrue(evaluation.isPositiveScoring());
+    }
 }

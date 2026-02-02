@@ -279,9 +279,15 @@ public class HomeFragment extends Fragment implements HabitAdapter.OnHabitClickL
                 LocalDate.now()
         );
 
-        binding.streakText.setText(String.format("Streak: %d days", evaluation.getCurrentStreak()));
-        binding.completionRateText.setText(String.format("Rate: %.1f%%", evaluation.getCompletionRate() * 100));
-        binding.completedActivitiesText.setText(getString(R.string.completed_activities, evaluation.getTotalEntries()));
+        if (habit.isPositiveScoring()) {
+            binding.streakText.setText(String.format("Streak: %d days", evaluation.getCurrentStreak()));
+            binding.completionRateText.setText(String.format("Rate: %.1f%%", evaluation.getCompletionRate() * 100));
+            binding.completedActivitiesText.setText(getString(R.string.completed_activities, evaluation.getTotalEntries()));
+        } else {
+            binding.streakText.setText(String.format("Avoided: %d days", evaluation.getCurrentStreak()));
+            binding.completionRateText.setText(String.format("Avoidance: %.1f%%", evaluation.getCompletionRate() * 100));
+            binding.completedActivitiesText.setText(getString(R.string.occurrences, evaluation.getTotalEntries()));
+        }
         binding.completionProgress.setProgress((int) (evaluation.getCompletionRate() * 100));
 
         binding.dailyPointsText.setText(getString(R.string.daily_points, scoringService.getCurrentDayScore(habit)));
