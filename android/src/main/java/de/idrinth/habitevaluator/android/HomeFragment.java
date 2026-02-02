@@ -107,6 +107,11 @@ public class HomeFragment extends Fragment implements HabitAdapter.OnHabitClickL
                 ((MainActivity) getActivity()).loadDefaults();
             }
         });
+        binding.viewPointsButton.setOnClickListener(v -> {
+            if (getActivity() instanceof MainActivity) {
+                ((MainActivity) getActivity()).navigateToPointDevelopment();
+            }
+        });
     }
 
     private void setupCategoryFilterSpinner() {

@@ -9,6 +9,7 @@ import de.idrinth.habitevaluator.android.AddHabitFragment;
 import de.idrinth.habitevaluator.android.DiaryFragment;
 import de.idrinth.habitevaluator.android.EditHabitsFragment;
 import de.idrinth.habitevaluator.android.HomeFragment;
+import de.idrinth.habitevaluator.android.PointDevelopmentFragment;
 import de.idrinth.habitevaluator.android.SettingsFragment;
 import de.idrinth.habitevaluator.android.SleepTrackingFragment;
 
@@ -20,7 +21,8 @@ public class ScreenPagerAdapter extends FragmentStateAdapter {
     public static final int PAGE_ADD_HABIT = 3;
     public static final int PAGE_SETTINGS = 4;
     public static final int PAGE_SLEEP = 5;
-    public static final int PAGE_COUNT = 6;
+    public static final int PAGE_POINT_DEVELOPMENT = 6;
+    public static final int PAGE_COUNT = 7;
 
     public ScreenPagerAdapter(@NonNull FragmentActivity fragmentActivity) {
         super(fragmentActivity);
@@ -42,6 +44,8 @@ public class ScreenPagerAdapter extends FragmentStateAdapter {
                 return new SettingsFragment();
             case PAGE_SLEEP:
                 return new SleepTrackingFragment();
+            case PAGE_POINT_DEVELOPMENT:
+                return new PointDevelopmentFragment();
             default:
                 return new HomeFragment();
         }

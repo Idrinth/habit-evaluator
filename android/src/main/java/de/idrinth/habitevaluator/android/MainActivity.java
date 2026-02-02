@@ -148,6 +148,14 @@ public class MainActivity extends AppCompatActivity {
         binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_EDIT_HABITS, true);
     }
 
+    public void navigateToPointDevelopment() {
+        binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_POINT_DEVELOPMENT, true);
+    }
+
+    public void navigateToHome() {
+        binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_HOME, true);
+    }
+
     private void setupViewPager() {
         ScreenPagerAdapter pagerAdapter = new ScreenPagerAdapter(this);
         binding.viewPager.setAdapter(pagerAdapter);
@@ -159,7 +167,8 @@ public class MainActivity extends AppCompatActivity {
             public void onPageSelected(int position) {
                 switch (position) {
                     case ScreenPagerAdapter.PAGE_EDIT_HABITS:
-                        // Edit habits is accessed via edit button on habit card, not bottom nav
+                    case ScreenPagerAdapter.PAGE_POINT_DEVELOPMENT:
+                        // Accessed via buttons, not bottom nav
                         break;
                     case ScreenPagerAdapter.PAGE_HOME:
                         binding.bottomNavigation.setSelectedItemId(R.id.nav_home);

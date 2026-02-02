@@ -122,4 +122,14 @@
     <string name="translations_section">Translations</string>
     <string name="translation_name_hint">Name (%s)</string>
     <string name="translation_description_hint">Description (%s)</string>
+    <string name="point_development">Point Development</string>
+    <string name="view_points">View Points</string>
+    <string name="period_week">Week</string>
+    <string name="period_month">Month</string>
+    <string name="daily_points_chart">Daily Points</string>
+    <string name="average_points_chart">Average Points</string>
+    <string name="total_points">Total: %d pts</string>
+    <string name="average_points">Average: %.1f pts/day</string>
+    <string name="back_to_home">Back to Home</string>
+    <string name="week_label">W%d</string>
 </resources>
