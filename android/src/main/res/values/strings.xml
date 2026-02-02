@@ -6,6 +6,7 @@
     <string name="add_habit">Add Habit</string>
     <string name="your_habits">Your Habits</string>
     <string name="mark_complete">Mark Complete</string>
+    <string name="add_completion">Add Completion</string>
     <string name="current_streak">Current Streak</string>
     <string name="completion_rate">Completion Rate</string>
     <string name="no_habits_found">No habits found. Add a habit first.</string>

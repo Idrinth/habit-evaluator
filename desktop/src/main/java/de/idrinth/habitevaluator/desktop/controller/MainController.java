@@ -84,6 +84,9 @@ public class MainController {
     private VBox editHabitsContainer;
 
     @FXML
+    private Button completeButton;
+
+    @FXML
     private Label editMessage;
 
     private final Map<String, TextField> editTargetFields = new HashMap<>();
@@ -378,6 +381,12 @@ public class MainController {
         dailyPointsLabel.setText("Today: " + scoringService.getCurrentDayScore(habit) + " pts");
         weeklyPointsLabel.setText("This Week: " + scoringService.getCurrentWeekScore(habit) + " pts");
         monthlyPointsLabel.setText("This Month: " + scoringService.getCurrentMonthScore(habit) + " pts");
+
+        if (habit.getMaxEntriesPerDay() != 1) {
+            completeButton.setText("Add Completion");
+        } else {
+            completeButton.setText("Complete");
+        }
     }
 
     private void clearEvaluationDisplay() {
