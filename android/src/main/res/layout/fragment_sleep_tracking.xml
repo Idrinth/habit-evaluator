@@ -16,13 +16,14 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <com.google.android.material.button.MaterialButton
+    <ImageButton
         android:id="@+id/viewAnalysisButton"
-        style="@style/Widget.Material3.Button.TonalButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/sleep_view_analysis"
-        android:textSize="12sp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="@string/sleep_view_analysis"
+        android:padding="8dp"
+        android:src="@android:drawable/ic_menu_search"
         app:layout_constraintBottom_toBottomOf="@id/sleepTrackingTitle"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@id/sleepTrackingTitle" />
