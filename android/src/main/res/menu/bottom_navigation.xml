@@ -9,11 +9,11 @@
         android:icon="@drawable/ic_diary"
         android:title="@string/nav_diary" />
     <item
-        android:id="@+id/nav_settings"
-        android:icon="@drawable/ic_settings"
-        android:title="@string/settings" />
-    <item
         android:id="@+id/nav_sleep"
         android:icon="@drawable/ic_sleep"
         android:title="@string/sleep_tracking" />
+    <item
+        android:id="@+id/nav_settings"
+        android:icon="@drawable/ic_settings"
+        android:title="@string/settings" />
 </menu>
