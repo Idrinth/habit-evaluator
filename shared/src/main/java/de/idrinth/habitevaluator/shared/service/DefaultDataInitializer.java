@@ -3,6 +3,7 @@ package de.idrinth.habitevaluator.shared.service;
 import de.idrinth.habitevaluator.shared.model.FrequencyType;
 import de.idrinth.habitevaluator.shared.model.Habit;
 import de.idrinth.habitevaluator.shared.model.HabitCategory;
+import de.idrinth.habitevaluator.shared.model.ScoringRule;
 import de.idrinth.habitevaluator.shared.model.User;
 import de.idrinth.habitevaluator.shared.repository.HabitCategoryRepository;
 import de.idrinth.habitevaluator.shared.repository.HabitRepository;
@@ -54,7 +55,7 @@ public class DefaultDataInitializer {
             List.of(
                 new HabitDefinition("Open-source days", "Days contributed to open-source projects", FrequencyType.WEEKLY, 7),
                 new HabitDefinition("Days started punctually", "Days where work was started on time", FrequencyType.WEEKLY, 7),
-                new HabitDefinition("Hours of work per week", "Total hours worked in the week", FrequencyType.WEEKLY, 40),
+                new HabitDefinition("Hours of work per week", "Total hours worked in the week", FrequencyType.WEEKLY, 40, false, new int[]{9, 10, 11, 12}),
                 new HabitDefinition("Emails processed", "Number of emails processed", FrequencyType.WEEKLY, 7)
             )
         );
@@ -63,7 +64,7 @@ public class DefaultDataInitializer {
             new HabitCategory("Emotions", "Monitoring emotional states and warning signs", "#F44336"),
             List.of(
                 new HabitDefinition("Irritability", "Days experiencing irritability", FrequencyType.WEEKLY, 7),
-                new HabitDefinition("Listlessness", "Days experiencing listlessness or apathy", FrequencyType.WEEKLY, 7),
+                new HabitDefinition("Listlessness", "Days experiencing listlessness or apathy", FrequencyType.WEEKLY, 7, false, null),
                 new HabitDefinition("Tiredness of life", "Days experiencing tiredness of life", FrequencyType.WEEKLY, 7)
             )
         );
@@ -75,7 +76,7 @@ public class DefaultDataInitializer {
                 new HabitDefinition("Days waking up before 5:00", "Days where waking up occurred before 5:00", FrequencyType.WEEKLY, 7),
                 new HabitDefinition("Liters of cola/coffee/tea", "Liters of caffeinated beverages consumed", FrequencyType.WEEKLY, 7),
                 new HabitDefinition("Awake at 6 on time", "Days awake punctually at 6:00", FrequencyType.WEEKLY, 7),
-                new HabitDefinition("Napped during the day", "Days with daytime naps", FrequencyType.WEEKLY, 7)
+                new HabitDefinition("Napped during the day", "Days with daytime naps", FrequencyType.WEEKLY, 7, false, new int[]{1, 2, 3, 4})
             )
         );
 
@@ -92,7 +93,7 @@ public class DefaultDataInitializer {
             new HabitCategory("Food", "Tracking eating habits and meal preparation", "#795548"),
             List.of(
                 new HabitDefinition("Meals cooked", "Number of self-cooked meals", FrequencyType.WEEKLY, 7),
-                new HabitDefinition("Meals ordered", "Number of ordered meals", FrequencyType.WEEKLY, 7),
+                new HabitDefinition("Meals ordered", "Number of ordered meals", FrequencyType.WEEKLY, 7, false, null),
                 new HabitDefinition("Breakfasts eaten", "Number of breakfasts eaten", FrequencyType.WEEKLY, 7)
             )
         );
@@ -194,6 +195,16 @@ public class DefaultDataInitializer {
                     habit.setCategoryId(category.getId());
                     habit.setFrequencyType(def.frequencyType);
                     habit.setTargetFrequency(def.targetFrequency);
+                    habit.setPositiveScoring(def.positiveScoring);
+                    if (def.scoringThresholds != null) {
+                        habit.setScoringRule(new ScoringRule(
+                            def.name,
+                            def.scoringThresholds[0],
+                            def.scoringThresholds[1],
+                            def.scoringThresholds[2],
+                            def.scoringThresholds[3]
+                        ));
+                    }
                     habit.setUser(user);
                     habitRepository.save(habit);
                     logger.info("Created default habit: {} in category: {}", def.name, category.getName());
@@ -212,12 +223,21 @@ public class DefaultDataInitializer {
         final String description;
         final FrequencyType frequencyType;
         final int targetFrequency;
+        final boolean positiveScoring;
+        final int[] scoringThresholds;
 
         HabitDefinition(String name, String description, FrequencyType frequencyType, int targetFrequency) {
+            this(name, description, frequencyType, targetFrequency, true, null);
+        }
+
+        HabitDefinition(String name, String description, FrequencyType frequencyType, int targetFrequency,
+                         boolean positiveScoring, int[] scoringThresholds) {
             this.name = name;
             this.description = description;
             this.frequencyType = frequencyType;
             this.targetFrequency = targetFrequency;
+            this.positiveScoring = positiveScoring;
+            this.scoringThresholds = scoringThresholds;
         }
     }
 }
