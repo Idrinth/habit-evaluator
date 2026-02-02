@@ -14,11 +14,11 @@ import de.idrinth.habitevaluator.android.SleepTrackingFragment;
 
 public class ScreenPagerAdapter extends FragmentStateAdapter {
 
-    public static final int PAGE_SETTINGS = 0;
+    public static final int PAGE_EDIT_HABITS = 0;
     public static final int PAGE_HOME = 1;
     public static final int PAGE_DIARY = 2;
     public static final int PAGE_ADD_HABIT = 3;
-    public static final int PAGE_EDIT_HABITS = 4;
+    public static final int PAGE_SETTINGS = 4;
     public static final int PAGE_SLEEP = 5;
     public static final int PAGE_COUNT = 6;
 
@@ -30,16 +30,16 @@ public class ScreenPagerAdapter extends FragmentStateAdapter {
     @Override
     public Fragment createFragment(int position) {
         switch (position) {
-            case PAGE_SETTINGS:
-                return new SettingsFragment();
+            case PAGE_EDIT_HABITS:
+                return new EditHabitsFragment();
             case PAGE_HOME:
                 return new HomeFragment();
             case PAGE_DIARY:
                 return new DiaryFragment();
             case PAGE_ADD_HABIT:
                 return new AddHabitFragment();
-            case PAGE_EDIT_HABITS:
-                return new EditHabitsFragment();
+            case PAGE_SETTINGS:
+                return new SettingsFragment();
             case PAGE_SLEEP:
                 return new SleepTrackingFragment();
             default:

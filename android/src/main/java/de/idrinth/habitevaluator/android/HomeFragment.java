@@ -90,6 +90,11 @@ public class HomeFragment extends Fragment implements HabitAdapter.OnHabitClickL
     private void setupRecyclerView() {
         habitAdapter = new HabitAdapter(filteredHabits, this);
         habitAdapter.setDisplayLanguage(getDisplayLanguage());
+        habitAdapter.setOnHabitEditListener(habit -> {
+            if (getActivity() instanceof MainActivity) {
+                ((MainActivity) getActivity()).navigateToEditHabit(habit.getId());
+            }
+        });
         binding.habitsRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
         binding.habitsRecyclerView.setAdapter(habitAdapter);
     }

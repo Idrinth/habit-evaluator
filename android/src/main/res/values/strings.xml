@@ -51,6 +51,7 @@
     <string name="positive_scoring">Positive</string>
     <string name="value_hint">Val</string>
     <string name="edit_habits">Edit Habits</string>
+    <string name="edit_habit">Edit Habit</string>
     <string name="scoring_thresholds">Scoring thresholds (1pt/2pt/4pt/8pt)</string>
     <string name="threshold_1pt">1pt</string>
     <string name="threshold_2pt">2pt</string>
