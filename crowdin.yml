@@ -1,3 +1,6 @@
 files:
   - source: /shared/src/main/resources/localization/en.yml
     translation: /shared/src/main/resources/localization/%two_letters_code%.yml
+  - source: /android/src/main/res/values/strings.xml
+    translation: /android/src/main/res/values-%two_letters_code%/strings.xml
+    translate_attributes: 0
