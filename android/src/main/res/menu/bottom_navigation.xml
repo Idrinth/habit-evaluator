@@ -13,11 +13,11 @@
         android:icon="@drawable/ic_add"
         android:title="@string/add_habit" />
     <item
-        android:id="@+id/nav_settings"
-        android:icon="@drawable/ic_settings"
-        android:title="@string/settings" />
-    <item
         android:id="@+id/nav_sleep"
         android:icon="@drawable/ic_sleep"
         android:title="@string/sleep_tracking" />
+    <item
+        android:id="@+id/nav_settings"
+        android:icon="@drawable/ic_settings"
+        android:title="@string/settings" />
 </menu>
