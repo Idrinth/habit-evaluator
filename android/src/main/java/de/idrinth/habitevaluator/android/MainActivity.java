@@ -278,7 +278,6 @@ public class MainActivity extends AppCompatActivity implements HabitAdapter.OnHa
             filterNames.add(cat.getName());
             categoryNameToId.put(cat.getName(), cat.getId());
         }
-        filterNames.add(getString(R.string.uncategorized));
         ArrayAdapter<String> filterAdapter = new ArrayAdapter<>(this,
                 android.R.layout.simple_spinner_item, filterNames);
         filterAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -303,16 +302,9 @@ public class MainActivity extends AppCompatActivity implements HabitAdapter.OnHa
         filteredHabits.clear();
         String selected = (String) binding.categoryFilterSpinner.getSelectedItem();
         String allCategories = getString(R.string.all_categories);
-        String uncategorized = getString(R.string.uncategorized);
 
         if (selected == null || allCategories.equals(selected)) {
             filteredHabits.addAll(habits);
-        } else if (uncategorized.equals(selected)) {
-            for (Habit h : habits) {
-                if (h.getCategoryId() == null || h.getCategoryId().isEmpty()) {
-                    filteredHabits.add(h);
-                }
-            }
         } else {
             String categoryId = categoryNameToId.get(selected);
             if (categoryId != null) {
