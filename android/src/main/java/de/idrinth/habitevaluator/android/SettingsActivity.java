@@ -1,25 +1,11 @@
 package de.idrinth.habitevaluator.android;
 
-import android.content.SharedPreferences;
-import android.os.Bundle;
-import android.view.View;
-import android.widget.RadioGroup;
-import android.widget.Toast;
-
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 
-import de.idrinth.habitevaluator.android.databinding.ActivitySettingsBinding;
-import de.idrinth.habitevaluator.shared.api.ApiClient;
-import de.idrinth.habitevaluator.shared.api.StorageConfig;
-
-import java.io.IOException;
-
 /**
- * Activity for configuring storage settings.
- * Allows switching between local in-memory storage and remote API storage.
+ * Constants and utilities for storage and theme settings.
  */
-public class SettingsActivity extends AppCompatActivity {
+public final class SettingsActivity {
 
     public static final String PREFS_NAME = "habit_evaluator_settings";
     public static final String KEY_STORAGE_MODE = "storage_mode";
@@ -33,132 +19,7 @@ public class SettingsActivity extends AppCompatActivity {
     public static final String THEME_LIGHT = "LIGHT";
     public static final String THEME_DARK = "DARK";
 
-    private ActivitySettingsBinding binding;
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        binding = ActivitySettingsBinding.inflate(getLayoutInflater());
-        setContentView(binding.getRoot());
-
-        loadSettings();
-        setupListeners();
-    }
-
-    private void loadSettings() {
-        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
-        String mode = prefs.getString(KEY_STORAGE_MODE, MODE_LOCAL);
-        String url = prefs.getString(KEY_API_URL, StorageConfig.DEFAULT_API_BASE_URL);
-        String username = prefs.getString(KEY_API_USERNAME, "");
-        String password = prefs.getString(KEY_API_PASSWORD, "");
-        String themeMode = prefs.getString(KEY_THEME_MODE, THEME_SYSTEM);
-
-        if (MODE_REMOTE.equals(mode)) {
-            binding.remoteRadio.setChecked(true);
-            binding.remoteSettingsPanel.setVisibility(View.VISIBLE);
-        } else {
-            binding.localRadio.setChecked(true);
-            binding.remoteSettingsPanel.setVisibility(View.GONE);
-        }
-
-        if (THEME_LIGHT.equals(themeMode)) {
-            binding.themeLightRadio.setChecked(true);
-        } else if (THEME_DARK.equals(themeMode)) {
-            binding.themeDarkRadio.setChecked(true);
-        } else {
-            binding.themeSystemRadio.setChecked(true);
-        }
-
-        binding.apiUrlInput.setText(url);
-        binding.apiUsernameInput.setText(username);
-        binding.apiPasswordInput.setText(password);
-    }
-
-    private void setupListeners() {
-        binding.storageModeGroup.setOnCheckedChangeListener((group, checkedId) -> {
-            if (checkedId == R.id.remoteRadio) {
-                binding.remoteSettingsPanel.setVisibility(View.VISIBLE);
-            } else {
-                binding.remoteSettingsPanel.setVisibility(View.GONE);
-            }
-        });
-
-        binding.testConnectionButton.setOnClickListener(v -> testConnection());
-        binding.saveSettingsButton.setOnClickListener(v -> saveSettings());
-    }
-
-    private void testConnection() {
-        String url = binding.apiUrlInput.getText().toString().trim();
-        String username = binding.apiUsernameInput.getText().toString().trim();
-        String password = binding.apiPasswordInput.getText().toString();
-
-        if (url.isEmpty() || username.isEmpty() || password.isEmpty()) {
-            binding.connectionStatusText.setText(R.string.fill_all_fields);
-            binding.connectionStatusText.setTextColor(getColor(android.R.color.holo_red_dark));
-            return;
-        }
-
-        binding.connectionStatusText.setText(R.string.testing_connection);
-        binding.connectionStatusText.setTextColor(getColor(R.color.text_secondary));
-
-        new Thread(() -> {
-            try {
-                ApiClient client = new ApiClient(url);
-                boolean success = client.login(username, password);
-                runOnUiThread(() -> {
-                    if (success) {
-                        binding.connectionStatusText.setText(R.string.connection_success);
-                        binding.connectionStatusText.setTextColor(getColor(android.R.color.holo_green_dark));
-                    } else {
-                        binding.connectionStatusText.setText(R.string.auth_failed);
-                        binding.connectionStatusText.setTextColor(getColor(android.R.color.holo_red_dark));
-                    }
-                });
-            } catch (IOException e) {
-                runOnUiThread(() -> {
-                    binding.connectionStatusText.setText(getString(R.string.connection_failed, e.getMessage()));
-                    binding.connectionStatusText.setTextColor(getColor(android.R.color.holo_red_dark));
-                });
-            }
-        }).start();
-    }
-
-    private void saveSettings() {
-        SharedPreferences.Editor editor = getSharedPreferences(PREFS_NAME, MODE_PRIVATE).edit();
-
-        String url = binding.apiUrlInput.getText().toString().trim();
-        String username = binding.apiUsernameInput.getText().toString().trim();
-        String password = binding.apiPasswordInput.getText().toString();
-
-        if (binding.remoteRadio.isChecked()) {
-            if (url.isEmpty() || username.isEmpty() || password.isEmpty()) {
-                Toast.makeText(this, R.string.fill_all_fields, Toast.LENGTH_SHORT).show();
-                return;
-            }
-            editor.putString(KEY_STORAGE_MODE, MODE_REMOTE);
-        } else {
-            editor.putString(KEY_STORAGE_MODE, MODE_LOCAL);
-        }
-
-        String themeMode;
-        if (binding.themeLightRadio.isChecked()) {
-            themeMode = THEME_LIGHT;
-        } else if (binding.themeDarkRadio.isChecked()) {
-            themeMode = THEME_DARK;
-        } else {
-            themeMode = THEME_SYSTEM;
-        }
-        editor.putString(KEY_THEME_MODE, themeMode);
-
-        editor.putString(KEY_API_URL, url);
-        editor.putString(KEY_API_USERNAME, username);
-        editor.putString(KEY_API_PASSWORD, password);
-
-        editor.apply();
-        applyThemeMode(themeMode);
-        setResult(RESULT_OK);
-        Toast.makeText(this, R.string.settings_saved, Toast.LENGTH_SHORT).show();
-        finish();
+    private SettingsActivity() {
     }
 
     public static void applyThemeMode(String themeMode) {
