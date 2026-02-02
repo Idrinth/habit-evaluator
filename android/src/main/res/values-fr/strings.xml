@@ -69,4 +69,7 @@
     <string name="language_es">Español</string>
     <string name="language_fr">Français</string>
     <string name="nav_home">Accueil</string>
+    <string name="frequency_daily">Quotidien</string>
+    <string name="frequency_weekly">Hebdomadaire</string>
+    <string name="frequency_monthly">Mensuel</string>
 </resources>

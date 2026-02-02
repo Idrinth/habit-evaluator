@@ -70,4 +70,7 @@
     <string name="language_es">Español</string>
     <string name="language_fr">Français</string>
     <string name="nav_home">Home</string>
+    <string name="frequency_daily">Daily</string>
+    <string name="frequency_weekly">Weekly</string>
+    <string name="frequency_monthly">Monthly</string>
 </resources>
