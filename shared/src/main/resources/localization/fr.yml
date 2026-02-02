@@ -28,6 +28,7 @@ habits:
   target_frequency: "Fréquence cible"
   no_habits_found: "Aucune habitude trouvée. Ajoutez d'abord une habitude."
   mark_complete: "Marquer comme terminé"
+  add_completion: "Ajouter une complétion"
   complete: "Terminé"
   delete: "Supprimer"
 

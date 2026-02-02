@@ -456,5 +456,11 @@ public class MainActivity extends AppCompatActivity implements HabitAdapter.OnHa
         binding.dailyPointsText.setText(getString(R.string.daily_points, scoringService.getCurrentDayScore(habit)));
         binding.weeklyPointsText.setText(getString(R.string.weekly_points, scoringService.getCurrentWeekScore(habit)));
         binding.monthlyPointsText.setText(getString(R.string.monthly_points, scoringService.getCurrentMonthScore(habit)));
+
+        if (habit.getMaxEntriesPerDay() != 1) {
+            binding.completeButton.setText(R.string.add_completion);
+        } else {
+            binding.completeButton.setText(R.string.mark_complete);
+        }
     }
 }
