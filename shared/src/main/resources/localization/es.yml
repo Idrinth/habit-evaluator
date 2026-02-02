@@ -89,6 +89,13 @@ settings:
   connection_error_message: "Error al conectar con la API remota: %s\nVolviendo al almacenamiento local."
   incomplete_settings: "Configuración incompleta"
   failed_to_open: "Error al abrir la configuración: %s"
+  language_settings: "Configuración de idioma"
+  language_mode_label: "Elegir idioma de la aplicación:"
+  language_system: "Predeterminado del sistema"
+  language_en: "English"
+  language_de: "Deutsch"
+  language_es: "Español"
+  language_fr: "Français"
 
 sync:
   title: "Sincronizar con servidor remoto"

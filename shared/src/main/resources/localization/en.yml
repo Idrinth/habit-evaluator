@@ -89,6 +89,13 @@ settings:
   connection_error_message: "Failed to connect to remote API: %s\nFalling back to local storage."
   incomplete_settings: "Incomplete Settings"
   failed_to_open: "Failed to open settings: %s"
+  language_settings: "Language Settings"
+  language_mode_label: "Choose app language:"
+  language_system: "System default"
+  language_en: "English"
+  language_de: "Deutsch"
+  language_es: "Español"
+  language_fr: "Français"
 
 sync:
   title: "Sync with Remote Server"

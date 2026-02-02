@@ -7,6 +7,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Locale;
 import java.util.Properties;
 
 /**
@@ -28,8 +31,11 @@ public class StorageConfig {
         SYSTEM, LIGHT, DARK
     }
 
+    public static final String LANGUAGE_SYSTEM = "system";
+
     private StorageMode storageMode;
     private ThemeMode themeMode;
+    private String language;
     private String apiBaseUrl;
     private String apiUsername;
     private String apiPassword;
@@ -40,6 +46,7 @@ public class StorageConfig {
         this.configFile = configFile;
         this.storageMode = StorageMode.LOCAL;
         this.themeMode = ThemeMode.SYSTEM;
+        this.language = LANGUAGE_SYSTEM;
         this.apiBaseUrl = DEFAULT_API_BASE_URL;
         this.apiUsername = "";
         this.apiPassword = "";
@@ -61,6 +68,7 @@ public class StorageConfig {
             } catch (IllegalArgumentException e) {
                 themeMode = ThemeMode.SYSTEM;
             }
+            language = props.getProperty("language", LANGUAGE_SYSTEM);
             apiBaseUrl = props.getProperty("api.baseUrl", DEFAULT_API_BASE_URL);
             apiUsername = props.getProperty("api.username", "");
             apiPassword = props.getProperty("api.password", "");
@@ -83,6 +91,7 @@ public class StorageConfig {
         Properties props = new Properties();
         props.setProperty("storage.mode", storageMode.name());
         props.setProperty("theme.mode", themeMode != null ? themeMode.name() : "SYSTEM");
+        props.setProperty("language", language != null ? language : LANGUAGE_SYSTEM);
         props.setProperty("api.baseUrl", apiBaseUrl != null ? apiBaseUrl : "");
         props.setProperty("api.username", apiUsername != null ? apiUsername : "");
         props.setProperty("api.password", apiPassword != null ? apiPassword : "");
@@ -135,5 +144,30 @@ public class StorageConfig {
 
     public void setThemeMode(ThemeMode themeMode) {
         this.themeMode = themeMode;
+    }
+
+    public String getLanguage() {
+        return language;
+    }
+
+    public void setLanguage(String language) {
+        this.language = language;
+    }
+
+    private static final List<String> SUPPORTED_LANGUAGES = Arrays.asList("en", "de", "es", "fr");
+
+    /**
+     * Resolves the effective language code. If set to "system", uses the system locale,
+     * falling back to "en" if the system language is not supported.
+     */
+    public String getEffectiveLanguage() {
+        if (language == null || LANGUAGE_SYSTEM.equals(language)) {
+            String systemLang = Locale.getDefault().getLanguage();
+            if (SUPPORTED_LANGUAGES.contains(systemLang)) {
+                return systemLang;
+            }
+            return "en";
+        }
+        return language;
     }
 }

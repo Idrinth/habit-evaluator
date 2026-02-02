@@ -89,6 +89,13 @@ settings:
   connection_error_message: "Verbindung zum Remote-API fehlgeschlagen: %s\nFallback auf lokalen Speicher."
   incomplete_settings: "Unvollständige Einstellungen"
   failed_to_open: "Einstellungen konnten nicht geöffnet werden: %s"
+  language_settings: "Spracheinstellungen"
+  language_mode_label: "App-Sprache wählen:"
+  language_system: "Systemstandard"
+  language_en: "English"
+  language_de: "Deutsch"
+  language_es: "Español"
+  language_fr: "Français"
 
 sync:
   title: "Mit Remote-Server synchronisieren"

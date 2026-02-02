@@ -45,6 +45,7 @@ public class SettingsFragment extends Fragment {
         String username = prefs.getString(SettingsActivity.KEY_API_USERNAME, "");
         String password = prefs.getString(SettingsActivity.KEY_API_PASSWORD, "");
         String themeMode = prefs.getString(SettingsActivity.KEY_THEME_MODE, SettingsActivity.THEME_SYSTEM);
+        String language = prefs.getString(SettingsActivity.KEY_LANGUAGE, SettingsActivity.LANGUAGE_SYSTEM);
 
         if (SettingsActivity.MODE_REMOTE.equals(mode)) {
             binding.remoteRadio.setChecked(true);
@@ -60,6 +61,18 @@ public class SettingsFragment extends Fragment {
             binding.themeDarkRadio.setChecked(true);
         } else {
             binding.themeSystemRadio.setChecked(true);
+        }
+
+        if (SettingsActivity.LANGUAGE_EN.equals(language)) {
+            binding.languageEnRadio.setChecked(true);
+        } else if (SettingsActivity.LANGUAGE_DE.equals(language)) {
+            binding.languageDeRadio.setChecked(true);
+        } else if (SettingsActivity.LANGUAGE_ES.equals(language)) {
+            binding.languageEsRadio.setChecked(true);
+        } else if (SettingsActivity.LANGUAGE_FR.equals(language)) {
+            binding.languageFrRadio.setChecked(true);
+        } else {
+            binding.languageSystemRadio.setChecked(true);
         }
 
         binding.apiUrlInput.setText(url);
@@ -146,6 +159,20 @@ public class SettingsFragment extends Fragment {
             themeMode = SettingsActivity.THEME_SYSTEM;
         }
         editor.putString(SettingsActivity.KEY_THEME_MODE, themeMode);
+
+        String language;
+        if (binding.languageEnRadio.isChecked()) {
+            language = SettingsActivity.LANGUAGE_EN;
+        } else if (binding.languageDeRadio.isChecked()) {
+            language = SettingsActivity.LANGUAGE_DE;
+        } else if (binding.languageEsRadio.isChecked()) {
+            language = SettingsActivity.LANGUAGE_ES;
+        } else if (binding.languageFrRadio.isChecked()) {
+            language = SettingsActivity.LANGUAGE_FR;
+        } else {
+            language = SettingsActivity.LANGUAGE_SYSTEM;
+        }
+        editor.putString(SettingsActivity.KEY_LANGUAGE, language);
 
         editor.putString(SettingsActivity.KEY_API_URL, url);
         editor.putString(SettingsActivity.KEY_API_USERNAME, username);
