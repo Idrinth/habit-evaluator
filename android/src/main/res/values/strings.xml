@@ -9,6 +9,7 @@
     <string name="add_completion">Add Completion</string>
     <string name="current_streak">Current Streak</string>
     <string name="completion_rate">Completion Rate</string>
+    <string name="completed_activities">Completed: %d</string>
     <string name="no_habits_found">No habits found. Add a habit first.</string>
     <string name="settings">Settings</string>
     <string name="storage_settings">Storage Settings</string>
