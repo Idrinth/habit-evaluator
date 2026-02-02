@@ -6,6 +6,7 @@ import androidx.fragment.app.FragmentActivity;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 
 import de.idrinth.habitevaluator.android.AddHabitFragment;
+import de.idrinth.habitevaluator.android.DiaryFragment;
 import de.idrinth.habitevaluator.android.EditHabitsFragment;
 import de.idrinth.habitevaluator.android.HomeFragment;
 import de.idrinth.habitevaluator.android.SettingsFragment;
@@ -14,9 +15,10 @@ public class ScreenPagerAdapter extends FragmentStateAdapter {
 
     public static final int PAGE_SETTINGS = 0;
     public static final int PAGE_HOME = 1;
-    public static final int PAGE_ADD_HABIT = 2;
-    public static final int PAGE_EDIT_HABITS = 3;
-    public static final int PAGE_COUNT = 4;
+    public static final int PAGE_DIARY = 2;
+    public static final int PAGE_ADD_HABIT = 3;
+    public static final int PAGE_EDIT_HABITS = 4;
+    public static final int PAGE_COUNT = 5;
 
     public ScreenPagerAdapter(@NonNull FragmentActivity fragmentActivity) {
         super(fragmentActivity);
@@ -30,6 +32,8 @@ public class ScreenPagerAdapter extends FragmentStateAdapter {
                 return new SettingsFragment();
             case PAGE_HOME:
                 return new HomeFragment();
+            case PAGE_DIARY:
+                return new DiaryFragment();
             case PAGE_ADD_HABIT:
                 return new AddHabitFragment();
             case PAGE_EDIT_HABITS:
