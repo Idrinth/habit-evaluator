@@ -174,11 +174,20 @@ public class Habit {
     }
 
     public boolean removeLastEntryForDate(LocalDate date) {
-        for (int i = entries.size() - 1; i >= 0; i--) {
-            if (entries.get(i).getCompletedAt().toLocalDate().equals(date)) {
-                entries.remove(i);
-                return true;
+        int latestIndex = -1;
+        LocalDateTime latestTime = null;
+        for (int i = 0; i < entries.size(); i++) {
+            HabitEntry entry = entries.get(i);
+            if (entry.getCompletedAt().toLocalDate().equals(date)) {
+                if (latestTime == null || entry.getCompletedAt().isAfter(latestTime)) {
+                    latestTime = entry.getCompletedAt();
+                    latestIndex = i;
+                }
             }
+        }
+        if (latestIndex >= 0) {
+            entries.remove(latestIndex);
+            return true;
         }
         return false;
     }
