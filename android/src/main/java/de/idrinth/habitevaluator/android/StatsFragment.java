@@ -103,13 +103,13 @@ public class StatsFragment extends Fragment {
         float avgDuration = daysWithData > 0 ? totalDuration / daysWithData : 0f;
         float avgEntries = daysWithData > 0 ? totalEntries / daysWithData : 0f;
 
-        binding.sleepDurationChart.setBarColor(0xFF4A90D9);
-        binding.sleepDurationChart.setAverageColor(0xFFE05050);
+        binding.sleepDurationChart.setBarColor(0xFF4CAF50);
+        binding.sleepDurationChart.setAverageColor(0xFF1B5E20);
         binding.sleepDurationChart.setValueFormat("%.1f");
         binding.sleepDurationChart.setData(labels, durations, avgDuration);
 
-        binding.sleepEntriesChart.setBarColor(0xFFE8A838);
-        binding.sleepEntriesChart.setAverageColor(0xFFE05050);
+        binding.sleepEntriesChart.setBarColor(0xFF81C784);
+        binding.sleepEntriesChart.setAverageColor(0xFF1B5E20);
         binding.sleepEntriesChart.setValueFormat("%.0f");
         binding.sleepEntriesChart.setData(labels, entryCounts, avgEntries);
     }
@@ -137,7 +137,7 @@ public class StatsFragment extends Fragment {
         float avgPoints = daysWithData > 0 ? totalPoints / daysWithData : 0f;
 
         binding.diaryPointsChart.setBarColor(0xFF66BB6A);
-        binding.diaryPointsChart.setAverageColor(0xFFE05050);
+        binding.diaryPointsChart.setAverageColor(0xFF1B5E20);
         binding.diaryPointsChart.setValueFormat("%.0f");
         binding.diaryPointsChart.setData(labels, diaryPoints, avgPoints);
     }
@@ -166,8 +166,8 @@ public class StatsFragment extends Fragment {
 
         float avgPoints = daysWithData > 0 ? totalPoints / daysWithData : 0f;
 
-        binding.habitPointsChart.setBarColor(0xFF7E57C2);
-        binding.habitPointsChart.setAverageColor(0xFFE05050);
+        binding.habitPointsChart.setBarColor(0xFF388E3C);
+        binding.habitPointsChart.setAverageColor(0xFF1B5E20);
         binding.habitPointsChart.setValueFormat("%.0f");
         binding.habitPointsChart.setData(labels, habitPoints, avgPoints);
     }

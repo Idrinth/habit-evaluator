@@ -23,8 +23,8 @@ public class SleepGraphView extends View {
     private List<String> labels = new ArrayList<>();
     private List<Float> values = new ArrayList<>();
     private float averageValue = 0f;
-    private int barColor = 0xFF4A90D9;
-    private int averageColor = 0xFFE05050;
+    private int barColor = 0xFF4CAF50;
+    private int averageColor = 0xFF1B5E20;
     private String valueFormat = "%.1f";
 
     private static final float PADDING_LEFT = 60f;
