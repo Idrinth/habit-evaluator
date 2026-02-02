@@ -1,6 +1,7 @@
 package de.idrinth.habitevaluator.android;
 
 import android.app.DatePickerDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -58,6 +59,8 @@ public class SleepTrackingFragment extends Fragment implements SleepEntryAdapter
         setupRecyclerView();
         setupDatePicker();
         binding.addSleepEntryButton.setOnClickListener(v -> addSleepEntry());
+        binding.viewAnalysisButton.setOnClickListener(v ->
+                startActivity(new Intent(requireContext(), SleepAnalysisActivity.class)));
     }
 
     @Override
