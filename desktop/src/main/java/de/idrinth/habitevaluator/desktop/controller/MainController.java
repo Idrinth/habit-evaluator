@@ -7,6 +7,7 @@ import de.idrinth.habitevaluator.shared.api.ApiClient;
 import de.idrinth.habitevaluator.shared.api.RemoteHabitRepository;
 import de.idrinth.habitevaluator.shared.api.RemoteUserRepository;
 import de.idrinth.habitevaluator.shared.api.StorageConfig;
+import de.idrinth.habitevaluator.shared.api.SyncService;
 import de.idrinth.habitevaluator.shared.model.Evaluation;
 import de.idrinth.habitevaluator.shared.model.Habit;
 import de.idrinth.habitevaluator.shared.model.HabitCategory;
@@ -107,6 +108,8 @@ public class MainController {
     private UserRepository userRepository;
     private ApiClient apiClient;
     private User currentUser;
+    private HabitRepository localBackupRepository;
+    private User localBackupUser;
     private List<HabitCategory> categoryList = new ArrayList<>();
     private final Map<String, String> categoryNameToId = new LinkedHashMap<>();
 
@@ -220,6 +223,8 @@ public class MainController {
         userRepository = new H2UserRepository();
         categoryRepository = new H2HabitCategoryRepository();
         apiClient = null;
+        localBackupRepository = null;
+        localBackupUser = null;
         currentUser = userRepository.findByUsername(PLACEHOLDER_USERNAME)
                 .orElseGet(() -> {
                     User user = new User(PLACEHOLDER_USERNAME, "placeholder");
@@ -239,6 +244,19 @@ public class MainController {
                 userRepository = new RemoteUserRepository(apiClient);
                 categoryRepository = null;
                 currentUser = userRepository.findAll().stream().findFirst().orElse(null);
+
+                // Initialize local backup for data safety
+                H2HabitRepository h2Backup = new H2HabitRepository();
+                H2UserRepository h2UserRepo = new H2UserRepository();
+                localBackupRepository = h2Backup;
+                localBackupUser = h2UserRepo.findByUsername(PLACEHOLDER_USERNAME)
+                        .orElseGet(() -> {
+                            User user = new User(PLACEHOLDER_USERNAME, "placeholder");
+                            return h2UserRepo.save(user);
+                        });
+
+                // Sync remote data to local backup on start
+                syncOnStart();
                 return;
             }
         } catch (IOException e) {
@@ -248,6 +266,69 @@ public class MainController {
         // Fall back to local
         storageConfig.setStorageMode(StorageConfig.StorageMode.LOCAL);
         initializeLocalStorage();
+    }
+
+    private void syncOnStart() {
+        if (localBackupRepository == null || localBackupUser == null) {
+            return;
+        }
+        try {
+            SyncService syncService = new SyncService(localBackupRepository);
+            syncService.sync(
+                    storageConfig.getApiBaseUrl(),
+                    storageConfig.getApiUsername(),
+                    storageConfig.getApiPassword(),
+                    localBackupUser
+            );
+        } catch (IOException e) {
+            // Sync failure on start is non-fatal; remote data will still be used
+        }
+    }
+
+    /**
+     * Called on application shutdown to sync data and save a local backup.
+     */
+    public void shutdown() {
+        if (!storageConfig.isRemote() || localBackupRepository == null || localBackupUser == null) {
+            return;
+        }
+        // Save current habits to local backup
+        for (Habit habit : habits) {
+            Habit backupCopy = copyHabitForBackup(habit, localBackupUser);
+            localBackupRepository.save(backupCopy);
+        }
+        // Sync local backup with remote to push any final changes
+        try {
+            SyncService syncService = new SyncService(localBackupRepository);
+            syncService.sync(
+                    storageConfig.getApiBaseUrl(),
+                    storageConfig.getApiUsername(),
+                    storageConfig.getApiPassword(),
+                    localBackupUser
+            );
+        } catch (IOException e) {
+            // Best effort sync on shutdown; local backup is already saved
+        }
+    }
+
+    private Habit copyHabitForBackup(Habit source, User backupUser) {
+        Habit habit = new Habit(source.getName(), source.getDescription());
+        habit.setFrequencyType(source.getFrequencyType());
+        habit.setTargetFrequency(source.getTargetFrequency());
+        habit.setMaxEntriesPerDay(source.getMaxEntriesPerDay());
+        habit.setCategoryId(source.getCategoryId());
+        habit.setPositiveScoring(source.isPositiveScoring());
+        habit.setScoringRule(source.getScoringRule());
+        habit.setUser(backupUser);
+        for (HabitEntry sourceEntry : source.getEntries()) {
+            HabitEntry entry = new HabitEntry();
+            entry.setId(sourceEntry.getId());
+            entry.setCompletedAt(sourceEntry.getCompletedAt());
+            entry.setNotes(sourceEntry.getNotes());
+            entry.setValue(sourceEntry.getValue());
+            habit.addEntry(entry);
+        }
+        return habit;
     }
 
     private void loadHabits() {

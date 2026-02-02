@@ -24,8 +24,10 @@ import de.idrinth.habitevaluator.android.ui.ScreenPagerAdapter;
 import de.idrinth.habitevaluator.shared.api.ApiClient;
 import de.idrinth.habitevaluator.shared.api.RemoteHabitRepository;
 import de.idrinth.habitevaluator.shared.api.RemoteUserRepository;
+import de.idrinth.habitevaluator.shared.api.SyncService;
 import de.idrinth.habitevaluator.shared.model.Habit;
 import de.idrinth.habitevaluator.shared.model.HabitCategory;
+import de.idrinth.habitevaluator.shared.model.HabitEntry;
 import de.idrinth.habitevaluator.shared.model.SleepEntry;
 import de.idrinth.habitevaluator.shared.model.User;
 import de.idrinth.habitevaluator.shared.repository.DiaryEntryRepository;
@@ -130,6 +132,8 @@ public class MainActivity extends AppCompatActivity {
     private HabitCategoryRepository categoryRepository;
     private ApiClient apiClient;
     private boolean usingRemoteStorage;
+    private HabitRepository localBackupRepository;
+    private User localBackupUser;
     private List<HabitCategory> categoryList = new ArrayList<>();
     private SleepEntryRepository sleepEntryRepository;
     private List<SleepEntry> sleepEntries = new ArrayList<>();
@@ -254,6 +258,8 @@ public class MainActivity extends AppCompatActivity {
 
     private void initializeLocalStorage() {
         usingRemoteStorage = false;
+        localBackupRepository = null;
+        localBackupUser = null;
         java.io.File storageDir = new java.io.File(getFilesDir(), "habit-data");
         habitRepository = new FileSystemHabitRepository(storageDir);
         categoryRepository = new FileSystemHabitCategoryRepository(storageDir);
@@ -302,6 +308,15 @@ public class MainActivity extends AppCompatActivity {
                     sharedCategoryRepository = null;
                     sharedApiClient = apiClient;
                     sharedCurrentUser = currentUser;
+
+                    // Initialize local backup for data safety
+                    java.io.File storageDir = new java.io.File(getFilesDir(), "habit-data");
+                    localBackupRepository = new FileSystemHabitRepository(storageDir);
+                    localBackupUser = getOrCreateLocalUser();
+
+                    // Sync remote data to local backup on start
+                    syncOnStart(url, username, password);
+
                     runOnUiThread(() -> {
                         updateStorageModeLabel();
                         loadCategories();
@@ -321,6 +336,18 @@ public class MainActivity extends AppCompatActivity {
                 loadHabits();
             });
         }).start();
+    }
+
+    private void syncOnStart(String url, String username, String password) {
+        if (localBackupRepository == null || localBackupUser == null) {
+            return;
+        }
+        try {
+            SyncService syncService = new SyncService(localBackupRepository);
+            syncService.sync(url, username, password, localBackupUser);
+        } catch (IOException e) {
+            // Sync failure on start is non-fatal; remote data will still be used
+        }
     }
 
     private void loadCategories() {
@@ -388,6 +415,51 @@ public class MainActivity extends AppCompatActivity {
             sleepEntries.addAll(sleepEntryRepository.findByUserId(currentUser.getId()));
             sharedSleepEntries.addAll(sleepEntries);
         }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (usingRemoteStorage && localBackupRepository != null && localBackupUser != null) {
+            new Thread(() -> {
+                // Save current habits to local backup
+                for (Habit habit : habits) {
+                    Habit backupCopy = copyHabitForBackup(habit, localBackupUser);
+                    localBackupRepository.save(backupCopy);
+                }
+                // Sync local backup with remote to push any final changes
+                SharedPreferences prefs = getSharedPreferences(SettingsActivity.PREFS_NAME, MODE_PRIVATE);
+                String url = prefs.getString(SettingsActivity.KEY_API_URL, "");
+                String username = prefs.getString(SettingsActivity.KEY_API_USERNAME, "");
+                String password = prefs.getString(SettingsActivity.KEY_API_PASSWORD, "");
+                try {
+                    SyncService syncService = new SyncService(localBackupRepository);
+                    syncService.sync(url, username, password, localBackupUser);
+                } catch (IOException e) {
+                    // Best effort sync on stop; local backup is already saved
+                }
+            }).start();
+        }
+    }
+
+    private Habit copyHabitForBackup(Habit source, User backupUser) {
+        Habit habit = new Habit(source.getName(), source.getDescription());
+        habit.setFrequencyType(source.getFrequencyType());
+        habit.setTargetFrequency(source.getTargetFrequency());
+        habit.setMaxEntriesPerDay(source.getMaxEntriesPerDay());
+        habit.setCategoryId(source.getCategoryId());
+        habit.setPositiveScoring(source.isPositiveScoring());
+        habit.setScoringRule(source.getScoringRule());
+        habit.setUser(backupUser);
+        for (HabitEntry sourceEntry : source.getEntries()) {
+            HabitEntry entry = new HabitEntry();
+            entry.setId(sourceEntry.getId());
+            entry.setCompletedAt(sourceEntry.getCompletedAt());
+            entry.setNotes(sourceEntry.getNotes());
+            entry.setValue(sourceEntry.getValue());
+            habit.addEntry(entry);
+        }
+        return habit;
     }
 
     public void loadDefaults() {
