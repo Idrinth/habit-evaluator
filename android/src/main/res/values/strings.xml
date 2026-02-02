@@ -41,6 +41,7 @@
     <string name="category_required">Please select or create a category</string>
     <string name="category_name_required">Please enter a category name</string>
     <string name="all_categories">All categories</string>
+    <string name="your_category_habits">Your %s Habits</string>
     <string name="completion_points">Completion Points</string>
     <string name="daily_points">Today: %d pts</string>
     <string name="weekly_points">Week: %d pts</string>
