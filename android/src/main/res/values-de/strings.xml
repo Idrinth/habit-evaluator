@@ -130,4 +130,9 @@
     <string name="average_points">Durchschnitt: %.1f Pkt./Tag</string>
     <string name="back_to_home">Zurück zur Startseite</string>
     <string name="week_label">W%d</string>
+    <string name="nav_stats">Statistiken</string>
+    <string name="stats_sleep_duration">Schlafdauer (Stunden)</string>
+    <string name="stats_sleep_entries">Schlafeinträge pro Tag</string>
+    <string name="stats_diary_points">Tagebuchpunkte pro Tag</string>
+    <string name="stats_habit_points">Gewohnheitspunkte pro Tag</string>
 </resources>

@@ -130,4 +130,9 @@
     <string name="average_points">Moyenne : %.1f pts/jour</string>
     <string name="back_to_home">Retour à l\'accueil</string>
     <string name="week_label">S%d</string>
+    <string name="nav_stats">Statistiques</string>
+    <string name="stats_sleep_duration">Durée du sommeil (heures)</string>
+    <string name="stats_sleep_entries">Entrées de sommeil par jour</string>
+    <string name="stats_diary_points">Points de journal par jour</string>
+    <string name="stats_habit_points">Points d\'habitudes par jour</string>
 </resources>

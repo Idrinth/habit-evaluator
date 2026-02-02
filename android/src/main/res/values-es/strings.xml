@@ -130,4 +130,9 @@
     <string name="average_points">Promedio: %.1f pts/día</string>
     <string name="back_to_home">Volver al inicio</string>
     <string name="week_label">S%d</string>
+    <string name="nav_stats">Estadísticas</string>
+    <string name="stats_sleep_duration">Duración del sueño (horas)</string>
+    <string name="stats_sleep_entries">Entradas de sueño por día</string>
+    <string name="stats_diary_points">Puntos de diario por día</string>
+    <string name="stats_habit_points">Puntos de hábitos por día</string>
 </resources>
