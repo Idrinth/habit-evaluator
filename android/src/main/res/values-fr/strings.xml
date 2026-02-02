@@ -89,6 +89,7 @@
     <string name="diary_trend_stable">Tendance : stable</string>
     <string name="diary_event_added">Événement positif enregistré !</string>
     <string name="diary_description_required">Veuillez décrire l\'événement positif</string>
+    <string name="diary_entry_removed">Entrée de journal supprimée</string>
     <string name="sleep_tracking">Sommeil</string>
     <string name="sleep_from_hint">De (HH:MM)</string>
     <string name="sleep_until_hint">Jusqu\'à (HH:MM)</string>

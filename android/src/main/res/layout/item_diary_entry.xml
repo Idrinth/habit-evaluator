@@ -48,5 +48,14 @@
             android:layout_height="wrap_content"
             android:textSize="14sp"
             android:textStyle="bold" />
+
+        <ImageButton
+            android:id="@+id/diaryEntryDeleteButton"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_marginStart="8dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/remove_completion"
+            android:src="@android:drawable/ic_menu_close_clear_cancel" />
     </LinearLayout>
 </androidx.cardview.widget.CardView>

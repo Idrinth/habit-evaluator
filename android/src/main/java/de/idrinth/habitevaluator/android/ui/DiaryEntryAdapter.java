@@ -18,10 +18,16 @@ import de.idrinth.habitevaluator.shared.model.EventSignificance;
 public class DiaryEntryAdapter extends RecyclerView.Adapter<DiaryEntryAdapter.ViewHolder> {
 
     private final List<DiaryEntry> entries;
+    private final OnDiaryEntryDeleteListener deleteListener;
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
-    public DiaryEntryAdapter(List<DiaryEntry> entries) {
+    public interface OnDiaryEntryDeleteListener {
+        void onDelete(DiaryEntry entry);
+    }
+
+    public DiaryEntryAdapter(List<DiaryEntry> entries, OnDiaryEntryDeleteListener deleteListener) {
         this.entries = entries;
+        this.deleteListener = deleteListener;
     }
 
     @NonNull
@@ -50,6 +56,12 @@ public class DiaryEntryAdapter extends RecyclerView.Adapter<DiaryEntryAdapter.Vi
         holder.significance.setText(significanceLabel);
 
         holder.points.setText(holder.itemView.getContext().getString(R.string.diary_points_value, entry.getPoints()));
+
+        holder.deleteButton.setOnClickListener(v -> {
+            if (deleteListener != null) {
+                deleteListener.onDelete(entry);
+            }
+        });
     }
 
     @Override
@@ -62,6 +74,7 @@ public class DiaryEntryAdapter extends RecyclerView.Adapter<DiaryEntryAdapter.Vi
         final TextView date;
         final TextView significance;
         final TextView points;
+        final View deleteButton;
 
         ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -69,6 +82,7 @@ public class DiaryEntryAdapter extends RecyclerView.Adapter<DiaryEntryAdapter.Vi
             date = itemView.findViewById(R.id.entryDate);
             significance = itemView.findViewById(R.id.entrySignificance);
             points = itemView.findViewById(R.id.entryPoints);
+            deleteButton = itemView.findViewById(R.id.diaryEntryDeleteButton);
         }
     }
 }
