@@ -132,4 +132,9 @@
     <string name="average_points">Average: %.1f pts/day</string>
     <string name="back_to_home">Back to Home</string>
     <string name="week_label">W%d</string>
+    <string name="nav_stats">Stats</string>
+    <string name="stats_sleep_duration">Sleep Duration (hours)</string>
+    <string name="stats_sleep_entries">Sleep Entries per Day</string>
+    <string name="stats_diary_points">Diary Points per Day</string>
+    <string name="stats_habit_points">Habit Points per Day</string>
 </resources>

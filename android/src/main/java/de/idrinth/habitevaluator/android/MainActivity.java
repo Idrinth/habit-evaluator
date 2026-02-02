@@ -186,6 +186,9 @@ public class MainActivity extends AppCompatActivity {
                     case ScreenPagerAdapter.PAGE_SLEEP:
                         binding.bottomNavigation.setSelectedItemId(R.id.nav_sleep);
                         break;
+                    case ScreenPagerAdapter.PAGE_STATS:
+                        binding.bottomNavigation.setSelectedItemId(R.id.nav_stats);
+                        break;
                 }
             }
         });
@@ -206,6 +209,9 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             } else if (id == R.id.nav_sleep) {
                 binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_SLEEP, true);
+                return true;
+            } else if (id == R.id.nav_stats) {
+                binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_STATS, true);
                 return true;
             }
             return false;
