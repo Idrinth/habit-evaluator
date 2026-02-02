@@ -188,6 +188,15 @@ public class MainActivity extends AppCompatActivity {
                         if (isProgrammaticNavigation) {
                             isProgrammaticNavigation = false;
                         } else {
+                            // Circular wrap: swiping left from Home wraps to Settings
+                            binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_SETTINGS, false);
+                        }
+                        break;
+                    case ScreenPagerAdapter.PAGE_ADD_HABIT:
+                        if (isProgrammaticNavigation) {
+                            isProgrammaticNavigation = false;
+                        } else {
+                            // Circular wrap: swiping right from Settings wraps to Home
                             binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_HOME, false);
                         }
                         break;
@@ -204,17 +213,14 @@ public class MainActivity extends AppCompatActivity {
                     case ScreenPagerAdapter.PAGE_DIARY:
                         binding.bottomNavigation.setSelectedItemId(R.id.nav_diary);
                         break;
-                    case ScreenPagerAdapter.PAGE_ADD_HABIT:
-                        // Add habit is accessed via top-right icon, not bottom nav
-                        break;
-                    case ScreenPagerAdapter.PAGE_SETTINGS:
-                        binding.bottomNavigation.setSelectedItemId(R.id.nav_settings);
-                        break;
                     case ScreenPagerAdapter.PAGE_SLEEP:
                         binding.bottomNavigation.setSelectedItemId(R.id.nav_sleep);
                         break;
                     case ScreenPagerAdapter.PAGE_STATS:
                         binding.bottomNavigation.setSelectedItemId(R.id.nav_stats);
+                        break;
+                    case ScreenPagerAdapter.PAGE_SETTINGS:
+                        binding.bottomNavigation.setSelectedItemId(R.id.nav_settings);
                         break;
                 }
             }
@@ -248,8 +254,10 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void setupAddHabitButton() {
-        binding.addHabitButton.setOnClickListener(v ->
-                binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_ADD_HABIT, true));
+        binding.addHabitButton.setOnClickListener(v -> {
+            isProgrammaticNavigation = true;
+            binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_ADD_HABIT, true);
+        });
     }
 
     public void onSettingsChanged() {

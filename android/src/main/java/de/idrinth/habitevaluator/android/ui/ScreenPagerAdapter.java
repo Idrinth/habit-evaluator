@@ -19,10 +19,10 @@ public class ScreenPagerAdapter extends FragmentStateAdapter {
     public static final int PAGE_EDIT_HABITS = 0;
     public static final int PAGE_HOME = 1;
     public static final int PAGE_DIARY = 2;
-    public static final int PAGE_ADD_HABIT = 3;
-    public static final int PAGE_SETTINGS = 4;
-    public static final int PAGE_SLEEP = 5;
-    public static final int PAGE_STATS = 6;
+    public static final int PAGE_SLEEP = 3;
+    public static final int PAGE_STATS = 4;
+    public static final int PAGE_SETTINGS = 5;
+    public static final int PAGE_ADD_HABIT = 6;
     public static final int PAGE_POINT_DEVELOPMENT = 7;
     public static final int PAGE_COUNT = 8;
 
@@ -40,14 +40,14 @@ public class ScreenPagerAdapter extends FragmentStateAdapter {
                 return new HomeFragment();
             case PAGE_DIARY:
                 return new DiaryFragment();
-            case PAGE_ADD_HABIT:
-                return new AddHabitFragment();
-            case PAGE_SETTINGS:
-                return new SettingsFragment();
             case PAGE_SLEEP:
                 return new SleepTrackingFragment();
             case PAGE_STATS:
                 return new StatsFragment();
+            case PAGE_SETTINGS:
+                return new SettingsFragment();
+            case PAGE_ADD_HABIT:
+                return new AddHabitFragment();
             case PAGE_POINT_DEVELOPMENT:
                 return new PointDevelopmentFragment();
             default:
