@@ -42,135 +42,31 @@
             style="@style/Widget.MaterialComponents.Button.TextButton" />
     </LinearLayout>
 
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/habitNameLayout"
+    <LinearLayout
+        android:id="@+id/buttonRow"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:hint="@string/habit_name_hint"
+        android:layout_marginTop="8dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/toolbarLayout">
 
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/habitNameInput"
-            android:layout_width="match_parent"
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/addHabitButton"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:inputType="text" />
-    </com.google.android.material.textfield.TextInputLayout>
+            android:text="@string/add_habit" />
 
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/habitDescriptionLayout"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:hint="@string/habit_description_hint"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/habitNameLayout">
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/habitDescriptionInput"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:inputType="textMultiLine"
-            android:minLines="2" />
-    </com.google.android.material.textfield.TextInputLayout>
-
-    <Spinner
-        android:id="@+id/categorySpinner"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/habitDescriptionLayout" />
-
-    <LinearLayout
-        android:id="@+id/habitParamsLayout"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/categorySpinner">
-
-        <Spinner
-            android:id="@+id/frequencyTypeSpinner"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1" />
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_marginStart="4dp"
-            android:hint="@string/target_frequency_hint">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/targetFrequencyInput"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="number"
-                android:text="1" />
-        </com.google.android.material.textfield.TextInputLayout>
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/habitParams2Layout"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/habitParamsLayout">
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:hint="@string/max_entries_per_day_hint">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/maxEntriesPerDayInput"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="number"
-                android:text="1" />
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <com.google.android.material.switchmaterial.SwitchMaterial
-            android:id="@+id/positiveScoringSwitch"
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/editHabitsButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:text="@string/positive_scoring"
-            android:checked="true" />
+            android:text="@string/edit_habits"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
     </LinearLayout>
-
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/addHabitButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:text="@string/add_habit"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/habitParams2Layout" />
-
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/editHabitsButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:layout_marginStart="8dp"
-        android:text="@string/edit_habits"
-        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-        app:layout_constraintStart_toEndOf="@id/addHabitButton"
-        app:layout_constraintTop_toBottomOf="@id/habitParams2Layout" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/loadDefaultsButton"
@@ -180,7 +76,7 @@
         android:text="@string/load_defaults"
         style="@style/Widget.MaterialComponents.Button.OutlinedButton"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/addHabitButton" />
+        app:layout_constraintTop_toBottomOf="@id/buttonRow" />
 
     <TextView
         android:id="@+id/habitsLabel"

@@ -1,13 +1,11 @@
 package de.idrinth.habitevaluator.android;
 
-import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -33,7 +31,6 @@ import de.idrinth.habitevaluator.shared.api.ApiClient;
 import de.idrinth.habitevaluator.shared.api.RemoteHabitRepository;
 import de.idrinth.habitevaluator.shared.api.RemoteUserRepository;
 import de.idrinth.habitevaluator.shared.model.Evaluation;
-import de.idrinth.habitevaluator.shared.model.FrequencyType;
 import de.idrinth.habitevaluator.shared.model.Habit;
 import de.idrinth.habitevaluator.shared.model.HabitCategory;
 import de.idrinth.habitevaluator.shared.model.HabitEntry;
@@ -50,9 +47,37 @@ public class MainActivity extends AppCompatActivity implements HabitAdapter.OnHa
     private static List<Habit> sharedHabits;
     private static HabitRepository sharedHabitRepository;
     private static boolean sharedUsingRemoteStorage;
+    private static List<HabitCategory> sharedCategories = new ArrayList<>();
+    private static HabitCategoryRepository sharedCategoryRepository;
+    private static ApiClient sharedApiClient;
+    private static User sharedCurrentUser;
 
     public static List<Habit> getSharedHabits() {
         return sharedHabits;
+    }
+
+    public static HabitRepository getSharedHabitRepository() {
+        return sharedHabitRepository;
+    }
+
+    public static boolean isSharedUsingRemoteStorage() {
+        return sharedUsingRemoteStorage;
+    }
+
+    public static List<HabitCategory> getSharedCategories() {
+        return sharedCategories;
+    }
+
+    public static HabitCategoryRepository getSharedCategoryRepository() {
+        return sharedCategoryRepository;
+    }
+
+    public static ApiClient getSharedApiClient() {
+        return sharedApiClient;
+    }
+
+    public static User getSharedCurrentUser() {
+        return sharedCurrentUser;
     }
 
     public static void saveAllHabits() {
@@ -110,10 +135,16 @@ public class MainActivity extends AppCompatActivity implements HabitAdapter.OnHa
         scoringService = new HabitScoringService();
 
         setupRecyclerView();
-        setupFrequencyTypeSpinner();
         initializeStorage();
         setupClickListeners();
         setupCategoryFilterSpinner();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        applyFilter();
+        updateLoadDefaultsButtonVisibility();
     }
 
     private void initializeStorage() {
@@ -138,6 +169,9 @@ public class MainActivity extends AppCompatActivity implements HabitAdapter.OnHa
         currentUser = getOrCreateLocalUser();
         sharedHabitRepository = habitRepository;
         sharedUsingRemoteStorage = false;
+        sharedCategoryRepository = categoryRepository;
+        sharedApiClient = null;
+        sharedCurrentUser = currentUser;
     }
 
     private User getOrCreateLocalUser() {
@@ -169,6 +203,9 @@ public class MainActivity extends AppCompatActivity implements HabitAdapter.OnHa
                     usingRemoteStorage = true;
                     sharedHabitRepository = habitRepository;
                     sharedUsingRemoteStorage = true;
+                    sharedCategoryRepository = null;
+                    sharedApiClient = apiClient;
+                    sharedCurrentUser = currentUser;
                     runOnUiThread(() -> {
                         updateStorageModeLabel();
                         loadCategories();
@@ -202,11 +239,13 @@ public class MainActivity extends AppCompatActivity implements HabitAdapter.OnHa
                         if (remoteCats != null) {
                             categoryList.addAll(remoteCats);
                         }
+                        syncSharedCategories();
                         populateCategorySpinners();
                         loadHabits();
                     });
                 } catch (IOException e) {
                     runOnUiThread(() -> {
+                        syncSharedCategories();
                         populateCategorySpinners();
                         loadHabits();
                     });
@@ -214,115 +253,36 @@ public class MainActivity extends AppCompatActivity implements HabitAdapter.OnHa
             }).start();
         } else if (categoryRepository != null && currentUser != null) {
             categoryList.addAll(categoryRepository.findByUserId(currentUser.getId()));
+            syncSharedCategories();
             populateCategorySpinners();
             loadHabits();
         } else {
+            syncSharedCategories();
             populateCategorySpinners();
             loadHabits();
         }
     }
 
-    private void showNewCategoryDialog(Habit habit) {
-        EditText input = new EditText(this);
-        input.setHint(R.string.new_category_hint);
-        new AlertDialog.Builder(this)
-                .setTitle(R.string.new_category_dialog_title)
-                .setView(input)
-                .setPositiveButton(android.R.string.ok, (dialog, which) -> {
-                    String categoryName = input.getText().toString().trim();
-                    if (categoryName.isEmpty()) {
-                        Toast.makeText(this, R.string.category_name_required, Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-                    createCategoryAndSaveHabit(categoryName, habit);
-                })
-                .setNegativeButton(android.R.string.cancel, (dialog, which) -> {
-                    // User cancelled, do not create the habit
-                })
-                .show();
-    }
-
-    private void createCategoryAndSaveHabit(String name, Habit habit) {
-        HabitCategory category = new HabitCategory(name);
-        category.setUser(currentUser);
-        if (usingRemoteStorage && apiClient != null) {
-            new Thread(() -> {
-                try {
-                    Map<String, String> body = new LinkedHashMap<>();
-                    body.put("name", name);
-                    HabitCategory created = apiClient.post("/api/categories", body, HabitCategory.class);
-                    runOnUiThread(() -> {
-                        categoryList.add(created);
-                        populateCategorySpinners();
-                        habit.setCategoryId(created.getId());
-                        saveHabit(habit);
-                    });
-                } catch (IOException e) {
-                    runOnUiThread(() ->
-                            Toast.makeText(this, "Failed to create category: " + e.getMessage(),
-                                    Toast.LENGTH_LONG).show());
-                }
-            }).start();
-        } else if (categoryRepository != null) {
-            categoryRepository.save(category);
-            categoryList.add(category);
-            populateCategorySpinners();
-            habit.setCategoryId(category.getId());
-            saveHabit(habit);
-        }
-    }
-
-    private int findCategorySpinnerPosition(String categoryName) {
-        for (int i = 0; i < binding.categorySpinner.getAdapter().getCount(); i++) {
-            if (categoryName.equals(binding.categorySpinner.getAdapter().getItem(i))) {
-                return i;
-            }
-        }
-        return 0;
+    private void syncSharedCategories() {
+        sharedCategories.clear();
+        sharedCategories.addAll(categoryList);
     }
 
     private void populateCategorySpinners() {
         categoryNameToId.clear();
-
-        // Category creation spinner
-        List<String> categoryNames = new ArrayList<>();
-        categoryNames.add(getString(R.string.new_category));
-        for (HabitCategory cat : categoryList) {
-            categoryNames.add(cat.getName());
-            categoryNameToId.put(cat.getName(), cat.getId());
-        }
-        ArrayAdapter<String> createAdapter = new ArrayAdapter<>(this,
-                android.R.layout.simple_spinner_item, categoryNames);
-        createAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        binding.categorySpinner.setAdapter(createAdapter);
-        // Select first actual category if available, otherwise stay on "New category"
-        if (categoryList.size() > 0) {
-            binding.categorySpinner.setSelection(1);
-        }
-        // No listener needed - category creation is handled when the add habit button is clicked
 
         // Category filter spinner
         List<String> filterNames = new ArrayList<>();
         filterNames.add(getString(R.string.all_categories));
         for (HabitCategory cat : categoryList) {
             filterNames.add(cat.getName());
+            categoryNameToId.put(cat.getName(), cat.getId());
         }
         filterNames.add(getString(R.string.uncategorized));
         ArrayAdapter<String> filterAdapter = new ArrayAdapter<>(this,
                 android.R.layout.simple_spinner_item, filterNames);
         filterAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         binding.categoryFilterSpinner.setAdapter(filterAdapter);
-    }
-
-    private void setupFrequencyTypeSpinner() {
-        List<String> frequencyTypes = new ArrayList<>();
-        for (FrequencyType ft : FrequencyType.values()) {
-            frequencyTypes.add(ft.name().substring(0, 1) + ft.name().substring(1).toLowerCase());
-        }
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
-                android.R.layout.simple_spinner_item, frequencyTypes);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        binding.frequencyTypeSpinner.setAdapter(adapter);
     }
 
     private void setupCategoryFilterSpinner() {
@@ -409,7 +369,10 @@ public class MainActivity extends AppCompatActivity implements HabitAdapter.OnHa
     }
 
     private void setupClickListeners() {
-        binding.addHabitButton.setOnClickListener(v -> addHabit());
+        binding.addHabitButton.setOnClickListener(v -> {
+            Intent intent = new Intent(this, AddHabitActivity.class);
+            startActivity(intent);
+        });
         binding.completeButton.setOnClickListener(v -> completeHabit());
         binding.editHabitsButton.setOnClickListener(v -> {
             Intent intent = new Intent(this, EditHabitsActivity.class);
@@ -442,93 +405,6 @@ public class MainActivity extends AppCompatActivity implements HabitAdapter.OnHa
                                 Toast.LENGTH_LONG).show());
             }
         }).start();
-    }
-
-    private void addHabit() {
-        String name = binding.habitNameInput.getText().toString().trim();
-        String description = binding.habitDescriptionInput.getText().toString().trim();
-
-        if (name.isEmpty()) {
-            Toast.makeText(this, "Please enter a habit name", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        Habit habit = new Habit(name, description);
-        habit.setUser(currentUser);
-
-        // Set frequency type
-        int freqPos = binding.frequencyTypeSpinner.getSelectedItemPosition();
-        if (freqPos >= 0 && freqPos < FrequencyType.values().length) {
-            habit.setFrequencyType(FrequencyType.values()[freqPos]);
-        }
-
-        // Set target frequency
-        try {
-            int targetFreq = Integer.parseInt(binding.targetFrequencyInput.getText().toString().trim());
-            if (targetFreq > 0) {
-                habit.setTargetFrequency(targetFreq);
-            }
-        } catch (NumberFormatException e) {
-            // keep default
-        }
-
-        // Set max entries per day
-        try {
-            int maxEntries = Integer.parseInt(binding.maxEntriesPerDayInput.getText().toString().trim());
-            if (maxEntries > 0) {
-                habit.setMaxEntriesPerDay(maxEntries);
-            }
-        } catch (NumberFormatException e) {
-            // keep default
-        }
-
-        // Set positive/negative scoring
-        habit.setPositiveScoring(binding.positiveScoringSwitch.isChecked());
-
-        String selectedCategory = (String) binding.categorySpinner.getSelectedItem();
-        if (selectedCategory == null) {
-            Toast.makeText(this, R.string.category_required, Toast.LENGTH_SHORT).show();
-            return;
-        }
-        if (getString(R.string.new_category).equals(selectedCategory)) {
-            showNewCategoryDialog(habit);
-            return;
-        }
-        String catId = categoryNameToId.get(selectedCategory);
-        if (catId != null) {
-            habit.setCategoryId(catId);
-        }
-
-        saveHabit(habit);
-    }
-
-    private void saveHabit(Habit habit) {
-        if (habitRepository != null) {
-            if (usingRemoteStorage) {
-                new Thread(() -> {
-                    habitRepository.save(habit);
-                    runOnUiThread(() -> {
-                        habits.add(habit);
-                        applyFilter();
-                    });
-                }).start();
-            } else {
-                habitRepository.save(habit);
-                habits.add(habit);
-                applyFilter();
-            }
-        } else {
-            habits.add(habit);
-            applyFilter();
-        }
-
-        binding.habitNameInput.setText("");
-        binding.habitDescriptionInput.setText("");
-        binding.categorySpinner.setSelection(0);
-        binding.frequencyTypeSpinner.setSelection(0);
-        binding.targetFrequencyInput.setText("1");
-        binding.maxEntriesPerDayInput.setText("1");
-        binding.positiveScoringSwitch.setChecked(true);
     }
 
     private void completeHabit() {
