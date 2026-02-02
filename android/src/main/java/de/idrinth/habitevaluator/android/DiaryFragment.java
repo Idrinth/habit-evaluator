@@ -1,5 +1,6 @@
 package de.idrinth.habitevaluator.android;
 
+import android.app.DatePickerDialog;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,6 +14,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -26,10 +28,13 @@ import de.idrinth.habitevaluator.shared.service.DiaryService;
 
 public class DiaryFragment extends Fragment {
 
+    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
     private FragmentDiaryBinding binding;
     private DiaryEntryAdapter adapter;
     private List<DiaryEntry> displayedEntries;
     private DiaryService diaryService;
+    private LocalDate selectedDate;
 
     @Nullable
     @Override
@@ -45,9 +50,11 @@ public class DiaryFragment extends Fragment {
 
         displayedEntries = new ArrayList<>();
         diaryService = new DiaryService();
+        selectedDate = LocalDate.now();
 
         setupRecyclerView();
         setupSignificanceSpinner();
+        setupDatePicker();
         setupAddButton();
     }
 
@@ -85,6 +92,26 @@ public class DiaryFragment extends Fragment {
         binding.significanceSpinner.setSelection(1); // Default to NORMAL
     }
 
+    private void setupDatePicker() {
+        binding.eventDateInput.setText(selectedDate.format(DATE_FORMAT));
+        binding.eventDateInput.setOnClickListener(v -> showDatePicker());
+    }
+
+    private void showDatePicker() {
+        DatePickerDialog dialog = new DatePickerDialog(
+                requireContext(),
+                (view, year, month, dayOfMonth) -> {
+                    selectedDate = LocalDate.of(year, month + 1, dayOfMonth);
+                    binding.eventDateInput.setText(selectedDate.format(DATE_FORMAT));
+                },
+                selectedDate.getYear(),
+                selectedDate.getMonthValue() - 1,
+                selectedDate.getDayOfMonth()
+        );
+        dialog.getDatePicker().setMaxDate(System.currentTimeMillis());
+        dialog.show();
+    }
+
     private void setupAddButton() {
         binding.addEventButton.setOnClickListener(v -> addEvent());
     }
@@ -112,7 +139,7 @@ public class DiaryFragment extends Fragment {
                 break;
         }
 
-        DiaryEntry entry = new DiaryEntry(description, significance, LocalDate.now());
+        DiaryEntry entry = new DiaryEntry(description, significance, selectedDate);
         entry.setUser(MainActivity.getSharedCurrentUser());
 
         DiaryEntryRepository repository = MainActivity.getSharedDiaryEntryRepository();
@@ -121,6 +148,8 @@ public class DiaryFragment extends Fragment {
         }
 
         binding.eventDescriptionInput.setText("");
+        selectedDate = LocalDate.now();
+        binding.eventDateInput.setText(selectedDate.format(DATE_FORMAT));
         loadEntries();
         Toast.makeText(requireContext(), R.string.diary_event_added, Toast.LENGTH_SHORT).show();
     }
