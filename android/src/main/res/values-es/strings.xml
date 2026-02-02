@@ -105,6 +105,8 @@
     <string name="sleep_min">Mín: %.1f h</string>
     <string name="sleep_max">Máx: %.1f h</string>
     <string name="sleep_entry_format">%s - %s (%.1f h)</string>
+    <string name="sleep_date_hint">Fecha (AAAA-MM-DD)</string>
+    <string name="sleep_entry_overlap">Esta entrada se solapa con una entrada de sueño existente</string>
     <string name="translation_settings">Configuración de traducción</string>
     <string name="custom_translations_label">Permitir traducciones personalizadas para nombres de hábitos y categorías</string>
     <string name="custom_translations_enabled">Traducciones personalizadas</string>
