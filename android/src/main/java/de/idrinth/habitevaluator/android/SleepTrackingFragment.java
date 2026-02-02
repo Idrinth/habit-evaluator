@@ -148,31 +148,7 @@ public class SleepTrackingFragment extends Fragment implements SleepEntryAdapter
 
     private boolean hasOverlap(LocalDate date, LocalTime newFrom, LocalTime newUntil) {
         List<SleepEntry> allEntries = MainActivity.getSharedSleepEntries();
-        if (allEntries == null) {
-            return false;
-        }
-
-        int newFromMinutes = newFrom.getHour() * 60 + newFrom.getMinute();
-        int newUntilMinutes = newUntil.getHour() * 60 + newUntil.getMinute();
-        if (newUntilMinutes <= newFromMinutes) {
-            newUntilMinutes += 24 * 60;
-        }
-
-        for (SleepEntry existing : allEntries) {
-            if (!existing.getDate().equals(date)) {
-                continue;
-            }
-            int existingFrom = existing.getFromTime().getHour() * 60 + existing.getFromTime().getMinute();
-            int existingUntil = existing.getUntilTime().getHour() * 60 + existing.getUntilTime().getMinute();
-            if (existingUntil <= existingFrom) {
-                existingUntil += 24 * 60;
-            }
-
-            if (newFromMinutes < existingUntil && newUntilMinutes > existingFrom) {
-                return true;
-            }
-        }
-        return false;
+        return evaluationService.hasOverlap(allEntries, date, newFrom, newUntil);
     }
 
     @Override
