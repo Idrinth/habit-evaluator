@@ -9,6 +9,8 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -36,6 +38,12 @@ public class HabitCategory {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
+
+    @jakarta.persistence.Transient
+    private Map<String, String> nameTranslations = new HashMap<>();
+
+    @jakarta.persistence.Transient
+    private Map<String, String> descriptionTranslations = new HashMap<>();
 
     public HabitCategory() {
         this.id = UUID.randomUUID().toString();
@@ -90,6 +98,42 @@ public class HabitCategory {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public Map<String, String> getNameTranslations() {
+        return nameTranslations;
+    }
+
+    public void setNameTranslations(Map<String, String> nameTranslations) {
+        this.nameTranslations = nameTranslations != null ? nameTranslations : new HashMap<>();
+    }
+
+    public Map<String, String> getDescriptionTranslations() {
+        return descriptionTranslations;
+    }
+
+    public void setDescriptionTranslations(Map<String, String> descriptionTranslations) {
+        this.descriptionTranslations = descriptionTranslations != null ? descriptionTranslations : new HashMap<>();
+    }
+
+    public String getDisplayName(String language) {
+        if (language != null && nameTranslations.containsKey(language)) {
+            String translated = nameTranslations.get(language);
+            if (translated != null && !translated.isEmpty()) {
+                return translated;
+            }
+        }
+        return name;
+    }
+
+    public String getDisplayDescription(String language) {
+        if (language != null && descriptionTranslations.containsKey(language)) {
+            String translated = descriptionTranslations.get(language);
+            if (translated != null && !translated.isEmpty()) {
+                return translated;
+            }
+        }
+        return description;
     }
 
     @Override

@@ -89,4 +89,10 @@
     <string name="diary_trend_stable">Tendencia: estable</string>
     <string name="diary_event_added">¡Evento positivo registrado!</string>
     <string name="diary_description_required">Por favor, describa el evento positivo</string>
+    <string name="translation_settings">Configuración de traducción</string>
+    <string name="custom_translations_label">Permitir traducciones personalizadas para nombres de hábitos y categorías</string>
+    <string name="custom_translations_enabled">Traducciones personalizadas</string>
+    <string name="translations_section">Traducciones</string>
+    <string name="translation_name_hint">Nombre (%s)</string>
+    <string name="translation_description_hint">Descripción (%s)</string>
 </resources>

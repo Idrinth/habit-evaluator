@@ -17,6 +17,7 @@ public class HabitAdapter extends RecyclerView.Adapter<HabitAdapter.HabitViewHol
 
     private final List<Habit> habits;
     private final OnHabitClickListener listener;
+    private String displayLanguage;
     private int selectedPosition = -1;
 
     public interface OnHabitClickListener {
@@ -26,6 +27,10 @@ public class HabitAdapter extends RecyclerView.Adapter<HabitAdapter.HabitViewHol
     public HabitAdapter(List<Habit> habits, OnHabitClickListener listener) {
         this.habits = habits;
         this.listener = listener;
+    }
+
+    public void setDisplayLanguage(String displayLanguage) {
+        this.displayLanguage = displayLanguage;
     }
 
     @NonNull
@@ -39,7 +44,7 @@ public class HabitAdapter extends RecyclerView.Adapter<HabitAdapter.HabitViewHol
     @Override
     public void onBindViewHolder(@NonNull HabitViewHolder holder, int position) {
         Habit habit = habits.get(position);
-        holder.bind(habit, position == selectedPosition);
+        holder.bind(habit, position == selectedPosition, displayLanguage);
 
         holder.itemView.setOnClickListener(v -> {
             int previousSelected = selectedPosition;
@@ -71,9 +76,14 @@ public class HabitAdapter extends RecyclerView.Adapter<HabitAdapter.HabitViewHol
             entriesCountText = itemView.findViewById(R.id.entriesCount);
         }
 
-        void bind(Habit habit, boolean isSelected) {
-            nameText.setText(habit.getName());
-            descriptionText.setText(habit.getDescription());
+        void bind(Habit habit, boolean isSelected, String language) {
+            if (language != null) {
+                nameText.setText(habit.getDisplayName(language));
+                descriptionText.setText(habit.getDisplayDescription(language));
+            } else {
+                nameText.setText(habit.getName());
+                descriptionText.setText(habit.getDescription());
+            }
             entriesCountText.setText(String.format("%d entries", habit.getEntries().size()));
             itemView.setSelected(isSelected);
         }

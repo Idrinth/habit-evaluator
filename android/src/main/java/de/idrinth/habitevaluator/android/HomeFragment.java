@@ -1,5 +1,7 @@
 package de.idrinth.habitevaluator.android;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -37,7 +39,7 @@ public class HomeFragment extends Fragment implements HabitAdapter.OnHabitClickL
     private HabitEvaluatorService evaluatorService;
     private HabitScoringService scoringService;
     private Habit selectedHabit;
-    private final Map<String, String> categoryNameToId = new LinkedHashMap<>();
+    private final Map<String, String> categoryDisplayNameToId = new LinkedHashMap<>();
 
     @Nullable
     @Override
@@ -63,13 +65,31 @@ public class HomeFragment extends Fragment implements HabitAdapter.OnHabitClickL
     @Override
     public void onResume() {
         super.onResume();
+        updateDisplayLanguage();
         populateCategorySpinners();
         applyFilter();
         updateLoadDefaultsButtonVisibility();
     }
 
+    private String getDisplayLanguage() {
+        SharedPreferences prefs = requireContext().getSharedPreferences(SettingsActivity.PREFS_NAME, Context.MODE_PRIVATE);
+        boolean translationsEnabled = prefs.getBoolean(SettingsActivity.KEY_CUSTOM_TRANSLATIONS, false);
+        if (!translationsEnabled) {
+            return null;
+        }
+        String language = prefs.getString(SettingsActivity.KEY_LANGUAGE, SettingsActivity.LANGUAGE_SYSTEM);
+        return SettingsActivity.getEffectiveLanguage(language);
+    }
+
+    private void updateDisplayLanguage() {
+        if (habitAdapter != null) {
+            habitAdapter.setDisplayLanguage(getDisplayLanguage());
+        }
+    }
+
     private void setupRecyclerView() {
         habitAdapter = new HabitAdapter(filteredHabits, this);
+        habitAdapter.setDisplayLanguage(getDisplayLanguage());
         binding.habitsRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
         binding.habitsRecyclerView.setAdapter(habitAdapter);
     }
@@ -99,14 +119,16 @@ public class HomeFragment extends Fragment implements HabitAdapter.OnHabitClickL
     }
 
     private void populateCategorySpinners() {
-        categoryNameToId.clear();
+        categoryDisplayNameToId.clear();
         List<HabitCategory> categoryList = MainActivity.getSharedCategories();
+        String displayLanguage = getDisplayLanguage();
 
         List<String> filterNames = new ArrayList<>();
         filterNames.add(getString(R.string.all_categories));
         for (HabitCategory cat : categoryList) {
-            filterNames.add(cat.getName());
-            categoryNameToId.put(cat.getName(), cat.getId());
+            String displayName = displayLanguage != null ? cat.getDisplayName(displayLanguage) : cat.getName();
+            filterNames.add(displayName);
+            categoryDisplayNameToId.put(displayName, cat.getId());
         }
         ArrayAdapter<String> filterAdapter = new ArrayAdapter<>(requireContext(),
                 android.R.layout.simple_spinner_item, filterNames);
@@ -128,7 +150,7 @@ public class HomeFragment extends Fragment implements HabitAdapter.OnHabitClickL
         if (selected == null || allCategories.equals(selected)) {
             filteredHabits.addAll(habits);
         } else {
-            String categoryId = categoryNameToId.get(selected);
+            String categoryId = categoryDisplayNameToId.get(selected);
             if (categoryId != null) {
                 for (Habit h : habits) {
                     if (categoryId.equals(h.getCategoryId())) {
@@ -233,7 +255,12 @@ public class HomeFragment extends Fragment implements HabitAdapter.OnHabitClickL
 
     private void updateEvaluationDisplay(Habit habit) {
         binding.evaluationCard.setVisibility(View.VISIBLE);
-        binding.selectedHabitName.setText(habit.getName());
+        String displayLanguage = getDisplayLanguage();
+        if (displayLanguage != null) {
+            binding.selectedHabitName.setText(habit.getDisplayName(displayLanguage));
+        } else {
+            binding.selectedHabitName.setText(habit.getName());
+        }
 
         Evaluation evaluation = evaluatorService.evaluate(
                 habit,

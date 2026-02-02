@@ -1,6 +1,8 @@
 package de.idrinth.habitevaluator.android;
 
 import android.app.AlertDialog;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -33,7 +35,7 @@ public class AddHabitFragment extends Fragment {
 
     private FragmentAddHabitBinding binding;
     private List<HabitCategory> categoryList = new ArrayList<>();
-    private final Map<String, String> categoryNameToId = new LinkedHashMap<>();
+    private final Map<String, String> categoryDisplayNameToId = new LinkedHashMap<>();
 
     @Nullable
     @Override
@@ -81,13 +83,25 @@ public class AddHabitFragment extends Fragment {
         }
     }
 
+    private String getDisplayLanguage() {
+        SharedPreferences prefs = requireContext().getSharedPreferences(SettingsActivity.PREFS_NAME, Context.MODE_PRIVATE);
+        boolean translationsEnabled = prefs.getBoolean(SettingsActivity.KEY_CUSTOM_TRANSLATIONS, false);
+        if (!translationsEnabled) {
+            return null;
+        }
+        String language = prefs.getString(SettingsActivity.KEY_LANGUAGE, SettingsActivity.LANGUAGE_SYSTEM);
+        return SettingsActivity.getEffectiveLanguage(language);
+    }
+
     private void populateCategorySpinner() {
-        categoryNameToId.clear();
+        categoryDisplayNameToId.clear();
+        String displayLanguage = getDisplayLanguage();
         List<String> categoryNames = new ArrayList<>();
         categoryNames.add(getString(R.string.new_category));
         for (HabitCategory cat : categoryList) {
-            categoryNames.add(cat.getName());
-            categoryNameToId.put(cat.getName(), cat.getId());
+            String displayName = displayLanguage != null ? cat.getDisplayName(displayLanguage) : cat.getName();
+            categoryNames.add(displayName);
+            categoryDisplayNameToId.put(displayName, cat.getId());
         }
         ArrayAdapter<String> createAdapter = new ArrayAdapter<>(requireContext(),
                 android.R.layout.simple_spinner_item, categoryNames);
@@ -204,7 +218,7 @@ public class AddHabitFragment extends Fragment {
             Toast.makeText(requireContext(), R.string.category_required, Toast.LENGTH_SHORT).show();
             return;
         }
-        String catId = categoryNameToId.get(selectedCategory);
+        String catId = categoryDisplayNameToId.get(selectedCategory);
         if (catId != null) {
             habit.setCategoryId(catId);
         }
