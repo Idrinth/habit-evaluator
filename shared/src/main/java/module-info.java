@@ -11,6 +11,5 @@ module de.idrinth.habitevaluator.shared {
     exports de.idrinth.habitevaluator.shared.service;
     exports de.idrinth.habitevaluator.shared.repository;
 
-    // Open model package for JPA/Hibernate reflection access
-    opens de.idrinth.habitevaluator.shared.model to org.hibernate.orm.core;
+    opens de.idrinth.habitevaluator.shared.model;
 }
