@@ -47,6 +47,7 @@ public class MainActivity extends AppCompatActivity {
     private static List<SleepEntry> sharedSleepEntries = new ArrayList<>();
     private static SleepEntryRepository sharedSleepEntryRepository;
     private static DiaryEntryRepository sharedDiaryEntryRepository;
+    private static String editHabitId;
 
     public static List<SleepEntry> getSharedSleepEntries() {
         return sharedSleepEntries;
@@ -86,6 +87,14 @@ public class MainActivity extends AppCompatActivity {
 
     public static DiaryEntryRepository getSharedDiaryEntryRepository() {
         return sharedDiaryEntryRepository;
+    }
+
+    public static String getEditHabitId() {
+        return editHabitId;
+    }
+
+    public static void setEditHabitId(String habitId) {
+        editHabitId = habitId;
     }
 
     public static void saveAllHabits() {
@@ -132,7 +141,11 @@ public class MainActivity extends AppCompatActivity {
         initializeStorage();
         setupViewPager();
         setupBottomNavigation();
-        setupSettingsButton();
+    }
+
+    public void navigateToEditHabit(String habitId) {
+        setEditHabitId(habitId);
+        binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_EDIT_HABITS, true);
     }
 
     private void setupViewPager() {
@@ -145,8 +158,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onPageSelected(int position) {
                 switch (position) {
-                    case ScreenPagerAdapter.PAGE_SETTINGS:
-                        // Settings is accessed via toolbar button, not bottom nav
+                    case ScreenPagerAdapter.PAGE_EDIT_HABITS:
+                        // Edit habits is accessed via edit button on habit card, not bottom nav
                         break;
                     case ScreenPagerAdapter.PAGE_HOME:
                         binding.bottomNavigation.setSelectedItemId(R.id.nav_home);
@@ -157,8 +170,8 @@ public class MainActivity extends AppCompatActivity {
                     case ScreenPagerAdapter.PAGE_ADD_HABIT:
                         binding.bottomNavigation.setSelectedItemId(R.id.nav_add_habit);
                         break;
-                    case ScreenPagerAdapter.PAGE_EDIT_HABITS:
-                        binding.bottomNavigation.setSelectedItemId(R.id.nav_edit_habits);
+                    case ScreenPagerAdapter.PAGE_SETTINGS:
+                        binding.bottomNavigation.setSelectedItemId(R.id.nav_settings);
                         break;
                     case ScreenPagerAdapter.PAGE_SLEEP:
                         binding.bottomNavigation.setSelectedItemId(R.id.nav_sleep);
@@ -166,11 +179,6 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
-    }
-
-    private void setupSettingsButton() {
-        binding.settingsButton.setOnClickListener(v ->
-                binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_SETTINGS, true));
     }
 
     private void setupBottomNavigation() {
@@ -186,8 +194,8 @@ public class MainActivity extends AppCompatActivity {
             } else if (id == R.id.nav_add_habit) {
                 binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_ADD_HABIT, true);
                 return true;
-            } else if (id == R.id.nav_edit_habits) {
-                binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_EDIT_HABITS, true);
+            } else if (id == R.id.nav_settings) {
+                binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_SETTINGS, true);
                 return true;
             } else if (id == R.id.nav_sleep) {
                 binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_SLEEP, true);

@@ -50,6 +50,7 @@
     <string name="positive_scoring">Positivo</string>
     <string name="value_hint">Val</string>
     <string name="edit_habits">Editar hábitos</string>
+    <string name="edit_habit">Editar hábito</string>
     <string name="scoring_thresholds">Umbrales de puntuación (1pt/2pt/4pt/8pt)</string>
     <string name="threshold_1pt">1pt</string>
     <string name="threshold_2pt">2pt</string>

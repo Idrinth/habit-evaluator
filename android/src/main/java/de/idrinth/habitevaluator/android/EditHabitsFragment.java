@@ -13,6 +13,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -65,9 +66,20 @@ public class EditHabitsFragment extends Fragment {
     }
 
     private void refreshHabitsList() {
-        habits = MainActivity.getSharedHabits();
+        String editHabitId = MainActivity.getEditHabitId();
+        List<Habit> allHabits = MainActivity.getSharedHabits();
+        habits = new ArrayList<>();
 
-        if (habits == null || habits.isEmpty()) {
+        if (editHabitId != null && allHabits != null) {
+            for (Habit h : allHabits) {
+                if (editHabitId.equals(h.getId())) {
+                    habits.add(h);
+                    break;
+                }
+            }
+        }
+
+        if (habits.isEmpty()) {
             binding.emptyText.setVisibility(View.VISIBLE);
             binding.editRecyclerView.setVisibility(View.GONE);
             binding.saveButton.setVisibility(View.GONE);

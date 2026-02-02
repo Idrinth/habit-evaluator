@@ -34,14 +34,6 @@
             android:text="@string/storage_mode_local"
             android:textSize="12sp"
             android:textColor="@color/text_secondary" />
-
-        <ImageButton
-            android:id="@+id/settingsButton"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
-            android:src="@drawable/ic_settings"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="@string/settings" />
     </LinearLayout>
 
     <androidx.viewpager2.widget.ViewPager2

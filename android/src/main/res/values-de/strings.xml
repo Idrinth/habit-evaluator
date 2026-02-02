@@ -50,6 +50,7 @@
     <string name="positive_scoring">Positiv</string>
     <string name="value_hint">Wert</string>
     <string name="edit_habits">Gewohnheiten bearbeiten</string>
+    <string name="edit_habit">Gewohnheit bearbeiten</string>
     <string name="scoring_thresholds">Bewertungsschwellen (1Pkt/2Pkt/4Pkt/8Pkt)</string>
     <string name="threshold_1pt">1Pkt</string>
     <string name="threshold_2pt">2Pkt</string>
