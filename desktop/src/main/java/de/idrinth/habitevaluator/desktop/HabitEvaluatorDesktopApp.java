@@ -1,5 +1,6 @@
 package de.idrinth.habitevaluator.desktop;
 
+import de.idrinth.habitevaluator.desktop.controller.MainController;
 import de.idrinth.habitevaluator.desktop.persistence.PersistenceManager;
 import de.idrinth.habitevaluator.shared.api.StorageConfig;
 import javafx.application.Application;
@@ -18,11 +19,13 @@ import java.io.InputStreamReader;
 public class HabitEvaluatorDesktopApp extends Application {
 
     private static final String CONFIG_FILE = System.getProperty("user.home") + "/.habit-evaluator/storage.properties";
+    private MainController mainController;
 
     @Override
     public void start(Stage primaryStage) throws IOException {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/main.fxml"));
         Parent root = loader.load();
+        mainController = loader.getController();
 
         Scene scene = new Scene(root, 800, 600);
         scene.getStylesheets().add(getClass().getResource("/css/styles.css").toExternalForm());
@@ -115,6 +118,10 @@ public class HabitEvaluatorDesktopApp extends Application {
 
     @Override
     public void stop() {
+        // Sync remote data and save local backup before shutdown
+        if (mainController != null) {
+            mainController.shutdown();
+        }
         // Close database connection on application shutdown
         PersistenceManager.close();
     }
