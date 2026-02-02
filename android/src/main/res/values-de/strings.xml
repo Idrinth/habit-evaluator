@@ -40,6 +40,7 @@
     <string name="category_required">Bitte wählen oder erstellen Sie eine Kategorie</string>
     <string name="category_name_required">Bitte geben Sie einen Kategorienamen ein</string>
     <string name="all_categories">Alle Kategorien</string>
+    <string name="your_category_habits">Ihre %s-Gewohnheiten</string>
     <string name="completion_points">Abschlusspunkte</string>
     <string name="daily_points">Heute: %d Pkt.</string>
     <string name="weekly_points">Woche: %d Pkt.</string>
@@ -89,6 +90,7 @@
     <string name="diary_trend_stable">Trend: stabil</string>
     <string name="diary_event_added">Positives Ereignis erfasst!</string>
     <string name="diary_description_required">Bitte beschreiben Sie das positive Ereignis</string>
+    <string name="diary_entry_removed">Tagebucheintrag entfernt</string>
     <string name="sleep_tracking">Schlaf</string>
     <string name="sleep_from_hint">Von (HH:MM)</string>
     <string name="sleep_until_hint">Bis (HH:MM)</string>

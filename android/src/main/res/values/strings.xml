@@ -41,6 +41,7 @@
     <string name="category_required">Please select or create a category</string>
     <string name="category_name_required">Please enter a category name</string>
     <string name="all_categories">All categories</string>
+    <string name="your_category_habits">Your %s Habits</string>
     <string name="completion_points">Completion Points</string>
     <string name="daily_points">Today: %d pts</string>
     <string name="weekly_points">Week: %d pts</string>
@@ -91,6 +92,7 @@
     <string name="diary_event_added">Positive event recorded!</string>
     <string name="diary_description_required">Please describe the positive event</string>
     <string name="diary_date_hint">Date (YYYY-MM-DD)</string>
+    <string name="diary_entry_removed">Diary entry removed</string>
     <string name="sleep_tracking">Sleep</string>
     <string name="sleep_from_hint">From (HH:MM)</string>
     <string name="sleep_until_hint">Until (HH:MM)</string>
