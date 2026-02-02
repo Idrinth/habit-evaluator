@@ -10,13 +10,11 @@ general:
   daily: "Täglich"
   weekly: "Wöchentlich"
   monthly: "Monatlich"
-
 login:
   title: "Habit Evaluator - Anmeldung"
   username: "Benutzername"
   password: "Passwort"
   login: "Anmelden"
-
 habits:
   add_title: "Habit Evaluator - Gewohnheit hinzufügen"
   add_heading: "Gewohnheit hinzufügen"
@@ -31,19 +29,16 @@ habits:
   add_completion: "Abschluss hinzufügen"
   complete: "Erledigt"
   delete: "Löschen"
-
 evaluation:
   current_streak: "Aktuelle Serie"
   completion_rate: "Abschlussrate"
   current_streak_default: "Aktuelle Serie: -"
   completion_rate_default: "Abschlussrate: -"
-
 categories:
   add_title: "Habit Evaluator - Kategorie hinzufügen"
   add_heading: "Kategorie hinzufügen"
   add_button: "Kategorie hinzufügen"
   color: "Farbe"
-
 scoring:
   add_title: "Habit Evaluator - Bewertungsregel hinzufügen"
   add_heading: "Bewertungsregel hinzufügen"
@@ -56,13 +51,11 @@ scoring:
   hint_2_points: "Mindestanzahl wöchentlicher Abschlüsse für 2 Punkte"
   hint_4_points: "Mindestanzahl wöchentlicher Abschlüsse für 4 Punkte"
   hint_8_points: "Mindestanzahl wöchentlicher Abschlüsse für 8 Punkte"
-
 defaults:
   load_button: "Standards laden"
   requires_remote: "Das Laden von Standardgewohnheiten erfordert Remote-Speicher. Bitte konfigurieren Sie eine Remote-API-Verbindung in den Einstellungen."
   loaded: "Standardkategorien und Gewohnheiten geladen"
   load_failed: "Fehler beim Laden der Standards: %s"
-
 settings:
   storage_settings: "Speichereinstellungen"
   storage_mode_label: "Wählen Sie, wo Ihre Daten gespeichert werden:"
@@ -89,14 +82,13 @@ settings:
   connection_error_message: "Verbindung zum Remote-API fehlgeschlagen: %s\nFallback auf lokalen Speicher."
   incomplete_settings: "Unvollständige Einstellungen"
   failed_to_open: "Einstellungen konnten nicht geöffnet werden: %s"
-  language_settings: "Spracheinstellungen"
-  language_mode_label: "App-Sprache wählen:"
-  language_system: "Systemstandard"
+  language_settings: "Language Settings"
+  language_mode_label: "Choose app language:"
+  language_system: "System default"
   language_en: "English"
   language_de: "Deutsch"
   language_es: "Español"
   language_fr: "Français"
-
 sync:
   title: "Mit Remote-Server synchronisieren"
   description: "Geben Sie die Remote-Server-Details ein, um Ihre Gewohnheiten zu synchronisieren:"
