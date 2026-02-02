@@ -20,4 +20,8 @@
         android:id="@+id/nav_edit_habits"
         android:icon="@drawable/ic_edit"
         android:title="@string/edit_habits" />
+    <item
+        android:id="@+id/nav_sleep"
+        android:icon="@drawable/ic_sleep"
+        android:title="@string/sleep_tracking" />
 </menu>

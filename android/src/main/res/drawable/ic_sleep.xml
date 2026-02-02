@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <!-- Moon/night icon for sleep tracking -->
+    <path
+        android:fillColor="#FF000000"
+        android:pathData="M12.43,2.3c-0.36,-0.14 -0.77,-0.02 -1.01,0.29 -0.23,0.31 -0.24,0.74 -0.02,1.06 1.99,2.97 1.74,6.88 -0.64,9.58 -2.38,2.71 -6.19,3.54 -9.43,2.16 -0.36,-0.15 -0.77,-0.04 -1.01,0.27 -0.24,0.31 -0.25,0.74 -0.02,1.06 2.48,3.45 6.68,5.28 11.05,4.59 4.37,-0.69 7.94,-3.74 9.2,-7.94 1.26,-4.2 -0.09,-8.74 -3.47,-11.59 -0.61,-0.52 -1.14,-0.92 -1.45,-1.18 -0.32,-0.27 -0.83,-0.45 -1.2,-0.3z" />
+</vector>
