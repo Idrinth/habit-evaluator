@@ -1,6 +1,7 @@
 package de.idrinth.habitevaluator.android;
 
 import androidx.appcompat.app.AppCompatDelegate;
+import androidx.core.os.LocaleListCompat;
 
 /**
  * Constants and utilities for storage and theme settings.
@@ -35,6 +36,19 @@ public final class SettingsActivity {
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
         } else {
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
+        }
+    }
+
+    /**
+     * Applies the given language setting to the app using per-app language support.
+     * For "system", clears the override so the system locale is used.
+     * For a specific language code, sets that locale as the app locale.
+     */
+    public static void applyLanguage(String languageSetting) {
+        if (languageSetting == null || LANGUAGE_SYSTEM.equals(languageSetting)) {
+            AppCompatDelegate.setApplicationLocales(LocaleListCompat.getEmptyLocaleList());
+        } else {
+            AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags(languageSetting));
         }
     }
 
