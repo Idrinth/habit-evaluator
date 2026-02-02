@@ -30,13 +30,27 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:hint="@string/sleep_hours_hint">
+            android:hint="@string/sleep_from_hint">
 
             <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/sleepHoursInput"
+                android:id="@+id/sleepFromInput"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="numberDecimal" />
+                android:inputType="time" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_weight="1"
+            android:hint="@string/sleep_until_hint">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/sleepUntilInput"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="time" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout

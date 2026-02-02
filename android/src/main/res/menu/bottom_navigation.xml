@@ -9,6 +9,10 @@
         android:icon="@drawable/ic_home"
         android:title="@string/nav_home" />
     <item
+        android:id="@+id/nav_diary"
+        android:icon="@drawable/ic_diary"
+        android:title="@string/nav_diary" />
+    <item
         android:id="@+id/nav_add_habit"
         android:icon="@drawable/ic_add"
         android:title="@string/add_habit" />

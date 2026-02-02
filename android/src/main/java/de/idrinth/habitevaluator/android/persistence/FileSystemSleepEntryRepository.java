@@ -21,6 +21,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,6 +34,7 @@ public class FileSystemSleepEntryRepository implements SleepEntryRepository {
     private final Map<String, SleepEntry> store = new ConcurrentHashMap<>();
     private final File storageFile;
     private final Gson gson;
+    private static final DateTimeFormatter TIME_FORMAT = DateTimeFormatter.ofPattern("HH:mm");
 
     public FileSystemSleepEntryRepository(File storageDir) {
         if (!storageDir.exists()) {
@@ -134,7 +136,12 @@ public class FileSystemSleepEntryRepository implements SleepEntryRepository {
     private JsonObject serializeEntry(SleepEntry entry) {
         JsonObject obj = new JsonObject();
         obj.addProperty("id", entry.getId());
-        obj.addProperty("hours", entry.getHours());
+        if (entry.getFromTime() != null) {
+            obj.addProperty("fromTime", entry.getFromTime().format(TIME_FORMAT));
+        }
+        if (entry.getUntilTime() != null) {
+            obj.addProperty("untilTime", entry.getUntilTime().format(TIME_FORMAT));
+        }
         if (entry.getDate() != null) {
             obj.addProperty("date", entry.getDate().format(DateTimeFormatter.ISO_LOCAL_DATE));
         }
@@ -156,8 +163,13 @@ public class FileSystemSleepEntryRepository implements SleepEntryRepository {
     private SleepEntry deserializeEntry(JsonObject obj) {
         SleepEntry entry = new SleepEntry();
         entry.setId(obj.get("id").getAsString());
-        entry.setHours(obj.get("hours").getAsDouble());
 
+        if (obj.has("fromTime") && !obj.get("fromTime").isJsonNull()) {
+            entry.setFromTime(LocalTime.parse(obj.get("fromTime").getAsString(), TIME_FORMAT));
+        }
+        if (obj.has("untilTime") && !obj.get("untilTime").isJsonNull()) {
+            entry.setUntilTime(LocalTime.parse(obj.get("untilTime").getAsString(), TIME_FORMAT));
+        }
         if (obj.has("date") && !obj.get("date").isJsonNull()) {
             entry.setDate(LocalDate.parse(obj.get("date").getAsString(), DateTimeFormatter.ISO_LOCAL_DATE));
         }

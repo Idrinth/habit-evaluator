@@ -10,11 +10,13 @@ import jakarta.persistence.Table;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Objects;
 import java.util.UUID;
 
 /**
- * Represents a single sleep tracking entry with hours slept for a given date.
+ * Represents a single sleep tracking entry with a from-time and until-time.
+ * Hours slept are calculated from the time range.
  */
 @Entity
 @Table(name = "sleep_entries")
@@ -24,8 +26,11 @@ public class SleepEntry {
     @Column(length = 36)
     private String id;
 
-    @Column(nullable = false)
-    private double hours;
+    @Column(name = "from_time", nullable = false)
+    private LocalTime fromTime;
+
+    @Column(name = "until_time", nullable = false)
+    private LocalTime untilTime;
 
     @Column(nullable = false)
     private LocalDate date;
@@ -46,14 +51,16 @@ public class SleepEntry {
         this.date = LocalDate.now();
     }
 
-    public SleepEntry(double hours) {
+    public SleepEntry(LocalTime fromTime, LocalTime untilTime) {
         this();
-        this.hours = hours;
+        this.fromTime = fromTime;
+        this.untilTime = untilTime;
     }
 
-    public SleepEntry(double hours, LocalDate date) {
+    public SleepEntry(LocalTime fromTime, LocalTime untilTime, LocalDate date) {
         this();
-        this.hours = hours;
+        this.fromTime = fromTime;
+        this.untilTime = untilTime;
         this.date = date;
     }
 
@@ -65,12 +72,37 @@ public class SleepEntry {
         this.id = id;
     }
 
-    public double getHours() {
-        return hours;
+    public LocalTime getFromTime() {
+        return fromTime;
     }
 
-    public void setHours(double hours) {
-        this.hours = hours;
+    public void setFromTime(LocalTime fromTime) {
+        this.fromTime = fromTime;
+    }
+
+    public LocalTime getUntilTime() {
+        return untilTime;
+    }
+
+    public void setUntilTime(LocalTime untilTime) {
+        this.untilTime = untilTime;
+    }
+
+    /**
+     * Calculates hours slept from the time range.
+     * If untilTime is before fromTime, it is assumed to cross midnight.
+     */
+    public double getHours() {
+        if (fromTime == null || untilTime == null) {
+            return 0;
+        }
+        int fromMinutes = fromTime.getHour() * 60 + fromTime.getMinute();
+        int untilMinutes = untilTime.getHour() * 60 + untilTime.getMinute();
+        int diff = untilMinutes - fromMinutes;
+        if (diff <= 0) {
+            diff += 24 * 60;
+        }
+        return diff / 60.0;
     }
 
     public LocalDate getDate() {

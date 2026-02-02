@@ -19,6 +19,7 @@ public class SleepEntryAdapter extends RecyclerView.Adapter<SleepEntryAdapter.Vi
     private final List<SleepEntry> entries;
     private final OnSleepEntryDeleteListener deleteListener;
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    private static final DateTimeFormatter TIME_FORMAT = DateTimeFormatter.ofPattern("HH:mm");
 
     public interface OnSleepEntryDeleteListener {
         void onDelete(SleepEntry entry);
@@ -41,7 +42,10 @@ public class SleepEntryAdapter extends RecyclerView.Adapter<SleepEntryAdapter.Vi
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         SleepEntry entry = entries.get(position);
         holder.dateText.setText(entry.getDate().format(DATE_FORMAT));
-        holder.hoursText.setText(String.format("%.1f h", entry.getHours()));
+        String fromStr = entry.getFromTime() != null ? entry.getFromTime().format(TIME_FORMAT) : "?";
+        String untilStr = entry.getUntilTime() != null ? entry.getUntilTime().format(TIME_FORMAT) : "?";
+        holder.hoursText.setText(holder.itemView.getContext().getString(
+                R.string.sleep_entry_format, fromStr, untilStr, entry.getHours()));
 
         if (entry.getNotes() != null && !entry.getNotes().isEmpty()) {
             holder.notesText.setVisibility(View.VISIBLE);

@@ -12,6 +12,9 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -25,6 +28,8 @@ import de.idrinth.habitevaluator.shared.repository.SleepEntryRepository;
 import de.idrinth.habitevaluator.shared.service.SleepEvaluationService;
 
 public class SleepTrackingFragment extends Fragment implements SleepEntryAdapter.OnSleepEntryDeleteListener {
+
+    private static final DateTimeFormatter TIME_FORMAT = DateTimeFormatter.ofPattern("HH:mm");
 
     private FragmentSleepTrackingBinding binding;
     private SleepEntryAdapter adapter;
@@ -63,27 +68,26 @@ public class SleepTrackingFragment extends Fragment implements SleepEntryAdapter
     }
 
     private void addSleepEntry() {
-        String hoursText = binding.sleepHoursInput.getText().toString().trim();
-        if (hoursText.isEmpty()) {
-            Toast.makeText(requireContext(), R.string.sleep_hours_required, Toast.LENGTH_SHORT).show();
+        String fromText = binding.sleepFromInput.getText().toString().trim();
+        String untilText = binding.sleepUntilInput.getText().toString().trim();
+
+        if (fromText.isEmpty() || untilText.isEmpty()) {
+            Toast.makeText(requireContext(), R.string.sleep_time_required, Toast.LENGTH_SHORT).show();
             return;
         }
 
-        double hours;
+        LocalTime fromTime;
+        LocalTime untilTime;
         try {
-            hours = Double.parseDouble(hoursText);
-        } catch (NumberFormatException e) {
-            Toast.makeText(requireContext(), R.string.sleep_hours_invalid, Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        if (hours < 0 || hours > 24) {
-            Toast.makeText(requireContext(), R.string.sleep_hours_invalid, Toast.LENGTH_SHORT).show();
+            fromTime = LocalTime.parse(fromText, TIME_FORMAT);
+            untilTime = LocalTime.parse(untilText, TIME_FORMAT);
+        } catch (DateTimeParseException e) {
+            Toast.makeText(requireContext(), R.string.sleep_time_invalid, Toast.LENGTH_SHORT).show();
             return;
         }
 
         User currentUser = MainActivity.getSharedCurrentUser();
-        SleepEntry entry = new SleepEntry(hours, LocalDate.now());
+        SleepEntry entry = new SleepEntry(fromTime, untilTime, LocalDate.now());
         entry.setUser(currentUser);
 
         String notes = binding.sleepNotesInput.getText().toString().trim();
@@ -101,7 +105,8 @@ public class SleepTrackingFragment extends Fragment implements SleepEntryAdapter
             allEntries.add(entry);
         }
 
-        binding.sleepHoursInput.setText("");
+        binding.sleepFromInput.setText("");
+        binding.sleepUntilInput.setText("");
         binding.sleepNotesInput.setText("");
 
         Toast.makeText(requireContext(), R.string.sleep_entry_added, Toast.LENGTH_SHORT).show();
