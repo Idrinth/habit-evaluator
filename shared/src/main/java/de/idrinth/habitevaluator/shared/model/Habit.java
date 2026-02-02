@@ -16,7 +16,9 @@ import jakarta.persistence.UniqueConstraint;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -68,6 +70,12 @@ public class Habit {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
+
+    @jakarta.persistence.Transient
+    private Map<String, String> nameTranslations = new HashMap<>();
+
+    @jakarta.persistence.Transient
+    private Map<String, String> descriptionTranslations = new HashMap<>();
 
     public Habit() {
         this.id = UUID.randomUUID().toString();
@@ -214,6 +222,42 @@ public class Habit {
 
     public void setScoringRule(ScoringRule scoringRule) {
         this.scoringRule = scoringRule;
+    }
+
+    public Map<String, String> getNameTranslations() {
+        return nameTranslations;
+    }
+
+    public void setNameTranslations(Map<String, String> nameTranslations) {
+        this.nameTranslations = nameTranslations != null ? nameTranslations : new HashMap<>();
+    }
+
+    public Map<String, String> getDescriptionTranslations() {
+        return descriptionTranslations;
+    }
+
+    public void setDescriptionTranslations(Map<String, String> descriptionTranslations) {
+        this.descriptionTranslations = descriptionTranslations != null ? descriptionTranslations : new HashMap<>();
+    }
+
+    public String getDisplayName(String language) {
+        if (language != null && nameTranslations.containsKey(language)) {
+            String translated = nameTranslations.get(language);
+            if (translated != null && !translated.isEmpty()) {
+                return translated;
+            }
+        }
+        return name;
+    }
+
+    public String getDisplayDescription(String language) {
+        if (language != null && descriptionTranslations.containsKey(language)) {
+            String translated = descriptionTranslations.get(language);
+            if (translated != null && !translated.isEmpty()) {
+                return translated;
+            }
+        }
+        return description;
     }
 
     @Override

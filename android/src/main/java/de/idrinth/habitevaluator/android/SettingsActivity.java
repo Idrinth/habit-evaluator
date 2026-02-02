@@ -25,6 +25,7 @@ public final class SettingsActivity {
     public static final String LANGUAGE_DE = "de";
     public static final String LANGUAGE_ES = "es";
     public static final String LANGUAGE_FR = "fr";
+    public static final String KEY_CUSTOM_TRANSLATIONS = "custom_translations_enabled";
 
     private SettingsActivity() {
     }

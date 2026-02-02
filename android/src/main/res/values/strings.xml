@@ -90,4 +90,10 @@
     <string name="diary_trend_stable">Trend: stable</string>
     <string name="diary_event_added">Positive event recorded!</string>
     <string name="diary_description_required">Please describe the positive event</string>
+    <string name="translation_settings">Translation Settings</string>
+    <string name="custom_translations_label">Allow custom translations for habit and category names</string>
+    <string name="custom_translations_enabled">Custom translations</string>
+    <string name="translations_section">Translations</string>
+    <string name="translation_name_hint">Name (%s)</string>
+    <string name="translation_description_hint">Description (%s)</string>
 </resources>

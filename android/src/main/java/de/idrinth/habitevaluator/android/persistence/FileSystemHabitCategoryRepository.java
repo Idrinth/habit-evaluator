@@ -25,6 +25,7 @@ import java.lang.reflect.Type;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -139,6 +140,21 @@ public class FileSystemHabitCategoryRepository implements HabitCategoryRepositor
             obj.add("user", userObj);
         }
 
+        if (category.getNameTranslations() != null && !category.getNameTranslations().isEmpty()) {
+            JsonObject nameTransObj = new JsonObject();
+            for (Map.Entry<String, String> e : category.getNameTranslations().entrySet()) {
+                nameTransObj.addProperty(e.getKey(), e.getValue());
+            }
+            obj.add("nameTranslations", nameTransObj);
+        }
+        if (category.getDescriptionTranslations() != null && !category.getDescriptionTranslations().isEmpty()) {
+            JsonObject descTransObj = new JsonObject();
+            for (Map.Entry<String, String> e : category.getDescriptionTranslations().entrySet()) {
+                descTransObj.addProperty(e.getKey(), e.getValue());
+            }
+            obj.add("descriptionTranslations", descTransObj);
+        }
+
         return obj;
     }
 
@@ -156,6 +172,27 @@ public class FileSystemHabitCategoryRepository implements HabitCategoryRepositor
             user.setUsername(getStringOrNull(userObj, "username"));
             user.setPassword("placeholder");
             category.setUser(user);
+        }
+
+        if (obj.has("nameTranslations") && !obj.get("nameTranslations").isJsonNull()) {
+            Map<String, String> nameTrans = new HashMap<>();
+            JsonObject ntObj = obj.getAsJsonObject("nameTranslations");
+            for (String key : ntObj.keySet()) {
+                if (!ntObj.get(key).isJsonNull()) {
+                    nameTrans.put(key, ntObj.get(key).getAsString());
+                }
+            }
+            category.setNameTranslations(nameTrans);
+        }
+        if (obj.has("descriptionTranslations") && !obj.get("descriptionTranslations").isJsonNull()) {
+            Map<String, String> descTrans = new HashMap<>();
+            JsonObject dtObj = obj.getAsJsonObject("descriptionTranslations");
+            for (String key : dtObj.keySet()) {
+                if (!dtObj.get(key).isJsonNull()) {
+                    descTrans.put(key, dtObj.get(key).getAsString());
+                }
+            }
+            category.setDescriptionTranslations(descTrans);
         }
 
         return category;

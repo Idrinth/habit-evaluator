@@ -1,36 +1,51 @@
 package de.idrinth.habitevaluator.android.ui;
 
+import android.content.Context;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.switchmaterial.SwitchMaterial;
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import de.idrinth.habitevaluator.android.R;
+import de.idrinth.habitevaluator.android.SettingsActivity;
 import de.idrinth.habitevaluator.shared.model.Habit;
 import de.idrinth.habitevaluator.shared.model.ScoringRule;
 
 public class EditHabitAdapter extends RecyclerView.Adapter<EditHabitAdapter.EditHabitViewHolder> {
 
+    private static final String[] LANGUAGES = {
+            SettingsActivity.LANGUAGE_EN,
+            SettingsActivity.LANGUAGE_DE,
+            SettingsActivity.LANGUAGE_ES,
+            SettingsActivity.LANGUAGE_FR
+    };
+    private static final String[] LANGUAGE_LABELS = {"English", "Deutsch", "Español", "Français"};
+
     private final List<Habit> habits;
     private final Map<String, EditedHabitValues> editedValues = new HashMap<>();
+    private final boolean translationsEnabled;
 
-    public EditHabitAdapter(List<Habit> habits) {
+    public EditHabitAdapter(List<Habit> habits, boolean translationsEnabled) {
         this.habits = habits;
+        this.translationsEnabled = translationsEnabled;
         for (Habit habit : habits) {
             ScoringRule rule = habit.getScoringRule();
-            editedValues.put(habit.getId(), new EditedHabitValues(
+            EditedHabitValues values = new EditedHabitValues(
                     habit.getTargetFrequency(),
                     habit.getMaxEntriesPerDay(),
                     habit.isPositiveScoring(),
@@ -38,7 +53,20 @@ public class EditHabitAdapter extends RecyclerView.Adapter<EditHabitAdapter.Edit
                     rule != null ? rule.getThresholdFor2Points() : 2,
                     rule != null ? rule.getThresholdFor4Points() : 4,
                     rule != null ? rule.getThresholdFor8Points() : 7
-            ));
+            );
+            if (translationsEnabled) {
+                for (String lang : LANGUAGES) {
+                    String nameVal = habit.getNameTranslations().get(lang);
+                    if (nameVal != null) {
+                        values.nameTranslations.put(lang, nameVal);
+                    }
+                    String descVal = habit.getDescriptionTranslations().get(lang);
+                    if (descVal != null) {
+                        values.descriptionTranslations.put(lang, descVal);
+                    }
+                }
+            }
+            editedValues.put(habit.getId(), values);
         }
     }
 
@@ -94,6 +122,75 @@ public class EditHabitAdapter extends RecyclerView.Adapter<EditHabitAdapter.Edit
 
         holder.threshold8Watcher = createIntWatcher(val -> values.threshold8 = val);
         holder.threshold8.addTextChangedListener(holder.threshold8Watcher);
+
+        // Translation fields
+        setupTranslationFields(holder, values);
+    }
+
+    private void setupTranslationFields(EditHabitViewHolder holder, EditedHabitValues values) {
+        holder.translationsContainer.removeAllViews();
+        if (!translationsEnabled) {
+            holder.translationsContainer.setVisibility(View.GONE);
+            return;
+        }
+        holder.translationsContainer.setVisibility(View.VISIBLE);
+        Context context = holder.itemView.getContext();
+
+        TextView label = new TextView(context);
+        label.setText(R.string.translations_section);
+        label.setTextSize(12);
+        label.setTypeface(null, android.graphics.Typeface.BOLD);
+        holder.translationsContainer.addView(label);
+
+        for (int i = 0; i < LANGUAGES.length; i++) {
+            String lang = LANGUAGES[i];
+            String langLabel = LANGUAGE_LABELS[i];
+
+            TextInputLayout nameLayout = new TextInputLayout(context);
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+            params.topMargin = 4;
+            nameLayout.setLayoutParams(params);
+            nameLayout.setHint(context.getString(R.string.translation_name_hint, langLabel));
+
+            TextInputEditText nameInput = new TextInputEditText(context);
+            nameInput.setLayoutParams(new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+            String currentName = values.nameTranslations.get(lang);
+            if (currentName != null) {
+                nameInput.setText(currentName);
+            }
+            nameInput.addTextChangedListener(createStringWatcher(val -> {
+                if (val.isEmpty()) {
+                    values.nameTranslations.remove(lang);
+                } else {
+                    values.nameTranslations.put(lang, val);
+                }
+            }));
+            nameLayout.addView(nameInput);
+            holder.translationsContainer.addView(nameLayout);
+
+            TextInputLayout descLayout = new TextInputLayout(context);
+            descLayout.setLayoutParams(params);
+            descLayout.setHint(context.getString(R.string.translation_description_hint, langLabel));
+
+            TextInputEditText descInput = new TextInputEditText(context);
+            descInput.setLayoutParams(new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+            String currentDesc = values.descriptionTranslations.get(lang);
+            if (currentDesc != null) {
+                descInput.setText(currentDesc);
+            }
+            descInput.addTextChangedListener(createStringWatcher(val -> {
+                if (val.isEmpty()) {
+                    values.descriptionTranslations.remove(lang);
+                } else {
+                    values.descriptionTranslations.put(lang, val);
+                }
+            }));
+            descLayout.addView(descInput);
+            holder.translationsContainer.addView(descLayout);
+        }
     }
 
     private void removeWatchers(EditHabitViewHolder holder) {
@@ -139,6 +236,21 @@ public class EditHabitAdapter extends RecyclerView.Adapter<EditHabitAdapter.Edit
         };
     }
 
+    private TextWatcher createStringWatcher(StringConsumer consumer) {
+        return new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {}
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                consumer.accept(s.toString());
+            }
+        };
+    }
+
     @Override
     public int getItemCount() {
         return habits.size();
@@ -152,6 +264,8 @@ public class EditHabitAdapter extends RecyclerView.Adapter<EditHabitAdapter.Edit
         public int threshold2;
         public int threshold4;
         public int threshold8;
+        public Map<String, String> nameTranslations = new HashMap<>();
+        public Map<String, String> descriptionTranslations = new HashMap<>();
 
         public EditedHabitValues(int targetFrequency, int maxEntriesPerDay, boolean positiveScoring,
                                  int threshold1, int threshold2, int threshold4, int threshold8) {
@@ -169,6 +283,10 @@ public class EditHabitAdapter extends RecyclerView.Adapter<EditHabitAdapter.Edit
         void accept(int value);
     }
 
+    private interface StringConsumer {
+        void accept(String value);
+    }
+
     static class EditHabitViewHolder extends RecyclerView.ViewHolder {
         private final TextView nameText;
         private final TextView descriptionText;
@@ -179,6 +297,7 @@ public class EditHabitAdapter extends RecyclerView.Adapter<EditHabitAdapter.Edit
         private final EditText threshold2;
         private final EditText threshold4;
         private final EditText threshold8;
+        private final LinearLayout translationsContainer;
         TextWatcher targetWatcher;
         TextWatcher maxEntriesWatcher;
         TextWatcher threshold1Watcher;
@@ -197,6 +316,7 @@ public class EditHabitAdapter extends RecyclerView.Adapter<EditHabitAdapter.Edit
             threshold2 = itemView.findViewById(R.id.editThreshold2);
             threshold4 = itemView.findViewById(R.id.editThreshold4);
             threshold8 = itemView.findViewById(R.id.editThreshold8);
+            translationsContainer = itemView.findViewById(R.id.translationsContainer);
         }
     }
 }

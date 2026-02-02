@@ -1,5 +1,7 @@
 package de.idrinth.habitevaluator.android;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -45,6 +47,11 @@ public class EditHabitsFragment extends Fragment {
         refreshHabitsList();
     }
 
+    private boolean isTranslationsEnabled() {
+        SharedPreferences prefs = requireContext().getSharedPreferences(SettingsActivity.PREFS_NAME, Context.MODE_PRIVATE);
+        return prefs.getBoolean(SettingsActivity.KEY_CUSTOM_TRANSLATIONS, false);
+    }
+
     private void refreshHabitsList() {
         habits = MainActivity.getSharedHabits();
 
@@ -56,7 +63,7 @@ public class EditHabitsFragment extends Fragment {
             binding.emptyText.setVisibility(View.GONE);
             binding.editRecyclerView.setVisibility(View.VISIBLE);
             binding.saveButton.setVisibility(View.VISIBLE);
-            adapter = new EditHabitAdapter(habits);
+            adapter = new EditHabitAdapter(habits, isTranslationsEnabled());
             binding.editRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
             binding.editRecyclerView.setAdapter(adapter);
         }
@@ -69,6 +76,7 @@ public class EditHabitsFragment extends Fragment {
             return;
         }
         Map<String, EditHabitAdapter.EditedHabitValues> editedValues = adapter.getEditedValues();
+        boolean translationsEnabled = isTranslationsEnabled();
         int count = 0;
         for (Habit habit : habits) {
             EditHabitAdapter.EditedHabitValues values = editedValues.get(habit.getId());
@@ -103,6 +111,17 @@ public class EditHabitsFragment extends Fragment {
                         habit.setScoringRule(rule);
                         changed = true;
                     }
+                }
+            }
+
+            if (translationsEnabled) {
+                if (!values.nameTranslations.equals(habit.getNameTranslations())) {
+                    habit.setNameTranslations(values.nameTranslations);
+                    changed = true;
+                }
+                if (!values.descriptionTranslations.equals(habit.getDescriptionTranslations())) {
+                    habit.setDescriptionTranslations(values.descriptionTranslations);
+                    changed = true;
                 }
             }
 
