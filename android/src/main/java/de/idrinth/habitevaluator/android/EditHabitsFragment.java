@@ -18,7 +18,9 @@ import java.util.Map;
 
 import de.idrinth.habitevaluator.android.databinding.FragmentEditHabitsBinding;
 import de.idrinth.habitevaluator.android.ui.EditHabitAdapter;
+import de.idrinth.habitevaluator.shared.model.FrequencyType;
 import de.idrinth.habitevaluator.shared.model.Habit;
+import de.idrinth.habitevaluator.shared.model.HabitCategory;
 import de.idrinth.habitevaluator.shared.model.ScoringRule;
 
 public class EditHabitsFragment extends Fragment {
@@ -52,6 +54,16 @@ public class EditHabitsFragment extends Fragment {
         return prefs.getBoolean(SettingsActivity.KEY_CUSTOM_TRANSLATIONS, false);
     }
 
+    private String getDisplayLanguage() {
+        SharedPreferences prefs = requireContext().getSharedPreferences(SettingsActivity.PREFS_NAME, Context.MODE_PRIVATE);
+        boolean translationsEnabled = prefs.getBoolean(SettingsActivity.KEY_CUSTOM_TRANSLATIONS, false);
+        if (!translationsEnabled) {
+            return null;
+        }
+        String language = prefs.getString(SettingsActivity.KEY_LANGUAGE, SettingsActivity.LANGUAGE_SYSTEM);
+        return SettingsActivity.getEffectiveLanguage(language);
+    }
+
     private void refreshHabitsList() {
         habits = MainActivity.getSharedHabits();
 
@@ -63,7 +75,10 @@ public class EditHabitsFragment extends Fragment {
             binding.emptyText.setVisibility(View.GONE);
             binding.editRecyclerView.setVisibility(View.VISIBLE);
             binding.saveButton.setVisibility(View.VISIBLE);
-            adapter = new EditHabitAdapter(habits, isTranslationsEnabled());
+            List<HabitCategory> categories = MainActivity.getSharedCategories();
+            adapter = new EditHabitAdapter(habits, isTranslationsEnabled(),
+                    categories != null ? categories : new java.util.ArrayList<>(),
+                    getDisplayLanguage());
             binding.editRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
             binding.editRecyclerView.setAdapter(adapter);
         }
@@ -85,6 +100,14 @@ public class EditHabitsFragment extends Fragment {
             }
             boolean changed = false;
 
+            if (values.categoryId != null && !values.categoryId.equals(habit.getCategoryId())) {
+                habit.setCategoryId(values.categoryId);
+                changed = true;
+            }
+            if (values.frequencyType != null && values.frequencyType != habit.getFrequencyType()) {
+                habit.setFrequencyType(values.frequencyType);
+                changed = true;
+            }
             if (habit.getTargetFrequency() != values.targetFrequency && values.targetFrequency > 0) {
                 habit.setTargetFrequency(values.targetFrequency);
                 changed = true;
