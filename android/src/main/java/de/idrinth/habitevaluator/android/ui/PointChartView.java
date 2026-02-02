@@ -26,11 +26,13 @@ public class PointChartView extends View {
     private double average = 0;
 
     private final Paint barPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private final Paint negativeBarPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint averageLinePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint labelPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint valuePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint gridPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint averageLabelPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private final Paint zeroLinePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 
     private static final float LABEL_TEXT_SIZE_SP = 10f;
     private static final float VALUE_TEXT_SIZE_SP = 9f;
@@ -62,6 +64,14 @@ public class PointChartView extends View {
 
         barPaint.setColor(primaryColor);
         barPaint.setStyle(Paint.Style.FILL);
+
+        negativeBarPaint.setColor(errorColor);
+        negativeBarPaint.setStyle(Paint.Style.FILL);
+
+        zeroLinePaint.setColor(onSurfaceColor);
+        zeroLinePaint.setAlpha(60);
+        zeroLinePaint.setStyle(Paint.Style.STROKE);
+        zeroLinePaint.setStrokeWidth(dpToPx(1f));
 
         averageLinePaint.setColor(errorColor);
         averageLinePaint.setStyle(Paint.Style.STROKE);
@@ -114,37 +124,61 @@ public class PointChartView extends View {
         float chartWidth = width - 2 * sidePadding;
 
         int maxPoints = 0;
+        int minPoints = 0;
         for (int p : dailyPoints) {
             maxPoints = Math.max(maxPoints, p);
+            minPoints = Math.min(minPoints, p);
         }
         if (average > maxPoints) {
             maxPoints = (int) Math.ceil(average);
         }
-        if (maxPoints == 0) {
-            maxPoints = 1;
+        if (average < minPoints) {
+            minPoints = (int) Math.floor(average);
         }
+
+        // Total range from min to max
+        int range = maxPoints - minPoints;
+        if (range == 0) {
+            range = 1;
+        }
+
+        // Calculate where zero line sits within the chart
+        float zeroY = topPadding + (float) maxPoints / range * chartHeight;
 
         int barCount = dailyPoints.size();
         float totalBarWidth = chartWidth / barCount;
         float barWidth = totalBarWidth * (1 - BAR_GAP_FRACTION);
         float gap = totalBarWidth * BAR_GAP_FRACTION;
 
+        // Draw zero line if there are negative values
+        if (minPoints < 0) {
+            canvas.drawLine(sidePadding, zeroY, width - sidePadding, zeroY, zeroLinePaint);
+        }
+
         // Draw bars
         for (int i = 0; i < barCount; i++) {
             int points = dailyPoints.get(i);
-            float barHeight = (float) points / maxPoints * chartHeight;
             float left = sidePadding + i * totalBarWidth + gap / 2;
-            float top = topPadding + chartHeight - barHeight;
             float right = left + barWidth;
-            float bottom = topPadding + chartHeight;
 
             if (points > 0) {
-                RectF rect = new RectF(left, top, right, bottom);
+                float barHeight = (float) points / range * chartHeight;
+                float top = zeroY - barHeight;
+                RectF rect = new RectF(left, top, right, zeroY);
                 canvas.drawRoundRect(rect, cornerRadius, cornerRadius, barPaint);
 
                 // Value on top of bar
                 String valueStr = String.valueOf(points);
                 canvas.drawText(valueStr, left + barWidth / 2, top - dpToPx(2f), valuePaint);
+            } else if (points < 0) {
+                float barHeight = (float) (-points) / range * chartHeight;
+                float bottom = zeroY + barHeight;
+                RectF rect = new RectF(left, zeroY, right, bottom);
+                canvas.drawRoundRect(rect, cornerRadius, cornerRadius, negativeBarPaint);
+
+                // Value below bar
+                String valueStr = String.valueOf(points);
+                canvas.drawText(valueStr, left + barWidth / 2, bottom + dpToPx(10f), valuePaint);
             }
 
             // Label below
@@ -154,8 +188,8 @@ public class PointChartView extends View {
         }
 
         // Draw average line
-        if (average > 0) {
-            float avgY = topPadding + chartHeight - (float) (average / maxPoints * chartHeight);
+        if (average != 0) {
+            float avgY = topPadding + (float) ((maxPoints - average) / range * chartHeight);
             Path path = new Path();
             path.moveTo(sidePadding, avgY);
             path.lineTo(width - sidePadding, avgY);

@@ -40,9 +40,19 @@ public class HabitEvaluatorService {
 
         evaluation.setTotalEntries(periodEntries.size());
         evaluation.setTargetEntries(calculateTargetEntries(habit, periodStart, periodEnd));
-        evaluation.setCompletionRate(calculateCompletionRate(evaluation.getTotalEntries(), evaluation.getTargetEntries()));
-        evaluation.setCurrentStreak(calculateCurrentStreak(habit, periodEnd));
-        evaluation.setLongestStreak(calculateLongestStreak(habit, periodStart, periodEnd));
+        evaluation.setPositiveScoring(habit.isPositiveScoring());
+
+        if (habit.isPositiveScoring()) {
+            evaluation.setCompletionRate(calculateCompletionRate(evaluation.getTotalEntries(), evaluation.getTargetEntries()));
+            evaluation.setCurrentStreak(calculateCurrentStreak(habit, periodEnd));
+            evaluation.setLongestStreak(calculateLongestStreak(habit, periodStart, periodEnd));
+        } else {
+            // For negative habits, rate = avoidance rate (how well they avoided it)
+            evaluation.setCompletionRate(calculateAvoidanceRate(evaluation.getTotalEntries(), evaluation.getTargetEntries()));
+            // For negative habits, streak = consecutive days WITHOUT completions
+            evaluation.setCurrentStreak(calculateCurrentAvoidanceStreak(habit, periodEnd));
+            evaluation.setLongestStreak(calculateLongestAvoidanceStreak(habit, periodStart, periodEnd));
+        }
 
         return evaluation;
     }
@@ -112,6 +122,69 @@ public class HabitEvaluatorService {
 
         while (!checkDate.isAfter(end)) {
             if (completedDates.contains(checkDate)) {
+                currentStreak++;
+                longestStreak = Math.max(longestStreak, currentStreak);
+            } else {
+                currentStreak = 0;
+            }
+            checkDate = checkDate.plusDays(1);
+        }
+
+        return longestStreak;
+    }
+
+    /**
+     * For negative habits, avoidance rate = 1 - (actual / target), clamped to [0, 1].
+     * If target is 0, returns 1.0 (perfect avoidance).
+     */
+    private double calculateAvoidanceRate(int actual, int target) {
+        if (target == 0) {
+            return actual == 0 ? 1.0 : 0.0;
+        }
+        return Math.max(0.0, Math.min(1.0, 1.0 - (double) actual / target));
+    }
+
+    /**
+     * For negative habits, counts consecutive days going backwards from endDate
+     * where no completion exists (days the habit was avoided).
+     */
+    private int calculateCurrentAvoidanceStreak(Habit habit, LocalDate endDate) {
+        Set<LocalDate> completedDates = habit.getEntries().stream()
+                .map(entry -> entry.getCompletedAt().toLocalDate())
+                .collect(Collectors.toSet());
+
+        if (completedDates.isEmpty()) {
+            // No entries at all means no meaningful avoidance streak to calculate
+            return 0;
+        }
+
+        int streak = 0;
+        LocalDate checkDate = endDate;
+
+        while (!completedDates.contains(checkDate)) {
+            streak++;
+            checkDate = checkDate.minusDays(1);
+        }
+
+        return streak;
+    }
+
+    /**
+     * For negative habits, finds the longest run of consecutive days
+     * without any completions in the given period.
+     */
+    private int calculateLongestAvoidanceStreak(Habit habit, LocalDate start, LocalDate end) {
+        Set<LocalDate> completedDates = habit.getEntries().stream()
+                .map(entry -> entry.getCompletedAt().toLocalDate())
+                .filter(date -> !date.isBefore(start) && !date.isAfter(end))
+                .collect(Collectors.toSet());
+
+        int longestStreak = 0;
+        int currentStreak = 0;
+        LocalDate checkDate = start;
+
+        while (!checkDate.isAfter(end)) {
+            if (!completedDates.contains(checkDate)) {
                 currentStreak++;
                 longestStreak = Math.max(longestStreak, currentStreak);
             } else {

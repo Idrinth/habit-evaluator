@@ -137,4 +137,7 @@
     <string name="stats_sleep_entries">Sleep Entries per Day</string>
     <string name="stats_diary_points">Diary Points per Day</string>
     <string name="stats_habit_points">Habit Points per Day</string>
+    <string name="avoidance_streak">Avoidance Streak</string>
+    <string name="avoidance_rate">Avoidance Rate</string>
+    <string name="occurrences">Occurrences: %d</string>
 </resources>

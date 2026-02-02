@@ -16,6 +16,7 @@ public class Evaluation {
     private double completionRate;
     private int currentStreak;
     private int longestStreak;
+    private boolean positiveScoring = true;
 
     public Evaluation() {
     }
@@ -95,6 +96,14 @@ public class Evaluation {
 
     public void setLongestStreak(int longestStreak) {
         this.longestStreak = longestStreak;
+    }
+
+    public boolean isPositiveScoring() {
+        return positiveScoring;
+    }
+
+    public void setPositiveScoring(boolean positiveScoring) {
+        this.positiveScoring = positiveScoring;
     }
 
     public boolean isOnTrack() {
