@@ -6,7 +6,10 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.android.material.card.MaterialCardView;
 
 import java.util.List;
 
@@ -68,9 +71,11 @@ public class HabitAdapter extends RecyclerView.Adapter<HabitAdapter.HabitViewHol
         private final TextView nameText;
         private final TextView descriptionText;
         private final TextView entriesCountText;
+        private final MaterialCardView cardView;
 
         HabitViewHolder(@NonNull View itemView) {
             super(itemView);
+            cardView = (MaterialCardView) itemView;
             nameText = itemView.findViewById(R.id.habitName);
             descriptionText = itemView.findViewById(R.id.habitDescription);
             entriesCountText = itemView.findViewById(R.id.entriesCount);
@@ -86,6 +91,15 @@ public class HabitAdapter extends RecyclerView.Adapter<HabitAdapter.HabitViewHol
             }
             entriesCountText.setText(String.format("%d entries", habit.getEntries().size()));
             itemView.setSelected(isSelected);
+
+            if (isSelected) {
+                cardView.setStrokeColor(ContextCompat.getColor(itemView.getContext(), R.color.primary));
+                cardView.setStrokeWidth((int) (2 * itemView.getContext().getResources().getDisplayMetrics().density));
+                cardView.setCardElevation(6 * itemView.getContext().getResources().getDisplayMetrics().density);
+            } else {
+                cardView.setStrokeWidth(0);
+                cardView.setCardElevation(2 * itemView.getContext().getResources().getDisplayMetrics().density);
+            }
         }
     }
 }
