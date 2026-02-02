@@ -62,4 +62,11 @@
     <string name="theme_system">System default</string>
     <string name="theme_light">Light</string>
     <string name="theme_dark">Dark</string>
+    <string name="language_settings">Language Settings</string>
+    <string name="language_mode_label">Choose app language:</string>
+    <string name="language_system">System default</string>
+    <string name="language_en">English</string>
+    <string name="language_de">Deutsch</string>
+    <string name="language_es">Español</string>
+    <string name="language_fr">Français</string>
 </resources>

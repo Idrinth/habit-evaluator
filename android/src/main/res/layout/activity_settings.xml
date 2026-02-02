@@ -173,6 +173,59 @@
                 android:text="@string/theme_dark" />
         </RadioGroup>
 
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="@string/language_settings"
+            android:textSize="24sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/language_mode_label"
+            android:textSize="16sp" />
+
+        <RadioGroup
+            android:id="@+id/languageModeGroup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp">
+
+            <RadioButton
+                android:id="@+id/languageSystemRadio"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/language_system"
+                android:checked="true" />
+
+            <RadioButton
+                android:id="@+id/languageEnRadio"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/language_en" />
+
+            <RadioButton
+                android:id="@+id/languageDeRadio"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/language_de" />
+
+            <RadioButton
+                android:id="@+id/languageEsRadio"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/language_es" />
+
+            <RadioButton
+                android:id="@+id/languageFrRadio"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/language_fr" />
+        </RadioGroup>
+
         <com.google.android.material.button.MaterialButton
             android:id="@+id/saveSettingsButton"
             android:layout_width="match_parent"

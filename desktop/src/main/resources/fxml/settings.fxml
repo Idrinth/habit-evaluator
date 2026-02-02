@@ -6,7 +6,7 @@
 
 <VBox xmlns:fx="http://javafx.com/fxml"
       fx:controller="de.idrinth.habitevaluator.desktop.controller.SettingsDialogController"
-      spacing="15" prefWidth="450" prefHeight="400">
+      spacing="15" prefWidth="450" prefHeight="580">
     <padding>
         <Insets top="20" right="20" bottom="20" left="20"/>
     </padding>
@@ -66,6 +66,26 @@
     <RadioButton fx:id="themeLightRadio" text="Light" toggleGroup="$themeToggleGroup"/>
 
     <RadioButton fx:id="themeDarkRadio" text="Dark" toggleGroup="$themeToggleGroup"/>
+
+    <Separator/>
+
+    <Label text="Language Settings" styleClass="section-title"/>
+
+    <Label text="Choose app language:"/>
+
+    <RadioButton fx:id="languageSystemRadio" text="System default" selected="true">
+        <toggleGroup>
+            <ToggleGroup fx:id="languageToggleGroup"/>
+        </toggleGroup>
+    </RadioButton>
+
+    <RadioButton fx:id="languageEnRadio" text="English" toggleGroup="$languageToggleGroup"/>
+
+    <RadioButton fx:id="languageDeRadio" text="Deutsch" toggleGroup="$languageToggleGroup"/>
+
+    <RadioButton fx:id="languageEsRadio" text="Español" toggleGroup="$languageToggleGroup"/>
+
+    <RadioButton fx:id="languageFrRadio" text="Français" toggleGroup="$languageToggleGroup"/>
 
     <Region VBox.vgrow="ALWAYS"/>
 

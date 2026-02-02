@@ -3,7 +3,6 @@ package de.idrinth.habitevaluator.android;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.RadioGroup;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -27,11 +26,17 @@ public class SettingsActivity extends AppCompatActivity {
     public static final String KEY_API_USERNAME = "api_username";
     public static final String KEY_API_PASSWORD = "api_password";
     public static final String KEY_THEME_MODE = "theme_mode";
+    public static final String KEY_LANGUAGE = "language";
     public static final String MODE_LOCAL = "LOCAL";
     public static final String MODE_REMOTE = "REMOTE";
     public static final String THEME_SYSTEM = "SYSTEM";
     public static final String THEME_LIGHT = "LIGHT";
     public static final String THEME_DARK = "DARK";
+    public static final String LANGUAGE_SYSTEM = "system";
+    public static final String LANGUAGE_EN = "en";
+    public static final String LANGUAGE_DE = "de";
+    public static final String LANGUAGE_ES = "es";
+    public static final String LANGUAGE_FR = "fr";
 
     private ActivitySettingsBinding binding;
 
@@ -52,6 +57,7 @@ public class SettingsActivity extends AppCompatActivity {
         String username = prefs.getString(KEY_API_USERNAME, "");
         String password = prefs.getString(KEY_API_PASSWORD, "");
         String themeMode = prefs.getString(KEY_THEME_MODE, THEME_SYSTEM);
+        String language = prefs.getString(KEY_LANGUAGE, LANGUAGE_SYSTEM);
 
         if (MODE_REMOTE.equals(mode)) {
             binding.remoteRadio.setChecked(true);
@@ -67,6 +73,18 @@ public class SettingsActivity extends AppCompatActivity {
             binding.themeDarkRadio.setChecked(true);
         } else {
             binding.themeSystemRadio.setChecked(true);
+        }
+
+        if (LANGUAGE_EN.equals(language)) {
+            binding.languageEnRadio.setChecked(true);
+        } else if (LANGUAGE_DE.equals(language)) {
+            binding.languageDeRadio.setChecked(true);
+        } else if (LANGUAGE_ES.equals(language)) {
+            binding.languageEsRadio.setChecked(true);
+        } else if (LANGUAGE_FR.equals(language)) {
+            binding.languageFrRadio.setChecked(true);
+        } else {
+            binding.languageSystemRadio.setChecked(true);
         }
 
         binding.apiUrlInput.setText(url);
@@ -150,6 +168,20 @@ public class SettingsActivity extends AppCompatActivity {
         }
         editor.putString(KEY_THEME_MODE, themeMode);
 
+        String language;
+        if (binding.languageEnRadio.isChecked()) {
+            language = LANGUAGE_EN;
+        } else if (binding.languageDeRadio.isChecked()) {
+            language = LANGUAGE_DE;
+        } else if (binding.languageEsRadio.isChecked()) {
+            language = LANGUAGE_ES;
+        } else if (binding.languageFrRadio.isChecked()) {
+            language = LANGUAGE_FR;
+        } else {
+            language = LANGUAGE_SYSTEM;
+        }
+        editor.putString(KEY_LANGUAGE, language);
+
         editor.putString(KEY_API_URL, url);
         editor.putString(KEY_API_USERNAME, username);
         editor.putString(KEY_API_PASSWORD, password);
@@ -169,5 +201,21 @@ public class SettingsActivity extends AppCompatActivity {
         } else {
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
         }
+    }
+
+    /**
+     * Resolves the effective language code. If set to "system", uses the device locale,
+     * falling back to "en" if the system language is not supported.
+     */
+    public static String getEffectiveLanguage(String languageSetting) {
+        if (languageSetting == null || LANGUAGE_SYSTEM.equals(languageSetting)) {
+            String systemLang = java.util.Locale.getDefault().getLanguage();
+            if (LANGUAGE_EN.equals(systemLang) || LANGUAGE_DE.equals(systemLang)
+                    || LANGUAGE_ES.equals(systemLang) || LANGUAGE_FR.equals(systemLang)) {
+                return systemLang;
+            }
+            return LANGUAGE_EN;
+        }
+        return languageSetting;
     }
 }

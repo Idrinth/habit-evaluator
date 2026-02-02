@@ -89,6 +89,13 @@ settings:
   connection_error_message: "Échec de la connexion à l'API distante : %s\nRetour au stockage local."
   incomplete_settings: "Paramètres incomplets"
   failed_to_open: "Impossible d'ouvrir les paramètres : %s"
+  language_settings: "Paramètres de langue"
+  language_mode_label: "Choisir la langue de l'application :"
+  language_system: "Par défaut du système"
+  language_en: "English"
+  language_de: "Deutsch"
+  language_es: "Español"
+  language_fr: "Français"
 
 sync:
   title: "Synchroniser avec le serveur distant"

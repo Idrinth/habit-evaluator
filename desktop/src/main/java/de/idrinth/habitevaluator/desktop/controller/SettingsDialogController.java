@@ -56,6 +56,24 @@ public class SettingsDialogController {
     @FXML
     private RadioButton themeDarkRadio;
 
+    @FXML
+    private ToggleGroup languageToggleGroup;
+
+    @FXML
+    private RadioButton languageSystemRadio;
+
+    @FXML
+    private RadioButton languageEnRadio;
+
+    @FXML
+    private RadioButton languageDeRadio;
+
+    @FXML
+    private RadioButton languageEsRadio;
+
+    @FXML
+    private RadioButton languageFrRadio;
+
     private StorageConfig storageConfig;
     private boolean saved;
 
@@ -86,6 +104,19 @@ public class SettingsDialogController {
             themeDarkRadio.setSelected(true);
         } else {
             themeSystemRadio.setSelected(true);
+        }
+
+        String language = config.getLanguage();
+        if ("en".equals(language)) {
+            languageEnRadio.setSelected(true);
+        } else if ("de".equals(language)) {
+            languageDeRadio.setSelected(true);
+        } else if ("es".equals(language)) {
+            languageEsRadio.setSelected(true);
+        } else if ("fr".equals(language)) {
+            languageFrRadio.setSelected(true);
+        } else {
+            languageSystemRadio.setSelected(true);
         }
     }
 
@@ -150,6 +181,18 @@ public class SettingsDialogController {
             storageConfig.setThemeMode(StorageConfig.ThemeMode.DARK);
         } else {
             storageConfig.setThemeMode(StorageConfig.ThemeMode.SYSTEM);
+        }
+
+        if (languageEnRadio.isSelected()) {
+            storageConfig.setLanguage("en");
+        } else if (languageDeRadio.isSelected()) {
+            storageConfig.setLanguage("de");
+        } else if (languageEsRadio.isSelected()) {
+            storageConfig.setLanguage("es");
+        } else if (languageFrRadio.isSelected()) {
+            storageConfig.setLanguage("fr");
+        } else {
+            storageConfig.setLanguage(StorageConfig.LANGUAGE_SYSTEM);
         }
 
         storageConfig.save();
