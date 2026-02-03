@@ -50,6 +50,55 @@ jobs:
           name: habit-evaluator-desktop
           path: desktop/build/libs/*.jar
 
+  desktop-deb:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Install packaging tools
+        run: sudo apt-get update && sudo apt-get install -y fakeroot
+
+      - name: Build desktop .deb
+        run: ./gradlew :desktop:jpackageDeb
+
+      - name: Upload desktop .deb
+        uses: actions/upload-artifact@v4
+        with:
+          name: habit-evaluator-desktop-deb
+          path: desktop/build/jpackage-deb/*.deb
+
+  desktop-exe:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Build desktop .exe
+        run: ./gradlew :desktop:jpackageExe
+
+      - name: Upload desktop .exe
+        uses: actions/upload-artifact@v4
+        with:
+          name: habit-evaluator-desktop-exe
+          path: desktop/build/jpackage-exe/*.exe
+
   check-signing:
     runs-on: ubuntu-latest
     outputs:
