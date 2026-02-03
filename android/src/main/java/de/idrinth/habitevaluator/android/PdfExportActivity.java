@@ -366,6 +366,46 @@ public class PdfExportActivity extends AppCompatActivity {
         commands.add(new TextCommand(summary, MARGIN, yPosition, 11f, Color.DKGRAY));
         yPosition += 25;
 
+        // List individual sleep log entries in range
+        List<SleepEntry> rangeEntries = new ArrayList<>();
+        for (SleepEntry entry : allEntries) {
+            if (!entry.getDate().isBefore(fromDate) && !entry.getDate().isAfter(toDate)) {
+                rangeEntries.add(entry);
+            }
+        }
+
+        if (!rangeEntries.isEmpty()) {
+            if (yPosition > PAGE_HEIGHT - 100) {
+                flushPage(document, commands, pageNumber);
+                pageNumber++;
+                yPosition = MARGIN;
+            }
+            commands.add(new TextCommand(getString(R.string.pdf_sleep_entries), MARGIN, yPosition, 13f, Color.BLACK));
+            yPosition += 20;
+
+            DateTimeFormatter timeFormat = DateTimeFormatter.ofPattern("HH:mm");
+            for (SleepEntry entry : rangeEntries) {
+                if (yPosition > PAGE_HEIGHT - 40) {
+                    flushPage(document, commands, pageNumber);
+                    pageNumber++;
+                    yPosition = MARGIN;
+                }
+                String line = entry.getDate().format(DISPLAY_FORMAT) + "  "
+                        + entry.getFromTime().format(timeFormat) + " - "
+                        + entry.getUntilTime().format(timeFormat)
+                        + String.format(" (%.1f h)", entry.getHours());
+                if (entry.getNotes() != null && !entry.getNotes().isEmpty()) {
+                    line += " — " + entry.getNotes();
+                }
+                if (line.length() > 80) {
+                    line = line.substring(0, 77) + "...";
+                }
+                commands.add(new TextCommand(line, MARGIN + 10, yPosition, 10f, Color.DKGRAY));
+                yPosition += 14;
+            }
+        }
+        yPosition += 10;
+
         return yPosition;
     }
 
