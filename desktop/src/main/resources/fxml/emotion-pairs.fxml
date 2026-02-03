@@ -6,7 +6,7 @@
 
 <VBox xmlns:fx="http://javafx.com/fxml"
       fx:controller="de.idrinth.habitevaluator.desktop.controller.EmotionPairController"
-      spacing="15" prefWidth="450" prefHeight="400">
+      spacing="15" prefWidth="550" prefHeight="550">
 
     <padding>
         <Insets top="20" right="20" bottom="20" left="20"/>
@@ -29,7 +29,7 @@
 
     <Separator/>
 
-    <Label text="Existing Pairs" style="-fx-font-weight: bold;"/>
+    <Label text="Emotion Data" style="-fx-font-weight: bold;"/>
 
     <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS">
         <VBox fx:id="pairsContainer" spacing="5">

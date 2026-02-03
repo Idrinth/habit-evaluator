@@ -186,6 +186,14 @@
     <string name="emotion_notes_hint">Notes (optional)</string>
     <string name="emotion_entry_recorded">Emotion recorded</string>
     <string name="no_emotion_pair_selected">No emotion pair selected</string>
+    <string name="delete_emotion_entry">Delete Emotion Entry</string>
+    <string name="delete_emotion_entry_confirmation">Delete this emotion entry? This cannot be undone.</string>
+    <string name="emotion_entry_deleted">Emotion entry deleted</string>
     <string name="stats_correlations_title">Event Correlations (Yearly, Time-Weighted)</string>
     <string name="stats_no_correlations">Not enough data for correlations</string>
+    <string name="pdf_include_emotions">Emotion measurements and graph</string>
+    <string name="pdf_section_emotions">Emotions</string>
+    <string name="pdf_emotion_entries">Emotion Entries</string>
+    <string name="pdf_section_correlations">Event Correlations</string>
+    <string name="pdf_correlation_description">Time-weighted Pearson correlations over the past year</string>
 </resources>

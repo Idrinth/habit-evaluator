@@ -606,6 +606,7 @@ public class MainController {
 
             EmotionPairController controller = loader.getController();
             controller.setEmotionPairRepository(emotionPairRepository);
+            controller.setEmotionEntryRepository(emotionEntryRepository);
             controller.setCurrentUser(currentUser);
             controller.loadData();
 

@@ -27,10 +27,13 @@ import java.util.TreeMap;
 
 import de.idrinth.habitevaluator.android.databinding.ActivityPdfExportBinding;
 import de.idrinth.habitevaluator.shared.model.DiaryEntry;
+import de.idrinth.habitevaluator.shared.model.EmotionEntry;
+import de.idrinth.habitevaluator.shared.model.EventCorrelation;
 import de.idrinth.habitevaluator.shared.model.Habit;
 import de.idrinth.habitevaluator.shared.model.SleepEntry;
 import de.idrinth.habitevaluator.shared.model.User;
 import de.idrinth.habitevaluator.shared.service.DiaryService;
+import de.idrinth.habitevaluator.shared.service.EventCorrelationService;
 import de.idrinth.habitevaluator.shared.service.HabitScoringService;
 
 public class PdfExportActivity extends AppCompatActivity {
@@ -46,6 +49,7 @@ public class PdfExportActivity extends AppCompatActivity {
     private LocalDate toDate;
     private final DiaryService diaryService = new DiaryService();
     private final HabitScoringService scoringService = new HabitScoringService();
+    private final EventCorrelationService correlationService = new EventCorrelationService();
 
     private final ActivityResultLauncher<Intent> saveFileLauncher =
             registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
@@ -105,7 +109,8 @@ public class PdfExportActivity extends AppCompatActivity {
     private void startExport() {
         if (!binding.includeHabitsCheckbox.isChecked()
                 && !binding.includeDiaryCheckbox.isChecked()
-                && !binding.includeSleepCheckbox.isChecked()) {
+                && !binding.includeSleepCheckbox.isChecked()
+                && !binding.includeEmotionsCheckbox.isChecked()) {
             Toast.makeText(this, R.string.pdf_select_content, Toast.LENGTH_SHORT).show();
             return;
         }
@@ -194,6 +199,27 @@ public class PdfExportActivity extends AppCompatActivity {
             yPosition = addDiarySection(document, currentPageCommands, pageNumber, yPosition);
             pageNumber = document.getPages().size() + 1;
         }
+
+        if (binding.includeEmotionsCheckbox.isChecked()) {
+            if (yPosition > PAGE_HEIGHT - 300) {
+                flushPage(document, currentPageCommands, pageNumber);
+                pageNumber++;
+                currentPageCommands = new ArrayList<>();
+                yPosition = MARGIN;
+            }
+            yPosition = addEmotionSection(document, currentPageCommands, pageNumber, yPosition);
+            pageNumber = document.getPages().size() + 1;
+        }
+
+        // Correlation section (always included when there's data)
+        if (yPosition > PAGE_HEIGHT - 200) {
+            flushPage(document, currentPageCommands, pageNumber);
+            pageNumber++;
+            currentPageCommands = new ArrayList<>();
+            yPosition = MARGIN;
+        }
+        yPosition = addCorrelationSection(document, currentPageCommands, pageNumber, yPosition);
+        pageNumber = document.getPages().size() + 1;
 
         // Flush remaining commands
         if (!currentPageCommands.isEmpty()) {
@@ -478,6 +504,152 @@ public class PdfExportActivity extends AppCompatActivity {
                 commands.add(new TextCommand(line, MARGIN + 10, yPosition, 10f, Color.DKGRAY));
                 yPosition += 14;
             }
+        }
+        yPosition += 10;
+
+        return yPosition;
+    }
+
+    private float addEmotionSection(PdfDocument document, List<DrawCommand> commands, int pageNumber, float yPosition) {
+        List<EmotionEntry> allEntries = new ArrayList<>();
+        User user = MainActivity.getSharedCurrentUser();
+        if (user != null && MainActivity.getSharedEmotionEntryRepository() != null) {
+            allEntries = MainActivity.getSharedEmotionEntryRepository().findByUserId(user.getId());
+        }
+
+        commands.add(new SectionHeaderCommand(getString(R.string.pdf_section_emotions), MARGIN, yPosition));
+        yPosition += 25;
+
+        List<EmotionEntry> rangeEntries = new ArrayList<>();
+        for (EmotionEntry entry : allEntries) {
+            LocalDate entryDate = entry.getRecordedAt().toLocalDate();
+            if (!entryDate.isBefore(fromDate) && !entryDate.isAfter(toDate)) {
+                rangeEntries.add(entry);
+            }
+        }
+
+        if (rangeEntries.isEmpty()) {
+            commands.add(new TextCommand(getString(R.string.pdf_no_data), MARGIN, yPosition, 12f, Color.GRAY));
+            yPosition += 20;
+            return yPosition;
+        }
+
+        // Build daily counts for chart
+        List<String> labels = new ArrayList<>();
+        List<Float> counts = new ArrayList<>();
+        Map<LocalDate, Integer> countByDate = new TreeMap<>();
+        for (LocalDate d = fromDate; !d.isAfter(toDate); d = d.plusDays(1)) {
+            countByDate.put(d, 0);
+        }
+        for (EmotionEntry entry : rangeEntries) {
+            LocalDate entryDate = entry.getRecordedAt().toLocalDate();
+            countByDate.merge(entryDate, 1, Integer::sum);
+        }
+
+        float totalEvents = 0f;
+        int daysWithData = 0;
+        for (Map.Entry<LocalDate, Integer> mapEntry : countByDate.entrySet()) {
+            labels.add(mapEntry.getKey().format(LABEL_FORMAT));
+            counts.add((float) mapEntry.getValue());
+            if (mapEntry.getValue() > 0) {
+                totalEvents += mapEntry.getValue();
+                daysWithData++;
+            }
+        }
+        float avgEvents = daysWithData > 0 ? totalEvents / daysWithData : 0f;
+
+        // Draw chart
+        commands.add(new ChartCommand(labels, counts, avgEvents, MARGIN, yPosition,
+                PAGE_WIDTH - 2 * MARGIN, 180, 0xFF7B1FA2,
+                getString(R.string.pdf_section_emotions)));
+        yPosition += 200;
+
+        // Summary
+        commands.add(new TextCommand(
+                String.format("Total: %d events  |  Average: %.1f events/day", (int) totalEvents, avgEvents),
+                MARGIN, yPosition, 11f, Color.DKGRAY));
+        yPosition += 25;
+
+        // Emotion entries list
+        if (yPosition > PAGE_HEIGHT - 100) {
+            flushPage(document, commands, pageNumber);
+            pageNumber++;
+            yPosition = MARGIN;
+        }
+        commands.add(new TextCommand(getString(R.string.pdf_emotion_entries), MARGIN, yPosition, 13f, Color.BLACK));
+        yPosition += 20;
+
+        DateTimeFormatter dtFmt = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        for (EmotionEntry entry : rangeEntries) {
+            if (yPosition > PAGE_HEIGHT - 40) {
+                flushPage(document, commands, pageNumber);
+                pageNumber++;
+                yPosition = MARGIN;
+            }
+            String pairText = entry.getEmotionPair() != null ? entry.getEmotionPair().toString() : "";
+            String line = entry.getRecordedAt().format(dtFmt) + "  " + pairText
+                    + " [" + entry.getStrength() + "]";
+            if (entry.getNotes() != null && !entry.getNotes().isEmpty()) {
+                line += " — " + entry.getNotes();
+            }
+            if (line.length() > 80) {
+                line = line.substring(0, 77) + "...";
+            }
+            commands.add(new TextCommand(line, MARGIN + 10, yPosition, 10f, Color.DKGRAY));
+            yPosition += 14;
+        }
+        yPosition += 10;
+
+        return yPosition;
+    }
+
+    private float addCorrelationSection(PdfDocument document, List<DrawCommand> commands, int pageNumber, float yPosition) {
+        List<Habit> habits = MainActivity.getSharedHabits();
+        if (habits == null) {
+            habits = new ArrayList<>();
+        }
+
+        List<DiaryEntry> diaryEntries = new ArrayList<>();
+        List<SleepEntry> sleepEntries = MainActivity.getSharedSleepEntries();
+        if (sleepEntries == null) {
+            sleepEntries = new ArrayList<>();
+        }
+
+        User user = MainActivity.getSharedCurrentUser();
+        if (user != null && MainActivity.getSharedDiaryEntryRepository() != null) {
+            diaryEntries = MainActivity.getSharedDiaryEntryRepository().findByUserId(user.getId());
+        }
+
+        List<EventCorrelation> correlations = correlationService.calculateCorrelations(
+                habits, diaryEntries, sleepEntries);
+
+        commands.add(new SectionHeaderCommand(getString(R.string.pdf_section_correlations), MARGIN, yPosition));
+        yPosition += 25;
+
+        if (correlations.isEmpty()) {
+            commands.add(new TextCommand(getString(R.string.stats_no_correlations), MARGIN, yPosition, 12f, Color.GRAY));
+            yPosition += 20;
+            return yPosition;
+        }
+
+        commands.add(new TextCommand(getString(R.string.pdf_correlation_description),
+                MARGIN, yPosition, 10f, Color.DKGRAY));
+        yPosition += 18;
+
+        for (EventCorrelation corr : correlations) {
+            if (yPosition > PAGE_HEIGHT - 40) {
+                flushPage(document, commands, pageNumber);
+                pageNumber++;
+                yPosition = MARGIN;
+            }
+            String line = corr.getEventA() + " \u2194 " + corr.getEventB()
+                    + "  " + String.format("%+.3f", corr.getCorrelation())
+                    + "  (" + corr.getSharedDays() + " days)";
+            if (line.length() > 85) {
+                line = line.substring(0, 82) + "...";
+            }
+            commands.add(new TextCommand(line, MARGIN + 10, yPosition, 10f, Color.DKGRAY));
+            yPosition += 14;
         }
         yPosition += 10;
 
