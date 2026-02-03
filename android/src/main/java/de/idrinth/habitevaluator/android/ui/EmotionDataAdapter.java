@@ -91,7 +91,6 @@ public class EmotionDataAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             entryHolder.strengthText.setText(String.valueOf(entry.getStrength()));
             String notes = entry.getNotes();
             entryHolder.notesText.setText(notes != null ? notes : "");
-            entryHolder.notesText.setVisibility(notes != null && !notes.isEmpty() ? View.VISIBLE : View.GONE);
             entryHolder.deleteButton.setOnClickListener(v -> {
                 if (entryDeleteListener != null) {
                     entryDeleteListener.onDelete(entry);
