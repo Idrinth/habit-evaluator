@@ -166,6 +166,14 @@
     <string name="pdf_diary_entries">Tagebucheinträge</string>
     <string name="pdf_sleep_entries">Schlafeinträge</string>
     <string name="emotional_state">Emotionen</string>
+    <string name="add_emotion_pair">Emotionspaar hinzufügen</string>
+    <string name="negative_label_hint">Negatives Label (z.B. lustlos)</string>
+    <string name="positive_label_hint">Positives Label (z.B. aktiv)</string>
+    <string name="emotion_labels_required">Bitte geben Sie beide Labels ein</string>
+    <string name="emotion_pair_added">Emotionspaar hinzugefügt</string>
+    <string name="emotion_pair_deleted">Emotionspaar gelöscht</string>
+    <string name="delete_emotion_pair">Emotionspaar löschen</string>
+    <string name="delete_emotion_pair_confirmation">„%1$s" löschen? Dies kann nicht rückgängig gemacht werden.</string>
     <string name="stats_correlations_title">Ereigniskorrelationen (Jährlich, Zeitgewichtet)</string>
     <string name="stats_no_correlations">Nicht genug Daten für Korrelationen</string>
 </resources>

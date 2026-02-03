@@ -166,6 +166,14 @@
     <string name="pdf_diary_entries">Entrées de journal</string>
     <string name="pdf_sleep_entries">Entrées de sommeil</string>
     <string name="emotional_state">Émotions</string>
+    <string name="add_emotion_pair">Ajouter une paire d\'émotions</string>
+    <string name="negative_label_hint">Étiquette négative (ex. apathique)</string>
+    <string name="positive_label_hint">Étiquette positive (ex. actif)</string>
+    <string name="emotion_labels_required">Veuillez entrer les deux étiquettes</string>
+    <string name="emotion_pair_added">Paire d\'émotions ajoutée</string>
+    <string name="emotion_pair_deleted">Paire d\'émotions supprimée</string>
+    <string name="delete_emotion_pair">Supprimer la paire d\'émotions</string>
+    <string name="delete_emotion_pair_confirmation">Supprimer « %1$s » ? Cette action est irréversible.</string>
     <string name="stats_correlations_title">Corrélations d\'événements (Annuel, Pondéré)</string>
     <string name="stats_no_correlations">Pas assez de données pour les corrélations</string>
 </resources>
