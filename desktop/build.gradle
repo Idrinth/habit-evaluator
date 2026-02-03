@@ -36,3 +36,54 @@ jar {
         )
     }
 }
+
+tasks.register('jpackageDeb', Exec) {
+    dependsOn ':desktop:jar'
+    group = 'distribution'
+    description = 'Creates a .deb package using jpackage'
+
+    def outputDir = layout.buildDirectory.dir('jpackage-deb').get().asFile
+    def jarDir = layout.buildDirectory.dir('libs').get().asFile
+    def jarFile = layout.buildDirectory.file("libs/${project.name}-${project.version}.jar").get().asFile
+
+    doFirst {
+        outputDir.mkdirs()
+    }
+
+    commandLine 'jpackage',
+        '--input', jarDir.absolutePath,
+        '--main-jar', jarFile.name,
+        '--main-class', 'de.idrinth.habitevaluator.desktop.HabitEvaluatorDesktopApp',
+        '--name', 'HabitEvaluator',
+        '--app-version', project.version.toString().replace('-SNAPSHOT', ''),
+        '--dest', outputDir.absolutePath,
+        '--type', 'deb',
+        '--linux-shortcut',
+        '--linux-app-category', 'Utility'
+}
+
+tasks.register('jpackageExe', Exec) {
+    dependsOn ':desktop:jar'
+    group = 'distribution'
+    description = 'Creates a .exe installer using jpackage'
+
+    def outputDir = layout.buildDirectory.dir('jpackage-exe').get().asFile
+    def jarDir = layout.buildDirectory.dir('libs').get().asFile
+    def jarFile = layout.buildDirectory.file("libs/${project.name}-${project.version}.jar").get().asFile
+
+    doFirst {
+        outputDir.mkdirs()
+    }
+
+    commandLine 'jpackage',
+        '--input', jarDir.absolutePath,
+        '--main-jar', jarFile.name,
+        '--main-class', 'de.idrinth.habitevaluator.desktop.HabitEvaluatorDesktopApp',
+        '--name', 'HabitEvaluator',
+        '--app-version', project.version.toString().replace('-SNAPSHOT', ''),
+        '--dest', outputDir.absolutePath,
+        '--type', 'exe',
+        '--win-shortcut',
+        '--win-menu',
+        '--win-menu-group', 'Habit Evaluator'
+}
