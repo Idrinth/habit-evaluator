@@ -12,6 +12,7 @@
 
 	let themeMode = $state('system');
 	let lang: Language = $state('en');
+	let customTranslations = $state(false);
 
 	onMount(() => {
 		const saved = localStorage.getItem('theme');
@@ -20,6 +21,7 @@
 			document.documentElement.setAttribute('data-theme', saved);
 		}
 		lang = getLanguage();
+		customTranslations = localStorage.getItem('customTranslations') === 'true';
 	});
 
 	function handleThemeChange(event: Event) {
@@ -40,6 +42,16 @@
 		setLanguage(value);
 	}
 
+	function handleTranslationsToggle(event: Event) {
+		const checked = (event.target as HTMLInputElement).checked;
+		customTranslations = checked;
+		if (checked) {
+			localStorage.setItem('customTranslations', 'true');
+		} else {
+			localStorage.removeItem('customTranslations');
+		}
+	}
+
 	async function handleLogout() {
 		try {
 			await auth.logout();
@@ -58,9 +70,16 @@
 		<a href="/habits/add">{t('nav.addHabit', lang)}</a>
 		<a href="/categories/add">{t('nav.addCategory', lang)}</a>
 		<a href="/score-rules/add">{t('nav.scoringRules', lang)}</a>
+		<a href="/points">{t('nav.points', lang)}</a>
 		<a href="/diary">{t('nav.diary', lang)}</a>
 		<a href="/sleep">{t('nav.sleep', lang)}</a>
+		<a href="/stats">{t('nav.stats', lang)}</a>
+		<a href="/export/pdf">{t('nav.exportPdf', lang)}</a>
 		<span style="margin-left: auto; color: var(--color-nav-text);">{data.username}</span>
+		<label class="translations-toggle">
+			<input type="checkbox" checked={customTranslations} onchange={handleTranslationsToggle} />
+			<span>{t('nav.translations', lang)}</span>
+		</label>
 		<select class="nav-select" value={lang} onchange={handleLanguageChange}>
 			{#each LANGUAGES as l (l.code)}
 				<option value={l.code}>{l.label}</option>
@@ -94,5 +113,17 @@
 	.nav-select option {
 		background: var(--color-bg);
 		color: var(--color-text);
+	}
+	.translations-toggle {
+		display: flex;
+		align-items: center;
+		gap: 0.25rem;
+		font-size: 0.8rem;
+		color: var(--color-nav-text);
+		cursor: pointer;
+	}
+	.translations-toggle input {
+		width: 14px;
+		height: 14px;
 	}
 </style>

@@ -31,6 +31,8 @@ habits:
   add_completion: "Ajouter une complétion"
   complete: "Terminé"
   delete: "Supprimer"
+  name_translation: "Nom (%s)"
+  description_translation: "Description (%s)"
 
 evaluation:
   current_streak: "Série en cours"
@@ -96,6 +98,8 @@ settings:
   language_de: "Deutsch"
   language_es: "Español"
   language_fr: "Français"
+  custom_translations: "Traductions personnalisées"
+  custom_translations_label: "Activer les traductions personnalisées des habitudes"
 
 sync:
   title: "Synchroniser avec le serveur distant"

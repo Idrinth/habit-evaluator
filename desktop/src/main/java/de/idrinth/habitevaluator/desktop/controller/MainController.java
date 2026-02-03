@@ -20,6 +20,7 @@ import de.idrinth.habitevaluator.shared.model.ScoringRule;
 import de.idrinth.habitevaluator.shared.model.User;
 import de.idrinth.habitevaluator.shared.repository.DiaryEntryRepository;
 import de.idrinth.habitevaluator.shared.repository.HabitRepository;
+import de.idrinth.habitevaluator.shared.repository.SleepEntryRepository;
 import de.idrinth.habitevaluator.shared.repository.UserRepository;
 import de.idrinth.habitevaluator.shared.repository.HabitCategoryRepository;
 import de.idrinth.habitevaluator.shared.service.DefaultDataInitializer;
@@ -33,6 +34,10 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.chart.BarChart;
+import javafx.scene.chart.CategoryAxis;
+import javafx.scene.chart.NumberAxis;
+import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -42,8 +47,10 @@ import com.google.gson.reflect.TypeToken;
 
 import java.io.File;
 import java.io.IOException;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -99,6 +106,29 @@ public class MainController {
     private Label editMessage;
 
     @FXML
+    private ToggleButton weekToggle;
+
+    @FXML
+    private ToggleButton monthToggle;
+
+    @FXML
+    private Label chartTotalLabel;
+
+    @FXML
+    private Label chartAverageLabel;
+
+    @FXML
+    private BarChart<String, Number> dailyPointsChart;
+
+    @FXML
+    private BarChart<String, Number> runningAvgChart;
+
+    @FXML
+    private BarChart<String, Number> cumulativeChart;
+
+    private boolean chartShowingWeek = true;
+
+    @FXML
     private Label diaryTodayPointsLabel;
 
     @FXML
@@ -132,6 +162,10 @@ public class MainController {
     private final Map<String, TextField> editThreshold2Fields = new HashMap<>();
     private final Map<String, TextField> editThreshold4Fields = new HashMap<>();
     private final Map<String, TextField> editThreshold8Fields = new HashMap<>();
+    private final Map<String, Map<String, TextField>> editNameTranslationFields = new HashMap<>();
+    private final Map<String, Map<String, TextField>> editDescTranslationFields = new HashMap<>();
+    private static final String[] TRANSLATION_LANGUAGES = {"en", "de", "es", "fr"};
+    private static final String[] TRANSLATION_LANGUAGE_LABELS = {"English", "Deutsch", "Español", "Français"};
     private final ObservableList<Habit> habits = FXCollections.observableArrayList();
     private final ObservableList<Habit> filteredHabits = FXCollections.observableArrayList();
     private final HabitEvaluatorService evaluatorService = new HabitEvaluatorService();
@@ -143,6 +177,7 @@ public class MainController {
     private HabitCategoryRepository categoryRepository;
     private UserRepository userRepository;
     private DiaryEntryRepository diaryEntryRepository;
+    private SleepEntryRepository sleepEntryRepository;
     private ApiClient apiClient;
     private User currentUser;
     private List<DiaryEntry> diaryEntries = new ArrayList<>();
@@ -179,6 +214,9 @@ public class MainController {
 
         categoryFilterComboBox.getSelectionModel().selectedItemProperty().addListener(
                 (observable, oldValue, newValue) -> applyFilter());
+
+        weekToggle.setSelected(true);
+        monthToggle.setSelected(false);
 
         refreshEditHabits();
         habits.addListener((javafx.collections.ListChangeListener<Habit>) change -> {
@@ -267,6 +305,7 @@ public class MainController {
         userRepository = new H2UserRepository();
         categoryRepository = new H2HabitCategoryRepository();
         diaryEntryRepository = new H2DiaryEntryRepository();
+        sleepEntryRepository = new H2SleepEntryRepository();
         apiClient = null;
         localBackupRepository = null;
         localBackupUser = null;
@@ -432,6 +471,33 @@ public class MainController {
     }
 
     @FXML
+    private void handleOpenStats() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/stats.fxml"));
+            Parent root = loader.load();
+
+            StatsController controller = loader.getController();
+            controller.setHabits(new ArrayList<>(habits));
+            controller.setSleepEntryRepository(new H2SleepEntryRepository());
+            controller.setDiaryEntryRepository(new H2DiaryEntryRepository());
+            controller.setCurrentUser(currentUser);
+            controller.loadData();
+
+            Stage dialogStage = new Stage();
+            dialogStage.setTitle("Statistics Dashboard");
+            dialogStage.initModality(Modality.APPLICATION_MODAL);
+            dialogStage.initOwner(habitListView.getScene().getWindow());
+
+            Scene scene = new Scene(root);
+            scene.getStylesheets().addAll(habitListView.getScene().getStylesheets());
+            dialogStage.setScene(scene);
+            dialogStage.showAndWait();
+        } catch (IOException e) {
+            showAlert("Error", "Failed to open statistics: " + e.getMessage());
+        }
+    }
+
+    @FXML
     private void handleOpenAddHabit() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/add-habit.fxml"));
@@ -442,6 +508,7 @@ public class MainController {
             controller.setCategoryRepository(categoryRepository);
             controller.setApiClient(apiClient);
             controller.setCurrentUser(currentUser);
+            controller.setStorageConfig(storageConfig);
             controller.setCategoryList(categoryList);
 
             Stage dialogStage = new Stage();
@@ -535,6 +602,8 @@ public class MainController {
         weeklyPointsLabel.setText("This Week: " + scoringService.getCurrentWeekScore(habit) + " pts");
         monthlyPointsLabel.setText("This Month: " + scoringService.getCurrentMonthScore(habit) + " pts");
 
+        updatePointCharts(habit);
+
         if (habit.getMaxEntriesPerDay() != 1) {
             completeButton.setText("Add Completion");
         } else {
@@ -549,6 +618,7 @@ public class MainController {
         dailyPointsLabel.setText("Today: -");
         weeklyPointsLabel.setText("This Week: -");
         monthlyPointsLabel.setText("This Month: -");
+        clearPointCharts();
     }
 
     @FXML
@@ -576,6 +646,32 @@ public class MainController {
             }
         } catch (IOException e) {
             showAlert("Error", "Failed to open sync dialog: " + e.getMessage());
+        }
+    }
+
+    @FXML
+    private void handleExportPdf() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/pdf-export.fxml"));
+            Parent root = loader.load();
+
+            PdfExportController controller = loader.getController();
+            controller.setHabitRepository(habitRepository);
+            controller.setDiaryEntryRepository(diaryEntryRepository);
+            controller.setSleepEntryRepository(sleepEntryRepository);
+            controller.setCurrentUser(currentUser);
+
+            Stage dialogStage = new Stage();
+            dialogStage.setTitle("Export PDF");
+            dialogStage.initModality(Modality.APPLICATION_MODAL);
+            dialogStage.initOwner(habitListView.getScene().getWindow());
+
+            Scene scene = new Scene(root);
+            scene.getStylesheets().addAll(habitListView.getScene().getStylesheets());
+            dialogStage.setScene(scene);
+            dialogStage.showAndWait();
+        } catch (IOException e) {
+            showAlert("Error", "Failed to open PDF export dialog: " + e.getMessage());
         }
     }
 
@@ -609,6 +705,8 @@ public class MainController {
         editThreshold2Fields.clear();
         editThreshold4Fields.clear();
         editThreshold8Fields.clear();
+        editNameTranslationFields.clear();
+        editDescTranslationFields.clear();
         editMessage.setText("");
 
         if (habits.isEmpty()) {
@@ -685,6 +783,41 @@ public class MainController {
             editThreshold4Fields.put(habit.getId(), t4);
             editThreshold8Fields.put(habit.getId(), t8);
 
+            if (storageConfig.isCustomTranslationsEnabled()) {
+                Label translationsLabel = new Label("Translations:");
+                translationsLabel.setStyle("-fx-font-size: 11px; -fx-padding: 4 0 0 0;");
+                habitBox.getChildren().add(translationsLabel);
+
+                Map<String, TextField> nameFields = new HashMap<>();
+                Map<String, TextField> descFields = new HashMap<>();
+
+                for (int i = 0; i < TRANSLATION_LANGUAGES.length; i++) {
+                    String lang = TRANSLATION_LANGUAGES[i];
+                    String label = TRANSLATION_LANGUAGE_LABELS[i];
+
+                    TextField nameField = new TextField(
+                            habit.getNameTranslations().getOrDefault(lang, ""));
+                    nameField.setPrefWidth(150);
+                    nameField.setPromptText("Name (" + label + ")");
+
+                    TextField descField = new TextField(
+                            habit.getDescriptionTranslations().getOrDefault(lang, ""));
+                    descField.setPrefWidth(200);
+                    descField.setPromptText("Description (" + label + ")");
+
+                    HBox translationRow = new HBox(6,
+                            new Label(label + ":"), nameField, descField);
+                    translationRow.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+                    habitBox.getChildren().add(translationRow);
+
+                    nameFields.put(lang, nameField);
+                    descFields.put(lang, descField);
+                }
+
+                editNameTranslationFields.put(habit.getId(), nameFields);
+                editDescTranslationFields.put(habit.getId(), descFields);
+            }
+
             editHabitsContainer.getChildren().add(habitBox);
         }
     }
@@ -753,6 +886,29 @@ public class MainController {
                 }
             }
 
+            Map<String, TextField> nameTransFields = editNameTranslationFields.get(habit.getId());
+            Map<String, TextField> descTransFields = editDescTranslationFields.get(habit.getId());
+            if (nameTransFields != null && descTransFields != null) {
+                Map<String, String> nameTranslations = new HashMap<>();
+                Map<String, String> descTranslations = new HashMap<>();
+                for (String lang : TRANSLATION_LANGUAGES) {
+                    TextField nf = nameTransFields.get(lang);
+                    if (nf != null && !nf.getText().trim().isEmpty()) {
+                        nameTranslations.put(lang, nf.getText().trim());
+                    }
+                    TextField df = descTransFields.get(lang);
+                    if (df != null && !df.getText().trim().isEmpty()) {
+                        descTranslations.put(lang, df.getText().trim());
+                    }
+                }
+                if (!nameTranslations.equals(habit.getNameTranslations())
+                        || !descTranslations.equals(habit.getDescriptionTranslations())) {
+                    habit.setNameTranslations(nameTranslations);
+                    habit.setDescriptionTranslations(descTranslations);
+                    changed = true;
+                }
+            }
+
             if (changed) {
                 habitRepository.save(habit);
                 count++;
@@ -784,6 +940,111 @@ public class MainController {
         } else if (!wantDark && hasDark) {
             scene.getStylesheets().remove(darkCss);
         }
+    }
+
+    @FXML
+    private void handleWeekToggle() {
+        chartShowingWeek = true;
+        weekToggle.setSelected(true);
+        monthToggle.setSelected(false);
+        Habit selectedHabit = habitListView.getSelectionModel().getSelectedItem();
+        if (selectedHabit != null) {
+            updatePointCharts(selectedHabit);
+        }
+    }
+
+    @FXML
+    private void handleMonthToggle() {
+        chartShowingWeek = false;
+        weekToggle.setSelected(false);
+        monthToggle.setSelected(true);
+        Habit selectedHabit = habitListView.getSelectionModel().getSelectedItem();
+        if (selectedHabit != null) {
+            updatePointCharts(selectedHabit);
+        }
+    }
+
+    private void updatePointCharts(Habit habit) {
+        LocalDate today = LocalDate.now();
+        LocalDate start;
+        LocalDate end;
+
+        if (chartShowingWeek) {
+            start = today.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+            end = start.plusDays(6);
+        } else {
+            start = today.with(TemporalAdjusters.firstDayOfMonth());
+            end = today.with(TemporalAdjusters.lastDayOfMonth());
+        }
+
+        DateTimeFormatter dayFormat = chartShowingWeek
+                ? DateTimeFormatter.ofPattern("EEE")
+                : DateTimeFormatter.ofPattern("d");
+
+        int daysInPeriod = (int) (start.until(end, java.time.temporal.ChronoUnit.DAYS)) + 1;
+
+        List<Integer> dailyPoints = new ArrayList<>();
+        List<String> labels = new ArrayList<>();
+        int totalPoints = 0;
+
+        for (int i = 0; i < daysInPeriod; i++) {
+            LocalDate date = start.plusDays(i);
+            int dayScore = scoringService.calculateHabitScore(habit, date, date).getScore();
+            dailyPoints.add(dayScore);
+            totalPoints += dayScore;
+
+            if (!chartShowingWeek) {
+                if (i == 0 || i == daysInPeriod - 1 || (i + 1) % 5 == 0) {
+                    labels.add(date.format(dayFormat));
+                } else {
+                    labels.add("");
+                }
+            } else {
+                labels.add(date.format(dayFormat));
+            }
+        }
+
+        double average = totalPoints / (double) daysInPeriod;
+
+        chartTotalLabel.setText("Total: " + totalPoints + " pts");
+        chartAverageLabel.setText(String.format("Avg: %.1f pts", average));
+
+        // Daily points chart
+        XYChart.Series<String, Number> dailySeries = new XYChart.Series<>();
+        for (int i = 0; i < dailyPoints.size(); i++) {
+            dailySeries.getData().add(new XYChart.Data<>(labels.get(i).isEmpty() ? String.valueOf(i + 1) : labels.get(i), dailyPoints.get(i)));
+        }
+        dailyPointsChart.getData().clear();
+        dailyPointsChart.getData().add(dailySeries);
+
+        // Running average chart
+        XYChart.Series<String, Number> avgSeries = new XYChart.Series<>();
+        int runningTotal = 0;
+        for (int i = 0; i < dailyPoints.size(); i++) {
+            runningTotal += dailyPoints.get(i);
+            int runningAvg = Math.round((float) runningTotal / (i + 1));
+            avgSeries.getData().add(new XYChart.Data<>(labels.get(i).isEmpty() ? String.valueOf(i + 1) : labels.get(i), runningAvg));
+        }
+        runningAvgChart.getData().clear();
+        runningAvgChart.getData().add(avgSeries);
+
+        // Cumulative total chart
+        XYChart.Series<String, Number> cumSeries = new XYChart.Series<>();
+        int cumulative = 0;
+        for (int i = 0; i < dailyPoints.size(); i++) {
+            cumulative += dailyPoints.get(i);
+            cumSeries.getData().add(new XYChart.Data<>(labels.get(i).isEmpty() ? String.valueOf(i + 1) : labels.get(i), cumulative));
+        }
+        cumulativeChart.getData().clear();
+        cumulativeChart.getData().add(cumSeries);
+    }
+
+    private void clearPointCharts() {
+        chartTotalLabel.setText("Total: -");
+        chartAverageLabel.setText("Avg: -");
+        dailyPointsChart.getData().clear();
+        runningAvgChart.getData().clear();
+        cumulativeChart.getData().clear();
     }
 
     private void loadDiaryEntries() {
