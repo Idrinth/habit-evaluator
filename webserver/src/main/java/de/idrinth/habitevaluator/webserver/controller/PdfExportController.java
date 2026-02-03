@@ -1,5 +1,6 @@
 package de.idrinth.habitevaluator.webserver.controller;
 
+import java.io.IOException;
 import com.lowagie.text.Document;
 import com.lowagie.text.DocumentException;
 import com.lowagie.text.Element;
@@ -104,13 +105,13 @@ public class PdfExportController {
                     .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"")
                     .contentType(MediaType.APPLICATION_PDF)
                     .body(pdf);
-        } catch (DocumentException e) {
+        } catch (DocumentException | IOException e) {
             return ResponseEntity.internalServerError().build();
         }
     }
 
     private byte[] generatePdf(String userId, LocalDate fromDate, LocalDate toDate,
-                                boolean includeHabits, boolean includeSleep, boolean includeDiary) throws DocumentException {
+                                boolean includeHabits, boolean includeSleep, boolean includeDiary) throws DocumentException, IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         Document document = new Document(PageSize.A4, 40, 40, 40, 40);
         PdfWriter writer = PdfWriter.getInstance(document, baos);
@@ -144,7 +145,7 @@ public class PdfExportController {
     }
 
     private void addHabitSection(Document document, PdfWriter writer, String userId,
-                                  LocalDate fromDate, LocalDate toDate) throws DocumentException {
+                                  LocalDate fromDate, LocalDate toDate) throws DocumentException, IOException {
         List<Habit> habitList = habitRepository.findByUserId(userId);
 
         Paragraph header = new Paragraph("Habits", SECTION_FONT);
@@ -221,7 +222,7 @@ public class PdfExportController {
     }
 
     private void addSleepSection(Document document, PdfWriter writer, String userId,
-                                  LocalDate fromDate, LocalDate toDate) throws DocumentException {
+                                  LocalDate fromDate, LocalDate toDate) throws DocumentException, IOException {
         List<SleepEntry> allEntries = sleepEntryRepository.findByUserId(userId);
 
         Paragraph header = new Paragraph("Sleep", SECTION_FONT);
@@ -323,7 +324,7 @@ public class PdfExportController {
     }
 
     private void addDiarySection(Document document, PdfWriter writer, String userId,
-                                  LocalDate fromDate, LocalDate toDate) throws DocumentException {
+                                  LocalDate fromDate, LocalDate toDate) throws DocumentException, IOException {
         List<DiaryEntry> allEntries = diaryEntryRepository.findByUserId(userId);
 
         Paragraph header = new Paragraph("Diary", SECTION_FONT);
@@ -397,7 +398,7 @@ public class PdfExportController {
     }
 
     private void drawBarChart(PdfWriter writer, Document document, List<String> labels,
-                               List<Float> values, float average, Color barColor, String chartTitle) throws DocumentException {
+                               List<Float> values, float average, Color barColor, String chartTitle) throws DocumentException, IOException {
         float chartWidth = PageSize.A4.getWidth() - 80;
         float chartHeight = 160f;
         float totalHeight = chartHeight + 40;
