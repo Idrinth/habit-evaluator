@@ -165,4 +165,13 @@
     <string name="pdf_habit_breakdown">Per-Habit Breakdown</string>
     <string name="pdf_diary_entries">Diary Entries</string>
     <string name="pdf_sleep_entries">Sleep Log Entries</string>
+    <string name="backup_settings">Backup Settings</string>
+    <string name="backup_enabled_label">Enable daily encrypted backups</string>
+    <string name="backup_password_hint">Backup password</string>
+    <string name="backup_password_confirm_hint">Confirm backup password</string>
+    <string name="backup_password_required">Backup password is required when backups are enabled</string>
+    <string name="backup_passwords_mismatch">Passwords do not match</string>
+    <string name="emotional_state">Emotions</string>
+    <string name="stats_correlations_title">Event Correlations (Yearly, Time-Weighted)</string>
+    <string name="stats_no_correlations">Not enough data for correlations</string>
 </resources>
