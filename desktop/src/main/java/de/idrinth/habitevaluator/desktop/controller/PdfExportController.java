@@ -567,7 +567,7 @@ public class PdfExportController {
                 }
             }
         } catch (IOException e) {
-            throw new DocumentException("Failed to create chart fonts", e);
+            throw new DocumentException(e);
         }
     }
 
