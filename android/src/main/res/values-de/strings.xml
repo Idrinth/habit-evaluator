@@ -188,6 +188,7 @@
     <string name="delete_emotion_entry">Delete Emotion Entry</string>
     <string name="delete_emotion_entry_confirmation">Delete this emotion entry? This cannot be undone.</string>
     <string name="emotion_entry_deleted">Emotion entry deleted</string>
+    <string name="stats_emotion_pairs">Emotion Pairs</string>
     <string name="stats_correlations_title">Event Correlations (Yearly, Time-Weighted)</string>
     <string name="stats_no_correlations">Not enough data for correlations</string>
     <string name="pdf_include_emotions">Emotion measurements and graph</string>
