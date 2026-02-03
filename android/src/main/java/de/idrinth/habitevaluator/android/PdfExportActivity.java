@@ -252,6 +252,8 @@ public class PdfExportActivity extends AppCompatActivity {
         if (habits == null || habits.isEmpty()) {
             commands.add(new SectionHeaderCommand(getString(R.string.pdf_section_habits), MARGIN, yPosition));
             yPosition += 25;
+            commands.add(new TextCommand(getString(R.string.pdf_intro_habits), MARGIN, yPosition, 10f, Color.DKGRAY));
+            yPosition += 18;
             commands.add(new TextCommand(getString(R.string.pdf_no_data), MARGIN, yPosition, 12f, Color.GRAY));
             yPosition += 20;
             return yPosition;
@@ -260,6 +262,9 @@ public class PdfExportActivity extends AppCompatActivity {
         // Section header
         commands.add(new SectionHeaderCommand(getString(R.string.pdf_section_habits), MARGIN, yPosition));
         yPosition += 25;
+
+        commands.add(new TextCommand(getString(R.string.pdf_intro_habits), MARGIN, yPosition, 10f, Color.DKGRAY));
+        yPosition += 18;
 
         // Build daily habit points data
         List<String> labels = new ArrayList<>();
@@ -335,6 +340,9 @@ public class PdfExportActivity extends AppCompatActivity {
 
         commands.add(new SectionHeaderCommand(getString(R.string.pdf_section_sleep), MARGIN, yPosition));
         yPosition += 25;
+
+        commands.add(new TextCommand(getString(R.string.pdf_intro_sleep), MARGIN, yPosition, 10f, Color.DKGRAY));
+        yPosition += 18;
 
         Map<LocalDate, List<SleepEntry>> entriesByDate = new TreeMap<>();
         for (LocalDate d = fromDate; !d.isAfter(toDate); d = d.plusDays(1)) {
@@ -443,6 +451,9 @@ public class PdfExportActivity extends AppCompatActivity {
         commands.add(new SectionHeaderCommand(getString(R.string.pdf_section_diary), MARGIN, yPosition));
         yPosition += 25;
 
+        commands.add(new TextCommand(getString(R.string.pdf_intro_diary), MARGIN, yPosition, 10f, Color.DKGRAY));
+        yPosition += 18;
+
         List<String> labels = new ArrayList<>();
         List<Float> diaryPoints = new ArrayList<>();
         float totalPoints = 0f;
@@ -524,6 +535,9 @@ public class PdfExportActivity extends AppCompatActivity {
 
         commands.add(new SectionHeaderCommand(getString(R.string.pdf_section_emotions), MARGIN, yPosition));
         yPosition += 25;
+
+        commands.add(new TextCommand(getString(R.string.pdf_intro_emotions), MARGIN, yPosition, 10f, Color.DKGRAY));
+        yPosition += 18;
 
         List<EmotionEntry> rangeEntries = new ArrayList<>();
         for (EmotionEntry entry : allEntries) {
@@ -660,7 +674,7 @@ public class PdfExportActivity extends AppCompatActivity {
             return yPosition;
         }
 
-        commands.add(new TextCommand(getString(R.string.pdf_correlation_description),
+        commands.add(new TextCommand(getString(R.string.pdf_correlation_description) + " " + getString(R.string.pdf_correlation_caveat),
                 MARGIN, yPosition, 10f, Color.DKGRAY));
         yPosition += 18;
 

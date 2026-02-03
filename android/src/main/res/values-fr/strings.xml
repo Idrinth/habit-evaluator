@@ -195,5 +195,10 @@
     <string name="pdf_section_emotions">Émotions</string>
     <string name="pdf_emotion_entries">Entrées d\'émotions</string>
     <string name="pdf_section_correlations">Corrélations d\'événements</string>
-    <string name="pdf_correlation_description">Corrélations de Pearson pondérées dans le temps sur l\'année écoulée</string>
+    <string name="pdf_correlation_description">Corrélations de Pearson pondérées dans le temps sur l\'année écoulée.</string>
+    <string name="pdf_correlation_caveat">Remarque : corrélation n\'implique pas causalité.</string>
+    <string name="pdf_intro_habits">Les scores quotidiens d\'habitudes reflètent la régularité avec laquelle vous avez suivi vos habitudes. Des scores plus élevés indiquent une meilleure adhérence à vos routines.</string>
+    <string name="pdf_intro_sleep">Cette section résume vos habitudes de sommeil enregistrées, y compris la durée, les horaires et la régularité sur la période sélectionnée.</string>
+    <string name="pdf_intro_diary">Les entrées de journal capturent les événements significatifs et leur impact perçu. Les points sont attribués en fonction du niveau de signification que vous avez donné à chaque entrée.</string>
+    <string name="pdf_intro_emotions">Les entrées d\'émotions suivent vos états émotionnels auto-déclarés sur des échelles appariées au fil du temps. Les moyennes quotidiennes sont affichées par paire d\'émotions.</string>
 </resources>
