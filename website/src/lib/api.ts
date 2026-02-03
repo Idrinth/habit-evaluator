@@ -167,6 +167,77 @@ export const categories = {
 	}
 };
 
+export interface DiaryEntry {
+	id: string;
+	description: string;
+	significance: 'MINOR' | 'NORMAL' | 'MAJOR';
+	eventDate: string;
+	createdAt: string;
+}
+
+export interface DiaryStats {
+	todayPoints: number;
+	weekPoints: number;
+	monthPoints: number;
+	weeklyAverage: number;
+	monthlyTrend: number;
+}
+
+export const diary = {
+	list() {
+		return request<DiaryEntry[]>('/diary');
+	},
+	create(entry: { description: string; significance: string; eventDate: string }) {
+		return request<DiaryEntry>('/diary', {
+			method: 'POST',
+			body: JSON.stringify(entry)
+		});
+	},
+	remove(id: string) {
+		return request<void>(`/diary/${id}`, { method: 'DELETE' });
+	},
+	stats() {
+		return request<DiaryStats>('/diary/stats');
+	}
+};
+
+export interface SleepEntry {
+	id: string;
+	fromTime: string;
+	untilTime: string;
+	date: string;
+	createdAt: string;
+	notes: string | null;
+	hours: number;
+}
+
+export interface SleepStats {
+	periodStart: string;
+	periodEnd: string;
+	averageHours: number;
+	minHours: number;
+	maxHours: number;
+	totalEntries: number;
+}
+
+export const sleepEntries = {
+	list() {
+		return request<SleepEntry[]>('/sleep-entries');
+	},
+	create(entry: { fromTime: string; untilTime: string; date: string; notes?: string }) {
+		return request<SleepEntry>('/sleep-entries', {
+			method: 'POST',
+			body: JSON.stringify(entry)
+		});
+	},
+	delete(id: string) {
+		return request<void>(`/sleep-entries/${id}`, { method: 'DELETE' });
+	},
+	stats() {
+		return request<{ weekly: SleepStats; monthly: SleepStats }>('/sleep-entries/stats');
+	}
+};
+
 export const scoreRules = {
 	create(rule: {
 		name: string;

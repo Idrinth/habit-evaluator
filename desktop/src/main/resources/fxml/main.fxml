@@ -45,7 +45,10 @@
                 <Insets top="20" right="20" bottom="20" left="20"/>
             </padding>
 
-            <Button text="Add Habit" onAction="#handleOpenAddHabit" styleClass="primary-button"/>
+            <HBox spacing="10">
+                <Button text="Add Habit" onAction="#handleOpenAddHabit" styleClass="primary-button"/>
+                <Button text="Sleep Tracking" onAction="#handleOpenSleepTracking" styleClass="primary-button"/>
+            </HBox>
 
             <Separator/>
 
@@ -82,6 +85,37 @@
                     <Label fx:id="monthlyPointsLabel" text="This Month: -"/>
                 </HBox>
             </VBox>
+
+            <Separator/>
+
+            <Label text="Diary / Journal" styleClass="section-title"/>
+
+            <VBox spacing="10" styleClass="evaluation-panel">
+                <HBox spacing="20">
+                    <Label fx:id="diaryTodayPointsLabel" text="Today: -"/>
+                    <Label fx:id="diaryWeekPointsLabel" text="This Week: -"/>
+                    <Label fx:id="diaryMonthPointsLabel" text="This Month: -"/>
+                </HBox>
+                <HBox spacing="20">
+                    <Label fx:id="diaryWeeklyAvgLabel" text="Weekly Avg: -"/>
+                    <Label fx:id="diaryTrendLabel" text="Trend: -"/>
+                </HBox>
+            </VBox>
+
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <TextField fx:id="diaryDescriptionField" promptText="Positive event description" prefWidth="250"/>
+                <DatePicker fx:id="diaryDatePicker" prefWidth="130"/>
+                <ComboBox fx:id="diarySignificanceComboBox" prefWidth="100"/>
+                <Button text="Add Event" onAction="#handleAddDiaryEntry" styleClass="primary-button"/>
+            </HBox>
+
+            <ScrollPane fitToWidth="true" prefHeight="150" VBox.vgrow="SOMETIMES">
+                <VBox fx:id="diaryEntriesContainer" spacing="5">
+                    <padding>
+                        <Insets top="5" right="5" bottom="5" left="5"/>
+                    </padding>
+                </VBox>
+            </ScrollPane>
         </VBox>
     </center>
 </BorderPane>

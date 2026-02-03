@@ -58,6 +58,8 @@
 		<a href="/habits/add">{t('nav.addHabit', lang)}</a>
 		<a href="/categories/add">{t('nav.addCategory', lang)}</a>
 		<a href="/score-rules/add">{t('nav.scoringRules', lang)}</a>
+		<a href="/diary">{t('nav.diary', lang)}</a>
+		<a href="/sleep">{t('nav.sleep', lang)}</a>
 		<span style="margin-left: auto; color: var(--color-nav-text);">{data.username}</span>
 		<select class="nav-select" value={lang} onchange={handleLanguageChange}>
 			{#each LANGUAGES as l (l.code)}
