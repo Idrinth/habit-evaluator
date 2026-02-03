@@ -40,6 +40,8 @@ export interface Habit {
 	positiveScoring: boolean;
 	scoringRule?: ScoringRule | null;
 	entries?: { completedAt: string }[];
+	nameTranslations?: Record<string, string>;
+	descriptionTranslations?: Record<string, string>;
 }
 
 export interface HabitCategory {
@@ -73,11 +75,20 @@ export const auth = {
 	}
 };
 
+export interface PointDevelopmentData {
+	dailyPoints: number[];
+	labels: string[];
+	runningAverages: number[];
+	cumulativeTotals: number[];
+	totalPoints: number;
+	average: number;
+}
+
 export const habits = {
 	list() {
 		return request<Habit[]>('/habits');
 	},
-	create(habit: { name: string; description?: string; categoryId?: string; frequencyType: string; targetFrequency: number; maxEntriesPerDay: number; positiveScoring: boolean }) {
+	create(habit: { name: string; description?: string; categoryId?: string; frequencyType: string; targetFrequency: number; maxEntriesPerDay: number; positiveScoring: boolean; nameTranslations?: Record<string, string>; descriptionTranslations?: Record<string, string> }) {
 		return request<Habit>('/habits', {
 			method: 'POST',
 			body: JSON.stringify(habit)
@@ -88,6 +99,9 @@ export const habits = {
 			method: 'PUT',
 			body: JSON.stringify(habit)
 		});
+	},
+	pointDevelopment(habitId: string, period: 'week' | 'month') {
+		return request<PointDevelopmentData>(`/habits/${habitId}/point-development?period=${period}`);
 	}
 };
 
@@ -114,6 +128,23 @@ export interface DashboardData {
 export const stats = {
 	dashboard() {
 		return request<DashboardData>('/stats/dashboard');
+	}
+};
+
+export const pdfExport = {
+	async download(params: { from: string; to: string; habits: boolean; sleep: boolean; diary: boolean }) {
+		const query = new URLSearchParams({
+			from: params.from,
+			to: params.to,
+			habits: String(params.habits),
+			sleep: String(params.sleep),
+			diary: String(params.diary)
+		});
+		const response = await fetch(`${BASE}/export/pdf?${query.toString()}`);
+		if (!response.ok) {
+			throw new Error(`Export failed with status ${response.status}`);
+		}
+		return response.blob();
 	}
 };
 

@@ -10,6 +10,7 @@
 		$props();
 
 	let themeMode = $state('system');
+	let customTranslations = $state(false);
 
 	onMount(() => {
 		const saved = localStorage.getItem('theme');
@@ -17,6 +18,7 @@
 			themeMode = saved;
 			document.documentElement.setAttribute('data-theme', saved);
 		}
+		customTranslations = localStorage.getItem('customTranslations') === 'true';
 	});
 
 	function handleThemeChange(event: Event) {
@@ -28,6 +30,16 @@
 		} else {
 			document.documentElement.setAttribute('data-theme', value);
 			localStorage.setItem('theme', value);
+		}
+	}
+
+	function handleTranslationsToggle(event: Event) {
+		const checked = (event.target as HTMLInputElement).checked;
+		customTranslations = checked;
+		if (checked) {
+			localStorage.setItem('customTranslations', 'true');
+		} else {
+			localStorage.removeItem('customTranslations');
 		}
 	}
 
@@ -48,10 +60,16 @@
 		<a href="/habits/add">Add Habit</a>
 		<a href="/categories/add">Add Category</a>
 		<a href="/score-rules/add">Scoring Rules</a>
+		<a href="/points">Point Charts</a>
 		<a href="/diary">Diary</a>
 		<a href="/sleep">Sleep</a>
 		<a href="/stats">Statistics</a>
+		<a href="/export/pdf">Export PDF</a>
 		<span style="margin-left: auto; color: var(--color-nav-text);">{data.username}</span>
+		<label class="translations-toggle">
+			<input type="checkbox" checked={customTranslations} onchange={handleTranslationsToggle} />
+			<span>Translations</span>
+		</label>
 		<select class="theme-select" value={themeMode} onchange={handleThemeChange}>
 			<option value="system">System</option>
 			<option value="light">Light</option>
@@ -80,5 +98,17 @@
 	.theme-select option {
 		background: var(--color-bg);
 		color: var(--color-text);
+	}
+	.translations-toggle {
+		display: flex;
+		align-items: center;
+		gap: 0.25rem;
+		font-size: 0.8rem;
+		color: var(--color-nav-text);
+		cursor: pointer;
+	}
+	.translations-toggle input {
+		width: 14px;
+		height: 14px;
 	}
 </style>

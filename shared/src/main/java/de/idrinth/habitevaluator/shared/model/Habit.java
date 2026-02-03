@@ -1,7 +1,9 @@
 package de.idrinth.habitevaluator.shared.model;
 
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -9,6 +11,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.MapKeyColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
@@ -71,10 +74,16 @@ public class Habit {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @jakarta.persistence.Transient
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "habit_name_translations", joinColumns = @JoinColumn(name = "habit_id"))
+    @MapKeyColumn(name = "language")
+    @Column(name = "translated_name")
     private Map<String, String> nameTranslations = new HashMap<>();
 
-    @jakarta.persistence.Transient
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "habit_description_translations", joinColumns = @JoinColumn(name = "habit_id"))
+    @MapKeyColumn(name = "language")
+    @Column(name = "translated_description", length = 1000)
     private Map<String, String> descriptionTranslations = new HashMap<>();
 
     public Habit() {

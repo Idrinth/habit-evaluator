@@ -7,15 +7,20 @@ import de.idrinth.habitevaluator.shared.model.User;
 import de.idrinth.habitevaluator.shared.repository.HabitCategoryRepository;
 import de.idrinth.habitevaluator.shared.repository.HabitRepository;
 import de.idrinth.habitevaluator.shared.api.ApiClient;
+import de.idrinth.habitevaluator.shared.api.StorageConfig;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.geometry.Pos;
 import javafx.scene.control.*;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.application.Platform;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -46,12 +51,21 @@ public class AddHabitController {
     @FXML
     private CheckBox positiveScoringCheckBox;
 
+    @FXML
+    private VBox translationsContainer;
+
+    private static final String[] TRANSLATION_LANGUAGES = {"en", "de", "es", "fr"};
+    private static final String[] TRANSLATION_LANGUAGE_LABELS = {"English", "Deutsch", "Español", "Français"};
+
     private HabitRepository habitRepository;
     private HabitCategoryRepository categoryRepository;
     private ApiClient apiClient;
     private User currentUser;
+    private StorageConfig storageConfig;
     private List<HabitCategory> categoryList = new ArrayList<>();
     private final Map<String, String> categoryNameToId = new LinkedHashMap<>();
+    private final Map<String, TextField> nameTranslationFields = new HashMap<>();
+    private final Map<String, TextField> descTranslationFields = new HashMap<>();
     private Habit addedHabit;
 
     public void setHabitRepository(HabitRepository habitRepository) {
@@ -68,6 +82,11 @@ public class AddHabitController {
 
     public void setCurrentUser(User currentUser) {
         this.currentUser = currentUser;
+    }
+
+    public void setStorageConfig(StorageConfig storageConfig) {
+        this.storageConfig = storageConfig;
+        buildTranslationFields();
     }
 
     public void setCategoryList(List<HabitCategory> categoryList) {
@@ -152,6 +171,46 @@ public class AddHabitController {
         }
     }
 
+    private void buildTranslationFields() {
+        if (translationsContainer == null) {
+            return;
+        }
+        translationsContainer.getChildren().clear();
+        nameTranslationFields.clear();
+        descTranslationFields.clear();
+        if (storageConfig == null || !storageConfig.isCustomTranslationsEnabled()) {
+            translationsContainer.setVisible(false);
+            translationsContainer.setManaged(false);
+            return;
+        }
+        translationsContainer.setVisible(true);
+        translationsContainer.setManaged(true);
+
+        Label title = new Label("Translations");
+        title.setStyle("-fx-font-weight: bold;");
+        translationsContainer.getChildren().add(title);
+
+        for (int i = 0; i < TRANSLATION_LANGUAGES.length; i++) {
+            String lang = TRANSLATION_LANGUAGES[i];
+            String label = TRANSLATION_LANGUAGE_LABELS[i];
+
+            TextField nameField = new TextField();
+            nameField.setPromptText("Name (" + label + ")");
+            nameField.setPrefWidth(150);
+
+            TextField descField = new TextField();
+            descField.setPromptText("Description (" + label + ")");
+            descField.setPrefWidth(200);
+
+            HBox row = new HBox(6, new Label(label + ":"), nameField, descField);
+            row.setAlignment(Pos.CENTER_LEFT);
+            translationsContainer.getChildren().add(row);
+
+            nameTranslationFields.put(lang, nameField);
+            descTranslationFields.put(lang, descField);
+        }
+    }
+
     @FXML
     private void handleAddHabit() {
         String name = habitNameField.getText().trim();
@@ -200,6 +259,23 @@ public class AddHabitController {
         }
 
         habit.setPositiveScoring(positiveScoringCheckBox.isSelected());
+
+        if (!nameTranslationFields.isEmpty()) {
+            Map<String, String> nameTranslations = new HashMap<>();
+            Map<String, String> descTranslations = new HashMap<>();
+            for (String lang : TRANSLATION_LANGUAGES) {
+                TextField nf = nameTranslationFields.get(lang);
+                if (nf != null && !nf.getText().trim().isEmpty()) {
+                    nameTranslations.put(lang, nf.getText().trim());
+                }
+                TextField df = descTranslationFields.get(lang);
+                if (df != null && !df.getText().trim().isEmpty()) {
+                    descTranslations.put(lang, df.getText().trim());
+                }
+            }
+            habit.setNameTranslations(nameTranslations);
+            habit.setDescriptionTranslations(descTranslations);
+        }
 
         habitRepository.save(habit);
         addedHabit = habit;

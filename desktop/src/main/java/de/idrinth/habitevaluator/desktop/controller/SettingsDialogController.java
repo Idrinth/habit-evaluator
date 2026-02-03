@@ -4,6 +4,7 @@ import de.idrinth.habitevaluator.shared.api.ApiClient;
 import de.idrinth.habitevaluator.shared.api.StorageConfig;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.RadioButton;
@@ -74,6 +75,9 @@ public class SettingsDialogController {
     @FXML
     private RadioButton languageFrRadio;
 
+    @FXML
+    private CheckBox customTranslationsCheckBox;
+
     private StorageConfig storageConfig;
     private boolean saved;
 
@@ -118,6 +122,8 @@ public class SettingsDialogController {
         } else {
             languageSystemRadio.setSelected(true);
         }
+
+        customTranslationsCheckBox.setSelected(config.isCustomTranslationsEnabled());
     }
 
     @FXML
@@ -194,6 +200,8 @@ public class SettingsDialogController {
         } else {
             storageConfig.setLanguage(StorageConfig.LANGUAGE_SYSTEM);
         }
+
+        storageConfig.setCustomTranslationsEnabled(customTranslationsCheckBox.isSelected());
 
         storageConfig.save();
         saved = true;
