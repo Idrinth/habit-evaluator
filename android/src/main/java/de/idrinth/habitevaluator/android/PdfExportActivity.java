@@ -150,8 +150,6 @@ public class PdfExportActivity extends AppCompatActivity {
 
     private PdfDocument generatePdf() {
         PdfDocument document = new PdfDocument();
-        List<PageContent> pages = new ArrayList<>();
-
         // Build all content sections
         float yPosition = MARGIN;
         int pageNumber = 1;
@@ -168,7 +166,7 @@ public class PdfExportActivity extends AppCompatActivity {
 
         if (binding.includeHabitsCheckbox.isChecked()) {
             yPosition = addHabitSection(document, currentPageCommands, pageNumber, yPosition);
-            pageNumber = document.getPages().length + 1;
+            pageNumber = document.getPages().size() + 1;
             if (!currentPageCommands.isEmpty()) {
                 // continue on same page tracking
             }
@@ -183,7 +181,7 @@ public class PdfExportActivity extends AppCompatActivity {
                 yPosition = MARGIN;
             }
             yPosition = addSleepSection(document, currentPageCommands, pageNumber, yPosition);
-            pageNumber = document.getPages().length + 1;
+            pageNumber = document.getPages().size() + 1;
         }
 
         if (binding.includeDiaryCheckbox.isChecked()) {
@@ -194,7 +192,7 @@ public class PdfExportActivity extends AppCompatActivity {
                 yPosition = MARGIN;
             }
             yPosition = addDiarySection(document, currentPageCommands, pageNumber, yPosition);
-            pageNumber = document.getPages().length + 1;
+            pageNumber = document.getPages().size() + 1;
         }
 
         // Flush remaining commands
@@ -203,7 +201,7 @@ public class PdfExportActivity extends AppCompatActivity {
         }
 
         // Ensure at least one page exists
-        if (document.getPages().length == 0) {
+        if (document.getPages().size() == 0) {
             PdfDocument.PageInfo pageInfo = new PdfDocument.PageInfo.Builder(PAGE_WIDTH, PAGE_HEIGHT, 1).create();
             PdfDocument.Page page = document.startPage(pageInfo);
             document.finishPage(page);
