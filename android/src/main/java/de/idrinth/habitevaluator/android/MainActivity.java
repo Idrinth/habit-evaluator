@@ -17,6 +17,7 @@ import java.util.Map;
 
 import de.idrinth.habitevaluator.android.databinding.ActivityMainBinding;
 import de.idrinth.habitevaluator.android.persistence.FileSystemDiaryEntryRepository;
+import de.idrinth.habitevaluator.android.persistence.FileSystemEmotionPairRepository;
 import de.idrinth.habitevaluator.android.persistence.FileSystemHabitCategoryRepository;
 import de.idrinth.habitevaluator.android.persistence.FileSystemHabitRepository;
 import de.idrinth.habitevaluator.android.persistence.FileSystemSleepEntryRepository;
@@ -27,12 +28,14 @@ import de.idrinth.habitevaluator.shared.api.RemoteUserRepository;
 import de.idrinth.habitevaluator.shared.api.SyncService;
 import de.idrinth.habitevaluator.shared.backup.BackupException;
 import de.idrinth.habitevaluator.shared.backup.BackupService;
+import de.idrinth.habitevaluator.shared.model.EmotionPair;
 import de.idrinth.habitevaluator.shared.model.Habit;
 import de.idrinth.habitevaluator.shared.model.HabitCategory;
 import de.idrinth.habitevaluator.shared.model.HabitEntry;
 import de.idrinth.habitevaluator.shared.model.SleepEntry;
 import de.idrinth.habitevaluator.shared.model.User;
 import de.idrinth.habitevaluator.shared.repository.DiaryEntryRepository;
+import de.idrinth.habitevaluator.shared.repository.EmotionPairRepository;
 import de.idrinth.habitevaluator.shared.repository.HabitCategoryRepository;
 import de.idrinth.habitevaluator.shared.repository.HabitRepository;
 import de.idrinth.habitevaluator.shared.repository.SleepEntryRepository;
@@ -51,6 +54,8 @@ public class MainActivity extends AppCompatActivity {
     private static List<SleepEntry> sharedSleepEntries = new ArrayList<>();
     private static SleepEntryRepository sharedSleepEntryRepository;
     private static DiaryEntryRepository sharedDiaryEntryRepository;
+    private static EmotionPairRepository sharedEmotionPairRepository;
+    private static List<EmotionPair> sharedEmotionPairs = new ArrayList<>();
     private static String editHabitId;
     private static String pointDevelopmentHabitId;
 
@@ -92,6 +97,14 @@ public class MainActivity extends AppCompatActivity {
 
     public static DiaryEntryRepository getSharedDiaryEntryRepository() {
         return sharedDiaryEntryRepository;
+    }
+
+    public static EmotionPairRepository getSharedEmotionPairRepository() {
+        return sharedEmotionPairRepository;
+    }
+
+    public static List<EmotionPair> getSharedEmotionPairs() {
+        return sharedEmotionPairs;
     }
 
     public static String getEditHabitId() {
@@ -211,6 +224,13 @@ public class MainActivity extends AppCompatActivity {
                             binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_EMOTIONAL_STATE, false);
                         }
                         break;
+                    case ScreenPagerAdapter.PAGE_ADD_EMOTION_PAIR:
+                        if (isProgrammaticNavigation) {
+                            isProgrammaticNavigation = false;
+                        } else {
+                            binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_EMOTIONAL_STATE, false);
+                        }
+                        break;
                     case ScreenPagerAdapter.PAGE_SETTINGS:
                         if (isProgrammaticNavigation) {
                             isProgrammaticNavigation = false;
@@ -276,6 +296,11 @@ public class MainActivity extends AppCompatActivity {
         binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_ADD_HABIT, true);
     }
 
+    public void navigateToAddEmotionPair() {
+        isProgrammaticNavigation = true;
+        binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_ADD_EMOTION_PAIR, true);
+    }
+
     public void onSettingsChanged() {
         initializeStorage();
     }
@@ -310,7 +335,9 @@ public class MainActivity extends AppCompatActivity {
         sharedApiClient = null;
         sharedCurrentUser = currentUser;
         sharedDiaryEntryRepository = new FileSystemDiaryEntryRepository(storageDir);
+        sharedEmotionPairRepository = new FileSystemEmotionPairRepository(storageDir);
         loadSleepEntries();
+        loadEmotionPairs();
     }
 
     private User getOrCreateLocalUser() {
@@ -451,6 +478,13 @@ public class MainActivity extends AppCompatActivity {
         if (sleepEntryRepository != null && currentUser != null) {
             sleepEntries.addAll(sleepEntryRepository.findByUserId(currentUser.getId()));
             sharedSleepEntries.addAll(sleepEntries);
+        }
+    }
+
+    private void loadEmotionPairs() {
+        sharedEmotionPairs.clear();
+        if (sharedEmotionPairRepository != null && currentUser != null) {
+            sharedEmotionPairs.addAll(sharedEmotionPairRepository.findByUserId(currentUser.getId()));
         }
     }
 

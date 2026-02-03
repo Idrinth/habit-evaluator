@@ -166,6 +166,14 @@
     <string name="pdf_diary_entries">Entradas de diario</string>
     <string name="pdf_sleep_entries">Entradas de sueño</string>
     <string name="emotional_state">Emociones</string>
+    <string name="add_emotion_pair">Añadir par de emociones</string>
+    <string name="negative_label_hint">Etiqueta negativa (ej. apático)</string>
+    <string name="positive_label_hint">Etiqueta positiva (ej. activo)</string>
+    <string name="emotion_labels_required">Por favor, introduzca ambas etiquetas</string>
+    <string name="emotion_pair_added">Par de emociones añadido</string>
+    <string name="emotion_pair_deleted">Par de emociones eliminado</string>
+    <string name="delete_emotion_pair">Eliminar par de emociones</string>
+    <string name="delete_emotion_pair_confirmation">¿Eliminar \"%1$s\"? Esto no se puede deshacer.</string>
     <string name="stats_correlations_title">Correlaciones de eventos (Anual, Ponderado)</string>
     <string name="stats_no_correlations">No hay suficientes datos para correlaciones</string>
 </resources>
