@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Habit Evaluator</string>
     <string name="habit_name_hint">Habit Name</string>
     <string name="habit_description_hint">Description (optional)</string>
     <string name="add_habit">Add Habit</string>
@@ -42,6 +41,7 @@
     <string name="category_name_required">Please enter a category name</string>
     <string name="all_categories">All categories</string>
     <string name="your_category_habits">Your %s Habits</string>
+    <string name="habit_category_label">Category: %s</string>
     <string name="completion_points">Completion Points</string>
     <string name="daily_points">Today: %d pts</string>
     <string name="weekly_points">Week: %d pts</string>
