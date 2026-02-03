@@ -1,7 +1,9 @@
 package de.idrinth.habitevaluator.webserver.config;
 
+import de.idrinth.habitevaluator.shared.service.DiaryService;
 import de.idrinth.habitevaluator.shared.service.HabitEvaluatorService;
 import de.idrinth.habitevaluator.shared.service.HabitScoringService;
+import de.idrinth.habitevaluator.shared.service.SleepEvaluationService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -16,5 +18,15 @@ public class AppConfig {
     @Bean
     public HabitScoringService habitScoringService() {
         return new HabitScoringService();
+    }
+
+    @Bean
+    public DiaryService diaryService() {
+        return new DiaryService();
+    }
+
+    @Bean
+    public SleepEvaluationService sleepEvaluationService() {
+        return new SleepEvaluationService();
     }
 }

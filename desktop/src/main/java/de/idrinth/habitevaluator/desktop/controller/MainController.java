@@ -1,7 +1,9 @@
 package de.idrinth.habitevaluator.desktop.controller;
 
+import de.idrinth.habitevaluator.desktop.persistence.H2DiaryEntryRepository;
 import de.idrinth.habitevaluator.desktop.persistence.H2HabitCategoryRepository;
 import de.idrinth.habitevaluator.desktop.persistence.H2HabitRepository;
+import de.idrinth.habitevaluator.desktop.persistence.H2SleepEntryRepository;
 import de.idrinth.habitevaluator.desktop.persistence.H2UserRepository;
 import de.idrinth.habitevaluator.shared.api.ApiClient;
 import de.idrinth.habitevaluator.shared.api.RemoteHabitRepository;
@@ -14,7 +16,9 @@ import de.idrinth.habitevaluator.shared.model.HabitCategory;
 import de.idrinth.habitevaluator.shared.model.HabitEntry;
 import de.idrinth.habitevaluator.shared.model.ScoringRule;
 import de.idrinth.habitevaluator.shared.model.User;
+import de.idrinth.habitevaluator.shared.repository.DiaryEntryRepository;
 import de.idrinth.habitevaluator.shared.repository.HabitRepository;
+import de.idrinth.habitevaluator.shared.repository.SleepEntryRepository;
 import de.idrinth.habitevaluator.shared.repository.UserRepository;
 import de.idrinth.habitevaluator.shared.repository.HabitCategoryRepository;
 import de.idrinth.habitevaluator.shared.service.DefaultDataInitializer;
@@ -106,6 +110,8 @@ public class MainController {
     private HabitRepository habitRepository;
     private HabitCategoryRepository categoryRepository;
     private UserRepository userRepository;
+    private DiaryEntryRepository diaryEntryRepository;
+    private SleepEntryRepository sleepEntryRepository;
     private ApiClient apiClient;
     private User currentUser;
     private HabitRepository localBackupRepository;
@@ -222,6 +228,8 @@ public class MainController {
         habitRepository = new H2HabitRepository();
         userRepository = new H2UserRepository();
         categoryRepository = new H2HabitCategoryRepository();
+        diaryEntryRepository = new H2DiaryEntryRepository();
+        sleepEntryRepository = new H2SleepEntryRepository();
         apiClient = null;
         localBackupRepository = null;
         localBackupUser = null;
@@ -504,6 +512,32 @@ public class MainController {
             }
         } catch (IOException e) {
             showAlert("Error", "Failed to open sync dialog: " + e.getMessage());
+        }
+    }
+
+    @FXML
+    private void handleExportPdf() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/pdf-export.fxml"));
+            Parent root = loader.load();
+
+            PdfExportController controller = loader.getController();
+            controller.setHabitRepository(habitRepository);
+            controller.setDiaryEntryRepository(diaryEntryRepository);
+            controller.setSleepEntryRepository(sleepEntryRepository);
+            controller.setCurrentUser(currentUser);
+
+            Stage dialogStage = new Stage();
+            dialogStage.setTitle("Export PDF");
+            dialogStage.initModality(Modality.APPLICATION_MODAL);
+            dialogStage.initOwner(habitListView.getScene().getWindow());
+
+            Scene scene = new Scene(root);
+            scene.getStylesheets().addAll(habitListView.getScene().getStylesheets());
+            dialogStage.setScene(scene);
+            dialogStage.showAndWait();
+        } catch (IOException e) {
+            showAlert("Error", "Failed to open PDF export dialog: " + e.getMessage());
         }
     }
 

@@ -103,6 +103,23 @@ export const categories = {
 	}
 };
 
+export const pdfExport = {
+	async download(params: { from: string; to: string; habits: boolean; sleep: boolean; diary: boolean }) {
+		const query = new URLSearchParams({
+			from: params.from,
+			to: params.to,
+			habits: String(params.habits),
+			sleep: String(params.sleep),
+			diary: String(params.diary)
+		});
+		const response = await fetch(`${BASE}/export/pdf?${query.toString()}`);
+		if (!response.ok) {
+			throw new Error(`Export failed with status ${response.status}`);
+		}
+		return response.blob();
+	}
+};
+
 export const scoreRules = {
 	create(rule: {
 		name: string;
