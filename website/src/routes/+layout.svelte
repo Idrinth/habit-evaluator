@@ -63,6 +63,7 @@
 		<a href="/points">Point Charts</a>
 		<a href="/diary">Diary</a>
 		<a href="/sleep">Sleep</a>
+		<a href="/export/pdf">Export PDF</a>
 		<span style="margin-left: auto; color: var(--color-nav-text);">{data.username}</span>
 		<label class="translations-toggle">
 			<input type="checkbox" checked={customTranslations} onchange={handleTranslationsToggle} />

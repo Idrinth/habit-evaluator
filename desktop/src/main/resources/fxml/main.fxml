@@ -17,6 +17,7 @@
             <Label fx:id="storageModeLabel" text="Storage: Local" HBox.hgrow="ALWAYS"/>
             <Button fx:id="loadDefaultsButton" text="Load Default Habits" onAction="#handleLoadDefaults"/>
             <Button text="Sync" onAction="#handleSync"/>
+            <Button text="Export PDF" onAction="#handleExportPdf"/>
             <Button text="Settings" onAction="#handleOpenSettings"/>
         </HBox>
     </top>
