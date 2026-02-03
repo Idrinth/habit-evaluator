@@ -6,7 +6,7 @@
 
 <VBox xmlns:fx="http://javafx.com/fxml"
       fx:controller="de.idrinth.habitevaluator.desktop.controller.SettingsDialogController"
-      spacing="15" prefWidth="450" prefHeight="580">
+      spacing="15" prefWidth="450" prefHeight="650">
     <padding>
         <Insets top="20" right="20" bottom="20" left="20"/>
     </padding>
@@ -86,6 +86,12 @@
     <RadioButton fx:id="languageEsRadio" text="Español" toggleGroup="$languageToggleGroup"/>
 
     <RadioButton fx:id="languageFrRadio" text="Français" toggleGroup="$languageToggleGroup"/>
+
+    <Separator/>
+
+    <Label text="Custom Translations" styleClass="section-title"/>
+
+    <CheckBox fx:id="customTranslationsCheckBox" text="Enable custom habit translations"/>
 
     <Region VBox.vgrow="ALWAYS"/>
 

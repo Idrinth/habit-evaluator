@@ -31,6 +31,8 @@ habits:
   add_completion: "Add Completion"
   complete: "Complete"
   delete: "Delete"
+  name_translation: "Name (%s)"
+  description_translation: "Description (%s)"
 
 evaluation:
   current_streak: "Current Streak"
@@ -96,6 +98,8 @@ settings:
   language_de: "Deutsch"
   language_es: "Español"
   language_fr: "Français"
+  custom_translations: "Custom Translations"
+  custom_translations_label: "Enable custom habit translations"
 
 sync:
   title: "Sync with Remote Server"
