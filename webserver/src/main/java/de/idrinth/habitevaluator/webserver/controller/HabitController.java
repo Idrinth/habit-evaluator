@@ -15,6 +15,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.time.DayOfWeek;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAdjusters;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -169,5 +174,84 @@ public class HabitController {
         List<Habit> habits = habitRepository.findByUserId(userId);
         PredictedWeeklyScore prediction = scoringService.predictCurrentWeekScore(habits);
         return ResponseEntity.ok(prediction);
+    }
+
+    @GetMapping("/{id}/point-development")
+    public ResponseEntity<Map<String, Object>> getPointDevelopment(
+            @PathVariable String id,
+            @RequestParam(defaultValue = "week") String period,
+            HttpSession session) {
+
+        String userId = (String) session.getAttribute("userId");
+        if (userId == null) {
+            return ResponseEntity.status(401).build();
+        }
+        return habitRepository.findById(id)
+                .filter(habit -> userId.equals(habit.getUser() != null ? habit.getUser().getId() : null))
+                .map(habit -> {
+                    LocalDate today = LocalDate.now();
+                    LocalDate start;
+                    LocalDate end;
+                    if ("month".equals(period)) {
+                        start = today.with(TemporalAdjusters.firstDayOfMonth());
+                        end = today.with(TemporalAdjusters.lastDayOfMonth());
+                    } else {
+                        start = today.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+                        end = start.plusDays(6);
+                    }
+
+                    List<Integer> dailyPoints = new ArrayList<>();
+                    List<String> labels = new ArrayList<>();
+                    DateTimeFormatter dayFormat = "month".equals(period)
+                            ? DateTimeFormatter.ofPattern("d")
+                            : DateTimeFormatter.ofPattern("EEE");
+
+                    int daysInPeriod = (int) (start.until(end, java.time.temporal.ChronoUnit.DAYS)) + 1;
+                    int totalPoints = 0;
+
+                    for (int i = 0; i < daysInPeriod; i++) {
+                        LocalDate date = start.plusDays(i);
+                        int dayScore = scoringService.calculateHabitScore(habit, date, date).getScore();
+                        dailyPoints.add(dayScore);
+                        totalPoints += dayScore;
+
+                        if ("month".equals(period)) {
+                            if (i == 0 || i == daysInPeriod - 1 || (i + 1) % 5 == 0) {
+                                labels.add(date.format(dayFormat));
+                            } else {
+                                labels.add("");
+                            }
+                        } else {
+                            labels.add(date.format(dayFormat));
+                        }
+                    }
+
+                    double average = totalPoints / (double) daysInPeriod;
+
+                    List<Integer> runningAverages = new ArrayList<>();
+                    int runningTotal = 0;
+                    for (int i = 0; i < dailyPoints.size(); i++) {
+                        runningTotal += dailyPoints.get(i);
+                        runningAverages.add(Math.round((float) runningTotal / (i + 1)));
+                    }
+
+                    List<Integer> cumulativeTotals = new ArrayList<>();
+                    int cumulative = 0;
+                    for (int points : dailyPoints) {
+                        cumulative += points;
+                        cumulativeTotals.add(cumulative);
+                    }
+
+                    Map<String, Object> result = new LinkedHashMap<>();
+                    result.put("dailyPoints", dailyPoints);
+                    result.put("labels", labels);
+                    result.put("runningAverages", runningAverages);
+                    result.put("cumulativeTotals", cumulativeTotals);
+                    result.put("totalPoints", totalPoints);
+                    result.put("average", Math.round(average * 10.0) / 10.0);
+
+                    return ResponseEntity.ok(result);
+                })
+                .orElse(ResponseEntity.notFound().build());
     }
 }

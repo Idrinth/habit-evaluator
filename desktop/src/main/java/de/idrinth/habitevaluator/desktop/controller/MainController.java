@@ -33,6 +33,10 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.chart.BarChart;
+import javafx.scene.chart.CategoryAxis;
+import javafx.scene.chart.NumberAxis;
+import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -42,8 +46,10 @@ import com.google.gson.reflect.TypeToken;
 
 import java.io.File;
 import java.io.IOException;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -97,6 +103,29 @@ public class MainController {
 
     @FXML
     private Label editMessage;
+
+    @FXML
+    private ToggleButton weekToggle;
+
+    @FXML
+    private ToggleButton monthToggle;
+
+    @FXML
+    private Label chartTotalLabel;
+
+    @FXML
+    private Label chartAverageLabel;
+
+    @FXML
+    private BarChart<String, Number> dailyPointsChart;
+
+    @FXML
+    private BarChart<String, Number> runningAvgChart;
+
+    @FXML
+    private BarChart<String, Number> cumulativeChart;
+
+    private boolean chartShowingWeek = true;
 
     @FXML
     private Label diaryTodayPointsLabel;
@@ -183,6 +212,9 @@ public class MainController {
 
         categoryFilterComboBox.getSelectionModel().selectedItemProperty().addListener(
                 (observable, oldValue, newValue) -> applyFilter());
+
+        weekToggle.setSelected(true);
+        monthToggle.setSelected(false);
 
         refreshEditHabits();
         habits.addListener((javafx.collections.ListChangeListener<Habit>) change -> {
@@ -540,6 +572,8 @@ public class MainController {
         weeklyPointsLabel.setText("This Week: " + scoringService.getCurrentWeekScore(habit) + " pts");
         monthlyPointsLabel.setText("This Month: " + scoringService.getCurrentMonthScore(habit) + " pts");
 
+        updatePointCharts(habit);
+
         if (habit.getMaxEntriesPerDay() != 1) {
             completeButton.setText("Add Completion");
         } else {
@@ -554,6 +588,7 @@ public class MainController {
         dailyPointsLabel.setText("Today: -");
         weeklyPointsLabel.setText("This Week: -");
         monthlyPointsLabel.setText("This Month: -");
+        clearPointCharts();
     }
 
     @FXML
@@ -849,6 +884,111 @@ public class MainController {
         } else if (!wantDark && hasDark) {
             scene.getStylesheets().remove(darkCss);
         }
+    }
+
+    @FXML
+    private void handleWeekToggle() {
+        chartShowingWeek = true;
+        weekToggle.setSelected(true);
+        monthToggle.setSelected(false);
+        Habit selectedHabit = habitListView.getSelectionModel().getSelectedItem();
+        if (selectedHabit != null) {
+            updatePointCharts(selectedHabit);
+        }
+    }
+
+    @FXML
+    private void handleMonthToggle() {
+        chartShowingWeek = false;
+        weekToggle.setSelected(false);
+        monthToggle.setSelected(true);
+        Habit selectedHabit = habitListView.getSelectionModel().getSelectedItem();
+        if (selectedHabit != null) {
+            updatePointCharts(selectedHabit);
+        }
+    }
+
+    private void updatePointCharts(Habit habit) {
+        LocalDate today = LocalDate.now();
+        LocalDate start;
+        LocalDate end;
+
+        if (chartShowingWeek) {
+            start = today.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+            end = start.plusDays(6);
+        } else {
+            start = today.with(TemporalAdjusters.firstDayOfMonth());
+            end = today.with(TemporalAdjusters.lastDayOfMonth());
+        }
+
+        DateTimeFormatter dayFormat = chartShowingWeek
+                ? DateTimeFormatter.ofPattern("EEE")
+                : DateTimeFormatter.ofPattern("d");
+
+        int daysInPeriod = (int) (start.until(end, java.time.temporal.ChronoUnit.DAYS)) + 1;
+
+        List<Integer> dailyPoints = new ArrayList<>();
+        List<String> labels = new ArrayList<>();
+        int totalPoints = 0;
+
+        for (int i = 0; i < daysInPeriod; i++) {
+            LocalDate date = start.plusDays(i);
+            int dayScore = scoringService.calculateHabitScore(habit, date, date).getScore();
+            dailyPoints.add(dayScore);
+            totalPoints += dayScore;
+
+            if (!chartShowingWeek) {
+                if (i == 0 || i == daysInPeriod - 1 || (i + 1) % 5 == 0) {
+                    labels.add(date.format(dayFormat));
+                } else {
+                    labels.add("");
+                }
+            } else {
+                labels.add(date.format(dayFormat));
+            }
+        }
+
+        double average = totalPoints / (double) daysInPeriod;
+
+        chartTotalLabel.setText("Total: " + totalPoints + " pts");
+        chartAverageLabel.setText(String.format("Avg: %.1f pts", average));
+
+        // Daily points chart
+        XYChart.Series<String, Number> dailySeries = new XYChart.Series<>();
+        for (int i = 0; i < dailyPoints.size(); i++) {
+            dailySeries.getData().add(new XYChart.Data<>(labels.get(i).isEmpty() ? String.valueOf(i + 1) : labels.get(i), dailyPoints.get(i)));
+        }
+        dailyPointsChart.getData().clear();
+        dailyPointsChart.getData().add(dailySeries);
+
+        // Running average chart
+        XYChart.Series<String, Number> avgSeries = new XYChart.Series<>();
+        int runningTotal = 0;
+        for (int i = 0; i < dailyPoints.size(); i++) {
+            runningTotal += dailyPoints.get(i);
+            int runningAvg = Math.round((float) runningTotal / (i + 1));
+            avgSeries.getData().add(new XYChart.Data<>(labels.get(i).isEmpty() ? String.valueOf(i + 1) : labels.get(i), runningAvg));
+        }
+        runningAvgChart.getData().clear();
+        runningAvgChart.getData().add(avgSeries);
+
+        // Cumulative total chart
+        XYChart.Series<String, Number> cumSeries = new XYChart.Series<>();
+        int cumulative = 0;
+        for (int i = 0; i < dailyPoints.size(); i++) {
+            cumulative += dailyPoints.get(i);
+            cumSeries.getData().add(new XYChart.Data<>(labels.get(i).isEmpty() ? String.valueOf(i + 1) : labels.get(i), cumulative));
+        }
+        cumulativeChart.getData().clear();
+        cumulativeChart.getData().add(cumSeries);
+    }
+
+    private void clearPointCharts() {
+        chartTotalLabel.setText("Total: -");
+        chartAverageLabel.setText("Avg: -");
+        dailyPointsChart.getData().clear();
+        runningAvgChart.getData().clear();
+        cumulativeChart.getData().clear();
     }
 
     private void loadDiaryEntries() {
