@@ -226,8 +226,14 @@ public class PdfExportController {
 
         Paragraph header = new Paragraph("Habits", SECTION_FONT);
         header.setSpacingBefore(15);
-        header.setSpacingAfter(10);
+        header.setSpacingAfter(5);
         document.add(header);
+
+        Paragraph habitIntro = new Paragraph(
+                "Daily habit scores reflect how consistently you performed your tracked habits. Higher scores indicate greater adherence to your routines.",
+                SMALL_FONT);
+        habitIntro.setSpacingAfter(10);
+        document.add(habitIntro);
 
         if (habitList.isEmpty()) {
             document.add(new Paragraph("No habit data available.", BODY_FONT));
@@ -303,8 +309,14 @@ public class PdfExportController {
 
         Paragraph header = new Paragraph("Sleep", SECTION_FONT);
         header.setSpacingBefore(15);
-        header.setSpacingAfter(10);
+        header.setSpacingAfter(5);
         document.add(header);
+
+        Paragraph sleepIntro = new Paragraph(
+                "This section summarizes your recorded sleep patterns including duration, timing, and consistency across the selected period.",
+                SMALL_FONT);
+        sleepIntro.setSpacingAfter(10);
+        document.add(sleepIntro);
 
         Map<LocalDate, List<SleepEntry>> entriesByDate = new TreeMap<>();
         for (LocalDate d = fromDate; !d.isAfter(toDate); d = d.plusDays(1)) {
@@ -405,8 +417,14 @@ public class PdfExportController {
 
         Paragraph header = new Paragraph("Diary", SECTION_FONT);
         header.setSpacingBefore(15);
-        header.setSpacingAfter(10);
+        header.setSpacingAfter(5);
         document.add(header);
+
+        Paragraph diaryIntro = new Paragraph(
+                "Diary entries capture significant events and their perceived impact. Points are assigned based on the significance level you gave each entry.",
+                SMALL_FONT);
+        diaryIntro.setSpacingAfter(10);
+        document.add(diaryIntro);
 
         List<String> labels = new ArrayList<>();
         List<Float> diaryPoints = new ArrayList<>();
@@ -486,8 +504,14 @@ public class PdfExportController {
 
         Paragraph header = new Paragraph("Emotions", SECTION_FONT);
         header.setSpacingBefore(15);
-        header.setSpacingAfter(10);
+        header.setSpacingAfter(5);
         document.add(header);
+
+        Paragraph emotionIntro = new Paragraph(
+                "Emotion entries track your self-reported emotional states on paired scales over time. Daily averages are shown per emotion pair.",
+                SMALL_FONT);
+        emotionIntro.setSpacingAfter(10);
+        document.add(emotionIntro);
 
         List<EmotionEntry> rangeEntries = new ArrayList<>();
         for (EmotionEntry entry : allEntries) {
@@ -772,7 +796,7 @@ public class PdfExportController {
         }
 
         Paragraph description = new Paragraph(
-                "Time-weighted Pearson correlations over the past year. Stronger absolute values indicate stronger relationships.",
+                "Time-weighted Pearson correlations over the past year. Stronger absolute values indicate stronger relationships. Note: correlation does not imply causation.",
                 SMALL_FONT);
         description.setSpacingAfter(10);
         document.add(description);

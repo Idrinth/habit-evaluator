@@ -195,5 +195,10 @@
     <string name="pdf_section_emotions">Emotionen</string>
     <string name="pdf_emotion_entries">Emotionseinträge</string>
     <string name="pdf_section_correlations">Ereigniskorrelationen</string>
-    <string name="pdf_correlation_description">Zeitgewichtete Pearson-Korrelationen über das vergangene Jahr</string>
+    <string name="pdf_correlation_description">Zeitgewichtete Pearson-Korrelationen über das vergangene Jahr.</string>
+    <string name="pdf_correlation_caveat">Hinweis: Korrelation bedeutet nicht Kausalität.</string>
+    <string name="pdf_intro_habits">Tägliche Gewohnheitspunkte zeigen, wie konsequent Sie Ihre erfassten Gewohnheiten ausgeführt haben. Höhere Punkte bedeuten eine stärkere Einhaltung Ihrer Routinen.</string>
+    <string name="pdf_intro_sleep">Dieser Abschnitt fasst Ihre erfassten Schlafmuster zusammen, einschließlich Dauer, Zeitpunkt und Regelmäßigkeit im gewählten Zeitraum.</string>
+    <string name="pdf_intro_diary">Tagebucheinträge erfassen bedeutsame Ereignisse und deren wahrgenommene Auswirkung. Punkte werden basierend auf der von Ihnen vergebenen Bedeutungsstufe zugewiesen.</string>
+    <string name="pdf_intro_emotions">Emotionseinträge erfassen Ihre selbst eingeschätzten emotionalen Zustände auf gepaarten Skalen über die Zeit. Tägliche Durchschnitte werden pro Emotionspaar angezeigt.</string>
 </resources>
