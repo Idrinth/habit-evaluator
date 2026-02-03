@@ -92,6 +92,7 @@
     <string name="diary_trend_stable">Tendencia: estable</string>
     <string name="diary_event_added">¡Evento positivo registrado!</string>
     <string name="diary_description_required">Por favor, describa el evento positivo</string>
+    <string name="diary_date_hint">Fecha (AAAA-MM-DD)</string>
     <string name="diary_entry_removed">Entrada de diario eliminada</string>
     <string name="sleep_tracking">Sueño</string>
     <string name="sleep_from_hint">Desde (HH:MM)</string>
@@ -139,6 +140,9 @@
     <string name="avoidance_streak">Racha de evitación</string>
     <string name="avoidance_rate">Tasa de evitación</string>
     <string name="occurrences">Ocurrencias: %d</string>
+    <string name="delete_habit">Eliminar hábito</string>
+    <string name="delete_habit_confirmation">¿Eliminar \"%1$s\" y todas sus entradas de registro? Esto no se puede deshacer.</string>
+    <string name="habit_deleted">Hábito eliminado</string>
     <string name="pdf_export_title">Exportar informe PDF</string>
     <string name="pdf_export_button">Exportar PDF</string>
     <string name="pdf_export_button_short">Exportar PDF</string>
@@ -160,4 +164,5 @@
     <string name="pdf_no_data">Sin datos disponibles</string>
     <string name="pdf_habit_breakdown">Desglose por hábito</string>
     <string name="pdf_diary_entries">Entradas de diario</string>
+    <string name="pdf_sleep_entries">Entradas de sueño</string>
 </resources>

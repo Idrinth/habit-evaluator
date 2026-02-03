@@ -7,6 +7,7 @@ import android.graphics.DashPathEffect;
 import android.graphics.Paint;
 import android.graphics.RectF;
 import android.util.AttributeSet;
+import android.annotation.SuppressLint;
 import android.view.View;
 
 import java.util.ArrayList;
@@ -203,6 +204,7 @@ public class SleepGraphView extends View {
         }
     }
 
+    @SuppressLint("ResourceType")
     private int getTextColor() {
         int[] attrs = {android.R.attr.textColorPrimary};
         android.content.res.TypedArray ta = getContext().obtainStyledAttributes(attrs);

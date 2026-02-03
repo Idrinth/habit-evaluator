@@ -92,6 +92,7 @@
     <string name="diary_trend_stable">Tendance : stable</string>
     <string name="diary_event_added">Événement positif enregistré !</string>
     <string name="diary_description_required">Veuillez décrire l\'événement positif</string>
+    <string name="diary_date_hint">Date (AAAA-MM-JJ)</string>
     <string name="diary_entry_removed">Entrée de journal supprimée</string>
     <string name="sleep_tracking">Sommeil</string>
     <string name="sleep_from_hint">De (HH:MM)</string>
@@ -139,6 +140,9 @@
     <string name="avoidance_streak">Série d\'évitement</string>
     <string name="avoidance_rate">Taux d\'évitement</string>
     <string name="occurrences">Occurrences : %d</string>
+    <string name="delete_habit">Supprimer l\'habitude</string>
+    <string name="delete_habit_confirmation">Supprimer « %1$s » et toutes ses entrées de suivi ? Cette action est irréversible.</string>
+    <string name="habit_deleted">Habitude supprimée</string>
     <string name="pdf_export_title">Exporter le rapport PDF</string>
     <string name="pdf_export_button">Exporter PDF</string>
     <string name="pdf_export_button_short">Exporter PDF</string>
@@ -160,4 +164,5 @@
     <string name="pdf_no_data">Aucune donnée disponible</string>
     <string name="pdf_habit_breakdown">Détails par habitude</string>
     <string name="pdf_diary_entries">Entrées de journal</string>
+    <string name="pdf_sleep_entries">Entrées de sommeil</string>
 </resources>
