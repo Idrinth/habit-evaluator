@@ -117,6 +117,20 @@ export const categories = {
 	}
 };
 
+export interface DashboardData {
+	labels: string[];
+	habitPoints: number[];
+	diaryPoints: number[];
+	sleepDuration: number[];
+	sleepEntries: number[];
+}
+
+export const stats = {
+	dashboard() {
+		return request<DashboardData>('/stats/dashboard');
+	}
+};
+
 export const pdfExport = {
 	async download(params: { from: string; to: string; habits: boolean; sleep: boolean; diary: boolean }) {
 		const query = new URLSearchParams({

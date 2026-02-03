@@ -471,6 +471,33 @@ public class MainController {
     }
 
     @FXML
+    private void handleOpenStats() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/stats.fxml"));
+            Parent root = loader.load();
+
+            StatsController controller = loader.getController();
+            controller.setHabits(new ArrayList<>(habits));
+            controller.setSleepEntryRepository(new H2SleepEntryRepository());
+            controller.setDiaryEntryRepository(new H2DiaryEntryRepository());
+            controller.setCurrentUser(currentUser);
+            controller.loadData();
+
+            Stage dialogStage = new Stage();
+            dialogStage.setTitle("Statistics Dashboard");
+            dialogStage.initModality(Modality.APPLICATION_MODAL);
+            dialogStage.initOwner(habitListView.getScene().getWindow());
+
+            Scene scene = new Scene(root);
+            scene.getStylesheets().addAll(habitListView.getScene().getStylesheets());
+            dialogStage.setScene(scene);
+            dialogStage.showAndWait();
+        } catch (IOException e) {
+            showAlert("Error", "Failed to open statistics: " + e.getMessage());
+        }
+    }
+
+    @FXML
     private void handleOpenAddHabit() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/add-habit.fxml"));
