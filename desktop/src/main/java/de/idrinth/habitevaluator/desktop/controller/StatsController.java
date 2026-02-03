@@ -1,10 +1,12 @@
 package de.idrinth.habitevaluator.desktop.controller;
 
 import de.idrinth.habitevaluator.shared.model.DiaryEntry;
+import de.idrinth.habitevaluator.shared.model.EmotionEntry;
 import de.idrinth.habitevaluator.shared.model.Habit;
 import de.idrinth.habitevaluator.shared.model.SleepEntry;
 import de.idrinth.habitevaluator.shared.model.User;
 import de.idrinth.habitevaluator.shared.repository.DiaryEntryRepository;
+import de.idrinth.habitevaluator.shared.repository.EmotionEntryRepository;
 import de.idrinth.habitevaluator.shared.repository.SleepEntryRepository;
 import de.idrinth.habitevaluator.shared.service.DiaryService;
 import de.idrinth.habitevaluator.shared.service.HabitScoringService;
@@ -55,9 +57,17 @@ public class StatsController {
     @FXML
     private NumberAxis sleepEntriesYAxis;
 
+    @FXML
+    private BarChart<String, Number> emotionEventsChart;
+    @FXML
+    private CategoryAxis emotionXAxis;
+    @FXML
+    private NumberAxis emotionYAxis;
+
     private List<Habit> habits = new ArrayList<>();
     private SleepEntryRepository sleepEntryRepository;
     private DiaryEntryRepository diaryEntryRepository;
+    private EmotionEntryRepository emotionEntryRepository;
     private User currentUser;
 
     private final DiaryService diaryService = new DiaryService();
@@ -73,6 +83,10 @@ public class StatsController {
 
     public void setDiaryEntryRepository(DiaryEntryRepository diaryEntryRepository) {
         this.diaryEntryRepository = diaryEntryRepository;
+    }
+
+    public void setEmotionEntryRepository(EmotionEntryRepository emotionEntryRepository) {
+        this.emotionEntryRepository = emotionEntryRepository;
     }
 
     public void setCurrentUser(User currentUser) {
@@ -92,6 +106,7 @@ public class StatsController {
         populateDiaryChart(labels, startDate, today);
         populateSleepDurationChart(labels, startDate, today);
         populateSleepEntriesChart(labels, startDate, today);
+        populateEmotionEventsChart(labels, startDate, today);
     }
 
     private void populateHabitChart(List<String> labels, LocalDate startDate, LocalDate today) {
@@ -179,5 +194,33 @@ public class StatsController {
         sleepEntriesXAxis.setCategories(FXCollections.observableArrayList(labels));
         sleepEntriesChart.getData().clear();
         sleepEntriesChart.getData().add(series);
+    }
+
+    private void populateEmotionEventsChart(List<String> labels, LocalDate startDate, LocalDate today) {
+        List<EmotionEntry> allEntries = new ArrayList<>();
+        if (emotionEntryRepository != null && currentUser != null) {
+            allEntries = emotionEntryRepository.findByUserId(currentUser.getId());
+        }
+
+        Map<LocalDate, Integer> countByDate = new TreeMap<>();
+        for (LocalDate d = startDate; !d.isAfter(today); d = d.plusDays(1)) {
+            countByDate.put(d, 0);
+        }
+        for (EmotionEntry entry : allEntries) {
+            LocalDate entryDate = entry.getRecordedAt().toLocalDate();
+            if (!entryDate.isBefore(startDate) && !entryDate.isAfter(today)) {
+                countByDate.merge(entryDate, 1, Integer::sum);
+            }
+        }
+
+        XYChart.Series<String, Number> series = new XYChart.Series<>();
+        int i = 0;
+        for (Integer count : countByDate.values()) {
+            series.getData().add(new XYChart.Data<>(labels.get(i), count));
+            i++;
+        }
+        emotionXAxis.setCategories(FXCollections.observableArrayList(labels));
+        emotionEventsChart.getData().clear();
+        emotionEventsChart.getData().add(series);
     }
 }

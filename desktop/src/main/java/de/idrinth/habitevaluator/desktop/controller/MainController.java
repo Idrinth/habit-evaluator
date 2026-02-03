@@ -1,6 +1,8 @@
 package de.idrinth.habitevaluator.desktop.controller;
 
 import de.idrinth.habitevaluator.desktop.persistence.H2DiaryEntryRepository;
+import de.idrinth.habitevaluator.desktop.persistence.H2EmotionEntryRepository;
+import de.idrinth.habitevaluator.desktop.persistence.H2EmotionPairRepository;
 import de.idrinth.habitevaluator.desktop.persistence.H2HabitCategoryRepository;
 import de.idrinth.habitevaluator.desktop.persistence.H2HabitRepository;
 import de.idrinth.habitevaluator.desktop.persistence.H2SleepEntryRepository;
@@ -21,6 +23,8 @@ import de.idrinth.habitevaluator.shared.model.HabitEntry;
 import de.idrinth.habitevaluator.shared.model.ScoringRule;
 import de.idrinth.habitevaluator.shared.model.User;
 import de.idrinth.habitevaluator.shared.repository.DiaryEntryRepository;
+import de.idrinth.habitevaluator.shared.repository.EmotionEntryRepository;
+import de.idrinth.habitevaluator.shared.repository.EmotionPairRepository;
 import de.idrinth.habitevaluator.shared.repository.HabitRepository;
 import de.idrinth.habitevaluator.shared.repository.SleepEntryRepository;
 import de.idrinth.habitevaluator.shared.repository.UserRepository;
@@ -182,6 +186,8 @@ public class MainController {
     private UserRepository userRepository;
     private DiaryEntryRepository diaryEntryRepository;
     private SleepEntryRepository sleepEntryRepository;
+    private EmotionPairRepository emotionPairRepository;
+    private EmotionEntryRepository emotionEntryRepository;
     private ApiClient apiClient;
     private User currentUser;
     private List<DiaryEntry> diaryEntries = new ArrayList<>();
@@ -336,6 +342,8 @@ public class MainController {
         categoryRepository = new H2HabitCategoryRepository();
         diaryEntryRepository = new H2DiaryEntryRepository();
         sleepEntryRepository = new H2SleepEntryRepository();
+        emotionPairRepository = new H2EmotionPairRepository();
+        emotionEntryRepository = new H2EmotionEntryRepository();
         apiClient = null;
         localBackupRepository = null;
         localBackupUser = null;
@@ -359,8 +367,10 @@ public class MainController {
                 categoryRepository = null;
                 currentUser = userRepository.findAll().stream().findFirst().orElse(null);
 
-                // Diary always uses local storage on desktop
+                // Diary and emotions always use local storage on desktop
                 diaryEntryRepository = new H2DiaryEntryRepository();
+                emotionPairRepository = new H2EmotionPairRepository();
+                emotionEntryRepository = new H2EmotionEntryRepository();
 
                 // Initialize local backup for data safety
                 H2HabitRepository h2Backup = new H2HabitRepository();
@@ -513,6 +523,7 @@ public class MainController {
             controller.setHabits(new ArrayList<>(habits));
             controller.setSleepEntryRepository(new H2SleepEntryRepository());
             controller.setDiaryEntryRepository(new H2DiaryEntryRepository());
+            controller.setEmotionEntryRepository(new H2EmotionEntryRepository());
             controller.setCurrentUser(currentUser);
             controller.loadData();
 
@@ -584,6 +595,57 @@ public class MainController {
             dialogStage.showAndWait();
         } catch (IOException e) {
             showAlert("Error", "Failed to open sleep tracking: " + e.getMessage());
+        }
+    }
+
+    @FXML
+    private void handleOpenEmotionPairs() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/emotion-pairs.fxml"));
+            Parent root = loader.load();
+
+            EmotionPairController controller = loader.getController();
+            controller.setEmotionPairRepository(emotionPairRepository);
+            controller.setCurrentUser(currentUser);
+            controller.loadData();
+
+            Stage dialogStage = new Stage();
+            dialogStage.setTitle("Emotion Pairs");
+            dialogStage.initModality(Modality.APPLICATION_MODAL);
+            dialogStage.initOwner(habitListView.getScene().getWindow());
+
+            Scene scene = new Scene(root);
+            scene.getStylesheets().addAll(habitListView.getScene().getStylesheets());
+            dialogStage.setScene(scene);
+            dialogStage.showAndWait();
+        } catch (IOException e) {
+            showAlert("Error", "Failed to open emotion pairs: " + e.getMessage());
+        }
+    }
+
+    @FXML
+    private void handleOpenEmotionEntry() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/emotion-entry.fxml"));
+            Parent root = loader.load();
+
+            EmotionEntryController controller = loader.getController();
+            controller.setEmotionPairRepository(emotionPairRepository);
+            controller.setEmotionEntryRepository(emotionEntryRepository);
+            controller.setCurrentUser(currentUser);
+            controller.loadData();
+
+            Stage dialogStage = new Stage();
+            dialogStage.setTitle("Record Emotion");
+            dialogStage.initModality(Modality.APPLICATION_MODAL);
+            dialogStage.initOwner(habitListView.getScene().getWindow());
+
+            Scene scene = new Scene(root);
+            scene.getStylesheets().addAll(habitListView.getScene().getStylesheets());
+            dialogStage.setScene(scene);
+            dialogStage.showAndWait();
+        } catch (IOException e) {
+            showAlert("Error", "Failed to open emotion entry: " + e.getMessage());
         }
     }
 
@@ -692,6 +754,7 @@ public class MainController {
             controller.setHabitRepository(habitRepository);
             controller.setDiaryEntryRepository(diaryEntryRepository);
             controller.setSleepEntryRepository(sleepEntryRepository);
+            controller.setEmotionEntryRepository(emotionEntryRepository);
             controller.setCurrentUser(currentUser);
 
             Stage dialogStage = new Stage();

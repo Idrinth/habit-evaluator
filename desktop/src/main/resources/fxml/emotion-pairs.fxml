@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns:fx="http://javafx.com/fxml"
+      fx:controller="de.idrinth.habitevaluator.desktop.controller.EmotionPairController"
+      spacing="15" prefWidth="450" prefHeight="400">
+
+    <padding>
+        <Insets top="20" right="20" bottom="20" left="20"/>
+    </padding>
+
+    <Label text="Manage Emotion Pairs" styleClass="section-title" style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
+
+    <Separator/>
+
+    <Label text="Add a new emotion pair (e.g. listless - active)" style="-fx-font-size: 12px; -fx-text-fill: #888;"/>
+
+    <HBox spacing="10" alignment="CENTER_LEFT">
+        <TextField fx:id="negativeLabelField" promptText="Negative end (e.g. listless)" prefWidth="160"/>
+        <Label text="\u2014"/>
+        <TextField fx:id="positiveLabelField" promptText="Positive end (e.g. active)" prefWidth="160"/>
+        <Button text="Add" onAction="#handleAddPair" styleClass="primary-button"/>
+    </HBox>
+
+    <Label fx:id="statusLabel" text=""/>
+
+    <Separator/>
+
+    <Label text="Existing Pairs" style="-fx-font-weight: bold;"/>
+
+    <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS">
+        <VBox fx:id="pairsContainer" spacing="5">
+            <padding>
+                <Insets top="5" right="5" bottom="5" left="5"/>
+            </padding>
+        </VBox>
+    </ScrollPane>
+
+    <HBox spacing="10" alignment="CENTER_RIGHT">
+        <Button text="Close" onAction="#handleClose"/>
+    </HBox>
+</VBox>
