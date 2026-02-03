@@ -13,18 +13,21 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 import de.idrinth.habitevaluator.android.databinding.FragmentEmotionalStateBinding;
-import de.idrinth.habitevaluator.android.ui.EmotionPairAdapter;
+import de.idrinth.habitevaluator.android.ui.EmotionDataAdapter;
+import de.idrinth.habitevaluator.shared.model.EmotionEntry;
 import de.idrinth.habitevaluator.shared.model.EmotionPair;
+import de.idrinth.habitevaluator.shared.repository.EmotionEntryRepository;
 import de.idrinth.habitevaluator.shared.repository.EmotionPairRepository;
 
 public class EmotionalStateFragment extends Fragment {
 
     private FragmentEmotionalStateBinding binding;
-    private EmotionPairAdapter adapter;
-    private List<EmotionPair> emotionPairs;
+    private EmotionDataAdapter adapter;
+    private List<Object> items;
 
     @Nullable
     @Override
@@ -38,8 +41,11 @@ public class EmotionalStateFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        emotionPairs = new ArrayList<>();
-        adapter = new EmotionPairAdapter(emotionPairs, this::confirmDeleteEmotionPair, this::onEmotionPairClicked);
+        items = new ArrayList<>();
+        adapter = new EmotionDataAdapter(items,
+                this::onEmotionPairClicked,
+                this::confirmDeleteEmotionPair,
+                this::confirmDeleteEmotionEntry);
         binding.emotionPairsRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
         binding.emotionPairsRecyclerView.setAdapter(adapter);
 
@@ -57,8 +63,25 @@ public class EmotionalStateFragment extends Fragment {
     }
 
     private void refreshList() {
-        emotionPairs.clear();
-        emotionPairs.addAll(MainActivity.getSharedEmotionPairs());
+        items.clear();
+        List<EmotionPair> pairs = MainActivity.getSharedEmotionPairs();
+        EmotionEntryRepository entryRepository = MainActivity.getSharedEmotionEntryRepository();
+        List<EmotionEntry> allEntries = new ArrayList<>();
+        if (entryRepository != null && MainActivity.getSharedCurrentUser() != null) {
+            allEntries.addAll(entryRepository.findByUserId(MainActivity.getSharedCurrentUser().getId()));
+        }
+
+        for (EmotionPair pair : pairs) {
+            items.add(pair);
+            List<EmotionEntry> pairEntries = new ArrayList<>();
+            for (EmotionEntry entry : allEntries) {
+                if (entry.getEmotionPair() != null && entry.getEmotionPair().getId().equals(pair.getId())) {
+                    pairEntries.add(entry);
+                }
+            }
+            pairEntries.sort(Comparator.comparing(EmotionEntry::getRecordedAt).reversed());
+            items.addAll(pairEntries);
+        }
         adapter.notifyDataSetChanged();
     }
 
@@ -85,6 +108,24 @@ public class EmotionalStateFragment extends Fragment {
         MainActivity.getSharedEmotionPairs().remove(pair);
         refreshList();
         Toast.makeText(requireContext(), R.string.emotion_pair_deleted, Toast.LENGTH_SHORT).show();
+    }
+
+    private void confirmDeleteEmotionEntry(EmotionEntry entry) {
+        new AlertDialog.Builder(requireContext())
+                .setTitle(R.string.delete_emotion_entry)
+                .setMessage(R.string.delete_emotion_entry_confirmation)
+                .setPositiveButton(android.R.string.ok, (dialog, which) -> deleteEmotionEntry(entry))
+                .setNegativeButton(android.R.string.cancel, null)
+                .show();
+    }
+
+    private void deleteEmotionEntry(EmotionEntry entry) {
+        EmotionEntryRepository repository = MainActivity.getSharedEmotionEntryRepository();
+        if (repository != null) {
+            repository.deleteById(entry.getId());
+        }
+        refreshList();
+        Toast.makeText(requireContext(), R.string.emotion_entry_deleted, Toast.LENGTH_SHORT).show();
     }
 
     @Override
