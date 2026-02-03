@@ -1,19 +1,26 @@
 package de.idrinth.habitevaluator.desktop.controller;
 
 import de.idrinth.habitevaluator.shared.model.DiaryEntry;
+import de.idrinth.habitevaluator.shared.model.EventCorrelation;
 import de.idrinth.habitevaluator.shared.model.Habit;
 import de.idrinth.habitevaluator.shared.model.SleepEntry;
 import de.idrinth.habitevaluator.shared.model.User;
 import de.idrinth.habitevaluator.shared.repository.DiaryEntryRepository;
 import de.idrinth.habitevaluator.shared.repository.SleepEntryRepository;
 import de.idrinth.habitevaluator.shared.service.DiaryService;
+import de.idrinth.habitevaluator.shared.service.EventCorrelationService;
 import de.idrinth.habitevaluator.shared.service.HabitScoringService;
+import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.chart.BarChart;
 import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -55,6 +62,17 @@ public class StatsController {
     @FXML
     private NumberAxis sleepEntriesYAxis;
 
+    @FXML
+    private TableView<EventCorrelation> correlationTable;
+    @FXML
+    private TableColumn<EventCorrelation, String> eventAColumn;
+    @FXML
+    private TableColumn<EventCorrelation, String> eventBColumn;
+    @FXML
+    private TableColumn<EventCorrelation, Number> correlationColumn;
+    @FXML
+    private TableColumn<EventCorrelation, Number> sharedDaysColumn;
+
     private List<Habit> habits = new ArrayList<>();
     private SleepEntryRepository sleepEntryRepository;
     private DiaryEntryRepository diaryEntryRepository;
@@ -62,6 +80,7 @@ public class StatsController {
 
     private final DiaryService diaryService = new DiaryService();
     private final HabitScoringService scoringService = new HabitScoringService();
+    private final EventCorrelationService correlationService = new EventCorrelationService();
 
     public void setHabits(List<Habit> habits) {
         this.habits = habits != null ? habits : new ArrayList<>();
@@ -92,6 +111,7 @@ public class StatsController {
         populateDiaryChart(labels, startDate, today);
         populateSleepDurationChart(labels, startDate, today);
         populateSleepEntriesChart(labels, startDate, today);
+        populateCorrelationTable();
     }
 
     private void populateHabitChart(List<String> labels, LocalDate startDate, LocalDate today) {
@@ -179,5 +199,28 @@ public class StatsController {
         sleepEntriesXAxis.setCategories(FXCollections.observableArrayList(labels));
         sleepEntriesChart.getData().clear();
         sleepEntriesChart.getData().add(series);
+    }
+
+    private void populateCorrelationTable() {
+        List<DiaryEntry> diaryEntries = new ArrayList<>();
+        List<SleepEntry> sleepEntries = new ArrayList<>();
+        if (diaryEntryRepository != null && currentUser != null) {
+            diaryEntries = diaryEntryRepository.findByUserId(currentUser.getId());
+        }
+        if (sleepEntryRepository != null && currentUser != null) {
+            sleepEntries = sleepEntryRepository.findByUserId(currentUser.getId());
+        }
+
+        List<EventCorrelation> correlations = correlationService.calculateCorrelations(
+                habits, diaryEntries, sleepEntries);
+
+        eventAColumn.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getEventA()));
+        eventBColumn.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getEventB()));
+        correlationColumn.setCellValueFactory(c ->
+                new SimpleDoubleProperty(Math.round(c.getValue().getCorrelation() * 1000.0) / 1000.0));
+        sharedDaysColumn.setCellValueFactory(c ->
+                new SimpleIntegerProperty(c.getValue().getSharedDays()));
+
+        correlationTable.setItems(FXCollections.observableArrayList(correlations));
     }
 }

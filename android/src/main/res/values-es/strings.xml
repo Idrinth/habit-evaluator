@@ -166,4 +166,6 @@
     <string name="pdf_diary_entries">Entradas de diario</string>
     <string name="pdf_sleep_entries">Entradas de sueño</string>
     <string name="emotional_state">Emociones</string>
+    <string name="stats_correlations_title">Correlaciones de eventos (Anual, Ponderado)</string>
+    <string name="stats_no_correlations">No hay suficientes datos para correlaciones</string>
 </resources>

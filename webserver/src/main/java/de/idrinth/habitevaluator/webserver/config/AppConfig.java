@@ -1,6 +1,7 @@
 package de.idrinth.habitevaluator.webserver.config;
 
 import de.idrinth.habitevaluator.shared.service.DiaryService;
+import de.idrinth.habitevaluator.shared.service.EventCorrelationService;
 import de.idrinth.habitevaluator.shared.service.HabitEvaluatorService;
 import de.idrinth.habitevaluator.shared.service.HabitScoringService;
 import de.idrinth.habitevaluator.shared.service.SleepEvaluationService;
@@ -28,5 +29,10 @@ public class AppConfig {
     @Bean
     public SleepEvaluationService sleepEvaluationService() {
         return new SleepEvaluationService();
+    }
+
+    @Bean
+    public EventCorrelationService eventCorrelationService() {
+        return new EventCorrelationService();
     }
 }

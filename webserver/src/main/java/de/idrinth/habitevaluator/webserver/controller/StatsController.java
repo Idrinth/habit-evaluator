@@ -1,6 +1,7 @@
 package de.idrinth.habitevaluator.webserver.controller;
 
 import de.idrinth.habitevaluator.shared.model.DiaryEntry;
+import de.idrinth.habitevaluator.shared.model.EventCorrelation;
 import de.idrinth.habitevaluator.shared.model.Habit;
 import de.idrinth.habitevaluator.shared.model.HabitCategory;
 import de.idrinth.habitevaluator.shared.model.HabitEntry;
@@ -10,6 +11,7 @@ import de.idrinth.habitevaluator.shared.repository.HabitCategoryRepository;
 import de.idrinth.habitevaluator.shared.repository.HabitRepository;
 import de.idrinth.habitevaluator.shared.repository.SleepEntryRepository;
 import de.idrinth.habitevaluator.shared.service.DiaryService;
+import de.idrinth.habitevaluator.shared.service.EventCorrelationService;
 import de.idrinth.habitevaluator.shared.service.HabitScoringService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.http.ResponseEntity;
@@ -39,19 +41,22 @@ public class StatsController {
     private final HabitCategoryRepository habitCategoryRepository;
     private final HabitScoringService scoringService;
     private final DiaryService diaryService;
+    private final EventCorrelationService correlationService;
 
     public StatsController(HabitRepository habitRepository,
                            SleepEntryRepository sleepEntryRepository,
                            DiaryEntryRepository diaryEntryRepository,
                            HabitCategoryRepository habitCategoryRepository,
                            HabitScoringService scoringService,
-                           DiaryService diaryService) {
+                           DiaryService diaryService,
+                           EventCorrelationService correlationService) {
         this.habitRepository = habitRepository;
         this.sleepEntryRepository = sleepEntryRepository;
         this.diaryEntryRepository = diaryEntryRepository;
         this.habitCategoryRepository = habitCategoryRepository;
         this.scoringService = scoringService;
         this.diaryService = diaryService;
+        this.correlationService = correlationService;
     }
 
     @GetMapping("/dashboard")
@@ -191,6 +196,33 @@ public class StatsController {
         Map<String, Object> result = new LinkedHashMap<>();
         result.put("labels", labels);
         result.put("habits", habitTimelines);
+
+        return ResponseEntity.ok(result);
+    }
+
+    @GetMapping("/correlations")
+    public ResponseEntity<List<Map<String, Object>>> getCorrelations(HttpSession session) {
+        String userId = (String) session.getAttribute("userId");
+        if (userId == null) {
+            return ResponseEntity.status(401).build();
+        }
+
+        List<Habit> habits = habitRepository.findByUserId(userId);
+        List<DiaryEntry> diaryEntries = diaryEntryRepository.findByUserId(userId);
+        List<SleepEntry> sleepEntries = sleepEntryRepository.findByUserId(userId);
+
+        List<EventCorrelation> correlations = correlationService.calculateCorrelations(
+                habits, diaryEntries, sleepEntries);
+
+        List<Map<String, Object>> result = new ArrayList<>();
+        for (EventCorrelation corr : correlations) {
+            Map<String, Object> entry = new LinkedHashMap<>();
+            entry.put("eventA", corr.getEventA());
+            entry.put("eventB", corr.getEventB());
+            entry.put("correlation", Math.round(corr.getCorrelation() * 1000.0) / 1000.0);
+            entry.put("sharedDays", corr.getSharedDays());
+            result.add(entry);
+        }
 
         return ResponseEntity.ok(result);
     }

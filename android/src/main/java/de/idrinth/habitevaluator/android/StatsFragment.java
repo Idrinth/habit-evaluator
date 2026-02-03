@@ -1,10 +1,14 @@
 package de.idrinth.habitevaluator.android;
 
 import android.content.Intent;
+import android.graphics.Typeface;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -14,15 +18,18 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
 
 import de.idrinth.habitevaluator.android.databinding.FragmentStatsBinding;
 import de.idrinth.habitevaluator.shared.model.DiaryEntry;
+import de.idrinth.habitevaluator.shared.model.EventCorrelation;
 import de.idrinth.habitevaluator.shared.model.Habit;
 import de.idrinth.habitevaluator.shared.model.SleepEntry;
 import de.idrinth.habitevaluator.shared.model.User;
 import de.idrinth.habitevaluator.shared.service.DiaryService;
+import de.idrinth.habitevaluator.shared.service.EventCorrelationService;
 import de.idrinth.habitevaluator.shared.service.HabitScoringService;
 
 public class StatsFragment extends Fragment {
@@ -33,6 +40,7 @@ public class StatsFragment extends Fragment {
     private FragmentStatsBinding binding;
     private final DiaryService diaryService = new DiaryService();
     private final HabitScoringService scoringService = new HabitScoringService();
+    private final EventCorrelationService correlationService = new EventCorrelationService();
 
     @Nullable
     @Override
@@ -69,6 +77,7 @@ public class StatsFragment extends Fragment {
         updateSleepCharts(startDate, today, labels);
         updateDiaryChart(startDate, today, labels);
         updateHabitChart(startDate, today, labels);
+        updateCorrelations();
     }
 
     private void updateSleepCharts(LocalDate startDate, LocalDate today, List<String> labels) {
@@ -176,6 +185,65 @@ public class StatsFragment extends Fragment {
         binding.habitPointsChart.setBarColor(0xFF388E3C);
         binding.habitPointsChart.setValueFormat("%.0f");
         binding.habitPointsChart.setData(labels, habitPoints, avgPoints);
+    }
+
+    private void updateCorrelations() {
+        List<Habit> habits = MainActivity.getSharedHabits();
+        if (habits == null) {
+            habits = new ArrayList<>();
+        }
+
+        List<DiaryEntry> diaryEntries = new ArrayList<>();
+        List<SleepEntry> sleepEntries = MainActivity.getSharedSleepEntries();
+        if (sleepEntries == null) {
+            sleepEntries = new ArrayList<>();
+        }
+
+        User user = MainActivity.getSharedCurrentUser();
+        if (user != null && MainActivity.getSharedDiaryEntryRepository() != null) {
+            diaryEntries = MainActivity.getSharedDiaryEntryRepository().findByUserId(user.getId());
+        }
+
+        List<EventCorrelation> correlations = correlationService.calculateCorrelations(
+                habits, diaryEntries, sleepEntries);
+
+        binding.correlationContainer.removeAllViews();
+
+        if (correlations.isEmpty()) {
+            binding.correlationCard.setVisibility(View.GONE);
+            return;
+        }
+
+        binding.correlationCard.setVisibility(View.VISIBLE);
+
+        for (EventCorrelation corr : correlations) {
+            LinearLayout row = new LinearLayout(requireContext());
+            row.setOrientation(LinearLayout.HORIZONTAL);
+            row.setPadding(0, 8, 0, 8);
+
+            TextView events = new TextView(requireContext());
+            events.setLayoutParams(new LinearLayout.LayoutParams(
+                    0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+            events.setText(corr.getEventA() + " \u2194 " + corr.getEventB());
+            events.setTextSize(13);
+            row.addView(events);
+
+            TextView value = new TextView(requireContext());
+            value.setLayoutParams(new LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+            value.setText(String.format(Locale.US, "%+.3f", corr.getCorrelation()));
+            value.setTextSize(13);
+            value.setTypeface(Typeface.MONOSPACE);
+            value.setGravity(Gravity.END);
+            if (corr.getCorrelation() > 0) {
+                value.setTextColor(0xFF4CAF50);
+            } else {
+                value.setTextColor(0xFFE91E63);
+            }
+            row.addView(value);
+
+            binding.correlationContainer.addView(row);
+        }
     }
 
     @Override
