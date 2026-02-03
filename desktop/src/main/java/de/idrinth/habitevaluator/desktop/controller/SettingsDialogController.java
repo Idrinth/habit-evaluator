@@ -78,6 +78,21 @@ public class SettingsDialogController {
     @FXML
     private CheckBox customTranslationsCheckBox;
 
+    @FXML
+    private CheckBox backupEnabledCheckBox;
+
+    @FXML
+    private VBox backupSettingsPane;
+
+    @FXML
+    private PasswordField backupPasswordField;
+
+    @FXML
+    private PasswordField backupPasswordConfirmField;
+
+    @FXML
+    private Label backupStatusLabel;
+
     private StorageConfig storageConfig;
     private boolean saved;
 
@@ -85,6 +100,9 @@ public class SettingsDialogController {
     public void initialize() {
         storageToggleGroup.selectedToggleProperty().addListener((obs, oldVal, newVal) -> {
             remoteSettingsPane.setDisable(localRadio.isSelected());
+        });
+        backupEnabledCheckBox.selectedProperty().addListener((obs, oldVal, newVal) -> {
+            backupSettingsPane.setDisable(!newVal);
         });
     }
 
@@ -124,6 +142,11 @@ public class SettingsDialogController {
         }
 
         customTranslationsCheckBox.setSelected(config.isCustomTranslationsEnabled());
+
+        backupEnabledCheckBox.setSelected(config.isBackupEnabled());
+        backupSettingsPane.setDisable(!config.isBackupEnabled());
+        backupPasswordField.setText(config.getBackupPassword());
+        backupPasswordConfirmField.setText(config.getBackupPassword());
     }
 
     @FXML
@@ -202,6 +225,27 @@ public class SettingsDialogController {
         }
 
         storageConfig.setCustomTranslationsEnabled(customTranslationsCheckBox.isSelected());
+
+        // Handle backup settings
+        if (backupEnabledCheckBox.isSelected()) {
+            String backupPassword = backupPasswordField.getText();
+            String confirmPassword = backupPasswordConfirmField.getText();
+            if (backupPassword == null || backupPassword.isEmpty()) {
+                backupStatusLabel.setText("Backup password is required when backups are enabled.");
+                backupStatusLabel.setStyle("-fx-text-fill: red;");
+                return;
+            }
+            if (!backupPassword.equals(confirmPassword)) {
+                backupStatusLabel.setText("Passwords do not match.");
+                backupStatusLabel.setStyle("-fx-text-fill: red;");
+                return;
+            }
+            storageConfig.setBackupEnabled(true);
+            storageConfig.setBackupPassword(backupPassword);
+        } else {
+            storageConfig.setBackupEnabled(false);
+            storageConfig.setBackupPassword("");
+        }
 
         storageConfig.save();
         saved = true;

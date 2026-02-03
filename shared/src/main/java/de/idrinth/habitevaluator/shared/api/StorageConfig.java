@@ -40,6 +40,8 @@ public class StorageConfig {
     private String apiBaseUrl;
     private String apiUsername;
     private String apiPassword;
+    private boolean backupEnabled;
+    private String backupPassword;
 
     private final File configFile;
 
@@ -51,6 +53,8 @@ public class StorageConfig {
         this.apiBaseUrl = DEFAULT_API_BASE_URL;
         this.apiUsername = "";
         this.apiPassword = "";
+        this.backupEnabled = false;
+        this.backupPassword = "";
         load();
     }
 
@@ -75,6 +79,9 @@ public class StorageConfig {
             apiBaseUrl = props.getProperty("api.baseUrl", DEFAULT_API_BASE_URL);
             apiUsername = props.getProperty("api.username", "");
             apiPassword = props.getProperty("api.password", "");
+            backupEnabled = Boolean.parseBoolean(
+                    props.getProperty("backup.enabled", "false"));
+            backupPassword = props.getProperty("backup.password", "");
         } catch (IOException e) {
             logger.warn("Failed to load storage config, using defaults", e);
         } catch (IllegalArgumentException e) {
@@ -99,6 +106,8 @@ public class StorageConfig {
         props.setProperty("api.baseUrl", apiBaseUrl != null ? apiBaseUrl : "");
         props.setProperty("api.username", apiUsername != null ? apiUsername : "");
         props.setProperty("api.password", apiPassword != null ? apiPassword : "");
+        props.setProperty("backup.enabled", String.valueOf(backupEnabled));
+        props.setProperty("backup.password", backupPassword != null ? backupPassword : "");
         try (FileOutputStream fos = new FileOutputStream(configFile)) {
             props.store(fos, "Habit Evaluator Storage Configuration");
         } catch (IOException e) {
@@ -164,6 +173,22 @@ public class StorageConfig {
 
     public void setCustomTranslationsEnabled(boolean customTranslationsEnabled) {
         this.customTranslationsEnabled = customTranslationsEnabled;
+    }
+
+    public boolean isBackupEnabled() {
+        return backupEnabled;
+    }
+
+    public void setBackupEnabled(boolean backupEnabled) {
+        this.backupEnabled = backupEnabled;
+    }
+
+    public String getBackupPassword() {
+        return backupPassword;
+    }
+
+    public void setBackupPassword(String backupPassword) {
+        this.backupPassword = backupPassword;
     }
 
     private static final List<String> SUPPORTED_LANGUAGES = Arrays.asList("en", "de", "es", "fr");

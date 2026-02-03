@@ -81,6 +81,13 @@ public class SettingsFragment extends Fragment {
 
         boolean customTranslations = prefs.getBoolean(SettingsActivity.KEY_CUSTOM_TRANSLATIONS, false);
         binding.customTranslationsSwitch.setChecked(customTranslations);
+
+        boolean backupEnabled = prefs.getBoolean(SettingsActivity.KEY_BACKUP_ENABLED, false);
+        binding.backupEnabledSwitch.setChecked(backupEnabled);
+        binding.backupSettingsPanel.setVisibility(backupEnabled ? View.VISIBLE : View.GONE);
+        String backupPassword = prefs.getString(SettingsActivity.KEY_BACKUP_PASSWORD, "");
+        binding.backupPasswordInput.setText(backupPassword);
+        binding.backupPasswordConfirmInput.setText(backupPassword);
     }
 
     private void setupListeners() {
@@ -90,6 +97,10 @@ public class SettingsFragment extends Fragment {
             } else {
                 binding.remoteSettingsPanel.setVisibility(View.GONE);
             }
+        });
+
+        binding.backupEnabledSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            binding.backupSettingsPanel.setVisibility(isChecked ? View.VISIBLE : View.GONE);
         });
 
         binding.testConnectionButton.setOnClickListener(v -> testConnection());
@@ -181,6 +192,27 @@ public class SettingsFragment extends Fragment {
         editor.putString(SettingsActivity.KEY_API_USERNAME, username);
         editor.putString(SettingsActivity.KEY_API_PASSWORD, password);
         editor.putBoolean(SettingsActivity.KEY_CUSTOM_TRANSLATIONS, binding.customTranslationsSwitch.isChecked());
+
+        // Handle backup settings
+        if (binding.backupEnabledSwitch.isChecked()) {
+            String backupPassword = binding.backupPasswordInput.getText().toString();
+            String confirmPassword = binding.backupPasswordConfirmInput.getText().toString();
+            if (backupPassword.isEmpty()) {
+                binding.backupStatusText.setText(R.string.backup_password_required);
+                binding.backupStatusText.setTextColor(requireContext().getColor(android.R.color.holo_red_dark));
+                return;
+            }
+            if (!backupPassword.equals(confirmPassword)) {
+                binding.backupStatusText.setText(R.string.backup_passwords_mismatch);
+                binding.backupStatusText.setTextColor(requireContext().getColor(android.R.color.holo_red_dark));
+                return;
+            }
+            editor.putBoolean(SettingsActivity.KEY_BACKUP_ENABLED, true);
+            editor.putString(SettingsActivity.KEY_BACKUP_PASSWORD, backupPassword);
+        } else {
+            editor.putBoolean(SettingsActivity.KEY_BACKUP_ENABLED, false);
+            editor.putString(SettingsActivity.KEY_BACKUP_PASSWORD, "");
+        }
 
         editor.apply();
         SettingsActivity.applyThemeMode(themeMode);

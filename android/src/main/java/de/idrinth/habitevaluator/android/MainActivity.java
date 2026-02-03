@@ -25,6 +25,8 @@ import de.idrinth.habitevaluator.shared.api.ApiClient;
 import de.idrinth.habitevaluator.shared.api.RemoteHabitRepository;
 import de.idrinth.habitevaluator.shared.api.RemoteUserRepository;
 import de.idrinth.habitevaluator.shared.api.SyncService;
+import de.idrinth.habitevaluator.shared.backup.BackupException;
+import de.idrinth.habitevaluator.shared.backup.BackupService;
 import de.idrinth.habitevaluator.shared.model.Habit;
 import de.idrinth.habitevaluator.shared.model.HabitCategory;
 import de.idrinth.habitevaluator.shared.model.HabitEntry;
@@ -138,6 +140,7 @@ public class MainActivity extends AppCompatActivity {
     private SleepEntryRepository sleepEntryRepository;
     private List<SleepEntry> sleepEntries = new ArrayList<>();
     private boolean isProgrammaticNavigation = false;
+    private final BackupService backupServiceInstance = new BackupService();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -156,6 +159,7 @@ public class MainActivity extends AppCompatActivity {
         setupViewPager();
         setupBottomNavigation();
         setupAddHabitButton();
+        performDailyBackupIfEnabled();
     }
 
     public void navigateToEditHabit(String habitId) {
@@ -441,6 +445,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         super.onStop();
+        performDailyBackupIfEnabled();
         if (usingRemoteStorage && localBackupRepository != null && localBackupUser != null) {
             new Thread(() -> {
                 // Save current habits to local backup
@@ -481,6 +486,33 @@ public class MainActivity extends AppCompatActivity {
             habit.addEntry(entry);
         }
         return habit;
+    }
+
+    private void performDailyBackupIfEnabled() {
+        SharedPreferences prefs = getSharedPreferences(SettingsActivity.PREFS_NAME, MODE_PRIVATE);
+        boolean backupEnabled = prefs.getBoolean(SettingsActivity.KEY_BACKUP_ENABLED, false);
+        if (!backupEnabled) {
+            return;
+        }
+        String password = prefs.getString(SettingsActivity.KEY_BACKUP_PASSWORD, "");
+        if (password.isEmpty()) {
+            return;
+        }
+        java.io.File backupDir = new java.io.File(getFilesDir(), "backups");
+        if (backupServiceInstance.hasTodaysBackup(backupDir)) {
+            return;
+        }
+        new Thread(() -> {
+            try {
+                backupServiceInstance.createBackup(backupDir, password, currentUser,
+                        habitRepository, categoryRepository,
+                        sharedDiaryEntryRepository, sleepEntryRepository);
+            } catch (BackupException e) {
+                runOnUiThread(() ->
+                        Toast.makeText(this, "Backup failed: " + e.getMessage(),
+                                Toast.LENGTH_LONG).show());
+            }
+        }).start();
     }
 
     public void loadDefaults() {
