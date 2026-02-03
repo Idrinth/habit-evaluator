@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns:fx="http://javafx.com/fxml"
+      fx:controller="de.idrinth.habitevaluator.desktop.controller.EmotionEntryController"
+      spacing="15" prefWidth="600" prefHeight="550">
+
+    <padding>
+        <Insets top="20" right="20" bottom="20" left="20"/>
+    </padding>
+
+    <Label text="Record Emotional State" styleClass="section-title" style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
+
+    <Separator/>
+
+    <HBox spacing="10" alignment="CENTER_LEFT">
+        <Label text="Emotion Pair:"/>
+        <ComboBox fx:id="emotionPairComboBox" prefWidth="250"/>
+    </HBox>
+
+    <VBox spacing="5">
+        <Label text="Strength:" style="-fx-font-weight: bold;"/>
+        <HBox spacing="10" alignment="CENTER_LEFT">
+            <Label fx:id="negativeEndLabel" text="-10" style="-fx-font-size: 11px; -fx-text-fill: #888;"/>
+            <Slider fx:id="strengthSlider" min="-10" max="10" value="0" blockIncrement="1"
+                    majorTickUnit="5" minorTickCount="4" showTickLabels="true" showTickMarks="true"
+                    snapToTicks="true" HBox.hgrow="ALWAYS"/>
+            <Label fx:id="positiveEndLabel" text="+10" style="-fx-font-size: 11px; -fx-text-fill: #888;"/>
+            <Label fx:id="strengthLabel" text="0" style="-fx-font-size: 14px; -fx-font-weight: bold;" prefWidth="30"/>
+        </HBox>
+    </VBox>
+
+    <HBox spacing="10" alignment="CENTER_LEFT">
+        <Label text="Date:"/>
+        <DatePicker fx:id="datePicker" prefWidth="130"/>
+        <Label text="Time:"/>
+        <Spinner fx:id="hourSpinner" prefWidth="70"/>
+        <Label text=":"/>
+        <Spinner fx:id="minuteSpinner" prefWidth="70"/>
+    </HBox>
+
+    <VBox spacing="5">
+        <Label text="Notes (optional):"/>
+        <TextArea fx:id="notesArea" prefRowCount="2" prefWidth="500"/>
+    </VBox>
+
+    <HBox spacing="10" alignment="CENTER_LEFT">
+        <Button text="Record" onAction="#handleRecordEmotion" styleClass="primary-button"/>
+        <Label fx:id="statusLabel" text=""/>
+    </HBox>
+
+    <Separator/>
+
+    <Label text="Recent Entries" style="-fx-font-weight: bold;"/>
+
+    <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS">
+        <VBox fx:id="entriesContainer" spacing="5">
+            <padding>
+                <Insets top="5" right="5" bottom="5" left="5"/>
+            </padding>
+        </VBox>
+    </ScrollPane>
+
+    <HBox spacing="10" alignment="CENTER_RIGHT">
+        <Button text="Close" onAction="#handleClose"/>
+    </HBox>
+</VBox>

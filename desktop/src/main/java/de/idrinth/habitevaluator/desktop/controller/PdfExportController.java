@@ -14,10 +14,12 @@ import com.lowagie.text.pdf.PdfPCell;
 import com.lowagie.text.pdf.PdfPTable;
 import com.lowagie.text.pdf.PdfWriter;
 import de.idrinth.habitevaluator.shared.model.DiaryEntry;
+import de.idrinth.habitevaluator.shared.model.EmotionEntry;
 import de.idrinth.habitevaluator.shared.model.Habit;
 import de.idrinth.habitevaluator.shared.model.SleepEntry;
 import de.idrinth.habitevaluator.shared.model.User;
 import de.idrinth.habitevaluator.shared.repository.DiaryEntryRepository;
+import de.idrinth.habitevaluator.shared.repository.EmotionEntryRepository;
 import de.idrinth.habitevaluator.shared.repository.HabitRepository;
 import de.idrinth.habitevaluator.shared.repository.SleepEntryRepository;
 import de.idrinth.habitevaluator.shared.service.DiaryService;
@@ -67,11 +69,15 @@ public class PdfExportController {
     private CheckBox includeDiaryCheckbox;
 
     @FXML
+    private CheckBox includeEmotionsCheckbox;
+
+    @FXML
     private Label statusLabel;
 
     private HabitRepository habitRepository;
     private DiaryEntryRepository diaryEntryRepository;
     private SleepEntryRepository sleepEntryRepository;
+    private EmotionEntryRepository emotionEntryRepository;
     private User currentUser;
     private final HabitScoringService scoringService = new HabitScoringService();
     private final DiaryService diaryService = new DiaryService();
@@ -94,6 +100,10 @@ public class PdfExportController {
         this.sleepEntryRepository = sleepEntryRepository;
     }
 
+    public void setEmotionEntryRepository(EmotionEntryRepository emotionEntryRepository) {
+        this.emotionEntryRepository = emotionEntryRepository;
+    }
+
     public void setCurrentUser(User currentUser) {
         this.currentUser = currentUser;
     }
@@ -102,7 +112,8 @@ public class PdfExportController {
     private void handleExport() {
         if (!includeHabitsCheckbox.isSelected()
                 && !includeSleepCheckbox.isSelected()
-                && !includeDiaryCheckbox.isSelected()) {
+                && !includeDiaryCheckbox.isSelected()
+                && !includeEmotionsCheckbox.isSelected()) {
             statusLabel.setText("Select at least one section.");
             statusLabel.setStyle("-fx-text-fill: red;");
             return;
@@ -146,7 +157,8 @@ public class PdfExportController {
                 generatePdf(file, finalFromDate, finalToDate,
                         includeHabitsCheckbox.isSelected(),
                         includeSleepCheckbox.isSelected(),
-                        includeDiaryCheckbox.isSelected());
+                        includeDiaryCheckbox.isSelected(),
+                        includeEmotionsCheckbox.isSelected());
                 javafx.application.Platform.runLater(() -> {
                     statusLabel.setText("PDF exported successfully.");
                     statusLabel.setStyle("-fx-text-fill: green;");
@@ -167,7 +179,8 @@ public class PdfExportController {
     }
 
     private void generatePdf(File file, LocalDate fromDate, LocalDate toDate,
-                              boolean includeHabits, boolean includeSleep, boolean includeDiary)
+                              boolean includeHabits, boolean includeSleep, boolean includeDiary,
+                              boolean includeEmotions)
             throws DocumentException, IOException {
         Document document = new Document(PageSize.A4, 40, 40, 40, 40);
         PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream(file));
@@ -193,6 +206,9 @@ public class PdfExportController {
         }
         if (includeDiary) {
             addDiarySection(document, writer, userId, fromDate, toDate);
+        }
+        if (includeEmotions) {
+            addEmotionSection(document, writer, userId, fromDate, toDate);
         }
 
         document.close();
@@ -446,6 +462,96 @@ public class PdfExportController {
             table.setSpacingAfter(15);
             document.add(table);
         }
+    }
+
+    private void addEmotionSection(Document document, PdfWriter writer, String userId,
+                                     LocalDate fromDate, LocalDate toDate) throws DocumentException {
+        List<EmotionEntry> allEntries = new ArrayList<>();
+        if (emotionEntryRepository != null && userId != null) {
+            allEntries = emotionEntryRepository.findByUserId(userId);
+        }
+
+        Paragraph header = new Paragraph("Emotions", SECTION_FONT);
+        header.setSpacingBefore(15);
+        header.setSpacingAfter(10);
+        document.add(header);
+
+        List<EmotionEntry> rangeEntries = new ArrayList<>();
+        for (EmotionEntry entry : allEntries) {
+            LocalDate entryDate = entry.getRecordedAt().toLocalDate();
+            if (!entryDate.isBefore(fromDate) && !entryDate.isAfter(toDate)) {
+                rangeEntries.add(entry);
+            }
+        }
+
+        if (rangeEntries.isEmpty()) {
+            document.add(new Paragraph("No emotion data available.", BODY_FONT));
+            return;
+        }
+
+        // Chart: number of emotion events per day
+        List<String> labels = new ArrayList<>();
+        List<Float> counts = new ArrayList<>();
+        Map<LocalDate, Integer> countByDate = new TreeMap<>();
+        for (LocalDate d = fromDate; !d.isAfter(toDate); d = d.plusDays(1)) {
+            countByDate.put(d, 0);
+        }
+        for (EmotionEntry entry : rangeEntries) {
+            LocalDate entryDate = entry.getRecordedAt().toLocalDate();
+            countByDate.merge(entryDate, 1, Integer::sum);
+        }
+
+        float totalEvents = 0f;
+        int daysWithData = 0;
+        for (Map.Entry<LocalDate, Integer> mapEntry : countByDate.entrySet()) {
+            labels.add(mapEntry.getKey().format(LABEL_FORMAT));
+            counts.add((float) mapEntry.getValue());
+            if (mapEntry.getValue() > 0) {
+                totalEvents += mapEntry.getValue();
+                daysWithData++;
+            }
+        }
+        float avgEvents = daysWithData > 0 ? totalEvents / daysWithData : 0f;
+
+        drawBarChart(writer, document, labels, counts, avgEvents, new Color(0x7B, 0x1F, 0xA2), "Emotion Events");
+
+        Paragraph stats = new Paragraph(
+                String.format("Total: %d events  |  Average: %.1f events/day", (int) totalEvents, avgEvents),
+                BODY_FONT);
+        stats.setSpacingAfter(10);
+        document.add(stats);
+
+        // Entries table
+        Paragraph entriesTitle = new Paragraph("Emotion Entries",
+                FontFactory.getFont(FontFactory.HELVETICA_BOLD, 13, Color.BLACK));
+        entriesTitle.setSpacingBefore(5);
+        entriesTitle.setSpacingAfter(5);
+        document.add(entriesTitle);
+
+        PdfPTable table = new PdfPTable(4);
+        table.setWidthPercentage(100);
+        table.setWidths(new float[]{2, 2.5f, 1, 3});
+
+        addTableHeader(table, "Date/Time");
+        addTableHeader(table, "Emotion Pair");
+        addTableHeader(table, "Strength");
+        addTableHeader(table, "Notes");
+
+        DateTimeFormatter dtFmt = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        for (EmotionEntry entry : rangeEntries) {
+            addTableCell(table, entry.getRecordedAt().format(dtFmt));
+            String pairText = entry.getEmotionPair() != null ? entry.getEmotionPair().toString() : "";
+            addTableCell(table, pairText);
+            addTableCell(table, String.valueOf(entry.getStrength()));
+            String notes = entry.getNotes();
+            if (notes != null && notes.length() > 50) {
+                notes = notes.substring(0, 47) + "...";
+            }
+            addTableCell(table, notes != null ? notes : "");
+        }
+
+        table.setSpacingAfter(15);
+        document.add(table);
     }
 
     private void drawBarChart(PdfWriter writer, Document document, List<String> labels,
