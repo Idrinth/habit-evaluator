@@ -48,6 +48,8 @@
 		<a href="/habits/add">Add Habit</a>
 		<a href="/categories/add">Add Category</a>
 		<a href="/score-rules/add">Scoring Rules</a>
+		<a href="/diary">Diary</a>
+		<a href="/sleep">Sleep</a>
 		<a href="/stats">Statistics</a>
 		<span style="margin-left: auto; color: var(--color-nav-text);">{data.username}</span>
 		<select class="theme-select" value={themeMode} onchange={handleThemeChange}>

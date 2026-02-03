@@ -40,7 +40,8 @@ public class H2SleepEntryRepository implements SleepEntryRepository {
     public Optional<SleepEntry> findById(String id) {
         EntityManager em = PersistenceManager.createEntityManager();
         try {
-            return Optional.ofNullable(em.find(SleepEntry.class, id));
+            SleepEntry entry = em.find(SleepEntry.class, id);
+            return Optional.ofNullable(entry);
         } finally {
             em.close();
         }

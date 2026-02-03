@@ -40,7 +40,8 @@ public class H2DiaryEntryRepository implements DiaryEntryRepository {
     public Optional<DiaryEntry> findById(String id) {
         EntityManager em = PersistenceManager.createEntityManager();
         try {
-            return Optional.ofNullable(em.find(DiaryEntry.class, id));
+            DiaryEntry entry = em.find(DiaryEntry.class, id);
+            return Optional.ofNullable(entry);
         } finally {
             em.close();
         }
