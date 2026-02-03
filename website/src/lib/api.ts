@@ -40,6 +40,8 @@ export interface Habit {
 	positiveScoring: boolean;
 	scoringRule?: ScoringRule | null;
 	entries?: { completedAt: string }[];
+	nameTranslations?: Record<string, string>;
+	descriptionTranslations?: Record<string, string>;
 }
 
 export interface HabitCategory {
@@ -77,7 +79,7 @@ export const habits = {
 	list() {
 		return request<Habit[]>('/habits');
 	},
-	create(habit: { name: string; description?: string; categoryId?: string; frequencyType: string; targetFrequency: number; maxEntriesPerDay: number; positiveScoring: boolean }) {
+	create(habit: { name: string; description?: string; categoryId?: string; frequencyType: string; targetFrequency: number; maxEntriesPerDay: number; positiveScoring: boolean; nameTranslations?: Record<string, string>; descriptionTranslations?: Record<string, string> }) {
 		return request<Habit>('/habits', {
 			method: 'POST',
 			body: JSON.stringify(habit)

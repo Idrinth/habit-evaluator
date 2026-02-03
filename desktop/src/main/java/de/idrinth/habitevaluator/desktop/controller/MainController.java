@@ -97,6 +97,10 @@ public class MainController {
     private final Map<String, TextField> editThreshold2Fields = new HashMap<>();
     private final Map<String, TextField> editThreshold4Fields = new HashMap<>();
     private final Map<String, TextField> editThreshold8Fields = new HashMap<>();
+    private final Map<String, Map<String, TextField>> editNameTranslationFields = new HashMap<>();
+    private final Map<String, Map<String, TextField>> editDescTranslationFields = new HashMap<>();
+    private static final String[] TRANSLATION_LANGUAGES = {"en", "de", "es", "fr"};
+    private static final String[] TRANSLATION_LANGUAGE_LABELS = {"English", "Deutsch", "Español", "Français"};
     private final ObservableList<Habit> habits = FXCollections.observableArrayList();
     private final ObservableList<Habit> filteredHabits = FXCollections.observableArrayList();
     private final HabitEvaluatorService evaluatorService = new HabitEvaluatorService();
@@ -394,6 +398,7 @@ public class MainController {
             controller.setCategoryRepository(categoryRepository);
             controller.setApiClient(apiClient);
             controller.setCurrentUser(currentUser);
+            controller.setStorageConfig(storageConfig);
             controller.setCategoryList(categoryList);
 
             Stage dialogStage = new Stage();
@@ -537,6 +542,8 @@ public class MainController {
         editThreshold2Fields.clear();
         editThreshold4Fields.clear();
         editThreshold8Fields.clear();
+        editNameTranslationFields.clear();
+        editDescTranslationFields.clear();
         editMessage.setText("");
 
         if (habits.isEmpty()) {
@@ -613,6 +620,41 @@ public class MainController {
             editThreshold4Fields.put(habit.getId(), t4);
             editThreshold8Fields.put(habit.getId(), t8);
 
+            if (storageConfig.isCustomTranslationsEnabled()) {
+                Label translationsLabel = new Label("Translations:");
+                translationsLabel.setStyle("-fx-font-size: 11px; -fx-padding: 4 0 0 0;");
+                habitBox.getChildren().add(translationsLabel);
+
+                Map<String, TextField> nameFields = new HashMap<>();
+                Map<String, TextField> descFields = new HashMap<>();
+
+                for (int i = 0; i < TRANSLATION_LANGUAGES.length; i++) {
+                    String lang = TRANSLATION_LANGUAGES[i];
+                    String label = TRANSLATION_LANGUAGE_LABELS[i];
+
+                    TextField nameField = new TextField(
+                            habit.getNameTranslations().getOrDefault(lang, ""));
+                    nameField.setPrefWidth(150);
+                    nameField.setPromptText("Name (" + label + ")");
+
+                    TextField descField = new TextField(
+                            habit.getDescriptionTranslations().getOrDefault(lang, ""));
+                    descField.setPrefWidth(200);
+                    descField.setPromptText("Description (" + label + ")");
+
+                    HBox translationRow = new HBox(6,
+                            new Label(label + ":"), nameField, descField);
+                    translationRow.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+                    habitBox.getChildren().add(translationRow);
+
+                    nameFields.put(lang, nameField);
+                    descFields.put(lang, descField);
+                }
+
+                editNameTranslationFields.put(habit.getId(), nameFields);
+                editDescTranslationFields.put(habit.getId(), descFields);
+            }
+
             editHabitsContainer.getChildren().add(habitBox);
         }
     }
@@ -678,6 +720,29 @@ public class MainController {
                     }
                 } catch (NumberFormatException e) {
                     // ignore invalid thresholds
+                }
+            }
+
+            Map<String, TextField> nameTransFields = editNameTranslationFields.get(habit.getId());
+            Map<String, TextField> descTransFields = editDescTranslationFields.get(habit.getId());
+            if (nameTransFields != null && descTransFields != null) {
+                Map<String, String> nameTranslations = new HashMap<>();
+                Map<String, String> descTranslations = new HashMap<>();
+                for (String lang : TRANSLATION_LANGUAGES) {
+                    TextField nf = nameTransFields.get(lang);
+                    if (nf != null && !nf.getText().trim().isEmpty()) {
+                        nameTranslations.put(lang, nf.getText().trim());
+                    }
+                    TextField df = descTransFields.get(lang);
+                    if (df != null && !df.getText().trim().isEmpty()) {
+                        descTranslations.put(lang, df.getText().trim());
+                    }
+                }
+                if (!nameTranslations.equals(habit.getNameTranslations())
+                        || !descTranslations.equals(habit.getDescriptionTranslations())) {
+                    habit.setNameTranslations(nameTranslations);
+                    habit.setDescriptionTranslations(descTranslations);
+                    changed = true;
                 }
             }
 

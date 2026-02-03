@@ -43,5 +43,7 @@
         <CheckBox fx:id="positiveScoringCheckBox" text="Positive scoring" selected="true"/>
     </HBox>
 
+    <VBox fx:id="translationsContainer" spacing="8" visible="false" managed="false"/>
+
     <Button text="Add Habit" onAction="#handleAddHabit" styleClass="primary-button"/>
 </VBox>
