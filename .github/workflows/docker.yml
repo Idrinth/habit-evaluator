@@ -1,9 +1,12 @@
-name: Build Latest
+name: Docker
 
 on:
   push:
     branches:
       - the-one
+  release:
+    types:
+      - published
 
 permissions:
   contents: read
@@ -38,10 +41,23 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Extract metadata
+        if: github.event_name == 'release'
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ steps.repo.outputs.repo_lc }}/${{ matrix.image }}
+          tags: |
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+            type=ref,event=tag
+
       - name: Build and push Docker image
         uses: docker/build-push-action@v6
         with:
           context: ${{ matrix.context }}
           file: ${{ matrix.dockerfile }}
           push: true
-          tags: ghcr.io/${{ steps.repo.outputs.repo_lc }}/${{ matrix.image }}:latest
+          tags: ${{ github.event_name == 'release' && steps.meta.outputs.tags || format('ghcr.io/{0}/{1}:latest', steps.repo.outputs.repo_lc, matrix.image) }}
+          labels: ${{ steps.meta.outputs.labels }}
