@@ -115,7 +115,7 @@
 		<button type="submit">Add Sleep Entry</button>
 	</form>
 
-	<Separator />
+	<hr />
 
 	{#if loading}
 		<p style="text-align: center; color: var(--color-text-placeholder);">Loading...</p>

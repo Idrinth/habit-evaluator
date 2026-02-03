@@ -103,6 +103,7 @@
 
 			<div class="chart-section">
 				<h2>Daily Points</h2>
+				{#if true}
 				{@const maxVal = getMax(chartData.dailyPoints)}
 				{@const minVal = getMin(chartData.dailyPoints)}
 				{@const range = Math.max(maxVal - minVal, 1)}
@@ -135,10 +136,12 @@
 						{/if}
 					</div>
 				</div>
+				{/if}
 			</div>
 
 			<div class="chart-section">
 				<h2>Running Average</h2>
+				{#if true}
 				{@const avgMax = getMax(chartData.runningAverages)}
 				{@const avgMin = getMin(chartData.runningAverages)}
 				{@const avgRange = Math.max(avgMax - avgMin, 1)}
@@ -165,10 +168,12 @@
 						{/each}
 					</div>
 				</div>
+				{/if}
 			</div>
 
 			<div class="chart-section">
 				<h2>Cumulative Total</h2>
+				{#if true}
 				{@const cumMax = getMax(chartData.cumulativeTotals)}
 				{@const cumMin = getMin(chartData.cumulativeTotals)}
 				{@const cumRange = Math.max(cumMax - cumMin, 1)}
@@ -195,6 +200,7 @@
 						{/each}
 					</div>
 				</div>
+				{/if}
 			</div>
 		{:else if selectedHabitId}
 			<p class="loading-text">Loading chart data...</p>
