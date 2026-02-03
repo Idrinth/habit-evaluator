@@ -1,5 +1,6 @@
 package de.idrinth.habitevaluator.android;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -39,6 +40,15 @@ public class StatsFragment extends Fragment {
                              @Nullable Bundle savedInstanceState) {
         binding = FragmentStatsBinding.inflate(inflater, container, false);
         return binding.getRoot();
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        binding.exportPdfButton.setOnClickListener(v -> {
+            Intent intent = new Intent(requireContext(), PdfExportActivity.class);
+            startActivity(intent);
+        });
     }
 
     @Override
