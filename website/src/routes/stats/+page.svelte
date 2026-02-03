@@ -1,14 +1,20 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { stats, type DashboardData } from '$lib/api';
+	import { stats, type DashboardData, type DailyTimelineData } from '$lib/api';
 	import { goto } from '$app/navigation';
 
 	let data: DashboardData | null = $state(null);
+	let timelineData: DailyTimelineData | null = $state(null);
 	let error: string | null = $state(null);
 
 	onMount(async () => {
 		try {
-			data = await stats.dashboard();
+			const [dashboardResult, timelineResult] = await Promise.all([
+				stats.dashboard(),
+				stats.dailyTimeline()
+			]);
+			data = dashboardResult;
+			timelineData = timelineResult;
 		} catch (e) {
 			if (e instanceof Error && e.message.includes('401')) {
 				goto('/login');
@@ -31,6 +37,12 @@
 		const nonZero = values.filter((v) => v > 0);
 		if (nonZero.length === 0) return 0;
 		return nonZero.reduce((a, b) => a + b, 0) / nonZero.length;
+	}
+
+	function formatHour(hour: number): string {
+		const h = Math.floor(hour);
+		const m = Math.round((hour - h) * 60);
+		return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
 	}
 </script>
 
@@ -163,6 +175,77 @@
 				</div>
 			</div>
 		</div>
+
+		{#if timelineData && timelineData.habits.length > 0}
+			{@const chartWidth = timelineData.labels.length * 20}
+			{@const plotTop = 10}
+			{@const plotBottom = 240}
+			{@const plotHeight = plotBottom - plotTop}
+			{@const leftMargin = 35}
+			{@const totalWidth = chartWidth + leftMargin}
+			<div class="chart-card timeline-card">
+				<h2>Daily Activity Timeline</h2>
+				<div class="timeline-wrapper">
+					<svg viewBox="0 0 {totalWidth} 260" class="timeline-chart">
+						{#each [0, 4, 8, 12, 16, 20, 24] as hour}
+							{@const y = plotTop + (hour / 24) * plotHeight}
+							<line
+								x1={leftMargin}
+								y1={y}
+								x2={totalWidth}
+								y2={y}
+								stroke="var(--color-border)"
+								stroke-width="0.5"
+								stroke-dasharray="2,2"
+							/>
+							<text
+								x={leftMargin - 3}
+								y={y + 3}
+								text-anchor="end"
+								font-size="7"
+								fill="var(--color-text-muted)"
+							>
+								{String(hour).padStart(2, '0')}:00
+							</text>
+						{/each}
+						{#each timelineData.labels as label, i}
+							{#if i % 5 === 0}
+								<text
+									x={leftMargin + i * 20 + 10}
+									y={258}
+									text-anchor="middle"
+									font-size="6"
+									fill="var(--color-text-muted)"
+								>
+									{label}
+								</text>
+							{/if}
+						{/each}
+						{#each timelineData.habits as habit}
+							{#each habit.entries as entry}
+								<circle
+									cx={leftMargin + entry.dayIndex * 20 + 10}
+									cy={plotTop + (entry.hour / 24) * plotHeight}
+									r="3.5"
+									fill={habit.color}
+									opacity="0.8"
+								>
+									<title>{habit.habitName} - {timelineData.labels[entry.dayIndex]} at {formatHour(entry.hour)}</title>
+								</circle>
+							{/each}
+						{/each}
+					</svg>
+				</div>
+				<div class="timeline-legend">
+					{#each timelineData.habits as habit}
+						<span class="legend-item">
+							<span class="legend-dot" style="background: {habit.color}"></span>
+							{habit.habitName}
+						</span>
+					{/each}
+				</div>
+			</div>
+		{/if}
 	{/if}
 </div>
 
@@ -227,6 +310,43 @@
 	.chart-labels span {
 		position: absolute;
 		transform: translateX(-50%);
+	}
+
+	.timeline-card {
+		grid-column: 1 / -1;
+		margin-top: 1rem;
+	}
+
+	.timeline-wrapper {
+		overflow-x: auto;
+	}
+
+	.timeline-chart {
+		width: 100%;
+		height: auto;
+		min-width: 400px;
+	}
+
+	.timeline-legend {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.75rem;
+		margin-top: 0.75rem;
+		font-size: 0.8rem;
+	}
+
+	.legend-item {
+		display: flex;
+		align-items: center;
+		gap: 0.3rem;
+		color: var(--color-text);
+	}
+
+	.legend-dot {
+		display: inline-block;
+		width: 10px;
+		height: 10px;
+		border-radius: 50%;
 	}
 
 	@media (max-width: 600px) {

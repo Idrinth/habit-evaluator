@@ -189,9 +189,29 @@ export interface DashboardData {
 	sleepEntries: number[];
 }
 
+export interface TimelineEntry {
+	dayIndex: number;
+	hour: number;
+}
+
+export interface TimelineHabit {
+	habitId: string;
+	habitName: string;
+	color: string;
+	entries: TimelineEntry[];
+}
+
+export interface DailyTimelineData {
+	labels: string[];
+	habits: TimelineHabit[];
+}
+
 export const stats = {
 	dashboard() {
 		return request<DashboardData>('/stats/dashboard');
+	},
+	dailyTimeline() {
+		return request<DailyTimelineData>('/stats/daily-timeline');
 	}
 };
 
