@@ -29,6 +29,8 @@ habits:
   add_completion: "Abschluss hinzufügen"
   complete: "Erledigt"
   delete: "Löschen"
+  name_translation: "Name (%s)"
+  description_translation: "Description (%s)"
 evaluation:
   current_streak: "Aktuelle Serie"
   completion_rate: "Abschlussrate"
@@ -89,6 +91,8 @@ settings:
   language_de: "Deutsch"
   language_es: "Español"
   language_fr: "Français"
+  custom_translations: "Custom Translations"
+  custom_translations_label: "Enable custom habit translations"
 sync:
   title: "Mit Remote-Server synchronisieren"
   description: "Geben Sie die Remote-Server-Details ein, um Ihre Gewohnheiten zu synchronisieren:"
