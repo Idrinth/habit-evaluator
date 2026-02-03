@@ -176,4 +176,23 @@
     <string name="delete_emotion_pair_confirmation">¿Eliminar \"%1$s\"? Esto no se puede deshacer.</string>
     <string name="stats_correlations_title">Correlaciones de eventos (Anual, Ponderado)</string>
     <string name="stats_no_correlations">No hay suficientes datos para correlaciones</string>
+    <string name="backup_settings">Configuración de respaldo</string>
+    <string name="backup_enabled_label">Activar respaldos diarios cifrados</string>
+    <string name="backup_password_hint">Contraseña de respaldo</string>
+    <string name="backup_password_confirm_hint">Confirmar contraseña de respaldo</string>
+    <string name="backup_password_required">La contraseña de respaldo es obligatoria cuando los respaldos están activados</string>
+    <string name="backup_passwords_mismatch">Las contraseñas no coinciden</string>
+    <string name="record_emotion_entry">Registrar emoción</string>
+    <string name="record_emotion">Registrar</string>
+    <string name="emotion_notes_hint">Notas (opcional)</string>
+    <string name="emotion_entry_recorded">Emoción registrada</string>
+    <string name="no_emotion_pair_selected">Ningún par de emociones seleccionado</string>
+    <string name="delete_emotion_entry">Eliminar entrada de emoción</string>
+    <string name="delete_emotion_entry_confirmation">¿Eliminar esta entrada de emoción? Esto no se puede deshacer.</string>
+    <string name="emotion_entry_deleted">Entrada de emoción eliminada</string>
+    <string name="pdf_include_emotions">Mediciones de emociones y gráfico</string>
+    <string name="pdf_section_emotions">Emociones</string>
+    <string name="pdf_emotion_entries">Entradas de emociones</string>
+    <string name="pdf_section_correlations">Correlaciones de eventos</string>
+    <string name="pdf_correlation_description">Correlaciones de Pearson ponderadas en el tiempo durante el último año</string>
 </resources>

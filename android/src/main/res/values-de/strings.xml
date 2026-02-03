@@ -176,4 +176,23 @@
     <string name="delete_emotion_pair_confirmation">„%1$s" löschen? Dies kann nicht rückgängig gemacht werden.</string>
     <string name="stats_correlations_title">Ereigniskorrelationen (Jährlich, Zeitgewichtet)</string>
     <string name="stats_no_correlations">Nicht genug Daten für Korrelationen</string>
+    <string name="backup_settings">Backup-Einstellungen</string>
+    <string name="backup_enabled_label">Tägliche verschlüsselte Backups aktivieren</string>
+    <string name="backup_password_hint">Backup-Passwort</string>
+    <string name="backup_password_confirm_hint">Backup-Passwort bestätigen</string>
+    <string name="backup_password_required">Backup-Passwort ist erforderlich, wenn Backups aktiviert sind</string>
+    <string name="backup_passwords_mismatch">Passwörter stimmen nicht überein</string>
+    <string name="record_emotion_entry">Emotion erfassen</string>
+    <string name="record_emotion">Erfassen</string>
+    <string name="emotion_notes_hint">Notizen (optional)</string>
+    <string name="emotion_entry_recorded">Emotion erfasst</string>
+    <string name="no_emotion_pair_selected">Kein Emotionspaar ausgewählt</string>
+    <string name="delete_emotion_entry">Emotionseintrag löschen</string>
+    <string name="delete_emotion_entry_confirmation">Diesen Emotionseintrag löschen? Dies kann nicht rückgängig gemacht werden.</string>
+    <string name="emotion_entry_deleted">Emotionseintrag gelöscht</string>
+    <string name="pdf_include_emotions">Emotionsmessungen und Grafik</string>
+    <string name="pdf_section_emotions">Emotionen</string>
+    <string name="pdf_emotion_entries">Emotionseinträge</string>
+    <string name="pdf_section_correlations">Ereigniskorrelationen</string>
+    <string name="pdf_correlation_description">Zeitgewichtete Pearson-Korrelationen über das vergangene Jahr</string>
 </resources>
