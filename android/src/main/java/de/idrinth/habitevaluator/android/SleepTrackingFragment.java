@@ -172,7 +172,9 @@ public class SleepTrackingFragment extends Fragment implements SleepEntryAdapter
         displayedEntries.clear();
         if (allEntries != null) {
             List<SleepEntry> sorted = new ArrayList<>(allEntries);
-            sorted.sort(Comparator.comparing(SleepEntry::getDate).reversed());
+            sorted.sort(Comparator.comparing(SleepEntry::getDate)
+                    .thenComparing(SleepEntry::getFromTime)
+                    .reversed());
             displayedEntries.addAll(sorted);
         }
         adapter.notifyDataSetChanged();
