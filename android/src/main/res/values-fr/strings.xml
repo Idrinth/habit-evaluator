@@ -176,4 +176,23 @@
     <string name="delete_emotion_pair_confirmation">Supprimer « %1$s » ? Cette action est irréversible.</string>
     <string name="stats_correlations_title">Corrélations d\'événements (Annuel, Pondéré)</string>
     <string name="stats_no_correlations">Pas assez de données pour les corrélations</string>
+    <string name="backup_settings">Paramètres de sauvegarde</string>
+    <string name="backup_enabled_label">Activer les sauvegardes quotidiennes chiffrées</string>
+    <string name="backup_password_hint">Mot de passe de sauvegarde</string>
+    <string name="backup_password_confirm_hint">Confirmer le mot de passe de sauvegarde</string>
+    <string name="backup_password_required">Le mot de passe de sauvegarde est requis lorsque les sauvegardes sont activées</string>
+    <string name="backup_passwords_mismatch">Les mots de passe ne correspondent pas</string>
+    <string name="record_emotion_entry">Enregistrer une émotion</string>
+    <string name="record_emotion">Enregistrer</string>
+    <string name="emotion_notes_hint">Notes (facultatif)</string>
+    <string name="emotion_entry_recorded">Émotion enregistrée</string>
+    <string name="no_emotion_pair_selected">Aucune paire d\'émotions sélectionnée</string>
+    <string name="delete_emotion_entry">Supprimer l\'entrée d\'émotion</string>
+    <string name="delete_emotion_entry_confirmation">Supprimer cette entrée d\'émotion ? Cette action est irréversible.</string>
+    <string name="emotion_entry_deleted">Entrée d\'émotion supprimée</string>
+    <string name="pdf_include_emotions">Mesures d\'émotions et graphique</string>
+    <string name="pdf_section_emotions">Émotions</string>
+    <string name="pdf_emotion_entries">Entrées d\'émotions</string>
+    <string name="pdf_section_correlations">Corrélations d\'événements</string>
+    <string name="pdf_correlation_description">Corrélations de Pearson pondérées dans le temps sur l\'année écoulée</string>
 </resources>
