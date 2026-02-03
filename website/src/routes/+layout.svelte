@@ -48,6 +48,7 @@
 		<a href="/habits/add">Add Habit</a>
 		<a href="/categories/add">Add Category</a>
 		<a href="/score-rules/add">Scoring Rules</a>
+		<a href="/points">Point Charts</a>
 		<span style="margin-left: auto; color: var(--color-nav-text);">{data.username}</span>
 		<select class="theme-select" value={themeMode} onchange={handleThemeChange}>
 			<option value="system">System</option>

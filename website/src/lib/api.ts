@@ -73,6 +73,15 @@ export const auth = {
 	}
 };
 
+export interface PointDevelopmentData {
+	dailyPoints: number[];
+	labels: string[];
+	runningAverages: number[];
+	cumulativeTotals: number[];
+	totalPoints: number;
+	average: number;
+}
+
 export const habits = {
 	list() {
 		return request<Habit[]>('/habits');
@@ -88,6 +97,9 @@ export const habits = {
 			method: 'PUT',
 			body: JSON.stringify(habit)
 		});
+	},
+	pointDevelopment(habitId: string, period: 'week' | 'month') {
+		return request<PointDevelopmentData>(`/habits/${habitId}/point-development?period=${period}`);
 	}
 };
 
