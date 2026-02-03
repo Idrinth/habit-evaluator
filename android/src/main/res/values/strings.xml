@@ -181,6 +181,11 @@
     <string name="emotion_pair_deleted">Emotion pair deleted</string>
     <string name="delete_emotion_pair">Delete Emotion Pair</string>
     <string name="delete_emotion_pair_confirmation">Delete \"%1$s\"? This cannot be undone.</string>
+    <string name="record_emotion_entry">Record Emotion</string>
+    <string name="record_emotion">Record</string>
+    <string name="emotion_notes_hint">Notes (optional)</string>
+    <string name="emotion_entry_recorded">Emotion recorded</string>
+    <string name="no_emotion_pair_selected">No emotion pair selected</string>
     <string name="stats_correlations_title">Event Correlations (Yearly, Time-Weighted)</string>
     <string name="stats_no_correlations">Not enough data for correlations</string>
 </resources>

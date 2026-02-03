@@ -18,14 +18,20 @@ public class EmotionPairAdapter extends RecyclerView.Adapter<EmotionPairAdapter.
 
     private final List<EmotionPair> emotionPairs;
     private final OnDeleteListener deleteListener;
+    private final OnClickListener clickListener;
 
     public interface OnDeleteListener {
         void onDelete(EmotionPair pair);
     }
 
-    public EmotionPairAdapter(List<EmotionPair> emotionPairs, OnDeleteListener deleteListener) {
+    public interface OnClickListener {
+        void onClick(EmotionPair pair);
+    }
+
+    public EmotionPairAdapter(List<EmotionPair> emotionPairs, OnDeleteListener deleteListener, OnClickListener clickListener) {
         this.emotionPairs = emotionPairs;
         this.deleteListener = deleteListener;
+        this.clickListener = clickListener;
     }
 
     @NonNull
@@ -40,6 +46,11 @@ public class EmotionPairAdapter extends RecyclerView.Adapter<EmotionPairAdapter.
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         EmotionPair pair = emotionPairs.get(position);
         holder.emotionPairText.setText(pair.toString());
+        holder.itemView.setOnClickListener(v -> {
+            if (clickListener != null) {
+                clickListener.onClick(pair);
+            }
+        });
         holder.deleteButton.setOnClickListener(v -> {
             if (deleteListener != null) {
                 deleteListener.onDelete(pair);

@@ -39,7 +39,7 @@ public class EmotionalStateFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         emotionPairs = new ArrayList<>();
-        adapter = new EmotionPairAdapter(emotionPairs, this::confirmDeleteEmotionPair);
+        adapter = new EmotionPairAdapter(emotionPairs, this::confirmDeleteEmotionPair, this::onEmotionPairClicked);
         binding.emotionPairsRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
         binding.emotionPairsRecyclerView.setAdapter(adapter);
 
@@ -60,6 +60,12 @@ public class EmotionalStateFragment extends Fragment {
         emotionPairs.clear();
         emotionPairs.addAll(MainActivity.getSharedEmotionPairs());
         adapter.notifyDataSetChanged();
+    }
+
+    private void onEmotionPairClicked(EmotionPair pair) {
+        if (getActivity() instanceof MainActivity) {
+            ((MainActivity) getActivity()).navigateToRecordEmotionEntry(pair.getId());
+        }
     }
 
     private void confirmDeleteEmotionPair(EmotionPair pair) {
