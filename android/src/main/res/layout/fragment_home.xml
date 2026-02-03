@@ -14,14 +14,33 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <Spinner
-        android:id="@+id/categoryFilterSpinner"
+    <LinearLayout
+        android:id="@+id/habitHeaderLayout"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/loadDefaultsButton" />
+        app:layout_constraintTop_toBottomOf="@id/loadDefaultsButton">
+
+        <Spinner
+            android:id="@+id/categoryFilterSpinner"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+
+        <ImageButton
+            android:id="@+id/addHabitButton"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_marginStart="8dp"
+            android:src="@drawable/ic_add"
+            android:contentDescription="@string/add_habit"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:scaleType="centerInside" />
+    </LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/habitsRecyclerView"
@@ -31,7 +50,7 @@
         app:layout_constraintBottom_toTopOf="@id/evaluationCard"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/categoryFilterSpinner" />
+        app:layout_constraintTop_toBottomOf="@id/habitHeaderLayout" />
 
     <androidx.cardview.widget.CardView
         android:id="@+id/evaluationCard"
