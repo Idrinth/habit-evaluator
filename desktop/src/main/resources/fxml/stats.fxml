@@ -9,7 +9,7 @@
 
 <VBox xmlns:fx="http://javafx.com/fxml"
       fx:controller="de.idrinth.habitevaluator.desktop.controller.StatsController"
-      spacing="15" prefWidth="750" prefHeight="550">
+      spacing="15" prefWidth="750" prefHeight="700">
     <padding>
         <Insets top="15" right="15" bottom="15" left="15"/>
     </padding>
@@ -61,6 +61,20 @@
                 </xAxis>
                 <yAxis>
                     <NumberAxis fx:id="sleepEntriesYAxis" label="Count"/>
+                </yAxis>
+            </BarChart>
+        </VBox>
+    </HBox>
+
+    <HBox spacing="10" VBox.vgrow="ALWAYS">
+        <VBox spacing="5" HBox.hgrow="ALWAYS" prefWidth="750">
+            <Label text="Emotion Events"/>
+            <BarChart fx:id="emotionEventsChart" VBox.vgrow="ALWAYS" legendVisible="false" animated="false">
+                <xAxis>
+                    <CategoryAxis fx:id="emotionXAxis" tickLabelRotation="90" tickLabelGap="2"/>
+                </xAxis>
+                <yAxis>
+                    <NumberAxis fx:id="emotionYAxis" label="Count"/>
                 </yAxis>
             </BarChart>
         </VBox>

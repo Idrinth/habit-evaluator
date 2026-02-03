@@ -33,6 +33,7 @@
         <CheckBox fx:id="includeHabitsCheckbox" text="Habits" selected="true"/>
         <CheckBox fx:id="includeSleepCheckbox" text="Sleep" selected="true"/>
         <CheckBox fx:id="includeDiaryCheckbox" text="Diary" selected="true"/>
+        <CheckBox fx:id="includeEmotionsCheckbox" text="Emotions" selected="true"/>
     </VBox>
 
     <Separator/>

@@ -51,6 +51,8 @@
             <HBox spacing="10">
                 <Button text="Add Habit" onAction="#handleOpenAddHabit" styleClass="primary-button"/>
                 <Button text="Sleep Tracking" onAction="#handleOpenSleepTracking" styleClass="primary-button"/>
+                <Button text="Emotion Pairs" onAction="#handleOpenEmotionPairs" styleClass="primary-button"/>
+                <Button text="Record Emotion" onAction="#handleOpenEmotionEntry" styleClass="primary-button"/>
             </HBox>
 
             <Separator/>
