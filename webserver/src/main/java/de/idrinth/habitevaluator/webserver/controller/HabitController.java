@@ -143,6 +143,26 @@ public class HabitController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    @DeleteMapping("/{id}/entries/last")
+    public ResponseEntity<Void> removeLastEntry(@PathVariable String id,
+                                                 @RequestParam LocalDate date,
+                                                 HttpSession session) {
+        String userId = (String) session.getAttribute("userId");
+        if (userId == null) {
+            return ResponseEntity.status(401).build();
+        }
+        return habitRepository.findById(id)
+                .filter(habit -> userId.equals(habit.getUser() != null ? habit.getUser().getId() : null))
+                .map(habit -> {
+                    if (habit.removeLastEntryForDate(date)) {
+                        habitRepository.save(habit);
+                        return ResponseEntity.noContent().<Void>build();
+                    }
+                    return ResponseEntity.notFound().<Void>build();
+                })
+                .orElse(ResponseEntity.notFound().build());
+    }
+
     @GetMapping("/{id}/evaluate")
     public ResponseEntity<Evaluation> evaluateHabit(
             @PathVariable String id,

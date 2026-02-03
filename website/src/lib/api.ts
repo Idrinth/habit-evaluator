@@ -39,7 +39,7 @@ export interface Habit {
 	maxEntriesPerDay: number;
 	positiveScoring: boolean;
 	scoringRule?: ScoringRule | null;
-	entries?: { completedAt: string }[];
+	entries?: { id: string; completedAt: string; notes: string | null; value: number }[];
 	nameTranslations?: Record<string, string>;
 	descriptionTranslations?: Record<string, string>;
 }
@@ -58,6 +58,44 @@ export interface ScoringRule {
 	thresholdFor2Points: number;
 	thresholdFor4Points: number;
 	thresholdFor8Points: number;
+}
+
+export interface Evaluation {
+	habitId: string;
+	habitName: string;
+	periodStart: string;
+	periodEnd: string;
+	totalEntries: number;
+	targetEntries: number;
+	completionRate: number;
+	currentStreak: number;
+	longestStreak: number;
+	positiveScoring: boolean;
+	onTrack: boolean;
+}
+
+export interface PredictedHabitScore {
+	habitId: string;
+	habitName: string;
+	categoryId: string | null;
+	currentCompletionCount: number;
+	currentScore: number;
+	predictedCompletionCount: number;
+	predictedScore: number;
+	dailyRate: number;
+}
+
+export interface PredictedWeeklyScore {
+	weekStart: string;
+	weekEnd: string;
+	weekNumber: number;
+	year: number;
+	calculatedAt: string;
+	daysElapsed: number;
+	daysRemaining: number;
+	currentTotalScore: number;
+	predictedTotalScore: number;
+	habitPredictions: PredictedHabitScore[];
 }
 
 export const auth = {
@@ -99,6 +137,32 @@ export const habits = {
 			method: 'PUT',
 			body: JSON.stringify(habit)
 		});
+	},
+	delete(habitId: string) {
+		return request<void>(`/habits/${habitId}`, {
+			method: 'DELETE'
+		});
+	},
+	addEntry(habitId: string) {
+		return request<{ id: string; completedAt: string }>(`/habits/${habitId}/entries`, {
+			method: 'POST',
+			body: JSON.stringify({})
+		});
+	},
+	removeLastEntry(habitId: string, date: string) {
+		return request<void>(`/habits/${habitId}/entries/last?date=${date}`, {
+			method: 'DELETE'
+		});
+	},
+	evaluate(habitId: string, start?: string, end?: string) {
+		const params = new URLSearchParams();
+		if (start) params.set('start', start);
+		if (end) params.set('end', end);
+		const query = params.toString();
+		return request<Evaluation>(`/habits/${habitId}/evaluate${query ? '?' + query : ''}`);
+	},
+	predict() {
+		return request<PredictedWeeklyScore>('/habits/predict');
 	},
 	pointDevelopment(habitId: string, period: 'week' | 'month') {
 		return request<PointDevelopmentData>(`/habits/${habitId}/point-development?period=${period}`);
@@ -230,6 +294,14 @@ export const scoreRules = {
 		return request<ScoringRule>('/score-rules', {
 			method: 'POST',
 			body: JSON.stringify(rule)
+		});
+	}
+};
+
+export const defaults = {
+	init() {
+		return request<{ success: boolean }>('/init-defaults', {
+			method: 'POST'
 		});
 	}
 };
