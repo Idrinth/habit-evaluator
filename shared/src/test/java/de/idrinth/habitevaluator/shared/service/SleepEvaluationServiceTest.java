@@ -1,6 +1,7 @@
 package de.idrinth.habitevaluator.shared.service;
 
 import de.idrinth.habitevaluator.shared.model.SleepEntry;
+import de.idrinth.habitevaluator.shared.model.SleepStats;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -128,5 +129,56 @@ class SleepEvaluationServiceTest {
 
         assertFalse(service.hasOverlap(entries, DATE.plusDays(1),
                 LocalTime.of(10, 0), LocalTime.of(12, 0)));
+    }
+
+    @Test
+    void calculateStatsEmptyList() {
+        SleepStats stats = service.calculateStats(new ArrayList<>(), DATE, DATE.plusDays(6));
+        assertEquals(0, stats.getAverageHours());
+        assertEquals(0, stats.getMinHours());
+        assertEquals(0, stats.getMaxHours());
+        assertEquals(0, stats.getTotalEntries());
+    }
+
+    @Test
+    void calculateStatsAggregatesMultipleEntriesPerDay() {
+        List<SleepEntry> entries = new ArrayList<>();
+        // Three entries on the same day: 1.0h + 3.0h + 1.5h = 5.5h
+        entries.add(new SleepEntry(LocalTime.of(0, 0), LocalTime.of(1, 0), DATE));
+        entries.add(new SleepEntry(LocalTime.of(3, 30), LocalTime.of(6, 30), DATE));
+        entries.add(new SleepEntry(LocalTime.of(20, 30), LocalTime.of(22, 0), DATE));
+
+        SleepStats stats = service.calculateStats(entries, DATE, DATE);
+        assertEquals(5.5, stats.getAverageHours(), 0.01);
+        assertEquals(5.5, stats.getMinHours(), 0.01);
+        assertEquals(5.5, stats.getMaxHours(), 0.01);
+        assertEquals(3, stats.getTotalEntries());
+    }
+
+    @Test
+    void calculateStatsAveragesAcrossDays() {
+        List<SleepEntry> entries = new ArrayList<>();
+        // Day 1: 8h
+        entries.add(new SleepEntry(LocalTime.of(22, 0), LocalTime.of(6, 0), DATE));
+        // Day 2: 3h + 3h = 6h
+        entries.add(new SleepEntry(LocalTime.of(1, 0), LocalTime.of(4, 0), DATE.plusDays(1)));
+        entries.add(new SleepEntry(LocalTime.of(14, 0), LocalTime.of(17, 0), DATE.plusDays(1)));
+
+        SleepStats stats = service.calculateStats(entries, DATE, DATE.plusDays(1));
+        assertEquals(7.0, stats.getAverageHours(), 0.01);
+        assertEquals(6.0, stats.getMinHours(), 0.01);
+        assertEquals(8.0, stats.getMaxHours(), 0.01);
+        assertEquals(3, stats.getTotalEntries());
+    }
+
+    @Test
+    void calculateStatsFiltersOutOfPeriodEntries() {
+        List<SleepEntry> entries = new ArrayList<>();
+        entries.add(new SleepEntry(LocalTime.of(22, 0), LocalTime.of(6, 0), DATE));
+        entries.add(new SleepEntry(LocalTime.of(22, 0), LocalTime.of(6, 0), DATE.plusDays(10)));
+
+        SleepStats stats = service.calculateStats(entries, DATE, DATE);
+        assertEquals(8.0, stats.getAverageHours(), 0.01);
+        assertEquals(1, stats.getTotalEntries());
     }
 }
