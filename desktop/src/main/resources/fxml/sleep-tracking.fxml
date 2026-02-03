@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns:fx="http://javafx.com/fxml"
+      fx:controller="de.idrinth.habitevaluator.desktop.controller.SleepTrackingController"
+      spacing="10" prefWidth="600" prefHeight="500">
+
+    <padding>
+        <Insets top="15" right="15" bottom="15" left="15"/>
+    </padding>
+
+    <Label text="Add Sleep Entry" styleClass="section-title"/>
+
+    <HBox spacing="10" alignment="CENTER_LEFT">
+        <Label text="Date:"/>
+        <DatePicker fx:id="datePicker" prefWidth="150"/>
+        <Label text="From:"/>
+        <TextField fx:id="fromTimeField" promptText="HH:mm" prefWidth="70"/>
+        <Label text="Until:"/>
+        <TextField fx:id="untilTimeField" promptText="HH:mm" prefWidth="70"/>
+    </HBox>
+
+    <HBox spacing="10" alignment="CENTER_LEFT">
+        <Label text="Notes:"/>
+        <TextField fx:id="notesField" promptText="Optional notes" HBox.hgrow="ALWAYS"/>
+        <Button text="Add Entry" onAction="#handleAddEntry" styleClass="primary-button"/>
+    </HBox>
+
+    <Label fx:id="messageLabel" text=""/>
+
+    <Separator/>
+
+    <Label text="Statistics" styleClass="section-title"/>
+
+    <HBox spacing="20">
+        <VBox spacing="4">
+            <Label text="This Week" style="-fx-font-weight: bold;"/>
+            <Label fx:id="weeklyAvgLabel" text="Avg: -"/>
+            <Label fx:id="weeklyMinLabel" text="Min: -"/>
+            <Label fx:id="weeklyMaxLabel" text="Max: -"/>
+            <Label fx:id="weeklyCountLabel" text="Entries: -"/>
+        </VBox>
+        <VBox spacing="4">
+            <Label text="This Month" style="-fx-font-weight: bold;"/>
+            <Label fx:id="monthlyAvgLabel" text="Avg: -"/>
+            <Label fx:id="monthlyMinLabel" text="Min: -"/>
+            <Label fx:id="monthlyMaxLabel" text="Max: -"/>
+            <Label fx:id="monthlyCountLabel" text="Entries: -"/>
+        </VBox>
+    </HBox>
+
+    <Separator/>
+
+    <Label text="Sleep Entries" styleClass="section-title"/>
+
+    <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS">
+        <VBox fx:id="entriesContainer" spacing="5">
+            <padding>
+                <Insets top="5" right="5" bottom="5" left="5"/>
+            </padding>
+        </VBox>
+    </ScrollPane>
+</VBox>
