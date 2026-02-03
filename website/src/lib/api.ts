@@ -40,6 +40,8 @@ export interface Habit {
 	positiveScoring: boolean;
 	scoringRule?: ScoringRule | null;
 	entries?: { completedAt: string }[];
+	nameTranslations?: Record<string, string>;
+	descriptionTranslations?: Record<string, string>;
 }
 
 export interface HabitCategory {
@@ -86,7 +88,7 @@ export const habits = {
 	list() {
 		return request<Habit[]>('/habits');
 	},
-	create(habit: { name: string; description?: string; categoryId?: string; frequencyType: string; targetFrequency: number; maxEntriesPerDay: number; positiveScoring: boolean }) {
+	create(habit: { name: string; description?: string; categoryId?: string; frequencyType: string; targetFrequency: number; maxEntriesPerDay: number; positiveScoring: boolean; nameTranslations?: Record<string, string>; descriptionTranslations?: Record<string, string> }) {
 		return request<Habit>('/habits', {
 			method: 'POST',
 			body: JSON.stringify(habit)
@@ -112,6 +114,40 @@ export const categories = {
 			method: 'POST',
 			body: JSON.stringify(category)
 		});
+	}
+};
+
+export interface DiaryEntry {
+	id: string;
+	description: string;
+	significance: 'MINOR' | 'NORMAL' | 'MAJOR';
+	eventDate: string;
+	createdAt: string;
+}
+
+export interface DiaryStats {
+	todayPoints: number;
+	weekPoints: number;
+	monthPoints: number;
+	weeklyAverage: number;
+	monthlyTrend: number;
+}
+
+export const diary = {
+	list() {
+		return request<DiaryEntry[]>('/diary');
+	},
+	create(entry: { description: string; significance: string; eventDate: string }) {
+		return request<DiaryEntry>('/diary', {
+			method: 'POST',
+			body: JSON.stringify(entry)
+		});
+	},
+	remove(id: string) {
+		return request<void>(`/diary/${id}`, { method: 'DELETE' });
+	},
+	stats() {
+		return request<DiaryStats>('/diary/stats');
 	}
 };
 

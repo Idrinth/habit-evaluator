@@ -36,6 +36,7 @@ public class StorageConfig {
     private StorageMode storageMode;
     private ThemeMode themeMode;
     private String language;
+    private boolean customTranslationsEnabled;
     private String apiBaseUrl;
     private String apiUsername;
     private String apiPassword;
@@ -69,6 +70,8 @@ public class StorageConfig {
                 themeMode = ThemeMode.SYSTEM;
             }
             language = props.getProperty("language", LANGUAGE_SYSTEM);
+            customTranslationsEnabled = Boolean.parseBoolean(
+                    props.getProperty("custom.translations.enabled", "false"));
             apiBaseUrl = props.getProperty("api.baseUrl", DEFAULT_API_BASE_URL);
             apiUsername = props.getProperty("api.username", "");
             apiPassword = props.getProperty("api.password", "");
@@ -92,6 +95,7 @@ public class StorageConfig {
         props.setProperty("storage.mode", storageMode.name());
         props.setProperty("theme.mode", themeMode != null ? themeMode.name() : "SYSTEM");
         props.setProperty("language", language != null ? language : LANGUAGE_SYSTEM);
+        props.setProperty("custom.translations.enabled", String.valueOf(customTranslationsEnabled));
         props.setProperty("api.baseUrl", apiBaseUrl != null ? apiBaseUrl : "");
         props.setProperty("api.username", apiUsername != null ? apiUsername : "");
         props.setProperty("api.password", apiPassword != null ? apiPassword : "");
@@ -152,6 +156,14 @@ public class StorageConfig {
 
     public void setLanguage(String language) {
         this.language = language;
+    }
+
+    public boolean isCustomTranslationsEnabled() {
+        return customTranslationsEnabled;
+    }
+
+    public void setCustomTranslationsEnabled(boolean customTranslationsEnabled) {
+        this.customTranslationsEnabled = customTranslationsEnabled;
     }
 
     private static final List<String> SUPPORTED_LANGUAGES = Arrays.asList("en", "de", "es", "fr");
