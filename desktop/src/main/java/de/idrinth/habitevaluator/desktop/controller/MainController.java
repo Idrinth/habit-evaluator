@@ -10,7 +10,9 @@ import de.idrinth.habitevaluator.shared.api.RemoteHabitRepository;
 import de.idrinth.habitevaluator.shared.api.RemoteUserRepository;
 import de.idrinth.habitevaluator.shared.api.StorageConfig;
 import de.idrinth.habitevaluator.shared.api.SyncService;
+import de.idrinth.habitevaluator.shared.model.DiaryEntry;
 import de.idrinth.habitevaluator.shared.model.Evaluation;
+import de.idrinth.habitevaluator.shared.model.EventSignificance;
 import de.idrinth.habitevaluator.shared.model.Habit;
 import de.idrinth.habitevaluator.shared.model.HabitCategory;
 import de.idrinth.habitevaluator.shared.model.HabitEntry;
@@ -22,6 +24,7 @@ import de.idrinth.habitevaluator.shared.repository.SleepEntryRepository;
 import de.idrinth.habitevaluator.shared.repository.UserRepository;
 import de.idrinth.habitevaluator.shared.repository.HabitCategoryRepository;
 import de.idrinth.habitevaluator.shared.service.DefaultDataInitializer;
+import de.idrinth.habitevaluator.shared.service.DiaryService;
 import de.idrinth.habitevaluator.shared.service.HabitEvaluatorService;
 import de.idrinth.habitevaluator.shared.service.HabitScoringService;
 import javafx.application.Platform;
@@ -31,6 +34,10 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.chart.BarChart;
+import javafx.scene.chart.CategoryAxis;
+import javafx.scene.chart.NumberAxis;
+import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -40,9 +47,13 @@ import com.google.gson.reflect.TypeToken;
 
 import java.io.File;
 import java.io.IOException;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -94,6 +105,56 @@ public class MainController {
     @FXML
     private Label editMessage;
 
+    @FXML
+    private ToggleButton weekToggle;
+
+    @FXML
+    private ToggleButton monthToggle;
+
+    @FXML
+    private Label chartTotalLabel;
+
+    @FXML
+    private Label chartAverageLabel;
+
+    @FXML
+    private BarChart<String, Number> dailyPointsChart;
+
+    @FXML
+    private BarChart<String, Number> runningAvgChart;
+
+    @FXML
+    private BarChart<String, Number> cumulativeChart;
+
+    private boolean chartShowingWeek = true;
+
+    @FXML
+    private Label diaryTodayPointsLabel;
+
+    @FXML
+    private Label diaryWeekPointsLabel;
+
+    @FXML
+    private Label diaryMonthPointsLabel;
+
+    @FXML
+    private Label diaryWeeklyAvgLabel;
+
+    @FXML
+    private Label diaryTrendLabel;
+
+    @FXML
+    private TextField diaryDescriptionField;
+
+    @FXML
+    private DatePicker diaryDatePicker;
+
+    @FXML
+    private ComboBox<String> diarySignificanceComboBox;
+
+    @FXML
+    private VBox diaryEntriesContainer;
+
     private final Map<String, TextField> editTargetFields = new HashMap<>();
     private final Map<String, TextField> editMaxEntriesFields = new HashMap<>();
     private final Map<String, CheckBox> editPositiveScoringBoxes = new HashMap<>();
@@ -101,10 +162,15 @@ public class MainController {
     private final Map<String, TextField> editThreshold2Fields = new HashMap<>();
     private final Map<String, TextField> editThreshold4Fields = new HashMap<>();
     private final Map<String, TextField> editThreshold8Fields = new HashMap<>();
+    private final Map<String, Map<String, TextField>> editNameTranslationFields = new HashMap<>();
+    private final Map<String, Map<String, TextField>> editDescTranslationFields = new HashMap<>();
+    private static final String[] TRANSLATION_LANGUAGES = {"en", "de", "es", "fr"};
+    private static final String[] TRANSLATION_LANGUAGE_LABELS = {"English", "Deutsch", "Español", "Français"};
     private final ObservableList<Habit> habits = FXCollections.observableArrayList();
     private final ObservableList<Habit> filteredHabits = FXCollections.observableArrayList();
     private final HabitEvaluatorService evaluatorService = new HabitEvaluatorService();
     private final HabitScoringService scoringService = new HabitScoringService();
+    private final DiaryService diaryService = new DiaryService();
     private final StorageConfig storageConfig = new StorageConfig(new File(CONFIG_FILE));
 
     private HabitRepository habitRepository;
@@ -114,6 +180,7 @@ public class MainController {
     private SleepEntryRepository sleepEntryRepository;
     private ApiClient apiClient;
     private User currentUser;
+    private List<DiaryEntry> diaryEntries = new ArrayList<>();
     private HabitRepository localBackupRepository;
     private User localBackupUser;
     private List<HabitCategory> categoryList = new ArrayList<>();
@@ -148,11 +215,20 @@ public class MainController {
         categoryFilterComboBox.getSelectionModel().selectedItemProperty().addListener(
                 (observable, oldValue, newValue) -> applyFilter());
 
+        weekToggle.setSelected(true);
+        monthToggle.setSelected(false);
+
         refreshEditHabits();
         habits.addListener((javafx.collections.ListChangeListener<Habit>) change -> {
             applyFilter();
             refreshEditHabits();
         });
+
+        // Initialize diary UI
+        diaryDatePicker.setValue(LocalDate.now());
+        diarySignificanceComboBox.setItems(FXCollections.observableArrayList("Minor (1pt)", "Normal (2pt)", "Major (4pt)"));
+        diarySignificanceComboBox.getSelectionModel().select(1);
+        loadDiaryEntries();
     }
 
     private void loadCategories() {
@@ -252,6 +328,9 @@ public class MainController {
                 userRepository = new RemoteUserRepository(apiClient);
                 categoryRepository = null;
                 currentUser = userRepository.findAll().stream().findFirst().orElse(null);
+
+                // Diary always uses local storage on desktop
+                diaryEntryRepository = new H2DiaryEntryRepository();
 
                 // Initialize local backup for data safety
                 H2HabitRepository h2Backup = new H2HabitRepository();
@@ -402,6 +481,7 @@ public class MainController {
             controller.setCategoryRepository(categoryRepository);
             controller.setApiClient(apiClient);
             controller.setCurrentUser(currentUser);
+            controller.setStorageConfig(storageConfig);
             controller.setCategoryList(categoryList);
 
             Stage dialogStage = new Stage();
@@ -420,6 +500,30 @@ public class MainController {
             }
         } catch (IOException e) {
             showAlert("Error", "Failed to open add habit dialog: " + e.getMessage());
+        }
+    }
+
+    @FXML
+    private void handleOpenSleepTracking() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/sleep-tracking.fxml"));
+            Parent root = loader.load();
+
+            SleepTrackingController controller = loader.getController();
+            controller.setSleepEntryRepository(new H2SleepEntryRepository());
+            controller.setCurrentUser(currentUser);
+
+            Stage dialogStage = new Stage();
+            dialogStage.setTitle("Sleep Tracking");
+            dialogStage.initModality(Modality.APPLICATION_MODAL);
+            dialogStage.initOwner(habitListView.getScene().getWindow());
+
+            Scene scene = new Scene(root);
+            scene.getStylesheets().addAll(habitListView.getScene().getStylesheets());
+            dialogStage.setScene(scene);
+            dialogStage.showAndWait();
+        } catch (IOException e) {
+            showAlert("Error", "Failed to open sleep tracking: " + e.getMessage());
         }
     }
 
@@ -471,6 +575,8 @@ public class MainController {
         weeklyPointsLabel.setText("This Week: " + scoringService.getCurrentWeekScore(habit) + " pts");
         monthlyPointsLabel.setText("This Month: " + scoringService.getCurrentMonthScore(habit) + " pts");
 
+        updatePointCharts(habit);
+
         if (habit.getMaxEntriesPerDay() != 1) {
             completeButton.setText("Add Completion");
         } else {
@@ -485,6 +591,7 @@ public class MainController {
         dailyPointsLabel.setText("Today: -");
         weeklyPointsLabel.setText("This Week: -");
         monthlyPointsLabel.setText("This Month: -");
+        clearPointCharts();
     }
 
     @FXML
@@ -571,6 +678,8 @@ public class MainController {
         editThreshold2Fields.clear();
         editThreshold4Fields.clear();
         editThreshold8Fields.clear();
+        editNameTranslationFields.clear();
+        editDescTranslationFields.clear();
         editMessage.setText("");
 
         if (habits.isEmpty()) {
@@ -647,6 +756,41 @@ public class MainController {
             editThreshold4Fields.put(habit.getId(), t4);
             editThreshold8Fields.put(habit.getId(), t8);
 
+            if (storageConfig.isCustomTranslationsEnabled()) {
+                Label translationsLabel = new Label("Translations:");
+                translationsLabel.setStyle("-fx-font-size: 11px; -fx-padding: 4 0 0 0;");
+                habitBox.getChildren().add(translationsLabel);
+
+                Map<String, TextField> nameFields = new HashMap<>();
+                Map<String, TextField> descFields = new HashMap<>();
+
+                for (int i = 0; i < TRANSLATION_LANGUAGES.length; i++) {
+                    String lang = TRANSLATION_LANGUAGES[i];
+                    String label = TRANSLATION_LANGUAGE_LABELS[i];
+
+                    TextField nameField = new TextField(
+                            habit.getNameTranslations().getOrDefault(lang, ""));
+                    nameField.setPrefWidth(150);
+                    nameField.setPromptText("Name (" + label + ")");
+
+                    TextField descField = new TextField(
+                            habit.getDescriptionTranslations().getOrDefault(lang, ""));
+                    descField.setPrefWidth(200);
+                    descField.setPromptText("Description (" + label + ")");
+
+                    HBox translationRow = new HBox(6,
+                            new Label(label + ":"), nameField, descField);
+                    translationRow.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+                    habitBox.getChildren().add(translationRow);
+
+                    nameFields.put(lang, nameField);
+                    descFields.put(lang, descField);
+                }
+
+                editNameTranslationFields.put(habit.getId(), nameFields);
+                editDescTranslationFields.put(habit.getId(), descFields);
+            }
+
             editHabitsContainer.getChildren().add(habitBox);
         }
     }
@@ -715,6 +859,29 @@ public class MainController {
                 }
             }
 
+            Map<String, TextField> nameTransFields = editNameTranslationFields.get(habit.getId());
+            Map<String, TextField> descTransFields = editDescTranslationFields.get(habit.getId());
+            if (nameTransFields != null && descTransFields != null) {
+                Map<String, String> nameTranslations = new HashMap<>();
+                Map<String, String> descTranslations = new HashMap<>();
+                for (String lang : TRANSLATION_LANGUAGES) {
+                    TextField nf = nameTransFields.get(lang);
+                    if (nf != null && !nf.getText().trim().isEmpty()) {
+                        nameTranslations.put(lang, nf.getText().trim());
+                    }
+                    TextField df = descTransFields.get(lang);
+                    if (df != null && !df.getText().trim().isEmpty()) {
+                        descTranslations.put(lang, df.getText().trim());
+                    }
+                }
+                if (!nameTranslations.equals(habit.getNameTranslations())
+                        || !descTranslations.equals(habit.getDescriptionTranslations())) {
+                    habit.setNameTranslations(nameTranslations);
+                    habit.setDescriptionTranslations(descTranslations);
+                    changed = true;
+                }
+            }
+
             if (changed) {
                 habitRepository.save(habit);
                 count++;
@@ -746,6 +913,222 @@ public class MainController {
         } else if (!wantDark && hasDark) {
             scene.getStylesheets().remove(darkCss);
         }
+    }
+
+    @FXML
+    private void handleWeekToggle() {
+        chartShowingWeek = true;
+        weekToggle.setSelected(true);
+        monthToggle.setSelected(false);
+        Habit selectedHabit = habitListView.getSelectionModel().getSelectedItem();
+        if (selectedHabit != null) {
+            updatePointCharts(selectedHabit);
+        }
+    }
+
+    @FXML
+    private void handleMonthToggle() {
+        chartShowingWeek = false;
+        weekToggle.setSelected(false);
+        monthToggle.setSelected(true);
+        Habit selectedHabit = habitListView.getSelectionModel().getSelectedItem();
+        if (selectedHabit != null) {
+            updatePointCharts(selectedHabit);
+        }
+    }
+
+    private void updatePointCharts(Habit habit) {
+        LocalDate today = LocalDate.now();
+        LocalDate start;
+        LocalDate end;
+
+        if (chartShowingWeek) {
+            start = today.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+            end = start.plusDays(6);
+        } else {
+            start = today.with(TemporalAdjusters.firstDayOfMonth());
+            end = today.with(TemporalAdjusters.lastDayOfMonth());
+        }
+
+        DateTimeFormatter dayFormat = chartShowingWeek
+                ? DateTimeFormatter.ofPattern("EEE")
+                : DateTimeFormatter.ofPattern("d");
+
+        int daysInPeriod = (int) (start.until(end, java.time.temporal.ChronoUnit.DAYS)) + 1;
+
+        List<Integer> dailyPoints = new ArrayList<>();
+        List<String> labels = new ArrayList<>();
+        int totalPoints = 0;
+
+        for (int i = 0; i < daysInPeriod; i++) {
+            LocalDate date = start.plusDays(i);
+            int dayScore = scoringService.calculateHabitScore(habit, date, date).getScore();
+            dailyPoints.add(dayScore);
+            totalPoints += dayScore;
+
+            if (!chartShowingWeek) {
+                if (i == 0 || i == daysInPeriod - 1 || (i + 1) % 5 == 0) {
+                    labels.add(date.format(dayFormat));
+                } else {
+                    labels.add("");
+                }
+            } else {
+                labels.add(date.format(dayFormat));
+            }
+        }
+
+        double average = totalPoints / (double) daysInPeriod;
+
+        chartTotalLabel.setText("Total: " + totalPoints + " pts");
+        chartAverageLabel.setText(String.format("Avg: %.1f pts", average));
+
+        // Daily points chart
+        XYChart.Series<String, Number> dailySeries = new XYChart.Series<>();
+        for (int i = 0; i < dailyPoints.size(); i++) {
+            dailySeries.getData().add(new XYChart.Data<>(labels.get(i).isEmpty() ? String.valueOf(i + 1) : labels.get(i), dailyPoints.get(i)));
+        }
+        dailyPointsChart.getData().clear();
+        dailyPointsChart.getData().add(dailySeries);
+
+        // Running average chart
+        XYChart.Series<String, Number> avgSeries = new XYChart.Series<>();
+        int runningTotal = 0;
+        for (int i = 0; i < dailyPoints.size(); i++) {
+            runningTotal += dailyPoints.get(i);
+            int runningAvg = Math.round((float) runningTotal / (i + 1));
+            avgSeries.getData().add(new XYChart.Data<>(labels.get(i).isEmpty() ? String.valueOf(i + 1) : labels.get(i), runningAvg));
+        }
+        runningAvgChart.getData().clear();
+        runningAvgChart.getData().add(avgSeries);
+
+        // Cumulative total chart
+        XYChart.Series<String, Number> cumSeries = new XYChart.Series<>();
+        int cumulative = 0;
+        for (int i = 0; i < dailyPoints.size(); i++) {
+            cumulative += dailyPoints.get(i);
+            cumSeries.getData().add(new XYChart.Data<>(labels.get(i).isEmpty() ? String.valueOf(i + 1) : labels.get(i), cumulative));
+        }
+        cumulativeChart.getData().clear();
+        cumulativeChart.getData().add(cumSeries);
+    }
+
+    private void clearPointCharts() {
+        chartTotalLabel.setText("Total: -");
+        chartAverageLabel.setText("Avg: -");
+        dailyPointsChart.getData().clear();
+        runningAvgChart.getData().clear();
+        cumulativeChart.getData().clear();
+    }
+
+    private void loadDiaryEntries() {
+        diaryEntries.clear();
+        if (diaryEntryRepository != null && currentUser != null) {
+            diaryEntries = new ArrayList<>(diaryEntryRepository.findByUserId(currentUser.getId()));
+            diaryEntries.sort(Comparator.comparing(DiaryEntry::getEventDate)
+                    .thenComparing(DiaryEntry::getCreatedAt).reversed());
+        }
+        refreshDiaryStats();
+        refreshDiaryEntriesList();
+    }
+
+    private void refreshDiaryStats() {
+        if (diaryEntries.isEmpty()) {
+            diaryTodayPointsLabel.setText("Today: 0 pts");
+            diaryWeekPointsLabel.setText("This Week: 0 pts");
+            diaryMonthPointsLabel.setText("This Month: 0 pts");
+            diaryWeeklyAvgLabel.setText("Weekly Avg: 0.0");
+            diaryTrendLabel.setText("Trend: -");
+            return;
+        }
+        int todayPts = diaryService.getDayPoints(diaryEntries, LocalDate.now());
+        int weekPts = diaryService.getCurrentWeekPoints(diaryEntries);
+        int monthPts = diaryService.getCurrentMonthPoints(diaryEntries);
+        double weeklyAvg = diaryService.getWeeklyAverageForMonth(diaryEntries);
+        double trend = diaryService.getMonthlyTrend(diaryEntries);
+
+        diaryTodayPointsLabel.setText("Today: " + todayPts + " pts");
+        diaryWeekPointsLabel.setText("This Week: " + weekPts + " pts");
+        diaryMonthPointsLabel.setText("This Month: " + monthPts + " pts");
+        diaryWeeklyAvgLabel.setText(String.format("Weekly Avg: %.1f", weeklyAvg));
+
+        if (trend > 0.01) {
+            diaryTrendLabel.setText(String.format("Trend: +%.0f%%", trend * 100));
+            diaryTrendLabel.setStyle("-fx-text-fill: green;");
+        } else if (trend < -0.01) {
+            diaryTrendLabel.setText(String.format("Trend: %.0f%%", trend * 100));
+            diaryTrendLabel.setStyle("-fx-text-fill: red;");
+        } else {
+            diaryTrendLabel.setText("Trend: Stable");
+            diaryTrendLabel.setStyle("");
+        }
+    }
+
+    private void refreshDiaryEntriesList() {
+        diaryEntriesContainer.getChildren().clear();
+        if (diaryEntries.isEmpty()) {
+            diaryEntriesContainer.getChildren().add(new Label("No diary entries yet."));
+            return;
+        }
+        DateTimeFormatter dateFmt = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        for (DiaryEntry entry : diaryEntries) {
+            HBox row = new HBox(10);
+            row.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+            row.setStyle("-fx-border-color: #444; -fx-border-radius: 4; -fx-padding: 6; -fx-background-color: #333; -fx-background-radius: 4;");
+
+            Label dateLabel = new Label(entry.getEventDate().format(dateFmt));
+            dateLabel.setStyle("-fx-font-size: 11px; -fx-text-fill: #888;");
+            dateLabel.setPrefWidth(80);
+
+            Label sigLabel = new Label(entry.getSignificance().name() + " (" + entry.getPoints() + "pt)");
+            sigLabel.setStyle("-fx-font-size: 11px;");
+            sigLabel.setPrefWidth(100);
+
+            Label descLabel = new Label(entry.getDescription());
+            descLabel.setStyle("-fx-font-size: 12px;");
+            HBox.setHgrow(descLabel, javafx.scene.layout.Priority.ALWAYS);
+
+            Button deleteBtn = new Button("X");
+            deleteBtn.setStyle("-fx-font-size: 10px; -fx-padding: 2 6;");
+            deleteBtn.setOnAction(e -> {
+                diaryEntryRepository.deleteById(entry.getId());
+                loadDiaryEntries();
+            });
+
+            row.getChildren().addAll(dateLabel, sigLabel, descLabel, deleteBtn);
+            diaryEntriesContainer.getChildren().add(row);
+        }
+    }
+
+    @FXML
+    private void handleAddDiaryEntry() {
+        String description = diaryDescriptionField.getText();
+        if (description == null || description.trim().isEmpty()) {
+            return;
+        }
+        LocalDate date = diaryDatePicker.getValue();
+        if (date == null) {
+            date = LocalDate.now();
+        }
+        int selectedIndex = diarySignificanceComboBox.getSelectionModel().getSelectedIndex();
+        EventSignificance significance;
+        switch (selectedIndex) {
+            case 0:
+                significance = EventSignificance.MINOR;
+                break;
+            case 2:
+                significance = EventSignificance.MAJOR;
+                break;
+            default:
+                significance = EventSignificance.NORMAL;
+                break;
+        }
+        DiaryEntry entry = new DiaryEntry(description.trim(), significance, date);
+        entry.setUser(currentUser);
+        diaryEntryRepository.save(entry);
+        diaryDescriptionField.clear();
+        diaryDatePicker.setValue(LocalDate.now());
+        diarySignificanceComboBox.getSelectionModel().select(1);
+        loadDiaryEntries();
     }
 
     private void showAlert(String title, String message) {

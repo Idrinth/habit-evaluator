@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.chart.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
@@ -46,7 +47,10 @@
                 <Insets top="20" right="20" bottom="20" left="20"/>
             </padding>
 
-            <Button text="Add Habit" onAction="#handleOpenAddHabit" styleClass="primary-button"/>
+            <HBox spacing="10">
+                <Button text="Add Habit" onAction="#handleOpenAddHabit" styleClass="primary-button"/>
+                <Button text="Sleep Tracking" onAction="#handleOpenSleepTracking" styleClass="primary-button"/>
+            </HBox>
 
             <Separator/>
 
@@ -82,7 +86,66 @@
                     <Label fx:id="weeklyPointsLabel" text="This Week: -"/>
                     <Label fx:id="monthlyPointsLabel" text="This Month: -"/>
                 </HBox>
+
+                <Separator/>
+
+                <Label text="Point Development" styleClass="section-title"/>
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <ToggleButton fx:id="weekToggle" text="Week" onAction="#handleWeekToggle"/>
+                    <ToggleButton fx:id="monthToggle" text="Month" onAction="#handleMonthToggle"/>
+                    <Label fx:id="chartTotalLabel" text="Total: -"/>
+                    <Label fx:id="chartAverageLabel" text="Avg: -"/>
+                </HBox>
+
+                <Label text="Daily Points" style="-fx-font-size: 11px; -fx-text-fill: #888;"/>
+                <BarChart fx:id="dailyPointsChart" prefHeight="160" legendVisible="false" animated="false">
+                    <xAxis><CategoryAxis fx:id="dailyChartXAxis"/></xAxis>
+                    <yAxis><NumberAxis fx:id="dailyChartYAxis"/></yAxis>
+                </BarChart>
+
+                <Label text="Running Average" style="-fx-font-size: 11px; -fx-text-fill: #888;"/>
+                <BarChart fx:id="runningAvgChart" prefHeight="160" legendVisible="false" animated="false">
+                    <xAxis><CategoryAxis fx:id="avgChartXAxis"/></xAxis>
+                    <yAxis><NumberAxis fx:id="avgChartYAxis"/></yAxis>
+                </BarChart>
+
+                <Label text="Cumulative Total" style="-fx-font-size: 11px; -fx-text-fill: #888;"/>
+                <BarChart fx:id="cumulativeChart" prefHeight="160" legendVisible="false" animated="false">
+                    <xAxis><CategoryAxis fx:id="cumChartXAxis"/></xAxis>
+                    <yAxis><NumberAxis fx:id="cumChartYAxis"/></yAxis>
+                </BarChart>
             </VBox>
+
+            <Separator/>
+
+            <Label text="Diary / Journal" styleClass="section-title"/>
+
+            <VBox spacing="10" styleClass="evaluation-panel">
+                <HBox spacing="20">
+                    <Label fx:id="diaryTodayPointsLabel" text="Today: -"/>
+                    <Label fx:id="diaryWeekPointsLabel" text="This Week: -"/>
+                    <Label fx:id="diaryMonthPointsLabel" text="This Month: -"/>
+                </HBox>
+                <HBox spacing="20">
+                    <Label fx:id="diaryWeeklyAvgLabel" text="Weekly Avg: -"/>
+                    <Label fx:id="diaryTrendLabel" text="Trend: -"/>
+                </HBox>
+            </VBox>
+
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <TextField fx:id="diaryDescriptionField" promptText="Positive event description" prefWidth="250"/>
+                <DatePicker fx:id="diaryDatePicker" prefWidth="130"/>
+                <ComboBox fx:id="diarySignificanceComboBox" prefWidth="100"/>
+                <Button text="Add Event" onAction="#handleAddDiaryEntry" styleClass="primary-button"/>
+            </HBox>
+
+            <ScrollPane fitToWidth="true" prefHeight="150" VBox.vgrow="SOMETIMES">
+                <VBox fx:id="diaryEntriesContainer" spacing="5">
+                    <padding>
+                        <Insets top="5" right="5" bottom="5" left="5"/>
+                    </padding>
+                </VBox>
+            </ScrollPane>
         </VBox>
     </center>
 </BorderPane>

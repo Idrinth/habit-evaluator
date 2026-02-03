@@ -40,6 +40,8 @@ export interface Habit {
 	positiveScoring: boolean;
 	scoringRule?: ScoringRule | null;
 	entries?: { completedAt: string }[];
+	nameTranslations?: Record<string, string>;
+	descriptionTranslations?: Record<string, string>;
 }
 
 export interface HabitCategory {
@@ -73,11 +75,20 @@ export const auth = {
 	}
 };
 
+export interface PointDevelopmentData {
+	dailyPoints: number[];
+	labels: string[];
+	runningAverages: number[];
+	cumulativeTotals: number[];
+	totalPoints: number;
+	average: number;
+}
+
 export const habits = {
 	list() {
 		return request<Habit[]>('/habits');
 	},
-	create(habit: { name: string; description?: string; categoryId?: string; frequencyType: string; targetFrequency: number; maxEntriesPerDay: number; positiveScoring: boolean }) {
+	create(habit: { name: string; description?: string; categoryId?: string; frequencyType: string; targetFrequency: number; maxEntriesPerDay: number; positiveScoring: boolean; nameTranslations?: Record<string, string>; descriptionTranslations?: Record<string, string> }) {
 		return request<Habit>('/habits', {
 			method: 'POST',
 			body: JSON.stringify(habit)
@@ -88,6 +99,9 @@ export const habits = {
 			method: 'PUT',
 			body: JSON.stringify(habit)
 		});
+	},
+	pointDevelopment(habitId: string, period: 'week' | 'month') {
+		return request<PointDevelopmentData>(`/habits/${habitId}/point-development?period=${period}`);
 	}
 };
 
@@ -117,6 +131,77 @@ export const pdfExport = {
 			throw new Error(`Export failed with status ${response.status}`);
 		}
 		return response.blob();
+	}
+};
+
+export interface DiaryEntry {
+	id: string;
+	description: string;
+	significance: 'MINOR' | 'NORMAL' | 'MAJOR';
+	eventDate: string;
+	createdAt: string;
+}
+
+export interface DiaryStats {
+	todayPoints: number;
+	weekPoints: number;
+	monthPoints: number;
+	weeklyAverage: number;
+	monthlyTrend: number;
+}
+
+export const diary = {
+	list() {
+		return request<DiaryEntry[]>('/diary');
+	},
+	create(entry: { description: string; significance: string; eventDate: string }) {
+		return request<DiaryEntry>('/diary', {
+			method: 'POST',
+			body: JSON.stringify(entry)
+		});
+	},
+	remove(id: string) {
+		return request<void>(`/diary/${id}`, { method: 'DELETE' });
+	},
+	stats() {
+		return request<DiaryStats>('/diary/stats');
+	}
+};
+
+export interface SleepEntry {
+	id: string;
+	fromTime: string;
+	untilTime: string;
+	date: string;
+	createdAt: string;
+	notes: string | null;
+	hours: number;
+}
+
+export interface SleepStats {
+	periodStart: string;
+	periodEnd: string;
+	averageHours: number;
+	minHours: number;
+	maxHours: number;
+	totalEntries: number;
+}
+
+export const sleepEntries = {
+	list() {
+		return request<SleepEntry[]>('/sleep-entries');
+	},
+	create(entry: { fromTime: string; untilTime: string; date: string; notes?: string }) {
+		return request<SleepEntry>('/sleep-entries', {
+			method: 'POST',
+			body: JSON.stringify(entry)
+		});
+	},
+	delete(id: string) {
+		return request<void>(`/sleep-entries/${id}`, { method: 'DELETE' });
+	},
+	stats() {
+		return request<{ weekly: SleepStats; monthly: SleepStats }>('/sleep-entries/stats');
 	}
 };
 

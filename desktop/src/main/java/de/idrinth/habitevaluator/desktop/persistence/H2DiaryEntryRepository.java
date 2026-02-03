@@ -40,7 +40,8 @@ public class H2DiaryEntryRepository implements DiaryEntryRepository {
     public Optional<DiaryEntry> findById(String id) {
         EntityManager em = PersistenceManager.createEntityManager();
         try {
-            return Optional.ofNullable(em.find(DiaryEntry.class, id));
+            DiaryEntry entry = em.find(DiaryEntry.class, id);
+            return Optional.ofNullable(entry);
         } finally {
             em.close();
         }
@@ -50,7 +51,8 @@ public class H2DiaryEntryRepository implements DiaryEntryRepository {
     public List<DiaryEntry> findAll() {
         EntityManager em = PersistenceManager.createEntityManager();
         try {
-            return em.createQuery("SELECT d FROM DiaryEntry d", DiaryEntry.class).getResultList();
+            return em.createQuery("SELECT d FROM DiaryEntry d", DiaryEntry.class)
+                    .getResultList();
         } finally {
             em.close();
         }

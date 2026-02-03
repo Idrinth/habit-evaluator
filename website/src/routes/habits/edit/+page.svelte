@@ -1,12 +1,17 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import { browser } from '$app/environment';
 	import { habits, categories, type Habit, type HabitCategory } from '$lib/api';
+
+	const LANGUAGES = ['en', 'de', 'es', 'fr'] as const;
+	const LANGUAGE_LABELS: Record<string, string> = { en: 'English', de: 'Deutsch', es: 'Español', fr: 'Français' };
 
 	let habitList: Habit[] = $state([]);
 	let categoryList: HabitCategory[] = $state([]);
 	let error = $state('');
 	let success = $state('');
 	let loading = $state(true);
+	let translationsEnabled = $state(false);
 
 	interface EditableHabit {
 		id: string;
@@ -19,6 +24,8 @@
 		threshold2: number;
 		threshold4: number;
 		threshold8: number;
+		nameTranslations: Record<string, string>;
+		descriptionTranslations: Record<string, string>;
 	}
 
 	let editableHabits: EditableHabit[] = $state([]);
@@ -70,6 +77,9 @@
 	}
 
 	onMount(async () => {
+		if (browser) {
+			translationsEnabled = localStorage.getItem('customTranslations') === 'true';
+		}
 		try {
 			const [h, c] = await Promise.all([habits.list(), categories.list()]);
 			habitList = h;
@@ -84,7 +94,9 @@
 				threshold1: habit.scoringRule?.thresholdFor1Point ?? 1,
 				threshold2: habit.scoringRule?.thresholdFor2Points ?? 2,
 				threshold4: habit.scoringRule?.thresholdFor4Points ?? 4,
-				threshold8: habit.scoringRule?.thresholdFor8Points ?? 7
+				threshold8: habit.scoringRule?.thresholdFor8Points ?? 7,
+				nameTranslations: { ...habit.nameTranslations },
+				descriptionTranslations: { ...habit.descriptionTranslations }
 			}));
 		} catch (err) {
 			error = err instanceof Error ? err.message : 'Failed to load habits';
@@ -92,6 +104,16 @@
 			loading = false;
 		}
 	});
+
+	function cleanTranslations(translations: Record<string, string>): Record<string, string> {
+		const result: Record<string, string> = {};
+		for (const [lang, value] of Object.entries(translations)) {
+			if (value && value.trim()) {
+				result[lang] = value.trim();
+			}
+		}
+		return result;
+	}
 
 	async function handleSubmit(e: Event) {
 		e.preventDefault();
@@ -124,7 +146,9 @@
 						thresholdFor2Points: eh.threshold2,
 						thresholdFor4Points: eh.threshold4,
 						thresholdFor8Points: eh.threshold8
-					}
+					},
+					nameTranslations: cleanTranslations(eh.nameTranslations),
+					descriptionTranslations: cleanTranslations(eh.descriptionTranslations)
 				});
 				count++;
 			} catch {
@@ -202,6 +226,28 @@
 										<input type="number" min="0" bind:value={habit.threshold8} />
 									</label>
 								</div>
+								{#if translationsEnabled}
+									<div class="translation-fields">
+										<span class="threshold-label">Translations:</span>
+										{#each LANGUAGES as lang}
+											<div class="translation-row">
+												<span class="translation-lang">{LANGUAGE_LABELS[lang]}</span>
+												<input
+													type="text"
+													class="translation-input"
+													placeholder="Name ({LANGUAGE_LABELS[lang]})"
+													bind:value={habit.nameTranslations[lang]}
+												/>
+												<input
+													type="text"
+													class="translation-input translation-input-wide"
+													placeholder="Description ({LANGUAGE_LABELS[lang]})"
+													bind:value={habit.descriptionTranslations[lang]}
+												/>
+											</div>
+										{/each}
+									</div>
+								{/if}
 							</div>
 						{/each}
 					</div>
@@ -305,5 +351,34 @@
 		text-align: center;
 		color: var(--color-text-placeholder);
 		padding: 1rem;
+	}
+
+	.translation-fields {
+		margin-top: 0.5rem;
+		display: flex;
+		flex-direction: column;
+		gap: 0.35rem;
+	}
+
+	.translation-row {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+	}
+
+	.translation-lang {
+		font-size: 0.75rem;
+		color: var(--color-text-muted);
+		min-width: 55px;
+	}
+
+	.translation-input {
+		padding: 0.2rem 0.4rem;
+		font-size: 0.85rem;
+		width: 140px;
+	}
+
+	.translation-input-wide {
+		width: 200px;
 	}
 </style>
