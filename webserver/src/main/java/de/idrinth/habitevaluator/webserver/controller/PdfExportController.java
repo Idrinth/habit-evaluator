@@ -415,6 +415,13 @@ public class PdfExportController {
         }
     }
 
+    private static final Color[] PAIR_COLORS = {
+            new Color(0x4C, 0xAF, 0x50), new Color(0x21, 0x96, 0xF3), new Color(0xFF, 0x98, 0x00),
+            new Color(0xE9, 0x1E, 0x63), new Color(0x9C, 0x27, 0xB0), new Color(0x00, 0xBC, 0xD4),
+            new Color(0xFF, 0x57, 0x22), new Color(0x79, 0x55, 0x48), new Color(0x60, 0x7D, 0x8B),
+            new Color(0x8B, 0xC3, 0x4A)
+    };
+
     private void addEmotionSection(Document document, PdfWriter writer, String userId,
                                      LocalDate fromDate, LocalDate toDate) throws DocumentException, IOException {
         List<EmotionEntry> allEntries = emotionEntryRepository.findByUserId(userId);
@@ -437,33 +444,56 @@ public class PdfExportController {
             return;
         }
 
+        // Build date labels
         List<String> labels = new ArrayList<>();
-        List<Float> counts = new ArrayList<>();
-        Map<LocalDate, Integer> countByDate = new TreeMap<>();
+        List<LocalDate> dates = new ArrayList<>();
         for (LocalDate d = fromDate; !d.isAfter(toDate); d = d.plusDays(1)) {
-            countByDate.put(d, 0);
-        }
-        for (EmotionEntry entry : rangeEntries) {
-            LocalDate entryDate = entry.getRecordedAt().toLocalDate();
-            countByDate.merge(entryDate, 1, Integer::sum);
+            labels.add(d.format(LABEL_FORMAT));
+            dates.add(d);
         }
 
-        float totalEvents = 0f;
-        int daysWithData = 0;
-        for (Map.Entry<LocalDate, Integer> mapEntry : countByDate.entrySet()) {
-            labels.add(mapEntry.getKey().format(LABEL_FORMAT));
-            counts.add((float) mapEntry.getValue());
-            if (mapEntry.getValue() > 0) {
-                totalEvents += mapEntry.getValue();
-                daysWithData++;
+        // Group entries by emotion pair, then by date -> daily averages
+        Map<String, List<EmotionEntry>> entriesByPair = new TreeMap<>();
+        Map<String, String> pairLabels = new TreeMap<>();
+        for (EmotionEntry entry : rangeEntries) {
+            if (entry.getEmotionPair() != null) {
+                String pairId = entry.getEmotionPair().getId();
+                entriesByPair.computeIfAbsent(pairId, k -> new ArrayList<>()).add(entry);
+                pairLabels.put(pairId, entry.getEmotionPair().toString());
             }
         }
-        float avgEvents = daysWithData > 0 ? totalEvents / daysWithData : 0f;
 
-        drawBarChart(writer, document, labels, counts, avgEvents, new Color(0x7B, 0x1F, 0xA2), "Emotion Events");
+        // For each pair, compute daily average strength
+        List<String> pairIds = new ArrayList<>(entriesByPair.keySet());
+        List<List<Float>> pairDailyValues = new ArrayList<>();
+        for (String pairId : pairIds) {
+            List<EmotionEntry> pairEntries = entriesByPair.get(pairId);
+            Map<LocalDate, List<Integer>> strengthsByDate = new TreeMap<>();
+            for (EmotionEntry entry : pairEntries) {
+                LocalDate d = entry.getRecordedAt().toLocalDate();
+                strengthsByDate.computeIfAbsent(d, k -> new ArrayList<>()).add(entry.getStrength());
+            }
+            List<Float> dailyAvgs = new ArrayList<>();
+            for (LocalDate d : dates) {
+                List<Integer> strengths = strengthsByDate.get(d);
+                if (strengths != null && !strengths.isEmpty()) {
+                    float sum = 0;
+                    for (int s : strengths) {
+                        sum += s;
+                    }
+                    dailyAvgs.add(sum / strengths.size());
+                } else {
+                    dailyAvgs.add(null);
+                }
+            }
+            pairDailyValues.add(dailyAvgs);
+        }
 
+        drawEmotionLineChart(writer, document, labels, pairIds, pairLabels, pairDailyValues);
+
+        // Summary stats
         Paragraph stats = new Paragraph(
-                String.format("Total: %d events  |  Average: %.1f events/day", (int) totalEvents, avgEvents),
+                String.format("Total: %d entries across %d emotion pairs", rangeEntries.size(), pairIds.size()),
                 BODY_FONT);
         stats.setSpacingAfter(10);
         document.add(stats);
@@ -498,6 +528,170 @@ public class PdfExportController {
 
         table.setSpacingAfter(15);
         document.add(table);
+    }
+
+    private void drawEmotionLineChart(PdfWriter writer, Document document, List<String> labels,
+                                       List<String> pairIds, Map<String, String> pairLabels,
+                                       List<List<Float>> pairDailyValues) throws DocumentException, IOException {
+        float chartWidth = PageSize.A4.getWidth() - 80;
+        float chartHeight = 180f;
+        int legendLines = (pairIds.size() + 2) / 3;
+        float legendHeight = legendLines * 14f + 10f;
+        float totalHeight = chartHeight + 40 + legendHeight;
+
+        Paragraph spacer = new Paragraph();
+        spacer.setSpacingAfter(totalHeight);
+        document.add(spacer);
+
+        PdfContentByte cb = writer.getDirectContent();
+        float pageHeight = document.getPageSize().getHeight();
+        float xStart = document.leftMargin();
+        float yBottom = pageHeight - document.topMargin() - writer.getVerticalPosition(false) + totalHeight - chartHeight - 15;
+        float yTop = yBottom + chartHeight;
+
+        // Chart title
+        cb.beginText();
+        cb.setFontAndSize(com.lowagie.text.pdf.BaseFont.createFont(
+                com.lowagie.text.pdf.BaseFont.HELVETICA_BOLD,
+                com.lowagie.text.pdf.BaseFont.CP1252,
+                com.lowagie.text.pdf.BaseFont.NOT_EMBEDDED), 11);
+        cb.setColorFill(Color.BLACK);
+        cb.showTextAligned(Element.ALIGN_LEFT, "Emotion Pairs", xStart, yTop + 15, 0);
+        cb.endText();
+
+        float chartLeft = xStart + 30;
+        float chartRight = xStart + chartWidth;
+        float chartAreaWidth = chartRight - chartLeft;
+        float yCenter = yBottom + chartHeight / 2f;
+
+        // Axes
+        cb.setColorStroke(Color.DARK_GRAY);
+        cb.setLineWidth(1f);
+        cb.moveTo(chartLeft, yBottom);
+        cb.lineTo(chartLeft, yTop);
+        cb.stroke();
+        cb.moveTo(chartLeft, yBottom);
+        cb.lineTo(chartRight, yBottom);
+        cb.stroke();
+
+        // Grid lines at -10, -5, 0, 5, 10
+        cb.setColorStroke(Color.LIGHT_GRAY);
+        cb.setLineWidth(0.5f);
+        com.lowagie.text.pdf.BaseFont bf = com.lowagie.text.pdf.BaseFont.createFont(
+                com.lowagie.text.pdf.BaseFont.HELVETICA,
+                com.lowagie.text.pdf.BaseFont.CP1252,
+                com.lowagie.text.pdf.BaseFont.NOT_EMBEDDED);
+        int[] gridValues = {-10, -5, 0, 5, 10};
+        for (int val : gridValues) {
+            float gridY = yCenter + (val / 10f) * (chartHeight / 2f);
+            if (val == 0) {
+                cb.setColorStroke(Color.GRAY);
+                cb.setLineWidth(0.8f);
+            } else {
+                cb.setColorStroke(Color.LIGHT_GRAY);
+                cb.setLineWidth(0.5f);
+            }
+            cb.moveTo(chartLeft, gridY);
+            cb.lineTo(chartRight, gridY);
+            cb.stroke();
+
+            cb.beginText();
+            cb.setFontAndSize(bf, 7);
+            cb.setColorFill(Color.GRAY);
+            cb.showTextAligned(Element.ALIGN_RIGHT, String.valueOf(val), chartLeft - 4, gridY - 3, 0);
+            cb.endText();
+        }
+
+        if (labels.isEmpty()) {
+            return;
+        }
+
+        int count = labels.size();
+        float pointSpacing = count > 1 ? chartAreaWidth / (count - 1) : chartAreaWidth;
+
+        // Draw lines and dots for each emotion pair
+        for (int p = 0; p < pairIds.size(); p++) {
+            Color lineColor = PAIR_COLORS[p % PAIR_COLORS.length];
+            List<Float> dailyValues = pairDailyValues.get(p);
+
+            cb.setColorStroke(lineColor);
+            cb.setLineWidth(1.5f);
+            cb.setLineDash(0);
+
+            // Draw connecting lines between non-null consecutive points
+            Float prevVal = null;
+            float prevX = 0;
+            for (int i = 0; i < count; i++) {
+                Float val = dailyValues.get(i);
+                if (val == null) {
+                    prevVal = null;
+                    continue;
+                }
+                float x = count > 1 ? chartLeft + pointSpacing * i : chartLeft + chartAreaWidth / 2f;
+                float y = yCenter + (val / 10f) * (chartHeight / 2f);
+                if (prevVal != null) {
+                    cb.moveTo(prevX, yCenter + (prevVal / 10f) * (chartHeight / 2f));
+                    cb.lineTo(x, y);
+                    cb.stroke();
+                }
+                prevVal = val;
+                prevX = x;
+            }
+
+            // Draw dots
+            cb.setColorFill(lineColor);
+            for (int i = 0; i < count; i++) {
+                Float val = dailyValues.get(i);
+                if (val == null) {
+                    continue;
+                }
+                float x = count > 1 ? chartLeft + pointSpacing * i : chartLeft + chartAreaWidth / 2f;
+                float y = yCenter + (val / 10f) * (chartHeight / 2f);
+                cb.circle(x, y, 2.5f);
+                cb.fill();
+            }
+        }
+
+        // X-axis labels
+        int labelStep = Math.max(1, count / 10);
+        for (int i = 0; i < count; i += labelStep) {
+            float centerX = count > 1 ? chartLeft + pointSpacing * i : chartLeft + chartAreaWidth / 2f;
+            if (i < labels.size()) {
+                cb.saveState();
+                cb.beginText();
+                cb.setFontAndSize(bf, 7);
+                cb.setColorFill(Color.DARK_GRAY);
+                cb.showTextAligned(Element.ALIGN_CENTER, labels.get(i), centerX, yBottom - 10, 0);
+                cb.endText();
+                cb.restoreState();
+            }
+        }
+
+        // Legend below chart
+        float legendY = yBottom - 25;
+        float legendX = chartLeft;
+        float colWidth = chartAreaWidth / 3f;
+        for (int p = 0; p < pairIds.size(); p++) {
+            Color lineColor = PAIR_COLORS[p % PAIR_COLORS.length];
+            int col = p % 3;
+            int row = p / 3;
+            float lx = legendX + col * colWidth;
+            float ly = legendY - row * 14f;
+
+            cb.setColorFill(lineColor);
+            cb.rectangle(lx, ly - 3, 10, 6);
+            cb.fill();
+
+            cb.beginText();
+            cb.setFontAndSize(bf, 7);
+            cb.setColorFill(Color.DARK_GRAY);
+            String label = pairLabels.get(pairIds.get(p));
+            if (label != null && label.length() > 30) {
+                label = label.substring(0, 27) + "...";
+            }
+            cb.showTextAligned(Element.ALIGN_LEFT, label != null ? label : "", lx + 13, ly - 3, 0);
+            cb.endText();
+        }
     }
 
     private void addCorrelationSection(Document document, String userId) throws DocumentException {
