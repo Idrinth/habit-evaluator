@@ -79,4 +79,14 @@
             </BarChart>
         </VBox>
     </HBox>
+
+    <Label text="Event Correlations (Yearly, Time-Weighted)" styleClass="section-title"/>
+    <TableView fx:id="correlationTable" prefHeight="250" VBox.vgrow="SOMETIMES">
+        <columns>
+            <TableColumn fx:id="eventAColumn" text="Event A" prefWidth="200"/>
+            <TableColumn fx:id="eventBColumn" text="Event B" prefWidth="200"/>
+            <TableColumn fx:id="correlationColumn" text="Correlation" prefWidth="120"/>
+            <TableColumn fx:id="sharedDaysColumn" text="Shared Days" prefWidth="100"/>
+        </columns>
+    </TableView>
 </VBox>

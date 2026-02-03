@@ -173,4 +173,6 @@
     <string name="backup_password_required">Backup password is required when backups are enabled</string>
     <string name="backup_passwords_mismatch">Passwords do not match</string>
     <string name="emotional_state">Emotions</string>
+    <string name="stats_correlations_title">Event Correlations (Yearly, Time-Weighted)</string>
+    <string name="stats_no_correlations">Not enough data for correlations</string>
 </resources>

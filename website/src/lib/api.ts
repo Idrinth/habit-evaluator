@@ -206,12 +206,22 @@ export interface DailyTimelineData {
 	habits: TimelineHabit[];
 }
 
+export interface CorrelationEntry {
+	eventA: string;
+	eventB: string;
+	correlation: number;
+	sharedDays: number;
+}
+
 export const stats = {
 	dashboard() {
 		return request<DashboardData>('/stats/dashboard');
 	},
 	dailyTimeline() {
 		return request<DailyTimelineData>('/stats/daily-timeline');
+	},
+	correlations() {
+		return request<CorrelationEntry[]>('/stats/correlations');
 	}
 };
 

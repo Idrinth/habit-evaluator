@@ -1,20 +1,23 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { stats, type DashboardData, type DailyTimelineData } from '$lib/api';
+	import { stats, type DashboardData, type DailyTimelineData, type CorrelationEntry } from '$lib/api';
 	import { goto } from '$app/navigation';
 
 	let data: DashboardData | null = $state(null);
 	let timelineData: DailyTimelineData | null = $state(null);
+	let correlationData: CorrelationEntry[] | null = $state(null);
 	let error: string | null = $state(null);
 
 	onMount(async () => {
 		try {
-			const [dashboardResult, timelineResult] = await Promise.all([
+			const [dashboardResult, timelineResult, correlationResult] = await Promise.all([
 				stats.dashboard(),
-				stats.dailyTimeline()
+				stats.dailyTimeline(),
+				stats.correlations()
 			]);
 			data = dashboardResult;
 			timelineData = timelineResult;
+			correlationData = correlationResult;
 		} catch (e) {
 			if (e instanceof Error && e.message.includes('401')) {
 				goto('/login');
@@ -246,6 +249,43 @@
 				</div>
 			</div>
 		{/if}
+
+		{#if correlationData && correlationData.length > 0}
+			<div class="chart-card correlation-card">
+				<h2>Event Correlations (Yearly, Time-Weighted)</h2>
+				<p class="chart-avg">Top {correlationData.length} strongest correlations — newer data weighted higher</p>
+				<table class="correlation-table">
+					<thead>
+						<tr>
+							<th>Event A</th>
+							<th>Event B</th>
+							<th>Correlation</th>
+							<th>Shared Days</th>
+						</tr>
+					</thead>
+					<tbody>
+						{#each correlationData as corr}
+							<tr>
+								<td>{corr.eventA}</td>
+								<td>{corr.eventB}</td>
+								<td>
+									<span class="corr-bar-wrapper">
+										<span
+											class="corr-bar"
+											class:positive={corr.correlation > 0}
+											class:negative={corr.correlation < 0}
+											style="width: {Math.abs(corr.correlation) * 100}%"
+										></span>
+									</span>
+									<span class="corr-value">{corr.correlation > 0 ? '+' : ''}{corr.correlation.toFixed(3)}</span>
+								</td>
+								<td class="shared-days">{corr.sharedDays}</td>
+							</tr>
+						{/each}
+					</tbody>
+				</table>
+			</div>
+		{/if}
 	{/if}
 </div>
 
@@ -347,6 +387,69 @@
 		width: 10px;
 		height: 10px;
 		border-radius: 50%;
+	}
+
+	.correlation-card {
+		grid-column: 1 / -1;
+		margin-top: 1rem;
+	}
+
+	.correlation-table {
+		width: 100%;
+		border-collapse: collapse;
+		font-size: 0.85rem;
+	}
+
+	.correlation-table th,
+	.correlation-table td {
+		padding: 0.5rem 0.75rem;
+		text-align: left;
+		border-bottom: 1px solid var(--color-border);
+	}
+
+	.correlation-table th {
+		font-weight: 600;
+		color: var(--color-text-muted);
+		font-size: 0.75rem;
+		text-transform: uppercase;
+		letter-spacing: 0.03em;
+	}
+
+	.correlation-table td {
+		color: var(--color-text);
+	}
+
+	.corr-bar-wrapper {
+		display: inline-block;
+		width: 60px;
+		height: 8px;
+		background: var(--color-border);
+		border-radius: 4px;
+		vertical-align: middle;
+		margin-right: 0.5rem;
+		overflow: hidden;
+	}
+
+	.corr-bar {
+		display: block;
+		height: 100%;
+		border-radius: 4px;
+	}
+
+	.corr-bar.positive {
+		background: #4CAF50;
+	}
+
+	.corr-bar.negative {
+		background: #E91E63;
+	}
+
+	.corr-value {
+		font-variant-numeric: tabular-nums;
+	}
+
+	.shared-days {
+		text-align: center;
 	}
 
 	@media (max-width: 600px) {
