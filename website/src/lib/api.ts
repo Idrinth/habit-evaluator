@@ -115,6 +115,43 @@ export const categories = {
 	}
 };
 
+export interface SleepEntry {
+	id: string;
+	fromTime: string;
+	untilTime: string;
+	date: string;
+	createdAt: string;
+	notes: string | null;
+	hours: number;
+}
+
+export interface SleepStats {
+	periodStart: string;
+	periodEnd: string;
+	averageHours: number;
+	minHours: number;
+	maxHours: number;
+	totalEntries: number;
+}
+
+export const sleepEntries = {
+	list() {
+		return request<SleepEntry[]>('/sleep-entries');
+	},
+	create(entry: { fromTime: string; untilTime: string; date: string; notes?: string }) {
+		return request<SleepEntry>('/sleep-entries', {
+			method: 'POST',
+			body: JSON.stringify(entry)
+		});
+	},
+	delete(id: string) {
+		return request<void>(`/sleep-entries/${id}`, { method: 'DELETE' });
+	},
+	stats() {
+		return request<{ weekly: SleepStats; monthly: SleepStats }>('/sleep-entries/stats');
+	}
+};
+
 export const scoreRules = {
 	create(rule: {
 		name: string;

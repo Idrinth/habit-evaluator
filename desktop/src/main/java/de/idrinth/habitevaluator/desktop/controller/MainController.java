@@ -2,6 +2,7 @@ package de.idrinth.habitevaluator.desktop.controller;
 
 import de.idrinth.habitevaluator.desktop.persistence.H2HabitCategoryRepository;
 import de.idrinth.habitevaluator.desktop.persistence.H2HabitRepository;
+import de.idrinth.habitevaluator.desktop.persistence.H2SleepEntryRepository;
 import de.idrinth.habitevaluator.desktop.persistence.H2UserRepository;
 import de.idrinth.habitevaluator.shared.api.ApiClient;
 import de.idrinth.habitevaluator.shared.api.RemoteHabitRepository;
@@ -445,6 +446,30 @@ public class MainController {
             }
         } catch (IOException e) {
             showAlert("Error", "Failed to open add habit dialog: " + e.getMessage());
+        }
+    }
+
+    @FXML
+    private void handleOpenSleepTracking() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/sleep-tracking.fxml"));
+            Parent root = loader.load();
+
+            SleepTrackingController controller = loader.getController();
+            controller.setSleepEntryRepository(new H2SleepEntryRepository());
+            controller.setCurrentUser(currentUser);
+
+            Stage dialogStage = new Stage();
+            dialogStage.setTitle("Sleep Tracking");
+            dialogStage.initModality(Modality.APPLICATION_MODAL);
+            dialogStage.initOwner(habitListView.getScene().getWindow());
+
+            Scene scene = new Scene(root);
+            scene.getStylesheets().addAll(habitListView.getScene().getStylesheets());
+            dialogStage.setScene(scene);
+            dialogStage.showAndWait();
+        } catch (IOException e) {
+            showAlert("Error", "Failed to open sleep tracking: " + e.getMessage());
         }
     }
 

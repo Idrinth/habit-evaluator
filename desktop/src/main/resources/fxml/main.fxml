@@ -46,7 +46,10 @@
                 <Insets top="20" right="20" bottom="20" left="20"/>
             </padding>
 
-            <Button text="Add Habit" onAction="#handleOpenAddHabit" styleClass="primary-button"/>
+            <HBox spacing="10">
+                <Button text="Add Habit" onAction="#handleOpenAddHabit" styleClass="primary-button"/>
+                <Button text="Sleep Tracking" onAction="#handleOpenSleepTracking" styleClass="primary-button"/>
+            </HBox>
 
             <Separator/>
 
