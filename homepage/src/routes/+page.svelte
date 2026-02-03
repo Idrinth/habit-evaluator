@@ -26,7 +26,7 @@
 		</div>
 		<div class="card">
 			<h3>Android Application</h3>
-			<p>A native Android app that can work standalone or connect to your self-hosted webserver for synchronisation.</p>
+			<p>A native Android app with habit tracking, diary logging, sleep analysis, PDF export, and optional server sync. Supports multiple languages and themes.</p>
 			<a href="/docs/android">Setup Guide</a>
 		</div>
 	</div>

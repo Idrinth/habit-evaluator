@@ -11,6 +11,8 @@
 		<li>Organise habits into user-defined categories with colour coding.</li>
 		<li>Track habit completions with optional notes and configurable value/weight.</li>
 		<li>Support for daily, weekly, and monthly frequency types.</li>
+		<li>Support for negative habits (avoidance tracking).</li>
+		<li>Habit deselection toggle with category display in evaluation cards.</li>
 	</ul>
 </section>
 
@@ -23,6 +25,38 @@
 		<li>Configurable scoring rules with 0, 1, 2, 4, and 8 point thresholds.</li>
 		<li>Weekly score aggregation across all habits and per category.</li>
 		<li>Score predictions based on current progress.</li>
+	</ul>
+</section>
+
+<section>
+	<h2>Diary Tracking</h2>
+	<ul>
+		<li>Log positive events with minor, normal, and major significance levels.</li>
+		<li>Automatic date picker defaulting to the current date.</li>
+		<li>Daily, weekly, and monthly point tracking with weekly averages.</li>
+		<li>Monthly trend tracking (up, down, or stable).</li>
+	</ul>
+</section>
+
+<section>
+	<h2>Sleep Tracking</h2>
+	<ul>
+		<li>Manual sleep entry logging with from/until times.</li>
+		<li>Overlap detection for conflicting entries.</li>
+		<li>Daily sleep duration statistics including average, minimum, and maximum.</li>
+		<li>Weekly and monthly sleep statistics aggregation.</li>
+		<li>Sleep interruptions tracking.</li>
+		<li>Graph visualisation with daily duration and interruptions.</li>
+	</ul>
+</section>
+
+<section>
+	<h2>Analytics and Reports</h2>
+	<ul>
+		<li>Combined stats view with habit points, diary points, and sleep duration.</li>
+		<li>Point development visualisation with daily and average bar charts.</li>
+		<li>PDF export with user-selectable date range.</li>
+		<li>PDF export with section selection for habits, diary entries, and sleep logs.</li>
 	</ul>
 </section>
 
@@ -41,8 +75,26 @@
 	<ul>
 		<li><strong>Web</strong> &mdash; Spring Boot REST API with a SvelteKit frontend.</li>
 		<li><strong>Desktop</strong> &mdash; JavaFX application with a local H2 database.</li>
-		<li><strong>Android</strong> &mdash; Native app with RecyclerView-based UI.</li>
+		<li><strong>Android</strong> &mdash; Native app with habit tracking, diary, sleep logging, PDF export, and optional server sync.</li>
 		<li><strong>Shared Core</strong> &mdash; Common models, services, and repository interfaces used across all platforms.</li>
+	</ul>
+</section>
+
+<section>
+	<h2>Synchronisation</h2>
+	<ul>
+		<li>Automatic bidirectional sync with a self-hosted remote server.</li>
+		<li>Local backup for remote-enabled clients.</li>
+		<li>Local-only storage mode with no network required.</li>
+	</ul>
+</section>
+
+<section>
+	<h2>Customisation</h2>
+	<ul>
+		<li>Theme switching between system default, light, and dark modes.</li>
+		<li>Language selection with support for English, Deutsch, Espa&ntilde;ol, and Fran&ccedil;ais.</li>
+		<li>Custom translations for habit and category names.</li>
 	</ul>
 </section>
 
