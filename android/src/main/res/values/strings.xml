@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Habit Evaluator</string>
+    <string name="app_name" translatable="false">Habit Evaluator</string>
     <string name="habit_name_hint">Habit Name</string>
     <string name="habit_description_hint">Description (optional)</string>
     <string name="add_habit">Add Habit</string>
