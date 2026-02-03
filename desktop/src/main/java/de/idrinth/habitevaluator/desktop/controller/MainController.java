@@ -10,6 +10,8 @@ import de.idrinth.habitevaluator.shared.api.RemoteHabitRepository;
 import de.idrinth.habitevaluator.shared.api.RemoteUserRepository;
 import de.idrinth.habitevaluator.shared.api.StorageConfig;
 import de.idrinth.habitevaluator.shared.api.SyncService;
+import de.idrinth.habitevaluator.shared.backup.BackupException;
+import de.idrinth.habitevaluator.shared.backup.BackupService;
 import de.idrinth.habitevaluator.shared.model.DiaryEntry;
 import de.idrinth.habitevaluator.shared.model.Evaluation;
 import de.idrinth.habitevaluator.shared.model.EventSignificance;
@@ -64,6 +66,7 @@ public class MainController {
     private static final String PLACEHOLDER_USERNAME = "desktop_user";
     private static final String CONFIG_DIR = System.getProperty("user.home") + "/.habit-evaluator";
     private static final String CONFIG_FILE = CONFIG_DIR + "/storage.properties";
+    private static final String BACKUP_DIR = CONFIG_DIR + "/backups";
     private static final String ALL_CATEGORIES = "All categories";
 
     @FXML
@@ -171,6 +174,7 @@ public class MainController {
     private final HabitEvaluatorService evaluatorService = new HabitEvaluatorService();
     private final HabitScoringService scoringService = new HabitScoringService();
     private final DiaryService diaryService = new DiaryService();
+    private final BackupService backupService = new BackupService();
     private final StorageConfig storageConfig = new StorageConfig(new File(CONFIG_FILE));
 
     private HabitRepository habitRepository;
@@ -229,6 +233,32 @@ public class MainController {
         diarySignificanceComboBox.setItems(FXCollections.observableArrayList("Minor (1pt)", "Normal (2pt)", "Major (4pt)"));
         diarySignificanceComboBox.getSelectionModel().select(1);
         loadDiaryEntries();
+
+        performDailyBackupIfEnabled();
+    }
+
+    private void performDailyBackupIfEnabled() {
+        if (!storageConfig.isBackupEnabled()) {
+            return;
+        }
+        String password = storageConfig.getBackupPassword();
+        if (password == null || password.isEmpty()) {
+            return;
+        }
+        File backupDir = new File(BACKUP_DIR);
+        if (backupService.hasTodaysBackup(backupDir)) {
+            return;
+        }
+        new Thread(() -> {
+            try {
+                backupService.createBackup(backupDir, password, currentUser,
+                        habitRepository, categoryRepository,
+                        diaryEntryRepository, sleepEntryRepository);
+            } catch (BackupException e) {
+                Platform.runLater(() ->
+                        showAlert("Backup Error", "Daily backup failed: " + e.getMessage()));
+            }
+        }).start();
     }
 
     private void loadCategories() {
@@ -376,6 +406,9 @@ public class MainController {
      * Called on application shutdown to sync data and save a local backup.
      */
     public void shutdown() {
+        // Create encrypted backup on shutdown if enabled and not yet done today
+        performDailyBackupIfEnabled();
+
         if (!storageConfig.isRemote() || localBackupRepository == null || localBackupUser == null) {
             return;
         }

@@ -6,7 +6,7 @@
 
 <VBox xmlns:fx="http://javafx.com/fxml"
       fx:controller="de.idrinth.habitevaluator.desktop.controller.SettingsDialogController"
-      spacing="15" prefWidth="450" prefHeight="650">
+      spacing="15" prefWidth="450" prefHeight="800">
     <padding>
         <Insets top="20" right="20" bottom="20" left="20"/>
     </padding>
@@ -92,6 +92,26 @@
     <Label text="Custom Translations" styleClass="section-title"/>
 
     <CheckBox fx:id="customTranslationsCheckBox" text="Enable custom habit translations"/>
+
+    <Separator/>
+
+    <Label text="Encrypted Backups" styleClass="section-title"/>
+
+    <CheckBox fx:id="backupEnabledCheckBox" text="Enable daily encrypted backups"/>
+
+    <VBox fx:id="backupSettingsPane" spacing="10" disable="true">
+        <HBox spacing="10" alignment="CENTER_LEFT">
+            <Label text="Backup Password:" prefWidth="120"/>
+            <PasswordField fx:id="backupPasswordField" HBox.hgrow="ALWAYS" promptText="Enter encryption password"/>
+        </HBox>
+
+        <HBox spacing="10" alignment="CENTER_LEFT">
+            <Label text="Confirm Password:" prefWidth="120"/>
+            <PasswordField fx:id="backupPasswordConfirmField" HBox.hgrow="ALWAYS" promptText="Confirm encryption password"/>
+        </HBox>
+
+        <Label fx:id="backupStatusLabel" text="" style="-fx-font-size: 11px;"/>
+    </VBox>
 
     <Region VBox.vgrow="ALWAYS"/>
 
