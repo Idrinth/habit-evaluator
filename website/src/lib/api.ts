@@ -328,6 +328,36 @@ export const scoreRules = {
 	}
 };
 
+export interface EmotionPairInfo {
+	id: string;
+	negativeLabel: string;
+	positiveLabel: string;
+}
+
+export interface EmotionPairSeries {
+	pairId: string;
+	negativeLabel: string;
+	positiveLabel: string;
+	dailyAverages: number[];
+	overallAverage: number;
+	totalEntries: number;
+}
+
+export interface EmotionGraphData {
+	labels: string[];
+	period: string;
+	pairs: EmotionPairSeries[];
+}
+
+export const emotions = {
+	pairs() {
+		return request<EmotionPairInfo[]>('/emotions/pairs');
+	},
+	graph(period: 'week' | 'month') {
+		return request<EmotionGraphData>(`/emotions/graph?period=${period}`);
+	}
+};
+
 export const defaults = {
 	init() {
 		return request<{ success: boolean }>('/init-defaults', {

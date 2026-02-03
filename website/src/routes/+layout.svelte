@@ -73,6 +73,7 @@
 		<a href="/points">{t('nav.points', lang)}</a>
 		<a href="/diary">{t('nav.diary', lang)}</a>
 		<a href="/sleep">{t('nav.sleep', lang)}</a>
+		<a href="/emotions/graph">{t('nav.emotions', lang)}</a>
 		<a href="/stats">{t('nav.stats', lang)}</a>
 		<a href="/export/pdf">{t('nav.exportPdf', lang)}</a>
 		<span style="margin-left: auto; color: var(--color-nav-text);">{data.username}</span>
