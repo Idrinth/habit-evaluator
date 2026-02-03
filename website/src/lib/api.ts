@@ -103,6 +103,40 @@ export const categories = {
 	}
 };
 
+export interface DiaryEntry {
+	id: string;
+	description: string;
+	significance: 'MINOR' | 'NORMAL' | 'MAJOR';
+	eventDate: string;
+	createdAt: string;
+}
+
+export interface DiaryStats {
+	todayPoints: number;
+	weekPoints: number;
+	monthPoints: number;
+	weeklyAverage: number;
+	monthlyTrend: number;
+}
+
+export const diary = {
+	list() {
+		return request<DiaryEntry[]>('/diary');
+	},
+	create(entry: { description: string; significance: string; eventDate: string }) {
+		return request<DiaryEntry>('/diary', {
+			method: 'POST',
+			body: JSON.stringify(entry)
+		});
+	},
+	remove(id: string) {
+		return request<void>(`/diary/${id}`, { method: 'DELETE' });
+	},
+	stats() {
+		return request<DiaryStats>('/diary/stats');
+	}
+};
+
 export interface SleepEntry {
 	id: string;
 	fromTime: string;
