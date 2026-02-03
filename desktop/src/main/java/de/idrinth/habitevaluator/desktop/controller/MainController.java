@@ -1,5 +1,6 @@
 package de.idrinth.habitevaluator.desktop.controller;
 
+import de.idrinth.habitevaluator.desktop.persistence.H2DiaryEntryRepository;
 import de.idrinth.habitevaluator.desktop.persistence.H2HabitCategoryRepository;
 import de.idrinth.habitevaluator.desktop.persistence.H2HabitRepository;
 import de.idrinth.habitevaluator.desktop.persistence.H2UserRepository;
@@ -8,16 +9,20 @@ import de.idrinth.habitevaluator.shared.api.RemoteHabitRepository;
 import de.idrinth.habitevaluator.shared.api.RemoteUserRepository;
 import de.idrinth.habitevaluator.shared.api.StorageConfig;
 import de.idrinth.habitevaluator.shared.api.SyncService;
+import de.idrinth.habitevaluator.shared.model.DiaryEntry;
 import de.idrinth.habitevaluator.shared.model.Evaluation;
+import de.idrinth.habitevaluator.shared.model.EventSignificance;
 import de.idrinth.habitevaluator.shared.model.Habit;
 import de.idrinth.habitevaluator.shared.model.HabitCategory;
 import de.idrinth.habitevaluator.shared.model.HabitEntry;
 import de.idrinth.habitevaluator.shared.model.ScoringRule;
 import de.idrinth.habitevaluator.shared.model.User;
+import de.idrinth.habitevaluator.shared.repository.DiaryEntryRepository;
 import de.idrinth.habitevaluator.shared.repository.HabitRepository;
 import de.idrinth.habitevaluator.shared.repository.UserRepository;
 import de.idrinth.habitevaluator.shared.repository.HabitCategoryRepository;
 import de.idrinth.habitevaluator.shared.service.DefaultDataInitializer;
+import de.idrinth.habitevaluator.shared.service.DiaryService;
 import de.idrinth.habitevaluator.shared.service.HabitEvaluatorService;
 import de.idrinth.habitevaluator.shared.service.HabitScoringService;
 import javafx.application.Platform;
@@ -37,8 +42,10 @@ import com.google.gson.reflect.TypeToken;
 import java.io.File;
 import java.io.IOException;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -90,6 +97,33 @@ public class MainController {
     @FXML
     private Label editMessage;
 
+    @FXML
+    private Label diaryTodayPointsLabel;
+
+    @FXML
+    private Label diaryWeekPointsLabel;
+
+    @FXML
+    private Label diaryMonthPointsLabel;
+
+    @FXML
+    private Label diaryWeeklyAvgLabel;
+
+    @FXML
+    private Label diaryTrendLabel;
+
+    @FXML
+    private TextField diaryDescriptionField;
+
+    @FXML
+    private DatePicker diaryDatePicker;
+
+    @FXML
+    private ComboBox<String> diarySignificanceComboBox;
+
+    @FXML
+    private VBox diaryEntriesContainer;
+
     private final Map<String, TextField> editTargetFields = new HashMap<>();
     private final Map<String, TextField> editMaxEntriesFields = new HashMap<>();
     private final Map<String, CheckBox> editPositiveScoringBoxes = new HashMap<>();
@@ -101,13 +135,16 @@ public class MainController {
     private final ObservableList<Habit> filteredHabits = FXCollections.observableArrayList();
     private final HabitEvaluatorService evaluatorService = new HabitEvaluatorService();
     private final HabitScoringService scoringService = new HabitScoringService();
+    private final DiaryService diaryService = new DiaryService();
     private final StorageConfig storageConfig = new StorageConfig(new File(CONFIG_FILE));
 
     private HabitRepository habitRepository;
     private HabitCategoryRepository categoryRepository;
     private UserRepository userRepository;
+    private DiaryEntryRepository diaryEntryRepository;
     private ApiClient apiClient;
     private User currentUser;
+    private List<DiaryEntry> diaryEntries = new ArrayList<>();
     private HabitRepository localBackupRepository;
     private User localBackupUser;
     private List<HabitCategory> categoryList = new ArrayList<>();
@@ -147,6 +184,12 @@ public class MainController {
             applyFilter();
             refreshEditHabits();
         });
+
+        // Initialize diary UI
+        diaryDatePicker.setValue(LocalDate.now());
+        diarySignificanceComboBox.setItems(FXCollections.observableArrayList("Minor (1pt)", "Normal (2pt)", "Major (4pt)"));
+        diarySignificanceComboBox.getSelectionModel().select(1);
+        loadDiaryEntries();
     }
 
     private void loadCategories() {
@@ -222,6 +265,7 @@ public class MainController {
         habitRepository = new H2HabitRepository();
         userRepository = new H2UserRepository();
         categoryRepository = new H2HabitCategoryRepository();
+        diaryEntryRepository = new H2DiaryEntryRepository();
         apiClient = null;
         localBackupRepository = null;
         localBackupUser = null;
@@ -244,6 +288,9 @@ public class MainController {
                 userRepository = new RemoteUserRepository(apiClient);
                 categoryRepository = null;
                 currentUser = userRepository.findAll().stream().findFirst().orElse(null);
+
+                // Diary always uses local storage on desktop
+                diaryEntryRepository = new H2DiaryEntryRepository();
 
                 // Initialize local backup for data safety
                 H2HabitRepository h2Backup = new H2HabitRepository();
@@ -712,6 +759,117 @@ public class MainController {
         } else if (!wantDark && hasDark) {
             scene.getStylesheets().remove(darkCss);
         }
+    }
+
+    private void loadDiaryEntries() {
+        diaryEntries.clear();
+        if (diaryEntryRepository != null && currentUser != null) {
+            diaryEntries = new ArrayList<>(diaryEntryRepository.findByUserId(currentUser.getId()));
+            diaryEntries.sort(Comparator.comparing(DiaryEntry::getEventDate)
+                    .thenComparing(DiaryEntry::getCreatedAt).reversed());
+        }
+        refreshDiaryStats();
+        refreshDiaryEntriesList();
+    }
+
+    private void refreshDiaryStats() {
+        if (diaryEntries.isEmpty()) {
+            diaryTodayPointsLabel.setText("Today: 0 pts");
+            diaryWeekPointsLabel.setText("This Week: 0 pts");
+            diaryMonthPointsLabel.setText("This Month: 0 pts");
+            diaryWeeklyAvgLabel.setText("Weekly Avg: 0.0");
+            diaryTrendLabel.setText("Trend: -");
+            return;
+        }
+        int todayPts = diaryService.getDayPoints(diaryEntries, LocalDate.now());
+        int weekPts = diaryService.getCurrentWeekPoints(diaryEntries);
+        int monthPts = diaryService.getCurrentMonthPoints(diaryEntries);
+        double weeklyAvg = diaryService.getWeeklyAverageForMonth(diaryEntries);
+        double trend = diaryService.getMonthlyTrend(diaryEntries);
+
+        diaryTodayPointsLabel.setText("Today: " + todayPts + " pts");
+        diaryWeekPointsLabel.setText("This Week: " + weekPts + " pts");
+        diaryMonthPointsLabel.setText("This Month: " + monthPts + " pts");
+        diaryWeeklyAvgLabel.setText(String.format("Weekly Avg: %.1f", weeklyAvg));
+
+        if (trend > 0.01) {
+            diaryTrendLabel.setText(String.format("Trend: +%.0f%%", trend * 100));
+            diaryTrendLabel.setStyle("-fx-text-fill: green;");
+        } else if (trend < -0.01) {
+            diaryTrendLabel.setText(String.format("Trend: %.0f%%", trend * 100));
+            diaryTrendLabel.setStyle("-fx-text-fill: red;");
+        } else {
+            diaryTrendLabel.setText("Trend: Stable");
+            diaryTrendLabel.setStyle("");
+        }
+    }
+
+    private void refreshDiaryEntriesList() {
+        diaryEntriesContainer.getChildren().clear();
+        if (diaryEntries.isEmpty()) {
+            diaryEntriesContainer.getChildren().add(new Label("No diary entries yet."));
+            return;
+        }
+        DateTimeFormatter dateFmt = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        for (DiaryEntry entry : diaryEntries) {
+            HBox row = new HBox(10);
+            row.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+            row.setStyle("-fx-border-color: #444; -fx-border-radius: 4; -fx-padding: 6; -fx-background-color: #333; -fx-background-radius: 4;");
+
+            Label dateLabel = new Label(entry.getEventDate().format(dateFmt));
+            dateLabel.setStyle("-fx-font-size: 11px; -fx-text-fill: #888;");
+            dateLabel.setPrefWidth(80);
+
+            Label sigLabel = new Label(entry.getSignificance().name() + " (" + entry.getPoints() + "pt)");
+            sigLabel.setStyle("-fx-font-size: 11px;");
+            sigLabel.setPrefWidth(100);
+
+            Label descLabel = new Label(entry.getDescription());
+            descLabel.setStyle("-fx-font-size: 12px;");
+            HBox.setHgrow(descLabel, javafx.scene.layout.Priority.ALWAYS);
+
+            Button deleteBtn = new Button("X");
+            deleteBtn.setStyle("-fx-font-size: 10px; -fx-padding: 2 6;");
+            deleteBtn.setOnAction(e -> {
+                diaryEntryRepository.deleteById(entry.getId());
+                loadDiaryEntries();
+            });
+
+            row.getChildren().addAll(dateLabel, sigLabel, descLabel, deleteBtn);
+            diaryEntriesContainer.getChildren().add(row);
+        }
+    }
+
+    @FXML
+    private void handleAddDiaryEntry() {
+        String description = diaryDescriptionField.getText();
+        if (description == null || description.trim().isEmpty()) {
+            return;
+        }
+        LocalDate date = diaryDatePicker.getValue();
+        if (date == null) {
+            date = LocalDate.now();
+        }
+        int selectedIndex = diarySignificanceComboBox.getSelectionModel().getSelectedIndex();
+        EventSignificance significance;
+        switch (selectedIndex) {
+            case 0:
+                significance = EventSignificance.MINOR;
+                break;
+            case 2:
+                significance = EventSignificance.MAJOR;
+                break;
+            default:
+                significance = EventSignificance.NORMAL;
+                break;
+        }
+        DiaryEntry entry = new DiaryEntry(description.trim(), significance, date);
+        entry.setUser(currentUser);
+        diaryEntryRepository.save(entry);
+        diaryDescriptionField.clear();
+        diaryDatePicker.setValue(LocalDate.now());
+        diarySignificanceComboBox.getSelectionModel().select(1);
+        loadDiaryEntries();
     }
 
     private void showAlert(String title, String message) {
