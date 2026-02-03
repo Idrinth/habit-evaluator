@@ -174,6 +174,7 @@
     <string name="emotion_pair_deleted">Par de emociones eliminado</string>
     <string name="delete_emotion_pair">Eliminar par de emociones</string>
     <string name="delete_emotion_pair_confirmation">¿Eliminar \"%1$s\"? Esto no se puede deshacer.</string>
+    <string name="stats_emotion_pairs">Pares de emociones</string>
     <string name="stats_correlations_title">Correlaciones de eventos (Anual, Ponderado)</string>
     <string name="stats_no_correlations">No hay suficientes datos para correlaciones</string>
     <string name="backup_settings">Configuración de respaldo</string>

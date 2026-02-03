@@ -24,6 +24,7 @@ import java.util.TreeMap;
 
 import de.idrinth.habitevaluator.android.databinding.FragmentStatsBinding;
 import de.idrinth.habitevaluator.shared.model.DiaryEntry;
+import de.idrinth.habitevaluator.shared.model.EmotionEntry;
 import de.idrinth.habitevaluator.shared.model.EventCorrelation;
 import de.idrinth.habitevaluator.shared.model.Habit;
 import de.idrinth.habitevaluator.shared.model.SleepEntry;
@@ -77,6 +78,7 @@ public class StatsFragment extends Fragment {
         updateSleepCharts(startDate, today, labels);
         updateDiaryChart(startDate, today, labels);
         updateHabitChart(startDate, today, labels);
+        updateEmotionChart(startDate, today, labels);
         updateCorrelations();
     }
 
@@ -185,6 +187,75 @@ public class StatsFragment extends Fragment {
         binding.habitPointsChart.setBarColor(0xFF388E3C);
         binding.habitPointsChart.setValueFormat("%.0f");
         binding.habitPointsChart.setData(labels, habitPoints, avgPoints);
+    }
+
+    private void updateEmotionChart(LocalDate startDate, LocalDate today, List<String> labels) {
+        List<EmotionEntry> allEntries = new ArrayList<>();
+        User user = MainActivity.getSharedCurrentUser();
+        if (user != null && MainActivity.getSharedEmotionEntryRepository() != null) {
+            allEntries = MainActivity.getSharedEmotionEntryRepository().findByUserId(user.getId());
+        }
+
+        List<EmotionEntry> rangeEntries = new ArrayList<>();
+        for (EmotionEntry entry : allEntries) {
+            LocalDate entryDate = entry.getRecordedAt().toLocalDate();
+            if (!entryDate.isBefore(startDate) && !entryDate.isAfter(today)) {
+                rangeEntries.add(entry);
+            }
+        }
+
+        if (rangeEntries.isEmpty()) {
+            binding.emotionCard.setVisibility(View.GONE);
+            return;
+        }
+
+        binding.emotionCard.setVisibility(View.VISIBLE);
+
+        // Group entries by emotion pair
+        Map<String, List<EmotionEntry>> entriesByPair = new TreeMap<>();
+        Map<String, String> pairLabelMap = new TreeMap<>();
+        for (EmotionEntry entry : rangeEntries) {
+            if (entry.getEmotionPair() != null) {
+                String pairId = entry.getEmotionPair().getId();
+                entriesByPair.computeIfAbsent(pairId, k -> new ArrayList<>()).add(entry);
+                pairLabelMap.put(pairId, entry.getEmotionPair().toString());
+            }
+        }
+
+        // Build date list
+        List<LocalDate> dates = new ArrayList<>();
+        for (LocalDate d = startDate; !d.isAfter(today); d = d.plusDays(1)) {
+            dates.add(d);
+        }
+
+        // For each pair, compute daily average strength
+        List<String> pairNames = new ArrayList<>();
+        List<List<Float>> pairDailyValues = new ArrayList<>();
+        for (Map.Entry<String, List<EmotionEntry>> mapEntry : entriesByPair.entrySet()) {
+            pairNames.add(pairLabelMap.get(mapEntry.getKey()));
+            List<EmotionEntry> pairEntries = mapEntry.getValue();
+            Map<LocalDate, List<Integer>> strengthsByDate = new TreeMap<>();
+            for (EmotionEntry entry : pairEntries) {
+                LocalDate d = entry.getRecordedAt().toLocalDate();
+                strengthsByDate.computeIfAbsent(d, k -> new ArrayList<>()).add(entry.getStrength());
+            }
+            List<Float> dailyAvgs = new ArrayList<>();
+            for (LocalDate d : dates) {
+                List<Integer> strengths = strengthsByDate.get(d);
+                if (strengths != null && !strengths.isEmpty()) {
+                    float sum = 0;
+                    for (int s : strengths) {
+                        sum += s;
+                    }
+                    dailyAvgs.add(sum / strengths.size());
+                } else {
+                    dailyAvgs.add(null);
+                }
+            }
+            pairDailyValues.add(dailyAvgs);
+        }
+
+        binding.emotionChart.setData(labels, pairNames, pairDailyValues);
     }
 
     private void updateCorrelations() {
