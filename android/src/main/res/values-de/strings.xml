@@ -138,4 +138,25 @@
     <string name="avoidance_streak">Vermeidungsserie</string>
     <string name="avoidance_rate">Vermeidungsrate</string>
     <string name="occurrences">Vorkommen: %d</string>
+    <string name="pdf_export_title">PDF-Bericht exportieren</string>
+    <string name="pdf_export_button">PDF exportieren</string>
+    <string name="pdf_export_button_short">PDF Export</string>
+    <string name="pdf_date_range">Zeitraum</string>
+    <string name="pdf_from_date">Von Datum</string>
+    <string name="pdf_to_date">Bis Datum</string>
+    <string name="pdf_content_options">Im Bericht enthalten</string>
+    <string name="pdf_include_habits">Gewohnheitspunkte und Aufschlüsselung</string>
+    <string name="pdf_include_diary">Tagebuchpunkte und Einträge</string>
+    <string name="pdf_include_sleep">Schlafdaten</string>
+    <string name="pdf_select_content">Bitte wählen Sie mindestens einen Abschnitt zum Exportieren</string>
+    <string name="pdf_generating">PDF wird erstellt…</string>
+    <string name="pdf_export_success">PDF erfolgreich exportiert</string>
+    <string name="pdf_export_failed">PDF-Export fehlgeschlagen: %s</string>
+    <string name="pdf_report_title">Habit Evaluator Bericht</string>
+    <string name="pdf_section_habits">Gewohnheitspunkte</string>
+    <string name="pdf_section_diary">Tagebuchpunkte</string>
+    <string name="pdf_section_sleep">Schlafdaten</string>
+    <string name="pdf_no_data">Keine Daten verfügbar</string>
+    <string name="pdf_habit_breakdown">Aufschlüsselung pro Gewohnheit</string>
+    <string name="pdf_diary_entries">Tagebucheinträge</string>
 </resources>
