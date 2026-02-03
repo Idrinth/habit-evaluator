@@ -15,6 +15,7 @@ import com.lowagie.text.pdf.PdfPTable;
 import com.lowagie.text.pdf.PdfWriter;
 import de.idrinth.habitevaluator.shared.model.DiaryEntry;
 import de.idrinth.habitevaluator.shared.model.EmotionEntry;
+import de.idrinth.habitevaluator.shared.model.EventCorrelation;
 import de.idrinth.habitevaluator.shared.model.Habit;
 import de.idrinth.habitevaluator.shared.model.SleepEntry;
 import de.idrinth.habitevaluator.shared.model.User;
@@ -23,6 +24,7 @@ import de.idrinth.habitevaluator.shared.repository.EmotionEntryRepository;
 import de.idrinth.habitevaluator.shared.repository.HabitRepository;
 import de.idrinth.habitevaluator.shared.repository.SleepEntryRepository;
 import de.idrinth.habitevaluator.shared.service.DiaryService;
+import de.idrinth.habitevaluator.shared.service.EventCorrelationService;
 import de.idrinth.habitevaluator.shared.service.HabitScoringService;
 import javafx.fxml.FXML;
 import javafx.scene.control.CheckBox;
@@ -50,6 +52,7 @@ public class PdfExportController {
     private static final Font SUBTITLE_FONT = FontFactory.getFont(FontFactory.HELVETICA, 12, Color.GRAY);
     private static final Font SECTION_FONT = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 16, new Color(0x1B, 0x5E, 0x20));
     private static final Font BODY_FONT = FontFactory.getFont(FontFactory.HELVETICA, 11, Color.DARK_GRAY);
+    private static final Font SMALL_FONT = FontFactory.getFont(FontFactory.HELVETICA, 10, Color.DARK_GRAY);
     private static final Font TABLE_HEADER_FONT = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 10, Color.WHITE);
     private static final Font TABLE_BODY_FONT = FontFactory.getFont(FontFactory.HELVETICA, 10, Color.DARK_GRAY);
 
@@ -81,6 +84,7 @@ public class PdfExportController {
     private User currentUser;
     private final HabitScoringService scoringService = new HabitScoringService();
     private final DiaryService diaryService = new DiaryService();
+    private final EventCorrelationService correlationService = new EventCorrelationService();
 
     @FXML
     public void initialize() {
@@ -210,6 +214,8 @@ public class PdfExportController {
         if (includeEmotions) {
             addEmotionSection(document, writer, userId, fromDate, toDate);
         }
+
+        addCorrelationSection(document, userId);
 
         document.close();
     }
@@ -548,6 +554,56 @@ public class PdfExportController {
                 notes = notes.substring(0, 47) + "...";
             }
             addTableCell(table, notes != null ? notes : "");
+        }
+
+        table.setSpacingAfter(15);
+        document.add(table);
+    }
+
+    private void addCorrelationSection(Document document, String userId) throws DocumentException {
+        List<Habit> habits = userId != null ? habitRepository.findByUserId(userId) : habitRepository.findAll();
+        List<DiaryEntry> diaryEntries = new ArrayList<>();
+        List<SleepEntry> sleepEntries = new ArrayList<>();
+        if (diaryEntryRepository != null && userId != null) {
+            diaryEntries = diaryEntryRepository.findByUserId(userId);
+        }
+        if (sleepEntryRepository != null && userId != null) {
+            sleepEntries = sleepEntryRepository.findByUserId(userId);
+        }
+
+        List<EventCorrelation> correlations = correlationService.calculateCorrelations(
+                habits, diaryEntries, sleepEntries);
+
+        Paragraph header = new Paragraph("Event Correlations", SECTION_FONT);
+        header.setSpacingBefore(15);
+        header.setSpacingAfter(10);
+        document.add(header);
+
+        if (correlations.isEmpty()) {
+            document.add(new Paragraph("Not enough data for correlations.", BODY_FONT));
+            return;
+        }
+
+        Paragraph description = new Paragraph(
+                "Time-weighted Pearson correlations over the past year. Stronger absolute values indicate stronger relationships.",
+                SMALL_FONT);
+        description.setSpacingAfter(10);
+        document.add(description);
+
+        PdfPTable table = new PdfPTable(4);
+        table.setWidthPercentage(100);
+        table.setWidths(new float[]{3, 3, 1.5f, 1.5f});
+
+        addTableHeader(table, "Event A");
+        addTableHeader(table, "Event B");
+        addTableHeader(table, "Correlation");
+        addTableHeader(table, "Shared Days");
+
+        for (EventCorrelation corr : correlations) {
+            addTableCell(table, corr.getEventA());
+            addTableCell(table, corr.getEventB());
+            addTableCell(table, String.format("%+.3f", corr.getCorrelation()));
+            addTableCell(table, String.valueOf(corr.getSharedDays()));
         }
 
         table.setSpacingAfter(15);

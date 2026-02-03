@@ -14,12 +14,16 @@ import com.lowagie.text.pdf.PdfPCell;
 import com.lowagie.text.pdf.PdfPTable;
 import com.lowagie.text.pdf.PdfWriter;
 import de.idrinth.habitevaluator.shared.model.DiaryEntry;
+import de.idrinth.habitevaluator.shared.model.EmotionEntry;
+import de.idrinth.habitevaluator.shared.model.EventCorrelation;
 import de.idrinth.habitevaluator.shared.model.Habit;
 import de.idrinth.habitevaluator.shared.model.SleepEntry;
 import de.idrinth.habitevaluator.shared.repository.DiaryEntryRepository;
+import de.idrinth.habitevaluator.shared.repository.EmotionEntryRepository;
 import de.idrinth.habitevaluator.shared.repository.HabitRepository;
 import de.idrinth.habitevaluator.shared.repository.SleepEntryRepository;
 import de.idrinth.habitevaluator.shared.service.DiaryService;
+import de.idrinth.habitevaluator.shared.service.EventCorrelationService;
 import de.idrinth.habitevaluator.shared.service.HabitScoringService;
 import de.idrinth.habitevaluator.shared.service.SleepEvaluationService;
 import de.idrinth.habitevaluator.shared.model.SleepStats;
@@ -58,22 +62,28 @@ public class PdfExportController {
     private final HabitRepository habitRepository;
     private final DiaryEntryRepository diaryEntryRepository;
     private final SleepEntryRepository sleepEntryRepository;
+    private final EmotionEntryRepository emotionEntryRepository;
     private final HabitScoringService scoringService;
     private final DiaryService diaryService;
     private final SleepEvaluationService sleepEvaluationService;
+    private final EventCorrelationService correlationService;
 
     public PdfExportController(HabitRepository habitRepository,
                                DiaryEntryRepository diaryEntryRepository,
                                SleepEntryRepository sleepEntryRepository,
+                               EmotionEntryRepository emotionEntryRepository,
                                HabitScoringService scoringService,
                                DiaryService diaryService,
-                               SleepEvaluationService sleepEvaluationService) {
+                               SleepEvaluationService sleepEvaluationService,
+                               EventCorrelationService correlationService) {
         this.habitRepository = habitRepository;
         this.diaryEntryRepository = diaryEntryRepository;
         this.sleepEntryRepository = sleepEntryRepository;
+        this.emotionEntryRepository = emotionEntryRepository;
         this.scoringService = scoringService;
         this.diaryService = diaryService;
         this.sleepEvaluationService = sleepEvaluationService;
+        this.correlationService = correlationService;
     }
 
     @GetMapping("/pdf")
@@ -83,6 +93,7 @@ public class PdfExportController {
             @RequestParam(defaultValue = "true") boolean habits,
             @RequestParam(defaultValue = "true") boolean sleep,
             @RequestParam(defaultValue = "true") boolean diary,
+            @RequestParam(defaultValue = "true") boolean emotions,
             HttpSession session) {
 
         String userId = (String) session.getAttribute("userId");
@@ -90,7 +101,7 @@ public class PdfExportController {
             return ResponseEntity.status(401).build();
         }
 
-        if (!habits && !sleep && !diary) {
+        if (!habits && !sleep && !diary && !emotions) {
             return ResponseEntity.badRequest().build();
         }
 
@@ -98,7 +109,7 @@ public class PdfExportController {
         LocalDate fromDate = from != null ? LocalDate.parse(from) : toDate.minusDays(29);
 
         try {
-            byte[] pdf = generatePdf(userId, fromDate, toDate, habits, sleep, diary);
+            byte[] pdf = generatePdf(userId, fromDate, toDate, habits, sleep, diary, emotions);
             String fileName = "habit_report_" + fromDate.format(DISPLAY_FORMAT) + "_to_" + toDate.format(DISPLAY_FORMAT) + ".pdf";
 
             return ResponseEntity.ok()
@@ -111,7 +122,8 @@ public class PdfExportController {
     }
 
     private byte[] generatePdf(String userId, LocalDate fromDate, LocalDate toDate,
-                                boolean includeHabits, boolean includeSleep, boolean includeDiary) throws DocumentException, IOException {
+                                boolean includeHabits, boolean includeSleep, boolean includeDiary,
+                                boolean includeEmotions) throws DocumentException, IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         Document document = new Document(PageSize.A4, 40, 40, 40, 40);
         PdfWriter writer = PdfWriter.getInstance(document, baos);
@@ -139,6 +151,12 @@ public class PdfExportController {
         if (includeDiary) {
             addDiarySection(document, writer, userId, fromDate, toDate);
         }
+
+        if (includeEmotions) {
+            addEmotionSection(document, writer, userId, fromDate, toDate);
+        }
+
+        addCorrelationSection(document, userId);
 
         document.close();
         return baos.toByteArray();
@@ -395,6 +413,135 @@ public class PdfExportController {
             table.setSpacingAfter(15);
             document.add(table);
         }
+    }
+
+    private void addEmotionSection(Document document, PdfWriter writer, String userId,
+                                     LocalDate fromDate, LocalDate toDate) throws DocumentException, IOException {
+        List<EmotionEntry> allEntries = emotionEntryRepository.findByUserId(userId);
+
+        Paragraph header = new Paragraph("Emotions", SECTION_FONT);
+        header.setSpacingBefore(15);
+        header.setSpacingAfter(10);
+        document.add(header);
+
+        List<EmotionEntry> rangeEntries = new ArrayList<>();
+        for (EmotionEntry entry : allEntries) {
+            LocalDate entryDate = entry.getRecordedAt().toLocalDate();
+            if (!entryDate.isBefore(fromDate) && !entryDate.isAfter(toDate)) {
+                rangeEntries.add(entry);
+            }
+        }
+
+        if (rangeEntries.isEmpty()) {
+            document.add(new Paragraph("No emotion data available.", BODY_FONT));
+            return;
+        }
+
+        List<String> labels = new ArrayList<>();
+        List<Float> counts = new ArrayList<>();
+        Map<LocalDate, Integer> countByDate = new TreeMap<>();
+        for (LocalDate d = fromDate; !d.isAfter(toDate); d = d.plusDays(1)) {
+            countByDate.put(d, 0);
+        }
+        for (EmotionEntry entry : rangeEntries) {
+            LocalDate entryDate = entry.getRecordedAt().toLocalDate();
+            countByDate.merge(entryDate, 1, Integer::sum);
+        }
+
+        float totalEvents = 0f;
+        int daysWithData = 0;
+        for (Map.Entry<LocalDate, Integer> mapEntry : countByDate.entrySet()) {
+            labels.add(mapEntry.getKey().format(LABEL_FORMAT));
+            counts.add((float) mapEntry.getValue());
+            if (mapEntry.getValue() > 0) {
+                totalEvents += mapEntry.getValue();
+                daysWithData++;
+            }
+        }
+        float avgEvents = daysWithData > 0 ? totalEvents / daysWithData : 0f;
+
+        drawBarChart(writer, document, labels, counts, avgEvents, new Color(0x7B, 0x1F, 0xA2), "Emotion Events");
+
+        Paragraph stats = new Paragraph(
+                String.format("Total: %d events  |  Average: %.1f events/day", (int) totalEvents, avgEvents),
+                BODY_FONT);
+        stats.setSpacingAfter(10);
+        document.add(stats);
+
+        Paragraph entriesTitle = new Paragraph("Emotion Entries",
+                FontFactory.getFont(FontFactory.HELVETICA_BOLD, 13, Color.BLACK));
+        entriesTitle.setSpacingBefore(5);
+        entriesTitle.setSpacingAfter(5);
+        document.add(entriesTitle);
+
+        PdfPTable table = new PdfPTable(4);
+        table.setWidthPercentage(100);
+        table.setWidths(new float[]{2, 2.5f, 1, 3});
+
+        addTableHeader(table, "Date/Time");
+        addTableHeader(table, "Emotion Pair");
+        addTableHeader(table, "Strength");
+        addTableHeader(table, "Notes");
+
+        DateTimeFormatter dtFmt = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        for (EmotionEntry entry : rangeEntries) {
+            addTableCell(table, entry.getRecordedAt().format(dtFmt));
+            String pairText = entry.getEmotionPair() != null ? entry.getEmotionPair().toString() : "";
+            addTableCell(table, pairText);
+            addTableCell(table, String.valueOf(entry.getStrength()));
+            String notes = entry.getNotes();
+            if (notes != null && notes.length() > 50) {
+                notes = notes.substring(0, 47) + "...";
+            }
+            addTableCell(table, notes != null ? notes : "");
+        }
+
+        table.setSpacingAfter(15);
+        document.add(table);
+    }
+
+    private void addCorrelationSection(Document document, String userId) throws DocumentException {
+        List<Habit> habits = habitRepository.findByUserId(userId);
+        List<DiaryEntry> diaryEntries = diaryEntryRepository.findByUserId(userId);
+        List<SleepEntry> sleepEntries = sleepEntryRepository.findByUserId(userId);
+
+        List<EventCorrelation> correlations = correlationService.calculateCorrelations(
+                habits, diaryEntries, sleepEntries);
+
+        Paragraph header = new Paragraph("Event Correlations", SECTION_FONT);
+        header.setSpacingBefore(15);
+        header.setSpacingAfter(10);
+        document.add(header);
+
+        if (correlations.isEmpty()) {
+            document.add(new Paragraph("Not enough data for correlations.", BODY_FONT));
+            return;
+        }
+
+        Paragraph description = new Paragraph(
+                "Time-weighted Pearson correlations over the past year. Stronger absolute values indicate stronger relationships.",
+                SMALL_FONT);
+        description.setSpacingAfter(10);
+        document.add(description);
+
+        PdfPTable table = new PdfPTable(4);
+        table.setWidthPercentage(100);
+        table.setWidths(new float[]{3, 3, 1.5f, 1.5f});
+
+        addTableHeader(table, "Event A");
+        addTableHeader(table, "Event B");
+        addTableHeader(table, "Correlation");
+        addTableHeader(table, "Shared Days");
+
+        for (EventCorrelation corr : correlations) {
+            addTableCell(table, corr.getEventA());
+            addTableCell(table, corr.getEventB());
+            addTableCell(table, String.format("%+.3f", corr.getCorrelation()));
+            addTableCell(table, String.valueOf(corr.getSharedDays()));
+        }
+
+        table.setSpacingAfter(15);
+        document.add(table);
     }
 
     private void drawBarChart(PdfWriter writer, Document document, List<String> labels,
