@@ -2,8 +2,11 @@ package de.idrinth.habitevaluator.webserver.controller;
 
 import de.idrinth.habitevaluator.shared.model.DiaryEntry;
 import de.idrinth.habitevaluator.shared.model.Habit;
+import de.idrinth.habitevaluator.shared.model.HabitCategory;
+import de.idrinth.habitevaluator.shared.model.HabitEntry;
 import de.idrinth.habitevaluator.shared.model.SleepEntry;
 import de.idrinth.habitevaluator.shared.repository.DiaryEntryRepository;
+import de.idrinth.habitevaluator.shared.repository.HabitCategoryRepository;
 import de.idrinth.habitevaluator.shared.repository.HabitRepository;
 import de.idrinth.habitevaluator.shared.repository.SleepEntryRepository;
 import de.idrinth.habitevaluator.shared.service.DiaryService;
@@ -16,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -32,17 +36,20 @@ public class StatsController {
     private final HabitRepository habitRepository;
     private final SleepEntryRepository sleepEntryRepository;
     private final DiaryEntryRepository diaryEntryRepository;
+    private final HabitCategoryRepository habitCategoryRepository;
     private final HabitScoringService scoringService;
     private final DiaryService diaryService;
 
     public StatsController(HabitRepository habitRepository,
                            SleepEntryRepository sleepEntryRepository,
                            DiaryEntryRepository diaryEntryRepository,
+                           HabitCategoryRepository habitCategoryRepository,
                            HabitScoringService scoringService,
                            DiaryService diaryService) {
         this.habitRepository = habitRepository;
         this.sleepEntryRepository = sleepEntryRepository;
         this.diaryEntryRepository = diaryEntryRepository;
+        this.habitCategoryRepository = habitCategoryRepository;
         this.scoringService = scoringService;
         this.diaryService = diaryService;
     }
@@ -120,5 +127,71 @@ public class StatsController {
             }
         }
         return new ArrayList<>(countByDate.values());
+    }
+
+    @GetMapping("/daily-timeline")
+    public ResponseEntity<Map<String, Object>> getDailyTimeline(HttpSession session) {
+        String userId = (String) session.getAttribute("userId");
+        if (userId == null) {
+            return ResponseEntity.status(401).build();
+        }
+
+        LocalDate today = LocalDate.now();
+        LocalDate startDate = today.minusDays(DAYS - 1);
+
+        List<String> labels = new ArrayList<>();
+        for (LocalDate d = startDate; !d.isAfter(today); d = d.plusDays(1)) {
+            labels.add(d.format(LABEL_FORMAT));
+        }
+
+        List<Habit> habits = habitRepository.findByUserId(userId);
+        Map<String, String> categoryColors = new LinkedHashMap<>();
+        for (HabitCategory cat : habitCategoryRepository.findByUserId(userId)) {
+            if (cat.getColor() != null) {
+                categoryColors.put(cat.getId(), cat.getColor());
+            }
+        }
+
+        String[] defaultColors = {
+            "#4CAF50", "#2196F3", "#FF9800", "#E91E63", "#9C27B0",
+            "#00BCD4", "#FF5722", "#795548", "#607D8B", "#8BC34A"
+        };
+
+        List<Map<String, Object>> habitTimelines = new ArrayList<>();
+        int colorIndex = 0;
+        for (Habit habit : habits) {
+            List<Map<String, Object>> entries = new ArrayList<>();
+            for (HabitEntry entry : habit.getEntries()) {
+                LocalDate entryDate = entry.getCompletedAt().toLocalDate();
+                if (!entryDate.isBefore(startDate) && !entryDate.isAfter(today)) {
+                    int dayIndex = (int) ChronoUnit.DAYS.between(startDate, entryDate);
+                    double hour = entry.getCompletedAt().getHour()
+                            + entry.getCompletedAt().getMinute() / 60.0;
+                    Map<String, Object> point = new LinkedHashMap<>();
+                    point.put("dayIndex", dayIndex);
+                    point.put("hour", hour);
+                    entries.add(point);
+                }
+            }
+            if (!entries.isEmpty()) {
+                String color = categoryColors.getOrDefault(
+                        habit.getCategoryId(),
+                        defaultColors[colorIndex % defaultColors.length]
+                );
+                Map<String, Object> timeline = new LinkedHashMap<>();
+                timeline.put("habitId", habit.getId());
+                timeline.put("habitName", habit.getName());
+                timeline.put("color", color);
+                timeline.put("entries", entries);
+                habitTimelines.add(timeline);
+                colorIndex++;
+            }
+        }
+
+        Map<String, Object> result = new LinkedHashMap<>();
+        result.put("labels", labels);
+        result.put("habits", habitTimelines);
+
+        return ResponseEntity.ok(result);
     }
 }
