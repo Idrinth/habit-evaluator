@@ -172,6 +172,14 @@
     <string name="backup_password_required">Backup password is required when backups are enabled</string>
     <string name="backup_passwords_mismatch">Passwords do not match</string>
     <string name="emotional_state">Emotions</string>
+    <string name="add_emotion_pair">Add Emotion Pair</string>
+    <string name="negative_label_hint">Negative label (e.g. listless)</string>
+    <string name="positive_label_hint">Positive label (e.g. active)</string>
+    <string name="emotion_labels_required">Please enter both labels</string>
+    <string name="emotion_pair_added">Emotion pair added</string>
+    <string name="emotion_pair_deleted">Emotion pair deleted</string>
+    <string name="delete_emotion_pair">Delete Emotion Pair</string>
+    <string name="delete_emotion_pair_confirmation">Delete \"%1$s\"? This cannot be undone.</string>
     <string name="stats_correlations_title">Event Correlations (Yearly, Time-Weighted)</string>
     <string name="stats_no_correlations">Not enough data for correlations</string>
 </resources>
