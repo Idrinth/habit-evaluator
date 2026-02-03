@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.chart.BarChart?>
+<?import javafx.scene.chart.CategoryAxis?>
+<?import javafx.scene.chart.NumberAxis?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns:fx="http://javafx.com/fxml"
+      fx:controller="de.idrinth.habitevaluator.desktop.controller.StatsController"
+      spacing="15" prefWidth="750" prefHeight="550">
+    <padding>
+        <Insets top="15" right="15" bottom="15" left="15"/>
+    </padding>
+
+    <Label text="30-Day Statistics Dashboard" styleClass="section-title"/>
+
+    <HBox spacing="10" VBox.vgrow="ALWAYS">
+        <VBox spacing="5" HBox.hgrow="ALWAYS" prefWidth="375">
+            <Label text="Habit Points"/>
+            <BarChart fx:id="habitPointsChart" VBox.vgrow="ALWAYS" legendVisible="false" animated="false">
+                <xAxis>
+                    <CategoryAxis fx:id="habitXAxis" tickLabelRotation="90" tickLabelGap="2"/>
+                </xAxis>
+                <yAxis>
+                    <NumberAxis fx:id="habitYAxis" label="Points"/>
+                </yAxis>
+            </BarChart>
+        </VBox>
+        <VBox spacing="5" HBox.hgrow="ALWAYS" prefWidth="375">
+            <Label text="Diary Points"/>
+            <BarChart fx:id="diaryPointsChart" VBox.vgrow="ALWAYS" legendVisible="false" animated="false">
+                <xAxis>
+                    <CategoryAxis fx:id="diaryXAxis" tickLabelRotation="90" tickLabelGap="2"/>
+                </xAxis>
+                <yAxis>
+                    <NumberAxis fx:id="diaryYAxis" label="Points"/>
+                </yAxis>
+            </BarChart>
+        </VBox>
+    </HBox>
+
+    <HBox spacing="10" VBox.vgrow="ALWAYS">
+        <VBox spacing="5" HBox.hgrow="ALWAYS" prefWidth="375">
+            <Label text="Sleep Duration (hours)"/>
+            <BarChart fx:id="sleepDurationChart" VBox.vgrow="ALWAYS" legendVisible="false" animated="false">
+                <xAxis>
+                    <CategoryAxis fx:id="sleepDurationXAxis" tickLabelRotation="90" tickLabelGap="2"/>
+                </xAxis>
+                <yAxis>
+                    <NumberAxis fx:id="sleepDurationYAxis" label="Hours"/>
+                </yAxis>
+            </BarChart>
+        </VBox>
+        <VBox spacing="5" HBox.hgrow="ALWAYS" prefWidth="375">
+            <Label text="Sleep Entries"/>
+            <BarChart fx:id="sleepEntriesChart" VBox.vgrow="ALWAYS" legendVisible="false" animated="false">
+                <xAxis>
+                    <CategoryAxis fx:id="sleepEntriesXAxis" tickLabelRotation="90" tickLabelGap="2"/>
+                </xAxis>
+                <yAxis>
+                    <NumberAxis fx:id="sleepEntriesYAxis" label="Count"/>
+                </yAxis>
+            </BarChart>
+        </VBox>
+    </HBox>
+</VBox>

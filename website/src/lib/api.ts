@@ -103,6 +103,20 @@ export const categories = {
 	}
 };
 
+export interface DashboardData {
+	labels: string[];
+	habitPoints: number[];
+	diaryPoints: number[];
+	sleepDuration: number[];
+	sleepEntries: number[];
+}
+
+export const stats = {
+	dashboard() {
+		return request<DashboardData>('/stats/dashboard');
+	}
+};
+
 export const scoreRules = {
 	create(rule: {
 		name: string;
