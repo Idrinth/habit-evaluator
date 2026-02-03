@@ -267,6 +267,12 @@ public class HomeFragment extends Fragment implements HabitAdapter.OnHabitClickL
         updateEvaluationDisplay(habit);
     }
 
+    @Override
+    public void onHabitDeselect() {
+        selectedHabit = null;
+        binding.evaluationCard.setVisibility(View.GONE);
+    }
+
     private void updateEvaluationDisplay(Habit habit) {
         binding.evaluationCard.setVisibility(View.VISIBLE);
         String displayLanguage = getDisplayLanguage();
@@ -274,6 +280,28 @@ public class HomeFragment extends Fragment implements HabitAdapter.OnHabitClickL
             binding.selectedHabitName.setText(habit.getDisplayName(displayLanguage));
         } else {
             binding.selectedHabitName.setText(habit.getName());
+        }
+
+        String categoryId = habit.getCategoryId();
+        if (categoryId != null && !categoryId.isEmpty()) {
+            List<HabitCategory> categories = MainActivity.getSharedCategories();
+            String categoryName = null;
+            if (categories != null) {
+                for (HabitCategory cat : categories) {
+                    if (categoryId.equals(cat.getId())) {
+                        categoryName = displayLanguage != null ? cat.getDisplayName(displayLanguage) : cat.getName();
+                        break;
+                    }
+                }
+            }
+            if (categoryName != null) {
+                binding.selectedHabitCategory.setText(getString(R.string.habit_category_label, categoryName));
+                binding.selectedHabitCategory.setVisibility(View.VISIBLE);
+            } else {
+                binding.selectedHabitCategory.setVisibility(View.GONE);
+            }
+        } else {
+            binding.selectedHabitCategory.setVisibility(View.GONE);
         }
 
         Evaluation evaluation = evaluatorService.evaluate(

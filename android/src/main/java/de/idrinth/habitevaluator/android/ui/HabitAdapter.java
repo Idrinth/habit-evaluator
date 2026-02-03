@@ -29,6 +29,7 @@ public class HabitAdapter extends RecyclerView.Adapter<HabitAdapter.HabitViewHol
 
     public interface OnHabitClickListener {
         void onHabitClick(Habit habit);
+        void onHabitDeselect();
     }
 
     public interface OnHabitEditListener {
@@ -71,14 +72,20 @@ public class HabitAdapter extends RecyclerView.Adapter<HabitAdapter.HabitViewHol
 
         holder.itemView.setOnClickListener(v -> {
             int previousSelected = selectedPosition;
-            selectedPosition = holder.getBindingAdapterPosition();
+            int clickedPosition = holder.getBindingAdapterPosition();
 
-            if (previousSelected != -1) {
+            if (previousSelected == clickedPosition) {
+                selectedPosition = -1;
                 notifyItemChanged(previousSelected);
+                listener.onHabitDeselect();
+            } else {
+                selectedPosition = clickedPosition;
+                if (previousSelected != -1) {
+                    notifyItemChanged(previousSelected);
+                }
+                notifyItemChanged(selectedPosition);
+                listener.onHabitClick(habit);
             }
-            notifyItemChanged(selectedPosition);
-
-            listener.onHabitClick(habit);
         });
 
         holder.editButton.setOnClickListener(v -> {

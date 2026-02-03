@@ -41,6 +41,7 @@
     <string name="category_name_required">Bitte geben Sie einen Kategorienamen ein</string>
     <string name="all_categories">Alle Kategorien</string>
     <string name="your_category_habits">Ihre %s-Gewohnheiten</string>
+    <string name="habit_category_label">Kategorie: %s</string>
     <string name="completion_points">Abschlusspunkte</string>
     <string name="daily_points">Heute: %d Pkt.</string>
     <string name="weekly_points">Woche: %d Pkt.</string>
