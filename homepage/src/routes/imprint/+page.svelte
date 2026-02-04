@@ -1,8 +1,8 @@
 <svelte:head>
-	<title>Imprint - Habit Evaluator</title>
+	<title>Project legal - Habit Evaluator</title>
 </svelte:head>
 
-<h1>Imprint</h1>
+<h1>Project legal</h1>
 
 <section>
 	<h2>Contact</h2>
@@ -25,6 +25,15 @@
 		<li>No remote storing of data unless explicitly enabled by the user.</li>
 		<li>No tracking.</li>
 		<li>No usage of any provided data besides providing the service.</li>
+	</ul>
+</section>
+
+<section>
+	<h2>Disclaimers</h2>
+	<ul>
+		<li>This app is a self-tracking tool and does not replace professional medical or psychological help. If you are struggling, please reach out to a qualified professional.</li>
+		<li>By default, all your data stays on your device and is not shared with anyone. You can optionally configure remote storage in the settings.</li>
+		<li>The authors of this project are not responsible for modifications made by third-party variants or the actions of webservice hosters.</li>
 	</ul>
 </section>
 

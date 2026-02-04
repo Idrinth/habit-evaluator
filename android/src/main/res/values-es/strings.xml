@@ -209,7 +209,7 @@
     <string name="first_start_not_professional_help">Esta aplicación es una herramienta de seguimiento personal y no reemplaza la ayuda médica o psicológica profesional. Si necesita apoyo, consulte a un profesional cualificado.</string>
     <string name="first_start_no_data_sharing">De forma predeterminada, todos sus datos permanecen en su dispositivo y no se comparten con nadie. Puede configurar opcionalmente un almacenamiento remoto en la configuración.</string>
     <string name="first_start_acknowledge">Entendido</string>
-    <string name="imprint_title">Aviso legal</string>
+    <string name="imprint_title">Legal del proyecto</string>
     <string name="imprint_contact">Contacto</string>
     <string name="imprint_name_label">Nombre</string>
     <string name="imprint_email_label">Correo electrónico</string>
@@ -219,4 +219,8 @@
     <string name="imprint_no_remote_storage">\u2022 No se almacenan datos de forma remota a menos que el usuario lo habilite explícitamente.</string>
     <string name="imprint_no_tracking">\u2022 Sin rastreo.</string>
     <string name="imprint_no_data_usage">\u2022 No se utilizan los datos proporcionados más allá de la prestación del servicio.</string>
+    <string name="imprint_disclaimers">Descargos de responsabilidad</string>
+    <string name="imprint_not_professional_help">\u2022 Esta aplicación es una herramienta de autoseguimiento y no reemplaza la ayuda profesional médica o psicológica. Si necesita apoyo, consulte a un profesional cualificado.</string>
+    <string name="imprint_no_data_sharing">\u2022 Por defecto, todos sus datos permanecen en su dispositivo y no se comparten con nadie. Opcionalmente, puede configurar almacenamiento remoto en los ajustes.</string>
+    <string name="imprint_variant_disclaimer">\u2022 Los autores de este proyecto no son responsables de las modificaciones realizadas por variantes de terceros ni de las acciones de los proveedores de servicios web.</string>
 </resources>
