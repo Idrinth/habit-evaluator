@@ -775,15 +775,19 @@ public class PdfExportController {
         List<Habit> habits = userId != null ? habitRepository.findByUserId(userId) : habitRepository.findAll();
         List<DiaryEntry> diaryEntries = new ArrayList<>();
         List<SleepEntry> sleepEntries = new ArrayList<>();
+        List<EmotionEntry> emotionEntries = new ArrayList<>();
         if (diaryEntryRepository != null && userId != null) {
             diaryEntries = diaryEntryRepository.findByUserId(userId);
         }
         if (sleepEntryRepository != null && userId != null) {
             sleepEntries = sleepEntryRepository.findByUserId(userId);
         }
+        if (emotionEntryRepository != null && userId != null) {
+            emotionEntries = emotionEntryRepository.findByUserId(userId);
+        }
 
         List<EventCorrelation> correlations = correlationService.calculateCorrelations(
-                habits, diaryEntries, sleepEntries);
+                habits, diaryEntries, sleepEntries, emotionEntries);
 
         Paragraph header = new Paragraph("Event Correlations", SECTION_FONT);
         header.setSpacingBefore(15);

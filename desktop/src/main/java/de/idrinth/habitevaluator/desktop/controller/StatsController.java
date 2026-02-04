@@ -247,15 +247,19 @@ public class StatsController {
     private void populateCorrelationTable() {
         List<DiaryEntry> diaryEntries = new ArrayList<>();
         List<SleepEntry> sleepEntries = new ArrayList<>();
+        List<EmotionEntry> emotionEntries = new ArrayList<>();
         if (diaryEntryRepository != null && currentUser != null) {
             diaryEntries = diaryEntryRepository.findByUserId(currentUser.getId());
         }
         if (sleepEntryRepository != null && currentUser != null) {
             sleepEntries = sleepEntryRepository.findByUserId(currentUser.getId());
         }
+        if (emotionEntryRepository != null && currentUser != null) {
+            emotionEntries = emotionEntryRepository.findByUserId(currentUser.getId());
+        }
 
         List<EventCorrelation> correlations = correlationService.calculateCorrelations(
-                habits, diaryEntries, sleepEntries);
+                habits, diaryEntries, sleepEntries, emotionEntries);
 
         eventAColumn.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getEventA()));
         eventBColumn.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getEventB()));

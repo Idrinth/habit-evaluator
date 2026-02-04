@@ -275,8 +275,13 @@ public class StatsFragment extends Fragment {
             diaryEntries = MainActivity.getSharedDiaryEntryRepository().findByUserId(user.getId());
         }
 
+        List<EmotionEntry> emotionEntries = new ArrayList<>();
+        if (user != null && MainActivity.getSharedEmotionEntryRepository() != null) {
+            emotionEntries = MainActivity.getSharedEmotionEntryRepository().findByUserId(user.getId());
+        }
+
         List<EventCorrelation> correlations = correlationService.calculateCorrelations(
-                habits, diaryEntries, sleepEntries);
+                habits, diaryEntries, sleepEntries, emotionEntries);
 
         binding.correlationContainer.removeAllViews();
 
