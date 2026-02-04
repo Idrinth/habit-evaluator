@@ -64,8 +64,8 @@ const translations: Record<Language, Record<string, string>> = {
 		'firstStart.notProfessionalHelp': 'This app is a self-tracking tool and does not replace professional medical or psychological help. If you are struggling, please reach out to a qualified professional.',
 		'firstStart.noDataSharing': 'By default, all your data stays on your device and is not shared with anyone. You can optionally configure remote storage in the settings.',
 		'firstStart.acknowledge': 'I understand',
-		'nav.imprint': 'Imprint',
-		'imprint.title': 'Imprint',
+		'nav.imprint': 'Project legal',
+		'imprint.title': 'Project legal',
 		'imprint.contact': 'Contact',
 		'imprint.name': 'Name',
 		'imprint.email': 'Email',
@@ -74,7 +74,11 @@ const translations: Record<Language, Record<string, string>> = {
 		'imprint.dataProtection': 'Data Protection',
 		'imprint.noRemoteStorage': 'No remote storing of data unless explicitly enabled by the user.',
 		'imprint.noTracking': 'No tracking.',
-		'imprint.noDataUsage': 'No usage of any provided data besides providing the service.'
+		'imprint.noDataUsage': 'No usage of any provided data besides providing the service.',
+		'imprint.disclaimers': 'Disclaimers',
+		'imprint.notProfessionalHelp': 'This app is a self-tracking tool and does not replace professional medical or psychological help. If you are struggling, please reach out to a qualified professional.',
+		'imprint.noDataSharing': 'By default, all your data stays on your device and is not shared with anyone. You can optionally configure remote storage in the settings.',
+		'imprint.variantDisclaimer': 'The authors of this project are not responsible for modifications made by third-party variants or the actions of webservice hosters.'
 	},
 	de: {
 		'nav.home': 'Start',
@@ -132,8 +136,8 @@ const translations: Record<Language, Record<string, string>> = {
 		'firstStart.notProfessionalHelp': 'Diese App ist ein Selbstbeobachtungswerkzeug und ersetzt keine professionelle medizinische oder psychologische Hilfe. Wenn Sie Unterstützung brauchen, wenden Sie sich bitte an eine qualifizierte Fachperson.',
 		'firstStart.noDataSharing': 'Standardmäßig bleiben alle Ihre Daten auf Ihrem Gerät und werden mit niemandem geteilt. Sie können optional einen Remote-Speicher in den Einstellungen konfigurieren.',
 		'firstStart.acknowledge': 'Ich verstehe',
-		'nav.imprint': 'Impressum',
-		'imprint.title': 'Impressum',
+		'nav.imprint': 'Rechtliches',
+		'imprint.title': 'Rechtliches',
 		'imprint.contact': 'Kontakt',
 		'imprint.name': 'Name',
 		'imprint.email': 'E-Mail',
@@ -142,7 +146,11 @@ const translations: Record<Language, Record<string, string>> = {
 		'imprint.dataProtection': 'Datenschutz',
 		'imprint.noRemoteStorage': 'Keine Speicherung von Daten auf einem Server, sofern nicht ausdrücklich vom Benutzer aktiviert.',
 		'imprint.noTracking': 'Kein Tracking.',
-		'imprint.noDataUsage': 'Keine Nutzung bereitgestellter Daten außer zur Bereitstellung des Dienstes.'
+		'imprint.noDataUsage': 'Keine Nutzung bereitgestellter Daten außer zur Bereitstellung des Dienstes.',
+		'imprint.disclaimers': 'Haftungsausschlüsse',
+		'imprint.notProfessionalHelp': 'Diese App ist ein Selbstbeobachtungswerkzeug und ersetzt keine professionelle medizinische oder psychologische Hilfe. Wenn Sie Unterstützung brauchen, wenden Sie sich bitte an eine qualifizierte Fachperson.',
+		'imprint.noDataSharing': 'Standardmäßig bleiben alle Ihre Daten auf Ihrem Gerät und werden mit niemandem geteilt. Sie können optional einen Remote-Speicher in den Einstellungen konfigurieren.',
+		'imprint.variantDisclaimer': 'Die Autoren dieses Projekts übernehmen keine Verantwortung für Änderungen durch Drittvarianten oder das Handeln von Webservice-Hostern.'
 	},
 	es: {
 		'nav.home': 'Inicio',
@@ -200,8 +208,8 @@ const translations: Record<Language, Record<string, string>> = {
 		'firstStart.notProfessionalHelp': 'Esta aplicación es una herramienta de autoseguimiento y no reemplaza la ayuda profesional médica o psicológica. Si necesita apoyo, consulte a un profesional cualificado.',
 		'firstStart.noDataSharing': 'Por defecto, todos sus datos permanecen en su dispositivo y no se comparten con nadie. Opcionalmente, puede configurar almacenamiento remoto en los ajustes.',
 		'firstStart.acknowledge': 'Entendido',
-		'nav.imprint': 'Aviso legal',
-		'imprint.title': 'Aviso legal',
+		'nav.imprint': 'Legal del proyecto',
+		'imprint.title': 'Legal del proyecto',
 		'imprint.contact': 'Contacto',
 		'imprint.name': 'Nombre',
 		'imprint.email': 'Correo electr\u00f3nico',
@@ -210,7 +218,11 @@ const translations: Record<Language, Record<string, string>> = {
 		'imprint.dataProtection': 'Protecci\u00f3n de datos',
 		'imprint.noRemoteStorage': 'No se almacenan datos de forma remota a menos que el usuario lo habilite expl\u00edcitamente.',
 		'imprint.noTracking': 'Sin rastreo.',
-		'imprint.noDataUsage': 'No se utilizan los datos proporcionados m\u00e1s all\u00e1 de la prestaci\u00f3n del servicio.'
+		'imprint.noDataUsage': 'No se utilizan los datos proporcionados m\u00e1s all\u00e1 de la prestaci\u00f3n del servicio.',
+		'imprint.disclaimers': 'Descargos de responsabilidad',
+		'imprint.notProfessionalHelp': 'Esta aplicaci\u00f3n es una herramienta de autoseguimiento y no reemplaza la ayuda profesional m\u00e9dica o psicol\u00f3gica. Si necesita apoyo, consulte a un profesional cualificado.',
+		'imprint.noDataSharing': 'Por defecto, todos sus datos permanecen en su dispositivo y no se comparten con nadie. Opcionalmente, puede configurar almacenamiento remoto en los ajustes.',
+		'imprint.variantDisclaimer': 'Los autores de este proyecto no son responsables de las modificaciones realizadas por variantes de terceros ni de las acciones de los proveedores de servicios web.'
 	},
 	fr: {
 		'nav.home': 'Accueil',
@@ -268,8 +280,8 @@ const translations: Record<Language, Record<string, string>> = {
 		'firstStart.notProfessionalHelp': "Cette application est un outil de suivi personnel et ne remplace pas une aide médicale ou psychologique professionnelle. Si vous avez besoin de soutien, veuillez consulter un professionnel qualifié.",
 		'firstStart.noDataSharing': "Par défaut, toutes vos données restent sur votre appareil et ne sont partagées avec personne. Vous pouvez éventuellement configurer un stockage distant dans les paramètres.",
 		'firstStart.acknowledge': 'Je comprends',
-		'nav.imprint': 'Mentions l\u00e9gales',
-		'imprint.title': 'Mentions l\u00e9gales',
+		'nav.imprint': 'L\u00e9gal du projet',
+		'imprint.title': 'L\u00e9gal du projet',
 		'imprint.contact': 'Contact',
 		'imprint.name': 'Nom',
 		'imprint.email': 'E-mail',
@@ -278,7 +290,11 @@ const translations: Record<Language, Record<string, string>> = {
 		'imprint.dataProtection': 'Protection des donn\u00e9es',
 		'imprint.noRemoteStorage': "Aucun stockage distant des donn\u00e9es sauf activation explicite par l'utilisateur.",
 		'imprint.noTracking': 'Aucun suivi.',
-		'imprint.noDataUsage': "Aucune utilisation des donn\u00e9es fournies en dehors de la fourniture du service."
+		'imprint.noDataUsage': "Aucune utilisation des donn\u00e9es fournies en dehors de la fourniture du service.",
+		'imprint.disclaimers': 'Avertissements',
+		'imprint.notProfessionalHelp': "Cette application est un outil de suivi personnel et ne remplace pas une aide m\u00e9dicale ou psychologique professionnelle. Si vous avez besoin de soutien, veuillez consulter un professionnel qualifi\u00e9.",
+		'imprint.noDataSharing': "Par d\u00e9faut, toutes vos donn\u00e9es restent sur votre appareil et ne sont partag\u00e9es avec personne. Vous pouvez \u00e9ventuellement configurer un stockage distant dans les param\u00e8tres.",
+		'imprint.variantDisclaimer': "Les auteurs de ce projet ne sont pas responsables des modifications apport\u00e9es par des variantes tierces ni des actions des h\u00e9bergeurs de services web."
 	}
 };
 

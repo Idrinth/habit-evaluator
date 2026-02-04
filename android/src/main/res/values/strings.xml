@@ -210,7 +210,7 @@
     <string name="first_start_not_professional_help">This app is a self-tracking tool and does not replace professional medical or psychological help. If you are struggling, please reach out to a qualified professional.</string>
     <string name="first_start_no_data_sharing">By default, all your data stays on your device and is not shared with anyone. You can optionally configure remote storage in the settings.</string>
     <string name="first_start_acknowledge">I understand</string>
-    <string name="imprint_title">Imprint</string>
+    <string name="imprint_title">Project legal</string>
     <string name="imprint_contact">Contact</string>
     <string name="imprint_name_label">Name</string>
     <string name="imprint_name_value" translatable="false">Björn \'Idrinth\' Buttner</string>
@@ -222,4 +222,8 @@
     <string name="imprint_no_remote_storage">\u2022 No remote storing of data unless explicitly enabled by the user.</string>
     <string name="imprint_no_tracking">\u2022 No tracking.</string>
     <string name="imprint_no_data_usage">\u2022 No usage of any provided data besides providing the service.</string>
+    <string name="imprint_disclaimers">Disclaimers</string>
+    <string name="imprint_not_professional_help">\u2022 This app is a self-tracking tool and does not replace professional medical or psychological help. If you are struggling, please reach out to a qualified professional.</string>
+    <string name="imprint_no_data_sharing">\u2022 By default, all your data stays on your device and is not shared with anyone. You can optionally configure remote storage in the settings.</string>
+    <string name="imprint_variant_disclaimer">\u2022 The authors of this project are not responsible for modifications made by third-party variants or the actions of webservice hosters.</string>
 </resources>

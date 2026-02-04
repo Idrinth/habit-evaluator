@@ -12,7 +12,7 @@
         <Insets top="20" right="20" bottom="20" left="20"/>
     </padding>
 
-    <Label text="Imprint" styleClass="section-title"/>
+    <Label text="Project legal" styleClass="section-title"/>
 
     <Separator/>
 
@@ -36,6 +36,15 @@
         <Label text="• No remote storing of data unless explicitly enabled by the user." wrapText="true"/>
         <Label text="• No tracking." wrapText="true"/>
         <Label text="• No usage of any provided data besides providing the service." wrapText="true"/>
+    </VBox>
+
+    <Separator/>
+
+    <Label text="Disclaimers" style="-fx-font-weight: bold; -fx-font-size: 14px;"/>
+    <VBox spacing="4">
+        <Label text="• This app is a self-tracking tool and does not replace professional medical or psychological help. If you are struggling, please reach out to a qualified professional." wrapText="true"/>
+        <Label text="• By default, all your data stays on your device and is not shared with anyone. You can optionally configure remote storage in the settings." wrapText="true"/>
+        <Label text="• The authors of this project are not responsible for modifications made by third-party variants or the actions of webservice hosters." wrapText="true"/>
     </VBox>
 
     <Separator/>

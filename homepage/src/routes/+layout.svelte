@@ -34,7 +34,7 @@
 			<a href="/features">Features</a>
 			<a href="/docs">Setup Guide</a>
 			<a href="/docs/api">API Reference</a>
-			<a href="/imprint">Imprint</a>
+			<a href="/imprint">Project legal</a>
 			<select class="theme-select" value={themeMode} onchange={handleThemeChange}>
 				<option value="system">System</option>
 				<option value="light">Light</option>
