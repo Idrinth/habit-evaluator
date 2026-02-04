@@ -183,6 +183,14 @@
     <string name="backup_password_confirm_hint">Confirmer le mot de passe de sauvegarde</string>
     <string name="backup_password_required">Le mot de passe de sauvegarde est requis lorsque les sauvegardes sont activées</string>
     <string name="backup_passwords_mismatch">Les mots de passe ne correspondent pas</string>
+    <string name="restore_backup_title">Restaurer la sauvegarde</string>
+    <string name="restore_backup_button">Restaurer depuis une sauvegarde</string>
+    <string name="restore_no_backups">Aucune sauvegarde trouvée</string>
+    <string name="restore_select_backup">Sélectionner une sauvegarde à restaurer</string>
+    <string name="restore_enter_password">Entrer le mot de passe de la sauvegarde</string>
+    <string name="restore_in_progress">Restauration de la sauvegarde…</string>
+    <string name="restore_success">Restauré : %1$d habitudes ajoutées, %2$d habitudes fusionnées, %3$d entrées ajoutées, %4$d entrées de journal ajoutées, %5$d entrées de sommeil ajoutées, %6$d catégories ajoutées</string>
+    <string name="restore_failed">Échec de la restauration : %s</string>
     <string name="record_emotion_entry">Enregistrer une émotion</string>
     <string name="record_emotion">Enregistrer</string>
     <string name="emotion_notes_hint">Notes (facultatif)</string>

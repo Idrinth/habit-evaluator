@@ -16,6 +16,9 @@ import de.idrinth.habitevaluator.shared.repository.SleepEntryRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.idrinth.habitevaluator.shared.model.EventSignificance;
+import de.idrinth.habitevaluator.shared.model.FrequencyType;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -25,10 +28,15 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Service that creates and restores encrypted daily backups of user data.
@@ -127,6 +135,225 @@ public class BackupService {
         } catch (Exception e) {
             throw new BackupException("Failed to restore backup", e);
         }
+    }
+
+    /**
+     * Merges data from a backup into the current user's existing data.
+     * Categories are matched by name; new ones are created.
+     * Habits are matched by name and category; new ones are created, existing ones get missing entries merged.
+     * Diary entries and sleep entries are matched by ID; new ones are added.
+     *
+     * @param backupFile           the encrypted backup file
+     * @param password             the encryption password
+     * @param user                 the current user
+     * @param habitRepository      habit data source
+     * @param categoryRepository   category data source (may be null)
+     * @param diaryEntryRepository diary entry data source (may be null)
+     * @param sleepEntryRepository sleep entry data source (may be null)
+     * @return a summary of what was merged
+     * @throws BackupException if merge fails
+     */
+    public MergeResult mergeBackup(File backupFile, String password, User user,
+                                   HabitRepository habitRepository,
+                                   HabitCategoryRepository categoryRepository,
+                                   DiaryEntryRepository diaryEntryRepository,
+                                   SleepEntryRepository sleepEntryRepository) throws BackupException {
+        BackupData backupData = restoreBackup(backupFile, password);
+        if (user == null) {
+            throw new BackupException("User must not be null for merge");
+        }
+
+        int categoriesAdded = 0;
+        int habitsAdded = 0;
+        int habitsMerged = 0;
+        int entriesAdded = 0;
+        int diaryEntriesAdded = 0;
+        int sleepEntriesAdded = 0;
+
+        // Build a mapping from backup category IDs to local category IDs
+        Map<String, String> categoryIdMapping = new HashMap<>();
+        if (categoryRepository != null) {
+            List<HabitCategory> existingCategories = categoryRepository.findByUserId(user.getId());
+            Map<String, HabitCategory> existingByName = new HashMap<>();
+            for (HabitCategory cat : existingCategories) {
+                existingByName.put(cat.getName(), cat);
+            }
+
+            for (BackupData.CategoryData catData : backupData.getCategories()) {
+                HabitCategory existing = existingByName.get(catData.getName());
+                if (existing != null) {
+                    categoryIdMapping.put(catData.getId(), existing.getId());
+                } else {
+                    HabitCategory newCat = new HabitCategory(catData.getName(),
+                            catData.getDescription(), catData.getColor());
+                    newCat.setUser(user);
+                    newCat = categoryRepository.save(newCat);
+                    categoryIdMapping.put(catData.getId(), newCat.getId());
+                    categoriesAdded++;
+                }
+            }
+        }
+
+        // Merge habits
+        if (habitRepository != null) {
+            List<Habit> existingHabits = habitRepository.findByUserId(user.getId());
+            Map<String, Habit> existingByNameAndCategory = new HashMap<>();
+            for (Habit habit : existingHabits) {
+                String key = habit.getName() + "|" + (habit.getCategoryId() != null ? habit.getCategoryId() : "");
+                existingByNameAndCategory.put(key, habit);
+            }
+
+            for (BackupData.HabitData habitData : backupData.getHabits()) {
+                String mappedCategoryId = categoryIdMapping.get(habitData.getCategoryId());
+                if (mappedCategoryId == null) {
+                    mappedCategoryId = habitData.getCategoryId();
+                }
+                String key = habitData.getName() + "|" + (mappedCategoryId != null ? mappedCategoryId : "");
+                Habit existingHabit = existingByNameAndCategory.get(key);
+
+                if (existingHabit != null) {
+                    // Merge entries into existing habit
+                    Set<String> existingEntryIds = new HashSet<>();
+                    for (HabitEntry entry : existingHabit.getEntries()) {
+                        existingEntryIds.add(entry.getId());
+                    }
+                    int addedForThisHabit = 0;
+                    for (BackupData.HabitEntryData entryData : habitData.getEntries()) {
+                        if (!existingEntryIds.contains(entryData.getId())) {
+                            HabitEntry newEntry = new HabitEntry();
+                            newEntry.setId(entryData.getId());
+                            if (entryData.getCompletedAt() != null) {
+                                newEntry.setCompletedAt(LocalDateTime.parse(entryData.getCompletedAt()));
+                            }
+                            newEntry.setNotes(entryData.getNotes());
+                            newEntry.setValue(entryData.getValue());
+                            existingHabit.addEntry(newEntry);
+                            addedForThisHabit++;
+                        }
+                    }
+                    if (addedForThisHabit > 0) {
+                        habitRepository.save(existingHabit);
+                        entriesAdded += addedForThisHabit;
+                        habitsMerged++;
+                    }
+                } else {
+                    // Create new habit from backup
+                    Habit newHabit = new Habit(habitData.getName(), habitData.getDescription());
+                    newHabit.setCategoryId(mappedCategoryId);
+                    newHabit.setUser(user);
+                    if (habitData.getFrequencyType() != null) {
+                        newHabit.setFrequencyType(FrequencyType.valueOf(habitData.getFrequencyType()));
+                    }
+                    newHabit.setTargetFrequency(habitData.getTargetFrequency());
+                    newHabit.setMaxEntriesPerDay(habitData.getMaxEntriesPerDay());
+                    newHabit.setPositiveScoring(habitData.isPositiveScoring());
+                    if (habitData.getCreatedAt() != null) {
+                        newHabit.setCreatedAt(LocalDateTime.parse(habitData.getCreatedAt()));
+                    }
+                    if (habitData.getNameTranslations() != null) {
+                        newHabit.setNameTranslations(habitData.getNameTranslations());
+                    }
+                    if (habitData.getDescriptionTranslations() != null) {
+                        newHabit.setDescriptionTranslations(habitData.getDescriptionTranslations());
+                    }
+
+                    BackupData.ScoringRuleData ruleData = habitData.getScoringRule();
+                    if (ruleData != null) {
+                        ScoringRule rule = new ScoringRule(
+                                ruleData.getName() != null ? ruleData.getName() : "custom",
+                                ruleData.getThresholdFor1Point(),
+                                ruleData.getThresholdFor2Points(),
+                                ruleData.getThresholdFor4Points(),
+                                ruleData.getThresholdFor8Points()
+                        );
+                        rule.setUser(user);
+                        newHabit.setScoringRule(rule);
+                    }
+
+                    for (BackupData.HabitEntryData entryData : habitData.getEntries()) {
+                        HabitEntry newEntry = new HabitEntry();
+                        newEntry.setId(entryData.getId());
+                        if (entryData.getCompletedAt() != null) {
+                            newEntry.setCompletedAt(LocalDateTime.parse(entryData.getCompletedAt()));
+                        }
+                        newEntry.setNotes(entryData.getNotes());
+                        newEntry.setValue(entryData.getValue());
+                        newHabit.addEntry(newEntry);
+                        entriesAdded++;
+                    }
+
+                    habitRepository.save(newHabit);
+                    habitsAdded++;
+                }
+            }
+        }
+
+        // Merge diary entries
+        if (diaryEntryRepository != null) {
+            List<DiaryEntry> existingDiaryEntries = diaryEntryRepository.findByUserId(user.getId());
+            Set<String> existingDiaryIds = new HashSet<>();
+            for (DiaryEntry entry : existingDiaryEntries) {
+                existingDiaryIds.add(entry.getId());
+            }
+
+            for (BackupData.DiaryEntryData entryData : backupData.getDiaryEntries()) {
+                if (!existingDiaryIds.contains(entryData.getId())) {
+                    EventSignificance significance = EventSignificance.NORMAL;
+                    if (entryData.getSignificance() != null) {
+                        significance = EventSignificance.valueOf(entryData.getSignificance());
+                    }
+                    LocalDate eventDate = LocalDate.now();
+                    if (entryData.getEventDate() != null) {
+                        eventDate = LocalDate.parse(entryData.getEventDate());
+                    }
+                    DiaryEntry newEntry = new DiaryEntry(entryData.getDescription(), significance, eventDate);
+                    newEntry.setId(entryData.getId());
+                    if (entryData.getCreatedAt() != null) {
+                        newEntry.setCreatedAt(LocalDateTime.parse(entryData.getCreatedAt()));
+                    }
+                    newEntry.setUser(user);
+                    diaryEntryRepository.save(newEntry);
+                    diaryEntriesAdded++;
+                }
+            }
+        }
+
+        // Merge sleep entries
+        if (sleepEntryRepository != null) {
+            List<SleepEntry> existingSleepEntries = sleepEntryRepository.findByUserId(user.getId());
+            Set<String> existingSleepIds = new HashSet<>();
+            for (SleepEntry entry : existingSleepEntries) {
+                existingSleepIds.add(entry.getId());
+            }
+
+            for (BackupData.SleepEntryData entryData : backupData.getSleepEntries()) {
+                if (!existingSleepIds.contains(entryData.getId())) {
+                    SleepEntry newEntry = new SleepEntry();
+                    newEntry.setId(entryData.getId());
+                    if (entryData.getFromTime() != null) {
+                        newEntry.setFromTime(LocalTime.parse(entryData.getFromTime()));
+                    }
+                    if (entryData.getUntilTime() != null) {
+                        newEntry.setUntilTime(LocalTime.parse(entryData.getUntilTime()));
+                    }
+                    if (entryData.getDate() != null) {
+                        newEntry.setDate(LocalDate.parse(entryData.getDate()));
+                    }
+                    newEntry.setNotes(entryData.getNotes());
+                    if (entryData.getCreatedAt() != null) {
+                        newEntry.setCreatedAt(LocalDateTime.parse(entryData.getCreatedAt()));
+                    }
+                    newEntry.setUser(user);
+                    sleepEntryRepository.save(newEntry);
+                    sleepEntriesAdded++;
+                }
+            }
+        }
+
+        MergeResult result = new MergeResult(categoriesAdded, habitsAdded, habitsMerged,
+                entriesAdded, diaryEntriesAdded, sleepEntriesAdded);
+        logger.info("Backup merged: {}", result);
+        return result;
     }
 
     /**

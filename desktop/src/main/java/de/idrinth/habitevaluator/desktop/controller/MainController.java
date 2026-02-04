@@ -512,6 +512,11 @@ public class MainController {
 
             SettingsDialogController controller = loader.getController();
             controller.setStorageConfig(storageConfig);
+            controller.setCurrentUser(currentUser);
+            controller.setHabitRepository(habitRepository);
+            controller.setCategoryRepository(categoryRepository);
+            controller.setDiaryEntryRepository(diaryEntryRepository);
+            controller.setSleepEntryRepository(sleepEntryRepository);
 
             Stage dialogStage = new Stage();
             dialogStage.setTitle("Storage Settings");
