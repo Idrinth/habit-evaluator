@@ -338,7 +338,7 @@ export interface EmotionPairSeries {
 	pairId: string;
 	negativeLabel: string;
 	positiveLabel: string;
-	dailyAverages: number[];
+	dailyAverages: (number | null)[];
 	overallAverage: number;
 	totalEntries: number;
 }

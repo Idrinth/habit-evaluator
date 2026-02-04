@@ -3,6 +3,7 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.chart.BarChart?>
 <?import javafx.scene.chart.CategoryAxis?>
+<?import javafx.scene.chart.LineChart?>
 <?import javafx.scene.chart.NumberAxis?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
@@ -68,15 +69,15 @@
 
     <HBox spacing="10" VBox.vgrow="ALWAYS">
         <VBox spacing="5" HBox.hgrow="ALWAYS" prefWidth="750">
-            <Label text="Emotion Events"/>
-            <BarChart fx:id="emotionEventsChart" VBox.vgrow="ALWAYS" legendVisible="false" animated="false">
+            <Label text="Emotion Pairs"/>
+            <LineChart fx:id="emotionPairsChart" VBox.vgrow="ALWAYS" animated="false">
                 <xAxis>
                     <CategoryAxis fx:id="emotionXAxis" tickLabelRotation="90" tickLabelGap="2"/>
                 </xAxis>
                 <yAxis>
-                    <NumberAxis fx:id="emotionYAxis" label="Count"/>
+                    <NumberAxis fx:id="emotionYAxis" label="Strength" lowerBound="-10" upperBound="10" tickUnit="5" autoRanging="false"/>
                 </yAxis>
-            </BarChart>
+            </LineChart>
         </VBox>
     </HBox>
 

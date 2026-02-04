@@ -78,7 +78,8 @@
 	{:else if data}
 		{#each data.pairs as pair, pairIndex}
 			{@const color = pairColor(pairIndex)}
-			{@const maxAbs = Math.max(10, ...pair.dailyAverages.map(Math.abs))}
+			{@const nonNullValues = pair.dailyAverages.filter((v): v is number => v != null)}
+			{@const maxAbs = Math.max(10, ...nonNullValues.map(Math.abs))}
 			{@const chartHeight = 220}
 			{@const plotTop = 10}
 			{@const plotBottom = chartHeight - 30}
@@ -132,32 +133,34 @@
 
 						<!-- Bars -->
 						{#each pair.dailyAverages as value, i}
-							{@const barX = leftMargin + i * (barWidth + 4) + 2}
-							{@const barH = Math.abs(value) / maxAbs * (plotHeight / 2)}
-							{#if value >= 0}
-								<rect
-									x={barX}
-									y={midY - barH}
-									width={barWidth}
-									height={Math.max(barH, 0.5)}
-									fill={color}
-									opacity="0.85"
-									rx="2"
-								>
-									<title>{data.labels[i]}: {formatStrength(value, pair.negativeLabel, pair.positiveLabel)}</title>
-								</rect>
-							{:else}
-								<rect
-									x={barX}
-									y={midY}
-									width={barWidth}
-									height={Math.max(barH, 0.5)}
-									fill={color}
-									opacity="0.5"
-									rx="2"
-								>
-									<title>{data.labels[i]}: {formatStrength(value, pair.negativeLabel, pair.positiveLabel)}</title>
-								</rect>
+							{#if value != null}
+								{@const barX = leftMargin + i * (barWidth + 4) + 2}
+								{@const barH = Math.abs(value) / maxAbs * (plotHeight / 2)}
+								{#if value >= 0}
+									<rect
+										x={barX}
+										y={midY - barH}
+										width={barWidth}
+										height={Math.max(barH, 0.5)}
+										fill={color}
+										opacity="0.85"
+										rx="2"
+									>
+										<title>{data.labels[i]}: {formatStrength(value, pair.negativeLabel, pair.positiveLabel)}</title>
+									</rect>
+								{:else}
+									<rect
+										x={barX}
+										y={midY}
+										width={barWidth}
+										height={Math.max(barH, 0.5)}
+										fill={color}
+										opacity="0.5"
+										rx="2"
+									>
+										<title>{data.labels[i]}: {formatStrength(value, pair.negativeLabel, pair.positiveLabel)}</title>
+									</rect>
+								{/if}
 							{/if}
 						{/each}
 

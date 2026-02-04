@@ -19,6 +19,7 @@ import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.chart.BarChart;
 import javafx.scene.chart.CategoryAxis;
+import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.TableColumn;
@@ -65,7 +66,7 @@ public class StatsController {
     private NumberAxis sleepEntriesYAxis;
 
     @FXML
-    private BarChart<String, Number> emotionEventsChart;
+    private LineChart<String, Number> emotionPairsChart;
     @FXML
     private CategoryAxis emotionXAxis;
     @FXML
@@ -222,26 +223,59 @@ public class StatsController {
             allEntries = emotionEntryRepository.findByUserId(currentUser.getId());
         }
 
-        Map<LocalDate, Integer> countByDate = new TreeMap<>();
-        for (LocalDate d = startDate; !d.isAfter(today); d = d.plusDays(1)) {
-            countByDate.put(d, 0);
-        }
+        List<EmotionEntry> rangeEntries = new ArrayList<>();
         for (EmotionEntry entry : allEntries) {
             LocalDate entryDate = entry.getRecordedAt().toLocalDate();
             if (!entryDate.isBefore(startDate) && !entryDate.isAfter(today)) {
-                countByDate.merge(entryDate, 1, Integer::sum);
+                rangeEntries.add(entry);
             }
         }
 
-        XYChart.Series<String, Number> series = new XYChart.Series<>();
-        int i = 0;
-        for (Integer count : countByDate.values()) {
-            series.getData().add(new XYChart.Data<>(labels.get(i), count));
-            i++;
+        // Group entries by emotion pair
+        Map<String, List<EmotionEntry>> entriesByPair = new TreeMap<>();
+        Map<String, String> pairLabelMap = new TreeMap<>();
+        for (EmotionEntry entry : rangeEntries) {
+            if (entry.getEmotionPair() != null) {
+                String pairId = entry.getEmotionPair().getId();
+                entriesByPair.computeIfAbsent(pairId, k -> new ArrayList<>()).add(entry);
+                pairLabelMap.put(pairId, entry.getEmotionPair().toString());
+            }
         }
+
+        // Build date list
+        List<LocalDate> dates = new ArrayList<>();
+        for (LocalDate d = startDate; !d.isAfter(today); d = d.plusDays(1)) {
+            dates.add(d);
+        }
+
         emotionXAxis.setCategories(FXCollections.observableArrayList(labels));
-        emotionEventsChart.getData().clear();
-        emotionEventsChart.getData().add(series);
+        emotionPairsChart.getData().clear();
+
+        // For each pair, compute daily average strength and add as a series
+        for (Map.Entry<String, List<EmotionEntry>> mapEntry : entriesByPair.entrySet()) {
+            List<EmotionEntry> pairEntries = mapEntry.getValue();
+            Map<LocalDate, List<Integer>> strengthsByDate = new TreeMap<>();
+            for (EmotionEntry entry : pairEntries) {
+                LocalDate d = entry.getRecordedAt().toLocalDate();
+                strengthsByDate.computeIfAbsent(d, k -> new ArrayList<>()).add(entry.getStrength());
+            }
+
+            XYChart.Series<String, Number> series = new XYChart.Series<>();
+            series.setName(pairLabelMap.get(mapEntry.getKey()));
+            int i = 0;
+            for (LocalDate d : dates) {
+                List<Integer> strengths = strengthsByDate.get(d);
+                if (strengths != null && !strengths.isEmpty()) {
+                    float sum = 0;
+                    for (int s : strengths) {
+                        sum += s;
+                    }
+                    series.getData().add(new XYChart.Data<>(labels.get(i), sum / strengths.size()));
+                }
+                i++;
+            }
+            emotionPairsChart.getData().add(series);
+        }
     }
 
     private void populateCorrelationTable() {

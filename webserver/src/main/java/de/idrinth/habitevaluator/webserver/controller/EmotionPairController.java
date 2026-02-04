@@ -93,7 +93,7 @@ public class EmotionPairController {
             for (LocalDate d = startDate; !d.isAfter(today); d = d.plusDays(1)) {
                 List<Integer> strengths = dayStrengths.get(d);
                 if (strengths.isEmpty()) {
-                    dailyAverages.add(0.0);
+                    dailyAverages.add(null);
                 } else {
                     double avg = strengths.stream().mapToInt(Integer::intValue).average().orElse(0);
                     dailyAverages.add(Math.round(avg * 100.0) / 100.0);
