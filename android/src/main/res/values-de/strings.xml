@@ -201,4 +201,8 @@
     <string name="pdf_intro_sleep">Dieser Abschnitt fasst Ihre erfassten Schlafmuster zusammen, einschließlich Dauer, Zeitpunkt und Regelmäßigkeit im gewählten Zeitraum.</string>
     <string name="pdf_intro_diary">Tagebucheinträge erfassen bedeutsame Ereignisse und deren wahrgenommene Auswirkung. Punkte werden basierend auf der von Ihnen vergebenen Bedeutungsstufe zugewiesen.</string>
     <string name="pdf_intro_emotions">Emotionseinträge erfassen Ihre selbst eingeschätzten emotionalen Zustände auf gepaarten Skalen über die Zeit. Tägliche Durchschnitte werden pro Emotionspaar angezeigt.</string>
+    <string name="first_start_title">Willkommen bei Habit Evaluator</string>
+    <string name="first_start_not_professional_help">Diese App ist ein Selbst-Tracking-Werkzeug und ersetzt keine professionelle medizinische oder psychologische Hilfe. Wenn Sie Unterstützung brauchen, wenden Sie sich bitte an eine qualifizierte Fachperson.</string>
+    <string name="first_start_no_data_sharing">Standardmäßig bleiben alle Ihre Daten auf Ihrem Gerät und werden mit niemandem geteilt. Sie können optional einen Remote-Speicher in den Einstellungen konfigurieren.</string>
+    <string name="first_start_acknowledge">Ich verstehe</string>
 </resources>

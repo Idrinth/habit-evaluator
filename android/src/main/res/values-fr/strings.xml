@@ -201,4 +201,8 @@
     <string name="pdf_intro_sleep">Cette section résume vos habitudes de sommeil enregistrées, y compris la durée, les horaires et la régularité sur la période sélectionnée.</string>
     <string name="pdf_intro_diary">Les entrées de journal capturent les événements significatifs et leur impact perçu. Les points sont attribués en fonction du niveau de signification que vous avez donné à chaque entrée.</string>
     <string name="pdf_intro_emotions">Les entrées d\'émotions suivent vos états émotionnels auto-déclarés sur des échelles appariées au fil du temps. Les moyennes quotidiennes sont affichées par paire d\'émotions.</string>
+    <string name="first_start_title">Bienvenue dans Habit Evaluator</string>
+    <string name="first_start_not_professional_help">Cette application est un outil de suivi personnel et ne remplace pas une aide médicale ou psychologique professionnelle. Si vous êtes en difficulté, veuillez consulter un professionnel qualifié.</string>
+    <string name="first_start_no_data_sharing">Par défaut, toutes vos données restent sur votre appareil et ne sont partagées avec personne. Vous pouvez optionnellement configurer un stockage distant dans les paramètres.</string>
+    <string name="first_start_acknowledge">Je comprends</string>
 </resources>
