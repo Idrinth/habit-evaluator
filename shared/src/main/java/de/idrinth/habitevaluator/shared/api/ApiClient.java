@@ -32,13 +32,20 @@ public class ApiClient {
     private static final Logger logger = LoggerFactory.getLogger(ApiClient.class);
     private static final int CONNECT_TIMEOUT = 10000;
     private static final int READ_TIMEOUT = 15000;
+    private static final long CIRCUIT_BREAKER_COOLDOWN_MS = 5 * 60 * 1000; // 5 minutes
 
     private final String baseUrl;
     private final Gson gson;
+    private final CircuitBreaker circuitBreaker;
     private String sessionCookie;
     private boolean authenticated;
 
     public ApiClient(String baseUrl) {
+        this(baseUrl, new CircuitBreaker(CIRCUIT_BREAKER_COOLDOWN_MS));
+    }
+
+    ApiClient(String baseUrl, CircuitBreaker circuitBreaker) {
+        this.circuitBreaker = circuitBreaker;
         this.baseUrl = baseUrl.endsWith("/") ? baseUrl.substring(0, baseUrl.length() - 1) : baseUrl;
         this.gson = new GsonBuilder()
                 .registerTypeAdapter(LocalDateTime.class, (JsonSerializer<LocalDateTime>)
@@ -60,25 +67,33 @@ public class ApiClient {
      * @return true if login succeeded
      */
     public boolean login(String username, String password) throws IOException {
+        circuitBreaker.checkState();
         Map<String, String> credentials = new HashMap<>();
         credentials.put("username", username);
         credentials.put("password", password);
         String json = gson.toJson(credentials);
-        HttpURLConnection conn = createConnection("/api/auth/login", "POST");
-        writeBody(conn, json);
+        try {
+            HttpURLConnection conn = createConnection("/api/auth/login", "POST");
+            writeBody(conn, json);
 
-        int responseCode = conn.getResponseCode();
-        if (responseCode == 200) {
-            extractSessionCookie(conn);
-            String body = readResponse(conn);
-            Map<String, Object> response = gson.fromJson(body, new TypeToken<Map<String, Object>>() {}.getType());
-            authenticated = Boolean.TRUE.equals(response.get("success"));
+            int responseCode = conn.getResponseCode();
+            if (responseCode == 200) {
+                extractSessionCookie(conn);
+                String body = readResponse(conn);
+                Map<String, Object> response = gson.fromJson(body, new TypeToken<Map<String, Object>>() {}.getType());
+                authenticated = Boolean.TRUE.equals(response.get("success"));
+                conn.disconnect();
+                circuitBreaker.recordSuccess();
+                return authenticated;
+            }
             conn.disconnect();
-            return authenticated;
+            authenticated = false;
+            circuitBreaker.recordFailure();
+            return false;
+        } catch (IOException e) {
+            circuitBreaker.recordFailure();
+            throw e;
         }
-        conn.disconnect();
-        authenticated = false;
-        return false;
     }
 
     public boolean isAuthenticated() {
@@ -89,15 +104,23 @@ public class ApiClient {
      * Performs a GET request and deserializes the response.
      */
     public <T> T get(String path, Type responseType) throws IOException {
-        HttpURLConnection conn = createConnection(path, "GET");
-        int responseCode = conn.getResponseCode();
-        if (responseCode == 200) {
-            String body = readResponse(conn);
+        circuitBreaker.checkState();
+        try {
+            HttpURLConnection conn = createConnection(path, "GET");
+            int responseCode = conn.getResponseCode();
+            if (responseCode == 200) {
+                String body = readResponse(conn);
+                conn.disconnect();
+                circuitBreaker.recordSuccess();
+                return gson.fromJson(body, responseType);
+            }
             conn.disconnect();
-            return gson.fromJson(body, responseType);
+            circuitBreaker.recordFailure();
+            throw new IOException("GET " + path + " failed with status " + responseCode);
+        } catch (IOException e) {
+            circuitBreaker.recordFailure();
+            throw e;
         }
-        conn.disconnect();
-        throw new IOException("GET " + path + " failed with status " + responseCode);
     }
 
     /**
@@ -111,43 +134,67 @@ public class ApiClient {
      * Performs a POST request with a JSON body and deserializes the response.
      */
     public <T> T post(String path, Object requestBody, Type responseType) throws IOException {
-        HttpURLConnection conn = createConnection(path, "POST");
-        writeBody(conn, gson.toJson(requestBody));
-        int responseCode = conn.getResponseCode();
-        if (responseCode == 200) {
-            String body = readResponse(conn);
+        circuitBreaker.checkState();
+        try {
+            HttpURLConnection conn = createConnection(path, "POST");
+            writeBody(conn, gson.toJson(requestBody));
+            int responseCode = conn.getResponseCode();
+            if (responseCode == 200) {
+                String body = readResponse(conn);
+                conn.disconnect();
+                circuitBreaker.recordSuccess();
+                return gson.fromJson(body, responseType);
+            }
             conn.disconnect();
-            return gson.fromJson(body, responseType);
+            circuitBreaker.recordFailure();
+            throw new IOException("POST " + path + " failed with status " + responseCode);
+        } catch (IOException e) {
+            circuitBreaker.recordFailure();
+            throw e;
         }
-        conn.disconnect();
-        throw new IOException("POST " + path + " failed with status " + responseCode);
     }
 
     /**
      * Performs a PUT request with a JSON body and deserializes the response.
      */
     public <T> T put(String path, Object requestBody, Type responseType) throws IOException {
-        HttpURLConnection conn = createConnection(path, "PUT");
-        writeBody(conn, gson.toJson(requestBody));
-        int responseCode = conn.getResponseCode();
-        if (responseCode == 200) {
-            String body = readResponse(conn);
+        circuitBreaker.checkState();
+        try {
+            HttpURLConnection conn = createConnection(path, "PUT");
+            writeBody(conn, gson.toJson(requestBody));
+            int responseCode = conn.getResponseCode();
+            if (responseCode == 200) {
+                String body = readResponse(conn);
+                conn.disconnect();
+                circuitBreaker.recordSuccess();
+                return gson.fromJson(body, responseType);
+            }
             conn.disconnect();
-            return gson.fromJson(body, responseType);
+            circuitBreaker.recordFailure();
+            throw new IOException("PUT " + path + " failed with status " + responseCode);
+        } catch (IOException e) {
+            circuitBreaker.recordFailure();
+            throw e;
         }
-        conn.disconnect();
-        throw new IOException("PUT " + path + " failed with status " + responseCode);
     }
 
     /**
      * Performs a DELETE request.
      */
     public void delete(String path) throws IOException {
-        HttpURLConnection conn = createConnection(path, "DELETE");
-        int responseCode = conn.getResponseCode();
-        conn.disconnect();
-        if (responseCode != 200 && responseCode != 204) {
-            throw new IOException("DELETE " + path + " failed with status " + responseCode);
+        circuitBreaker.checkState();
+        try {
+            HttpURLConnection conn = createConnection(path, "DELETE");
+            int responseCode = conn.getResponseCode();
+            conn.disconnect();
+            if (responseCode != 200 && responseCode != 204) {
+                circuitBreaker.recordFailure();
+                throw new IOException("DELETE " + path + " failed with status " + responseCode);
+            }
+            circuitBreaker.recordSuccess();
+        } catch (IOException e) {
+            circuitBreaker.recordFailure();
+            throw e;
         }
     }
 
