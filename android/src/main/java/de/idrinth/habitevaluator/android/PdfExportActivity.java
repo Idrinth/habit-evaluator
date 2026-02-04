@@ -662,8 +662,13 @@ public class PdfExportActivity extends AppCompatActivity {
             diaryEntries = MainActivity.getSharedDiaryEntryRepository().findByUserId(user.getId());
         }
 
+        List<EmotionEntry> emotionEntries = new ArrayList<>();
+        if (user != null && MainActivity.getSharedEmotionEntryRepository() != null) {
+            emotionEntries = MainActivity.getSharedEmotionEntryRepository().findByUserId(user.getId());
+        }
+
         List<EventCorrelation> correlations = correlationService.calculateCorrelations(
-                habits, diaryEntries, sleepEntries);
+                habits, diaryEntries, sleepEntries, emotionEntries);
 
         commands.add(new SectionHeaderCommand(getString(R.string.pdf_section_correlations), MARGIN, yPosition));
         yPosition += 25;
