@@ -28,6 +28,8 @@
     <string name="connection_success">Connection successful</string>
     <string name="auth_failed">Authentication failed</string>
     <string name="connection_failed">Connection failed: %s</string>
+    <string name="https_required">Remote server URL must use HTTPS. Only localhost is allowed over plain HTTP.</string>
+    <string name="remote_privacy_warning">When using a remote server, the server owner\'s data protection and privacy policy applies to your data. Make sure you trust the server operator.</string>
     <string name="storage_mode_local">Storage: Local</string>
     <string name="storage_mode_remote">Storage: Remote API</string>
     <string name="load_defaults">Load Defaults</string>
