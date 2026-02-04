@@ -30,6 +30,8 @@ application {
 }
 
 jar {
+    archiveBaseName = 'habit-evaluator-desktop'
+    archiveVersion = ''
     manifest {
         attributes(
             'Main-Class': 'de.idrinth.habitevaluator.desktop.HabitEvaluatorDesktopApp'
@@ -44,7 +46,7 @@ tasks.register('jpackageDeb', Exec) {
 
     def outputDir = layout.buildDirectory.dir('jpackage-deb').get().asFile
     def jarDir = layout.buildDirectory.dir('libs').get().asFile
-    def jarFile = layout.buildDirectory.file("libs/${project.name}-${project.version}.jar").get().asFile
+    def jarFile = layout.buildDirectory.file("libs/habit-evaluator-desktop.jar").get().asFile
 
     doFirst {
         outputDir.mkdirs()
@@ -69,7 +71,7 @@ tasks.register('jpackageExe', Exec) {
 
     def outputDir = layout.buildDirectory.dir('jpackage-exe').get().asFile
     def jarDir = layout.buildDirectory.dir('libs').get().asFile
-    def jarFile = layout.buildDirectory.file("libs/${project.name}-${project.version}.jar").get().asFile
+    def jarFile = layout.buildDirectory.file("libs/habit-evaluator-desktop.jar").get().asFile
 
     doFirst {
         outputDir.mkdirs()

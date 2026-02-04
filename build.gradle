@@ -5,7 +5,7 @@ plugins {
 
 allprojects {
     group = 'de.idrinth.habitevaluator'
-    version = '0.1.0-SNAPSHOT'
+    version = findProperty('releaseVersion') ?: '0.1.0-SNAPSHOT'
 }
 
 subprojects {
