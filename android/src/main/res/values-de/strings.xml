@@ -191,6 +191,10 @@
     <string name="delete_emotion_entry">Emotionseintrag löschen</string>
     <string name="delete_emotion_entry_confirmation">Diesen Emotionseintrag löschen? Dies kann nicht rückgängig gemacht werden.</string>
     <string name="emotion_entry_deleted">Emotionseintrag gelöscht</string>
+    <string name="add_emotion_entry">Emotionseintrag hinzufügen</string>
+    <string name="expand_emotion_entries">Einträge anzeigen</string>
+    <string name="collapse_emotion_entries">Einträge ausblenden</string>
+    <string name="no_entries_yet">Noch keine Einträge</string>
     <string name="pdf_include_emotions">Emotionsmessungen und Grafik</string>
     <string name="pdf_section_emotions">Emotionen</string>
     <string name="pdf_emotion_entries">Emotionseinträge</string>

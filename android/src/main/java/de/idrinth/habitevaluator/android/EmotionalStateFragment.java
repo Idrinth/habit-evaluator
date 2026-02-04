@@ -14,7 +14,9 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import de.idrinth.habitevaluator.android.databinding.FragmentEmotionalStateBinding;
 import de.idrinth.habitevaluator.android.ui.EmotionDataAdapter;
@@ -27,7 +29,6 @@ public class EmotionalStateFragment extends Fragment {
 
     private FragmentEmotionalStateBinding binding;
     private EmotionDataAdapter adapter;
-    private List<Object> items;
 
     @Nullable
     @Override
@@ -41,8 +42,7 @@ public class EmotionalStateFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        items = new ArrayList<>();
-        adapter = new EmotionDataAdapter(items,
+        adapter = new EmotionDataAdapter(
                 this::onEmotionPairClicked,
                 this::confirmDeleteEmotionPair,
                 this::confirmDeleteEmotionEntry);
@@ -63,7 +63,6 @@ public class EmotionalStateFragment extends Fragment {
     }
 
     private void refreshList() {
-        items.clear();
         List<EmotionPair> pairs = MainActivity.getSharedEmotionPairs();
         EmotionEntryRepository entryRepository = MainActivity.getSharedEmotionEntryRepository();
         List<EmotionEntry> allEntries = new ArrayList<>();
@@ -71,8 +70,8 @@ public class EmotionalStateFragment extends Fragment {
             allEntries.addAll(entryRepository.findByUserId(MainActivity.getSharedCurrentUser().getId()));
         }
 
+        Map<String, List<EmotionEntry>> entriesByPair = new HashMap<>();
         for (EmotionPair pair : pairs) {
-            items.add(pair);
             List<EmotionEntry> pairEntries = new ArrayList<>();
             for (EmotionEntry entry : allEntries) {
                 if (entry.getEmotionPair() != null && entry.getEmotionPair().getId().equals(pair.getId())) {
@@ -80,9 +79,9 @@ public class EmotionalStateFragment extends Fragment {
                 }
             }
             pairEntries.sort(Comparator.comparing(EmotionEntry::getRecordedAt).reversed());
-            items.addAll(pairEntries);
+            entriesByPair.put(pair.getId(), pairEntries);
         }
-        adapter.notifyDataSetChanged();
+        adapter.setData(pairs, entriesByPair);
     }
 
     private void onEmotionPairClicked(EmotionPair pair) {

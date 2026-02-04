@@ -17,7 +17,9 @@ import javafx.stage.Stage;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class EmotionPairController {
 
@@ -40,6 +42,7 @@ public class EmotionPairController {
     private User currentUser;
     private List<EmotionPair> pairs = new ArrayList<>();
     private List<EmotionEntry> entries = new ArrayList<>();
+    private final Set<String> expandedPairs = new HashSet<>();
 
     public void setEmotionPairRepository(EmotionPairRepository emotionPairRepository) {
         this.emotionPairRepository = emotionPairRepository;
@@ -102,13 +105,49 @@ public class EmotionPairController {
             return;
         }
         for (EmotionPair pair : pairs) {
+            List<EmotionEntry> pairEntries = new ArrayList<>();
+            for (EmotionEntry entry : entries) {
+                if (entry.getEmotionPair() != null && entry.getEmotionPair().getId().equals(pair.getId())) {
+                    pairEntries.add(entry);
+                }
+            }
+
+            boolean isExpanded = expandedPairs.contains(pair.getId());
+
             HBox row = new HBox(10);
             row.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
             row.setStyle("-fx-border-color: #444; -fx-border-radius: 4; -fx-padding: 6; -fx-background-color: #333; -fx-background-radius: 4;");
 
+            Button expandBtn = new Button(isExpanded ? "\u25BC" : "\u25B6");
+            expandBtn.setStyle("-fx-font-size: 10px; -fx-padding: 2 6; -fx-min-width: 24;");
+            expandBtn.setOnAction(e -> {
+                if (expandedPairs.contains(pair.getId())) {
+                    expandedPairs.remove(pair.getId());
+                } else {
+                    expandedPairs.add(pair.getId());
+                }
+                refreshPairsList();
+            });
+
             Label label = new Label(pair.getNegativeLabel() + "  \u2014  " + pair.getPositiveLabel());
             label.setStyle("-fx-font-size: 12px; -fx-font-weight: bold;");
-            HBox.setHgrow(label, javafx.scene.layout.Priority.ALWAYS);
+
+            Label currentStatusLabel = new Label();
+            currentStatusLabel.setStyle("-fx-font-size: 11px; -fx-text-fill: #888;");
+            if (!pairEntries.isEmpty()) {
+                EmotionEntry latest = pairEntries.get(0);
+                currentStatusLabel.setText(EmotionStrengthFormatter.format(latest.getStrength(), pair));
+            } else {
+                currentStatusLabel.setText("No entries yet");
+            }
+            HBox.setHgrow(currentStatusLabel, javafx.scene.layout.Priority.ALWAYS);
+
+            Button addBtn = new Button("+");
+            addBtn.setStyle("-fx-font-size: 10px; -fx-padding: 2 6;");
+            addBtn.setOnAction(e -> {
+                // Open emotion entry recording for this pair
+                // This navigates to the entry screen in the desktop app
+            });
 
             Button deleteBtn = new Button("X");
             deleteBtn.setStyle("-fx-font-size: 10px; -fx-padding: 2 6;");
@@ -120,43 +159,38 @@ public class EmotionPairController {
                 refreshPairsList();
             });
 
-            row.getChildren().addAll(label, deleteBtn);
+            row.getChildren().addAll(expandBtn, label, currentStatusLabel, addBtn, deleteBtn);
             pairsContainer.getChildren().add(row);
 
-            List<EmotionEntry> pairEntries = new ArrayList<>();
-            for (EmotionEntry entry : entries) {
-                if (entry.getEmotionPair() != null && entry.getEmotionPair().getId().equals(pair.getId())) {
-                    pairEntries.add(entry);
+            if (isExpanded) {
+                for (EmotionEntry entry : pairEntries) {
+                    HBox entryRow = new HBox(10);
+                    entryRow.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+                    entryRow.setStyle("-fx-padding: 4 6 4 20;");
+
+                    Label dateLabel = new Label(entry.getRecordedAt().format(DATE_FORMAT));
+                    dateLabel.setStyle("-fx-font-size: 11px; -fx-text-fill: #888;");
+                    dateLabel.setPrefWidth(110);
+
+                    Label strengthLbl = new Label(EmotionStrengthFormatter.format(entry.getStrength(), pair));
+                    strengthLbl.setStyle("-fx-font-size: 12px; -fx-font-weight: bold;");
+                    strengthLbl.setPrefWidth(120);
+
+                    Label notesLabel = new Label(entry.getNotes() != null ? entry.getNotes() : "");
+                    notesLabel.setStyle("-fx-font-size: 11px;");
+                    HBox.setHgrow(notesLabel, javafx.scene.layout.Priority.ALWAYS);
+
+                    Button deleteEntryBtn = new Button("X");
+                    deleteEntryBtn.setStyle("-fx-font-size: 10px; -fx-padding: 2 6;");
+                    deleteEntryBtn.setOnAction(e -> {
+                        emotionEntryRepository.deleteById(entry.getId());
+                        entries.remove(entry);
+                        refreshPairsList();
+                    });
+
+                    entryRow.getChildren().addAll(dateLabel, strengthLbl, notesLabel, deleteEntryBtn);
+                    pairsContainer.getChildren().add(entryRow);
                 }
-            }
-
-            for (EmotionEntry entry : pairEntries) {
-                HBox entryRow = new HBox(10);
-                entryRow.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
-                entryRow.setStyle("-fx-padding: 4 6 4 20;");
-
-                Label dateLabel = new Label(entry.getRecordedAt().format(DATE_FORMAT));
-                dateLabel.setStyle("-fx-font-size: 11px; -fx-text-fill: #888;");
-                dateLabel.setPrefWidth(110);
-
-                Label strengthLbl = new Label(EmotionStrengthFormatter.format(entry.getStrength(), pair));
-                strengthLbl.setStyle("-fx-font-size: 12px; -fx-font-weight: bold;");
-                strengthLbl.setPrefWidth(120);
-
-                Label notesLabel = new Label(entry.getNotes() != null ? entry.getNotes() : "");
-                notesLabel.setStyle("-fx-font-size: 11px;");
-                HBox.setHgrow(notesLabel, javafx.scene.layout.Priority.ALWAYS);
-
-                Button deleteEntryBtn = new Button("X");
-                deleteEntryBtn.setStyle("-fx-font-size: 10px; -fx-padding: 2 6;");
-                deleteEntryBtn.setOnAction(e -> {
-                    emotionEntryRepository.deleteById(entry.getId());
-                    entries.remove(entry);
-                    refreshPairsList();
-                });
-
-                entryRow.getChildren().addAll(dateLabel, strengthLbl, notesLabel, deleteEntryBtn);
-                pairsContainer.getChildren().add(entryRow);
             }
         }
     }

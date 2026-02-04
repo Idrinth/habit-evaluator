@@ -10,7 +10,12 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import de.idrinth.habitevaluator.android.R;
 import de.idrinth.habitevaluator.shared.model.EmotionEntry;
@@ -23,7 +28,10 @@ public class EmotionDataAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     private static final int TYPE_ENTRY = 1;
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
-    private final List<Object> items;
+    private final List<EmotionPair> pairs;
+    private final Map<String, List<EmotionEntry>> entriesByPair;
+    private final List<Object> displayItems;
+    private final Set<String> expandedPairs;
     private final OnPairClickListener pairClickListener;
     private final OnPairDeleteListener pairDeleteListener;
     private final OnEntryDeleteListener entryDeleteListener;
@@ -40,19 +48,52 @@ public class EmotionDataAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         void onDelete(EmotionEntry entry);
     }
 
-    public EmotionDataAdapter(List<Object> items,
-                              OnPairClickListener pairClickListener,
+    public EmotionDataAdapter(OnPairClickListener pairClickListener,
                               OnPairDeleteListener pairDeleteListener,
                               OnEntryDeleteListener entryDeleteListener) {
-        this.items = items;
+        this.pairs = new ArrayList<>();
+        this.entriesByPair = new HashMap<>();
+        this.displayItems = new ArrayList<>();
+        this.expandedPairs = new HashSet<>();
         this.pairClickListener = pairClickListener;
         this.pairDeleteListener = pairDeleteListener;
         this.entryDeleteListener = entryDeleteListener;
     }
 
+    public void setData(List<EmotionPair> pairs, Map<String, List<EmotionEntry>> entriesByPair) {
+        this.pairs.clear();
+        this.pairs.addAll(pairs);
+        this.entriesByPair.clear();
+        this.entriesByPair.putAll(entriesByPair);
+        rebuildDisplayItems();
+    }
+
+    private void rebuildDisplayItems() {
+        displayItems.clear();
+        for (EmotionPair pair : pairs) {
+            displayItems.add(pair);
+            if (expandedPairs.contains(pair.getId())) {
+                List<EmotionEntry> entries = entriesByPair.get(pair.getId());
+                if (entries != null) {
+                    displayItems.addAll(entries);
+                }
+            }
+        }
+        notifyDataSetChanged();
+    }
+
+    private void toggleExpanded(String pairId) {
+        if (expandedPairs.contains(pairId)) {
+            expandedPairs.remove(pairId);
+        } else {
+            expandedPairs.add(pairId);
+        }
+        rebuildDisplayItems();
+    }
+
     @Override
     public int getItemViewType(int position) {
-        return items.get(position) instanceof EmotionPair ? TYPE_HEADER : TYPE_ENTRY;
+        return displayItems.get(position) instanceof EmotionPair ? TYPE_HEADER : TYPE_ENTRY;
     }
 
     @NonNull
@@ -70,12 +111,32 @@ public class EmotionDataAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-        Object item = items.get(position);
+        Object item = displayItems.get(position);
         if (holder instanceof PairViewHolder && item instanceof EmotionPair) {
             PairViewHolder pairHolder = (PairViewHolder) holder;
             EmotionPair pair = (EmotionPair) item;
             pairHolder.emotionPairText.setText(pair.toString());
-            pairHolder.itemView.setOnClickListener(v -> {
+
+            List<EmotionEntry> entries = entriesByPair.get(pair.getId());
+            boolean isExpanded = expandedPairs.contains(pair.getId());
+
+            if (entries != null && !entries.isEmpty()) {
+                EmotionEntry latest = entries.get(0);
+                pairHolder.currentStatusText.setText(
+                        EmotionStrengthFormatter.format(latest.getStrength(), pair));
+                pairHolder.currentStatusText.setVisibility(View.VISIBLE);
+            } else {
+                pairHolder.currentStatusText.setText(R.string.no_entries_yet);
+                pairHolder.currentStatusText.setVisibility(View.VISIBLE);
+            }
+
+            pairHolder.expandCollapseButton.setRotation(isExpanded ? 0f : -90f);
+            pairHolder.expandCollapseButton.setContentDescription(
+                    pairHolder.itemView.getContext().getString(
+                            isExpanded ? R.string.collapse_emotion_entries : R.string.expand_emotion_entries));
+            pairHolder.expandCollapseButton.setOnClickListener(v -> toggleExpanded(pair.getId()));
+
+            pairHolder.addButton.setOnClickListener(v -> {
                 if (pairClickListener != null) {
                     pairClickListener.onClick(pair);
                 }
@@ -102,16 +163,22 @@ public class EmotionDataAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
     @Override
     public int getItemCount() {
-        return items.size();
+        return displayItems.size();
     }
 
     static class PairViewHolder extends RecyclerView.ViewHolder {
+        final ImageButton expandCollapseButton;
         final TextView emotionPairText;
+        final TextView currentStatusText;
+        final ImageButton addButton;
         final ImageButton deleteButton;
 
         PairViewHolder(@NonNull View itemView) {
             super(itemView);
+            expandCollapseButton = itemView.findViewById(R.id.expandCollapseButton);
             emotionPairText = itemView.findViewById(R.id.emotionPairText);
+            currentStatusText = itemView.findViewById(R.id.currentStatusText);
+            addButton = itemView.findViewById(R.id.addEmotionEntryButton);
             deleteButton = itemView.findViewById(R.id.deleteEmotionPairButton);
         }
     }
