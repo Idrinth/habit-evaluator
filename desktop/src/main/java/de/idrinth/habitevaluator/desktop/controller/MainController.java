@@ -535,6 +535,26 @@ public class MainController {
     }
 
     @FXML
+    private void handleOpenImprint() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/imprint.fxml"));
+            Parent root = loader.load();
+
+            Stage dialogStage = new Stage();
+            dialogStage.setTitle("Imprint");
+            dialogStage.initModality(Modality.APPLICATION_MODAL);
+            dialogStage.initOwner(habitListView.getScene().getWindow());
+
+            Scene scene = new Scene(root);
+            scene.getStylesheets().addAll(habitListView.getScene().getStylesheets());
+            dialogStage.setScene(scene);
+            dialogStage.showAndWait();
+        } catch (IOException e) {
+            showAlert("Error", "Failed to open imprint: " + e.getMessage());
+        }
+    }
+
+    @FXML
     private void handleOpenStats() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/stats.fxml"));

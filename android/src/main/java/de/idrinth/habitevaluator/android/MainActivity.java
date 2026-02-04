@@ -354,6 +354,11 @@ public class MainActivity extends AppCompatActivity {
         binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_EMOTIONAL_STATE, true);
     }
 
+    public void navigateToImprint() {
+        isProgrammaticNavigation = true;
+        binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_IMPRINT, true);
+    }
+
     public void onSettingsChanged() {
         initializeStorage();
     }

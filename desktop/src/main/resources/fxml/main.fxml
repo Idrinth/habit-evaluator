@@ -20,6 +20,7 @@
             <Button text="Sync" onAction="#handleSync"/>
             <Button text="Export PDF" onAction="#handleExportPdf"/>
             <Button text="Settings" onAction="#handleOpenSettings"/>
+            <Button text="Imprint" onAction="#handleOpenImprint"/>
         </HBox>
     </top>
 

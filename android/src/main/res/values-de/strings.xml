@@ -209,4 +209,14 @@
     <string name="first_start_not_professional_help">Diese App ist ein Selbst-Tracking-Werkzeug und ersetzt keine professionelle medizinische oder psychologische Hilfe. Wenn Sie Unterstützung brauchen, wenden Sie sich bitte an eine qualifizierte Fachperson.</string>
     <string name="first_start_no_data_sharing">Standardmäßig bleiben alle Ihre Daten auf Ihrem Gerät und werden mit niemandem geteilt. Sie können optional einen Remote-Speicher in den Einstellungen konfigurieren.</string>
     <string name="first_start_acknowledge">Ich verstehe</string>
+    <string name="imprint_title">Impressum</string>
+    <string name="imprint_contact">Kontakt</string>
+    <string name="imprint_name_label">Name</string>
+    <string name="imprint_email_label">E-Mail</string>
+    <string name="imprint_license">Lizenz</string>
+    <string name="imprint_license_text">Dieses Projekt ist unter der MIT-Lizenz lizenziert.</string>
+    <string name="imprint_data_protection">Datenschutz</string>
+    <string name="imprint_no_remote_storage">\u2022 Keine Speicherung von Daten auf einem Server, sofern nicht ausdrücklich vom Benutzer aktiviert.</string>
+    <string name="imprint_no_tracking">\u2022 Kein Tracking.</string>
+    <string name="imprint_no_data_usage">\u2022 Keine Nutzung bereitgestellter Daten außer zur Bereitstellung des Dienstes.</string>
 </resources>
