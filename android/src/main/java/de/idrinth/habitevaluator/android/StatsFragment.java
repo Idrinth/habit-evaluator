@@ -196,36 +196,39 @@ public class StatsFragment extends Fragment {
             allEntries = MainActivity.getSharedEmotionEntryRepository().findByUserId(user.getId());
         }
 
-        List<EmotionEntry> rangeEntries = new ArrayList<>();
-        for (EmotionEntry entry : allEntries) {
-            LocalDate entryDate = entry.getRecordedAt().toLocalDate();
-            if (!entryDate.isBefore(startDate) && !entryDate.isAfter(today)) {
-                rangeEntries.add(entry);
-            }
-        }
-
-        if (rangeEntries.isEmpty()) {
+        if (allEntries.isEmpty()) {
             binding.emotionCard.setVisibility(View.GONE);
             return;
         }
 
         binding.emotionCard.setVisibility(View.VISIBLE);
 
+        // Find earliest entry date to determine full range
+        LocalDate earliest = today;
+        for (EmotionEntry entry : allEntries) {
+            LocalDate entryDate = entry.getRecordedAt().toLocalDate();
+            if (entryDate.isBefore(earliest)) {
+                earliest = entryDate;
+            }
+        }
+
+        // Build full date range labels
+        List<String> emotionLabels = new ArrayList<>();
+        List<LocalDate> dates = new ArrayList<>();
+        for (LocalDate d = earliest; !d.isAfter(today); d = d.plusDays(1)) {
+            emotionLabels.add(d.format(LABEL_FORMAT));
+            dates.add(d);
+        }
+
         // Group entries by emotion pair
         Map<String, List<EmotionEntry>> entriesByPair = new TreeMap<>();
         Map<String, String> pairLabelMap = new TreeMap<>();
-        for (EmotionEntry entry : rangeEntries) {
+        for (EmotionEntry entry : allEntries) {
             if (entry.getEmotionPair() != null) {
                 String pairId = entry.getEmotionPair().getId();
                 entriesByPair.computeIfAbsent(pairId, k -> new ArrayList<>()).add(entry);
                 pairLabelMap.put(pairId, entry.getEmotionPair().toString());
             }
-        }
-
-        // Build date list
-        List<LocalDate> dates = new ArrayList<>();
-        for (LocalDate d = startDate; !d.isAfter(today); d = d.plusDays(1)) {
-            dates.add(d);
         }
 
         // For each pair, compute daily average strength
@@ -255,7 +258,7 @@ public class StatsFragment extends Fragment {
             pairDailyValues.add(dailyAvgs);
         }
 
-        binding.emotionChart.setData(labels, pairNames, pairDailyValues);
+        binding.emotionChart.setData(emotionLabels, pairNames, pairDailyValues);
     }
 
     private void updateCorrelations() {

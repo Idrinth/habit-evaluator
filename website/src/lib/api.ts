@@ -345,7 +345,6 @@ export interface EmotionPairSeries {
 
 export interface EmotionGraphData {
 	labels: string[];
-	period: string;
 	pairs: EmotionPairSeries[];
 }
 
@@ -353,8 +352,8 @@ export const emotions = {
 	pairs() {
 		return request<EmotionPairInfo[]>('/emotions/pairs');
 	},
-	graph(period: 'week' | 'month') {
-		return request<EmotionGraphData>(`/emotions/graph?period=${period}`);
+	graph() {
+		return request<EmotionGraphData>('/emotions/graph');
 	}
 };
 
