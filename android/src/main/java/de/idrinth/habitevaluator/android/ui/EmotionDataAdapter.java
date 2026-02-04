@@ -15,6 +15,7 @@ import java.util.List;
 import de.idrinth.habitevaluator.android.R;
 import de.idrinth.habitevaluator.shared.model.EmotionEntry;
 import de.idrinth.habitevaluator.shared.model.EmotionPair;
+import de.idrinth.habitevaluator.shared.model.EmotionStrengthFormatter;
 
 public class EmotionDataAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
@@ -88,7 +89,7 @@ public class EmotionDataAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             EntryViewHolder entryHolder = (EntryViewHolder) holder;
             EmotionEntry entry = (EmotionEntry) item;
             entryHolder.dateText.setText(entry.getRecordedAt().format(DATE_FORMAT));
-            entryHolder.strengthText.setText(String.valueOf(entry.getStrength()));
+            entryHolder.strengthText.setText(EmotionStrengthFormatter.format(entry.getStrength(), entry.getEmotionPair()));
             String notes = entry.getNotes();
             entryHolder.notesText.setText(notes != null ? notes : "");
             entryHolder.deleteButton.setOnClickListener(v -> {

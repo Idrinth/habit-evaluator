@@ -125,7 +125,7 @@ public class EmotionLineChartView extends View {
                 gridPaint.setAlpha(40);
                 canvas.drawLine(chartLeft, gridY, chartRight, gridY, gridPaint);
             }
-            canvas.drawText(String.valueOf(val), chartLeft - 6, gridY + 6, textPaint);
+            canvas.drawText(Math.abs(val) * 10 + "%", chartLeft - 6, gridY + 6, textPaint);
         }
 
         int count = labels.size();

@@ -17,11 +17,13 @@ import java.util.List;
 import de.idrinth.habitevaluator.android.databinding.FragmentRecordEmotionEntryBinding;
 import de.idrinth.habitevaluator.shared.model.EmotionEntry;
 import de.idrinth.habitevaluator.shared.model.EmotionPair;
+import de.idrinth.habitevaluator.shared.model.EmotionStrengthFormatter;
 import de.idrinth.habitevaluator.shared.repository.EmotionEntryRepository;
 
 public class RecordEmotionEntryFragment extends Fragment {
 
     private FragmentRecordEmotionEntryBinding binding;
+    private EmotionPair currentPair;
 
     @Nullable
     @Override
@@ -39,7 +41,7 @@ public class RecordEmotionEntryFragment extends Fragment {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 int strength = progress - 10;
-                binding.strengthValueLabel.setText(String.valueOf(strength));
+                binding.strengthValueLabel.setText(EmotionStrengthFormatter.format(strength, currentPair));
             }
 
             @Override
@@ -76,11 +78,12 @@ public class RecordEmotionEntryFragment extends Fragment {
         if (selectedPair == null) {
             return;
         }
+        currentPair = selectedPair;
         binding.emotionPairLabel.setText(selectedPair.toString());
         binding.negativeEndLabel.setText(selectedPair.getNegativeLabel());
         binding.positiveEndLabel.setText(selectedPair.getPositiveLabel());
         binding.strengthSeekBar.setProgress(10);
-        binding.strengthValueLabel.setText("0");
+        binding.strengthValueLabel.setText("0%");
         binding.notesInput.setText("");
     }
 

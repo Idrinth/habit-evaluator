@@ -28,6 +28,7 @@ import java.util.TreeMap;
 import de.idrinth.habitevaluator.android.databinding.ActivityPdfExportBinding;
 import de.idrinth.habitevaluator.shared.model.DiaryEntry;
 import de.idrinth.habitevaluator.shared.model.EmotionEntry;
+import de.idrinth.habitevaluator.shared.model.EmotionStrengthFormatter;
 import de.idrinth.habitevaluator.shared.model.EventCorrelation;
 import de.idrinth.habitevaluator.shared.model.Habit;
 import de.idrinth.habitevaluator.shared.model.SleepEntry;
@@ -630,7 +631,7 @@ public class PdfExportActivity extends AppCompatActivity {
             }
             String pairText = entry.getEmotionPair() != null ? entry.getEmotionPair().toString() : "";
             String line = entry.getRecordedAt().format(dtFmt) + "  " + pairText
-                    + " [" + entry.getStrength() + "]";
+                    + " [" + EmotionStrengthFormatter.format(entry.getStrength(), entry.getEmotionPair()) + "]";
             if (entry.getNotes() != null && !entry.getNotes().isEmpty()) {
                 line += " — " + entry.getNotes();
             }

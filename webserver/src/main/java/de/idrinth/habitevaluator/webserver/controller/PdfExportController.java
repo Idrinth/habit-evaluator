@@ -15,6 +15,7 @@ import com.lowagie.text.pdf.PdfPTable;
 import com.lowagie.text.pdf.PdfWriter;
 import de.idrinth.habitevaluator.shared.model.DiaryEntry;
 import de.idrinth.habitevaluator.shared.model.EmotionEntry;
+import de.idrinth.habitevaluator.shared.model.EmotionStrengthFormatter;
 import de.idrinth.habitevaluator.shared.model.EventCorrelation;
 import de.idrinth.habitevaluator.shared.model.Habit;
 import de.idrinth.habitevaluator.shared.model.SleepEntry;
@@ -542,7 +543,7 @@ public class PdfExportController {
             addTableCell(table, entry.getRecordedAt().format(dtFmt));
             String pairText = entry.getEmotionPair() != null ? entry.getEmotionPair().toString() : "";
             addTableCell(table, pairText);
-            addTableCell(table, String.valueOf(entry.getStrength()));
+            addTableCell(table, EmotionStrengthFormatter.format(entry.getStrength(), entry.getEmotionPair()));
             String notes = entry.getNotes();
             if (notes != null && notes.length() > 50) {
                 notes = notes.substring(0, 47) + "...";
