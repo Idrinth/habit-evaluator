@@ -34,12 +34,12 @@
 			<a href="/features">Features</a>
 			<a href="/docs">Setup Guide</a>
 			<a href="/docs/api">API Reference</a>
-			<a href="/imprint">Project legal</a>
 			<select class="theme-select" value={themeMode} onchange={handleThemeChange}>
 				<option value="system">System</option>
 				<option value="light">Light</option>
 				<option value="dark">Dark</option>
 			</select>
+			<a href="/imprint" class="imprint-link" title="Project legal">i</a>
 		</div>
 	</div>
 </nav>
@@ -112,6 +112,27 @@
 	.theme-select option {
 		background: var(--color-bg);
 		color: var(--color-text);
+	}
+	.imprint-link {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		width: 22px;
+		height: 22px;
+		border-radius: 50%;
+		border: 1.5px solid var(--color-text-muted);
+		color: var(--color-text-muted);
+		font-size: 0.8rem;
+		font-weight: bold;
+		font-style: italic;
+		font-family: serif;
+		text-decoration: none;
+		line-height: 1;
+	}
+	.imprint-link:hover {
+		background: var(--color-text-muted);
+		color: var(--color-bg);
+		text-decoration: none;
 	}
 	main {
 		max-width: var(--max-width);
