@@ -49,6 +49,32 @@
 
     <Separator/>
 
+    <Label text="Third-Party Libraries" style="-fx-font-weight: bold; -fx-font-size: 14px;"/>
+    <VBox spacing="4">
+        <Label text="• GSON 2.10.1 - Apache-2.0" wrapText="true"/>
+        <Hyperlink text="License" accessibleText="https://github.com/google/gson/blob/main/LICENSE" onAction="#handleLicenseLink"/>
+        <Label text="• SLF4J 2.0.11 - MIT" wrapText="true"/>
+        <Hyperlink text="License" accessibleText="https://github.com/qos-ch/slf4j/blob/master/LICENSE.txt" onAction="#handleLicenseLink"/>
+        <Label text="• SnakeYAML 2.2 - Apache-2.0" wrapText="true"/>
+        <Hyperlink text="License" accessibleText="https://bitbucket.org/snakeyaml/snakeyaml/src/master/LICENSE.txt" onAction="#handleLicenseLink"/>
+        <Label text="• Jakarta Persistence API 3.1.0 - EPL-2.0" wrapText="true"/>
+        <Hyperlink text="License" accessibleText="https://github.com/jakartaee/persistence/blob/master/LICENSE.md" onAction="#handleLicenseLink"/>
+        <Label text="• Jackson Annotations 2.16.1 - Apache-2.0" wrapText="true"/>
+        <Hyperlink text="License" accessibleText="https://github.com/FasterXML/jackson-annotations/blob/master/LICENSE" onAction="#handleLicenseLink"/>
+        <Label text="• JavaFX 21.0.2 - GPL-2.0 with Classpath Exception" wrapText="true"/>
+        <Hyperlink text="License" accessibleText="https://github.com/openjdk/jfx/blob/master/LICENSE" onAction="#handleLicenseLink"/>
+        <Label text="• Logback 1.4.14 - EPL-1.0 / LGPL-2.1" wrapText="true"/>
+        <Hyperlink text="License" accessibleText="https://github.com/qos-ch/logback/blob/master/LICENSE.txt" onAction="#handleLicenseLink"/>
+        <Label text="• H2 Database 2.2.224 - EPL-1.0 / MPL-2.0" wrapText="true"/>
+        <Hyperlink text="License" accessibleText="https://github.com/h2database/h2database/blob/master/LICENSE.txt" onAction="#handleLicenseLink"/>
+        <Label text="• Hibernate ORM 6.4.2.Final - LGPL-2.1" wrapText="true"/>
+        <Hyperlink text="License" accessibleText="https://github.com/hibernate/hibernate-orm/blob/main/LICENSE.txt" onAction="#handleLicenseLink"/>
+        <Label text="• OpenPDF 1.3.35 - LGPL-2.1 / MPL-2.0" wrapText="true"/>
+        <Hyperlink text="License" accessibleText="https://github.com/LibrePDF/OpenPDF/blob/master/LICENSE.md" onAction="#handleLicenseLink"/>
+    </VBox>
+
+    <Separator/>
+
     <HBox alignment="CENTER_RIGHT">
         <Button text="Close" onAction="#handleClose"/>
     </HBox>

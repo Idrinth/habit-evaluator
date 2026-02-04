@@ -223,4 +223,5 @@
     <string name="imprint_not_professional_help">\u2022 Esta aplicación es una herramienta de autoseguimiento y no reemplaza la ayuda profesional médica o psicológica. Si necesita apoyo, consulte a un profesional cualificado.</string>
     <string name="imprint_no_data_sharing">\u2022 Por defecto, todos sus datos permanecen en su dispositivo y no se comparten con nadie. Opcionalmente, puede configurar almacenamiento remoto en los ajustes.</string>
     <string name="imprint_variant_disclaimer">\u2022 Los autores de este proyecto no son responsables de las modificaciones realizadas por variantes de terceros ni de las acciones de los proveedores de servicios web.</string>
+    <string name="imprint_libraries">Bibliotecas de terceros</string>
 </resources>

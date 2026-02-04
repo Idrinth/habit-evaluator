@@ -223,4 +223,5 @@
     <string name="imprint_not_professional_help">\u2022 Diese App ist ein Selbstbeobachtungswerkzeug und ersetzt keine professionelle medizinische oder psychologische Hilfe. Wenn Sie Unterstützung brauchen, wenden Sie sich bitte an eine qualifizierte Fachperson.</string>
     <string name="imprint_no_data_sharing">\u2022 Standardmäßig bleiben alle Ihre Daten auf Ihrem Gerät und werden mit niemandem geteilt. Sie können optional einen Remote-Speicher in den Einstellungen konfigurieren.</string>
     <string name="imprint_variant_disclaimer">\u2022 Die Autoren dieses Projekts übernehmen keine Verantwortung für Änderungen durch Drittvarianten oder das Handeln von Webservice-Hostern.</string>
+    <string name="imprint_libraries">Drittanbieter-Bibliotheken</string>
 </resources>
