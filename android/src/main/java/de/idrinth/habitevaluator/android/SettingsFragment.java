@@ -105,11 +105,6 @@ public class SettingsFragment extends Fragment {
 
         binding.testConnectionButton.setOnClickListener(v -> testConnection());
         binding.saveSettingsButton.setOnClickListener(v -> saveSettings());
-        binding.imprintButton.setOnClickListener(v -> {
-            if (getActivity() instanceof MainActivity) {
-                ((MainActivity) getActivity()).navigateToImprint();
-            }
-        });
     }
 
     private void testConnection() {

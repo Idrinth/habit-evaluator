@@ -293,12 +293,5 @@
             android:layout_marginTop="24dp"
             android:text="@string/save_settings" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/imprintButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-            android:text="@string/imprint_title" />
     </LinearLayout>
 </ScrollView>
