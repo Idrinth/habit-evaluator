@@ -190,6 +190,7 @@ public class MainActivity extends AppCompatActivity {
         setupViewPager();
         setupBottomNavigation();
         setupSettingsButton();
+        setupImprintButton();
         performDailyBackupIfEnabled();
         showFirstStartDialogIfNeeded();
     }
@@ -281,6 +282,13 @@ public class MainActivity extends AppCompatActivity {
                             binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_HOME, false);
                         }
                         break;
+                    case ScreenPagerAdapter.PAGE_IMPRINT:
+                        if (isProgrammaticNavigation) {
+                            isProgrammaticNavigation = false;
+                        } else {
+                            binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_HOME, false);
+                        }
+                        break;
                     case ScreenPagerAdapter.PAGE_HOME:
                         binding.bottomNavigation.setSelectedItemId(R.id.nav_home);
                         break;
@@ -331,6 +339,13 @@ public class MainActivity extends AppCompatActivity {
         binding.settingsButton.setOnClickListener(v -> {
             isProgrammaticNavigation = true;
             binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_SETTINGS, true);
+        });
+    }
+
+    private void setupImprintButton() {
+        binding.imprintButton.setOnClickListener(v -> {
+            isProgrammaticNavigation = true;
+            binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_IMPRINT, true);
         });
     }
 

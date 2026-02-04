@@ -20,7 +20,7 @@
             <Button text="Sync" onAction="#handleSync"/>
             <Button text="Export PDF" onAction="#handleExportPdf"/>
             <Button text="Settings" onAction="#handleOpenSettings"/>
-            <Button text="Project legal" onAction="#handleOpenImprint"/>
+            <Button text="i" onAction="#handleOpenImprint" style="-fx-font-family: serif; -fx-font-style: italic; -fx-font-weight: bold; -fx-font-size: 13px; -fx-min-width: 28; -fx-max-width: 28; -fx-min-height: 28; -fx-max-height: 28; -fx-padding: 0; -fx-background-radius: 14;"/>
         </HBox>
     </top>
 

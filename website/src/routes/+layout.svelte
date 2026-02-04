@@ -76,7 +76,6 @@
 		<a href="/emotions/graph">{t('nav.emotions', lang)}</a>
 		<a href="/stats">{t('nav.stats', lang)}</a>
 		<a href="/export/pdf">{t('nav.exportPdf', lang)}</a>
-		<a href="/imprint">{t('nav.imprint', lang)}</a>
 		<span style="margin-left: auto; color: var(--color-nav-text);">{data.username}</span>
 		<label class="translations-toggle">
 			<input type="checkbox" checked={customTranslations} onchange={handleTranslationsToggle} />
@@ -92,6 +91,7 @@
 			<option value="light">Light</option>
 			<option value="dark">Dark</option>
 		</select>
+		<a href="/imprint" class="imprint-link" title={t('nav.imprint', lang)}>i</a>
 		<button onclick={handleLogout} style="padding: 0.25rem 0.5rem; font-size: 0.85rem;"
 			>{t('nav.logout', lang)}</button
 		>
@@ -127,5 +127,25 @@
 	.translations-toggle input {
 		width: 14px;
 		height: 14px;
+	}
+	.imprint-link {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		width: 22px;
+		height: 22px;
+		border-radius: 50%;
+		border: 1.5px solid var(--color-nav-text);
+		color: var(--color-nav-text);
+		font-size: 0.8rem;
+		font-weight: bold;
+		font-style: italic;
+		font-family: serif;
+		text-decoration: none;
+		line-height: 1;
+	}
+	.imprint-link:hover {
+		background: var(--color-nav-text);
+		color: var(--color-bg);
 	}
 </style>
