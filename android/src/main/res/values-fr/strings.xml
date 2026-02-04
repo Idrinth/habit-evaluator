@@ -191,6 +191,10 @@
     <string name="delete_emotion_entry">Supprimer l\'entrée d\'émotion</string>
     <string name="delete_emotion_entry_confirmation">Supprimer cette entrée d\'émotion ? Cette action est irréversible.</string>
     <string name="emotion_entry_deleted">Entrée d\'émotion supprimée</string>
+    <string name="add_emotion_entry">Ajouter une entrée d\'émotion</string>
+    <string name="expand_emotion_entries">Afficher les entrées</string>
+    <string name="collapse_emotion_entries">Masquer les entrées</string>
+    <string name="no_entries_yet">Aucune entrée pour le moment</string>
     <string name="pdf_include_emotions">Mesures d\'émotions et graphique</string>
     <string name="pdf_section_emotions">Émotions</string>
     <string name="pdf_emotion_entries">Entrées d\'émotions</string>

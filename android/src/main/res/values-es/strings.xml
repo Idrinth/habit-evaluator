@@ -191,6 +191,10 @@
     <string name="delete_emotion_entry">Eliminar entrada de emoción</string>
     <string name="delete_emotion_entry_confirmation">¿Eliminar esta entrada de emoción? Esto no se puede deshacer.</string>
     <string name="emotion_entry_deleted">Entrada de emoción eliminada</string>
+    <string name="add_emotion_entry">Agregar entrada de emoción</string>
+    <string name="expand_emotion_entries">Mostrar entradas</string>
+    <string name="collapse_emotion_entries">Ocultar entradas</string>
+    <string name="no_entries_yet">Sin entradas aún</string>
     <string name="pdf_include_emotions">Mediciones de emociones y gráfico</string>
     <string name="pdf_section_emotions">Emociones</string>
     <string name="pdf_emotion_entries">Entradas de emociones</string>
