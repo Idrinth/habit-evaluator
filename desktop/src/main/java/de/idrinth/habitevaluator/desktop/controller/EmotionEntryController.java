@@ -2,6 +2,7 @@ package de.idrinth.habitevaluator.desktop.controller;
 
 import de.idrinth.habitevaluator.shared.model.EmotionEntry;
 import de.idrinth.habitevaluator.shared.model.EmotionPair;
+import de.idrinth.habitevaluator.shared.model.EmotionStrengthFormatter;
 import de.idrinth.habitevaluator.shared.model.User;
 import de.idrinth.habitevaluator.shared.repository.EmotionEntryRepository;
 import de.idrinth.habitevaluator.shared.repository.EmotionPairRepository;
@@ -89,7 +90,8 @@ public class EmotionEntryController {
 
         strengthSlider.valueProperty().addListener((obs, oldVal, newVal) -> {
             int val = newVal.intValue();
-            strengthLabel.setText(String.valueOf(val));
+            EmotionPair selected = emotionPairComboBox.getSelectionModel().getSelectedItem();
+            strengthLabel.setText(EmotionStrengthFormatter.format(val, selected));
         });
 
         emotionPairComboBox.setCellFactory(param -> new ListCell<>() {
@@ -203,9 +205,9 @@ public class EmotionEntryController {
             pairLabel.setStyle("-fx-font-size: 11px;");
             pairLabel.setPrefWidth(140);
 
-            Label strengthLbl = new Label(String.valueOf(entry.getStrength()));
+            Label strengthLbl = new Label(EmotionStrengthFormatter.format(entry.getStrength(), entry.getEmotionPair()));
             strengthLbl.setStyle("-fx-font-size: 12px; -fx-font-weight: bold;");
-            strengthLbl.setPrefWidth(35);
+            strengthLbl.setPrefWidth(120);
 
             Label notesLabel = new Label(entry.getNotes() != null ? entry.getNotes() : "");
             notesLabel.setStyle("-fx-font-size: 11px;");

@@ -44,6 +44,13 @@
 	function pairColor(index: number): string {
 		return PAIR_COLORS[index % PAIR_COLORS.length];
 	}
+
+	function formatStrength(value: number, negativeLabel: string, positiveLabel: string): string {
+		const percentage = Math.round(Math.abs(value) * 10);
+		if (value === 0) return '0%';
+		if (value < 0) return `${percentage}% ${negativeLabel}`;
+		return `${percentage}% ${positiveLabel}`;
+	}
 </script>
 
 <div class="emotions-graph-container">
@@ -90,7 +97,7 @@
 					</h2>
 					<div class="chart-stats">
 						<span class="stat">
-							{t('emotions.avg', lang)}: <strong>{pair.overallAverage.toFixed(2)}</strong>
+							{t('emotions.avg', lang)}: <strong>{formatStrength(pair.overallAverage, pair.negativeLabel, pair.positiveLabel)}</strong>
 						</span>
 						<span class="stat">
 							{t('emotions.entries', lang)}: <strong>{pair.totalEntries}</strong>
@@ -119,7 +126,7 @@
 								font-size="8"
 								fill="var(--color-text-muted)"
 							>
-								{tick > 0 ? '+' : ''}{tick}
+								{Math.abs(tick) * 10}%
 							</text>
 						{/each}
 
@@ -137,7 +144,7 @@
 									opacity="0.85"
 									rx="2"
 								>
-									<title>{data.labels[i]}: {value.toFixed(2)}</title>
+									<title>{data.labels[i]}: {formatStrength(value, pair.negativeLabel, pair.positiveLabel)}</title>
 								</rect>
 							{:else}
 								<rect
@@ -149,7 +156,7 @@
 									opacity="0.5"
 									rx="2"
 								>
-									<title>{data.labels[i]}: {value.toFixed(2)}</title>
+									<title>{data.labels[i]}: {formatStrength(value, pair.negativeLabel, pair.positiveLabel)}</title>
 								</rect>
 							{/if}
 						{/each}
@@ -174,7 +181,7 @@
 								fill="#E91E63"
 								font-weight="600"
 							>
-								avg: {pair.overallAverage.toFixed(2)}
+								avg: {formatStrength(pair.overallAverage, pair.negativeLabel, pair.positiveLabel)}
 							</text>
 						{/if}
 

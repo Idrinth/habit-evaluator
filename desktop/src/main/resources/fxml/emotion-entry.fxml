@@ -29,7 +29,7 @@
                     majorTickUnit="5" minorTickCount="4" showTickLabels="true" showTickMarks="true"
                     snapToTicks="true" HBox.hgrow="ALWAYS"/>
             <Label fx:id="positiveEndLabel" text="+10" style="-fx-font-size: 11px; -fx-text-fill: #888;"/>
-            <Label fx:id="strengthLabel" text="0" style="-fx-font-size: 14px; -fx-font-weight: bold;" prefWidth="30"/>
+            <Label fx:id="strengthLabel" text="0%" style="-fx-font-size: 14px; -fx-font-weight: bold;" prefWidth="150"/>
         </HBox>
     </VBox>
 
