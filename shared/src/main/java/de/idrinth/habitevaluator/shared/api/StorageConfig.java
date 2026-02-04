@@ -42,6 +42,7 @@ public class StorageConfig {
     private String apiPassword;
     private boolean backupEnabled;
     private String backupPassword;
+    private boolean firstStartCompleted;
 
     private final File configFile;
 
@@ -82,6 +83,8 @@ public class StorageConfig {
             backupEnabled = Boolean.parseBoolean(
                     props.getProperty("backup.enabled", "false"));
             backupPassword = props.getProperty("backup.password", "");
+            firstStartCompleted = Boolean.parseBoolean(
+                    props.getProperty("first.start.completed", "false"));
         } catch (IOException e) {
             logger.warn("Failed to load storage config, using defaults", e);
         } catch (IllegalArgumentException e) {
@@ -108,6 +111,7 @@ public class StorageConfig {
         props.setProperty("api.password", apiPassword != null ? apiPassword : "");
         props.setProperty("backup.enabled", String.valueOf(backupEnabled));
         props.setProperty("backup.password", backupPassword != null ? backupPassword : "");
+        props.setProperty("first.start.completed", String.valueOf(firstStartCompleted));
         try (FileOutputStream fos = new FileOutputStream(configFile)) {
             props.store(fos, "Habit Evaluator Storage Configuration");
         } catch (IOException e) {
@@ -189,6 +193,14 @@ public class StorageConfig {
 
     public void setBackupPassword(String backupPassword) {
         this.backupPassword = backupPassword;
+    }
+
+    public boolean isFirstStartCompleted() {
+        return firstStartCompleted;
+    }
+
+    public void setFirstStartCompleted(boolean firstStartCompleted) {
+        this.firstStartCompleted = firstStartCompleted;
     }
 
     private static final List<String> SUPPORTED_LANGUAGES = Arrays.asList("en", "de", "es", "fr");

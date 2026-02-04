@@ -1,6 +1,7 @@
 package de.idrinth.habitevaluator.android;
 
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.widget.Toast;
@@ -190,6 +191,23 @@ public class MainActivity extends AppCompatActivity {
         setupBottomNavigation();
         setupSettingsButton();
         performDailyBackupIfEnabled();
+        showFirstStartDialogIfNeeded();
+    }
+
+    private void showFirstStartDialogIfNeeded() {
+        SharedPreferences prefs = getSharedPreferences(SettingsActivity.PREFS_NAME, MODE_PRIVATE);
+        if (prefs.getBoolean(SettingsActivity.KEY_FIRST_START_COMPLETED, false)) {
+            return;
+        }
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.first_start_title)
+                .setMessage(getString(R.string.first_start_not_professional_help)
+                        + "\n\n"
+                        + getString(R.string.first_start_no_data_sharing))
+                .setPositiveButton(R.string.first_start_acknowledge, (dialog, which) ->
+                        prefs.edit().putBoolean(SettingsActivity.KEY_FIRST_START_COMPLETED, true).apply())
+                .setCancelable(false)
+                .show();
     }
 
     public void navigateToEditHabit(String habitId) {

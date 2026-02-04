@@ -59,7 +59,11 @@ const translations: Record<Language, Record<string, string>> = {
 		'eval.predictedScore': 'Predicted',
 		'eval.points': 'pts',
 		'eval.avoidanceRate': 'Avoidance rate',
-		'eval.avoidanceStreak': 'Avoidance streak'
+		'eval.avoidanceStreak': 'Avoidance streak',
+		'firstStart.title': 'Welcome to Habit Evaluator',
+		'firstStart.notProfessionalHelp': 'This app is a self-tracking tool and does not replace professional medical or psychological help. If you are struggling, please reach out to a qualified professional.',
+		'firstStart.noDataSharing': 'By default, all your data stays on your device and is not shared with anyone. You can optionally configure remote storage in the settings.',
+		'firstStart.acknowledge': 'I understand'
 	},
 	de: {
 		'nav.home': 'Start',
@@ -112,7 +116,11 @@ const translations: Record<Language, Record<string, string>> = {
 		'eval.predictedScore': 'Voraussichtlich',
 		'eval.points': 'Pkt',
 		'eval.avoidanceRate': 'Vermeidungsrate',
-		'eval.avoidanceStreak': 'Vermeidungsserie'
+		'eval.avoidanceStreak': 'Vermeidungsserie',
+		'firstStart.title': 'Willkommen bei Habit Evaluator',
+		'firstStart.notProfessionalHelp': 'Diese App ist ein Selbstbeobachtungswerkzeug und ersetzt keine professionelle medizinische oder psychologische Hilfe. Wenn Sie Unterstützung brauchen, wenden Sie sich bitte an eine qualifizierte Fachperson.',
+		'firstStart.noDataSharing': 'Standardmäßig bleiben alle Ihre Daten auf Ihrem Gerät und werden mit niemandem geteilt. Sie können optional einen Remote-Speicher in den Einstellungen konfigurieren.',
+		'firstStart.acknowledge': 'Ich verstehe'
 	},
 	es: {
 		'nav.home': 'Inicio',
@@ -165,7 +173,11 @@ const translations: Record<Language, Record<string, string>> = {
 		'eval.predictedScore': 'Previsto',
 		'eval.points': 'pts',
 		'eval.avoidanceRate': 'Tasa de evitación',
-		'eval.avoidanceStreak': 'Racha de evitación'
+		'eval.avoidanceStreak': 'Racha de evitación',
+		'firstStart.title': 'Bienvenido a Habit Evaluator',
+		'firstStart.notProfessionalHelp': 'Esta aplicación es una herramienta de autoseguimiento y no reemplaza la ayuda profesional médica o psicológica. Si necesita apoyo, consulte a un profesional cualificado.',
+		'firstStart.noDataSharing': 'Por defecto, todos sus datos permanecen en su dispositivo y no se comparten con nadie. Opcionalmente, puede configurar almacenamiento remoto en los ajustes.',
+		'firstStart.acknowledge': 'Entendido'
 	},
 	fr: {
 		'nav.home': 'Accueil',
@@ -218,7 +230,11 @@ const translations: Record<Language, Record<string, string>> = {
 		'eval.predictedScore': 'Prévu',
 		'eval.points': 'pts',
 		'eval.avoidanceRate': "Taux d'évitement",
-		'eval.avoidanceStreak': "Série d'évitement"
+		'eval.avoidanceStreak': "Série d'évitement",
+		'firstStart.title': 'Bienvenue sur Habit Evaluator',
+		'firstStart.notProfessionalHelp': "Cette application est un outil de suivi personnel et ne remplace pas une aide médicale ou psychologique professionnelle. Si vous avez besoin de soutien, veuillez consulter un professionnel qualifié.",
+		'firstStart.noDataSharing': "Par défaut, toutes vos données restent sur votre appareil et ne sont partagées avec personne. Vous pouvez éventuellement configurer un stockage distant dans les paramètres.",
+		'firstStart.acknowledge': 'Je comprends'
 	}
 };
 

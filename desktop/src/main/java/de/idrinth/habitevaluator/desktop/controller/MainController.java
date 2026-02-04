@@ -241,6 +241,27 @@ public class MainController {
         loadDiaryEntries();
 
         performDailyBackupIfEnabled();
+        showFirstStartDialogIfNeeded();
+    }
+
+    private void showFirstStartDialogIfNeeded() {
+        if (storageConfig.isFirstStartCompleted()) {
+            return;
+        }
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Welcome to Habit Evaluator");
+        alert.setHeaderText("Welcome to Habit Evaluator");
+        alert.setContentText(
+                "This app is a self-tracking tool and does not replace professional medical "
+                + "or psychological help. If you are struggling, please reach out to a qualified professional."
+                + "\n\n"
+                + "By default, all your data stays on your device and is not shared with anyone. "
+                + "You can optionally configure remote storage in the settings.");
+        ButtonType acknowledgeButton = new ButtonType("I understand", ButtonBar.ButtonData.OK_DONE);
+        alert.getButtonTypes().setAll(acknowledgeButton);
+        alert.showAndWait();
+        storageConfig.setFirstStartCompleted(true);
+        storageConfig.save();
     }
 
     private void performDailyBackupIfEnabled() {
