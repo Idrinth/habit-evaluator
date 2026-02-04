@@ -28,6 +28,8 @@
     <string name="connection_success">Connexion réussie</string>
     <string name="auth_failed">Échec de l\'authentification</string>
     <string name="connection_failed">Échec de la connexion : %s</string>
+    <string name="https_required">L\'URL du serveur distant doit utiliser HTTPS. Seul localhost est autorisé en HTTP non chiffré.</string>
+    <string name="remote_privacy_warning">Lors de l\'utilisation d\'un serveur distant, la politique de protection des données et de confidentialité du propriétaire du serveur s\'applique à vos données. Assurez-vous de faire confiance à l\'opérateur du serveur.</string>
     <string name="storage_mode_local">Stockage : Local</string>
     <string name="storage_mode_remote">Stockage : API distante</string>
     <string name="load_defaults">Charger les valeurs par défaut</string>

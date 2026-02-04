@@ -28,6 +28,8 @@
     <string name="connection_success">Conexión exitosa</string>
     <string name="auth_failed">Autenticación fallida</string>
     <string name="connection_failed">Conexión fallida: %s</string>
+    <string name="https_required">La URL del servidor remoto debe usar HTTPS. Solo se permite localhost sobre HTTP sin cifrar.</string>
+    <string name="remote_privacy_warning">Al usar un servidor remoto, la política de protección de datos y privacidad del propietario del servidor se aplica a sus datos. Asegúrese de confiar en el operador del servidor.</string>
     <string name="storage_mode_local">Almacenamiento: Local</string>
     <string name="storage_mode_remote">Almacenamiento: API remota</string>
     <string name="load_defaults">Cargar valores predeterminados</string>

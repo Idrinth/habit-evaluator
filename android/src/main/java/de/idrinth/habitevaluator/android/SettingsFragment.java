@@ -125,6 +125,12 @@ public class SettingsFragment extends Fragment {
             return;
         }
 
+        if (!StorageConfig.isUrlSecure(url)) {
+            binding.connectionStatusText.setText(R.string.https_required);
+            binding.connectionStatusText.setTextColor(requireContext().getColor(android.R.color.holo_red_dark));
+            return;
+        }
+
         binding.connectionStatusText.setText(R.string.testing_connection);
         binding.connectionStatusText.setTextColor(requireContext().getColor(R.color.text_secondary));
 
@@ -164,6 +170,10 @@ public class SettingsFragment extends Fragment {
         if (binding.remoteRadio.isChecked()) {
             if (url.isEmpty() || username.isEmpty() || password.isEmpty()) {
                 Toast.makeText(requireContext(), R.string.fill_all_fields, Toast.LENGTH_SHORT).show();
+                return;
+            }
+            if (!StorageConfig.isUrlSecure(url)) {
+                Toast.makeText(requireContext(), R.string.https_required, Toast.LENGTH_LONG).show();
                 return;
             }
             editor.putString(SettingsActivity.KEY_STORAGE_MODE, SettingsActivity.MODE_REMOTE);

@@ -45,6 +45,10 @@ public class ApiClient {
     }
 
     ApiClient(String baseUrl, CircuitBreaker circuitBreaker) {
+        if (!StorageConfig.isUrlSecure(baseUrl)) {
+            throw new IllegalArgumentException(
+                    "Remote server URL must use HTTPS. Only localhost is allowed over plain HTTP.");
+        }
         this.circuitBreaker = circuitBreaker;
         this.baseUrl = baseUrl.endsWith("/") ? baseUrl.substring(0, baseUrl.length() - 1) : baseUrl;
         this.gson = new GsonBuilder()

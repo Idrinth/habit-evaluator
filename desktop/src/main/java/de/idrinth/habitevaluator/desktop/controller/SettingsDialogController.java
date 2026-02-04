@@ -183,6 +183,12 @@ public class SettingsDialogController {
             return;
         }
 
+        if (!StorageConfig.isUrlSecure(url)) {
+            connectionStatusLabel.setText("Remote server URL must use HTTPS. Only localhost is allowed over plain HTTP.");
+            connectionStatusLabel.setStyle("-fx-text-fill: red;");
+            return;
+        }
+
         connectionStatusLabel.setText("Testing connection...");
         connectionStatusLabel.setStyle("-fx-text-fill: grey;");
 
@@ -214,6 +220,14 @@ public class SettingsDialogController {
                 alert.setTitle("Incomplete Settings");
                 alert.setHeaderText(null);
                 alert.setContentText("Please fill in all remote API fields.");
+                alert.showAndWait();
+                return;
+            }
+            if (!StorageConfig.isUrlSecure(url)) {
+                Alert alert = new Alert(Alert.AlertType.WARNING);
+                alert.setTitle("HTTPS Required");
+                alert.setHeaderText(null);
+                alert.setContentText("Remote server URL must use HTTPS. Only localhost is allowed over plain HTTP.");
                 alert.showAndWait();
                 return;
             }

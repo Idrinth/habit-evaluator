@@ -21,7 +21,30 @@ public class StorageConfig {
 
     private static final Logger logger = LoggerFactory.getLogger(StorageConfig.class);
 
-    public static final String DEFAULT_API_BASE_URL = "http://localhost:8080";
+    public static final String DEFAULT_API_BASE_URL = "https://localhost:8080";
+
+    /**
+     * Checks whether the given URL is acceptable for remote connections.
+     * Remote servers must use HTTPS. Only localhost URLs are allowed over plain HTTP.
+     *
+     * @param url the URL to validate
+     * @return true if the URL uses HTTPS or targets localhost over HTTP
+     */
+    public static boolean isUrlSecure(String url) {
+        if (url == null || url.isEmpty()) {
+            return false;
+        }
+        String lower = url.toLowerCase(Locale.ROOT);
+        if (lower.startsWith("https://")) {
+            return true;
+        }
+        if (lower.startsWith("http://")) {
+            String hostPart = lower.substring("http://".length());
+            return hostPart.startsWith("localhost") || hostPart.startsWith("127.0.0.1")
+                    || hostPart.startsWith("[::1]");
+        }
+        return false;
+    }
 
     public enum StorageMode {
         LOCAL, REMOTE
