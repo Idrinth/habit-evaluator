@@ -28,13 +28,13 @@ jobs:
         run: echo "VERSION=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
 
       - name: Build webserver and desktop JARs
-        run: ./gradlew :webserver:bootJar :desktop:jar -PreleaseVersion=${{ steps.version.outputs.VERSION }}
+        run: ./gradlew :webserver:bootJar :desktop:jar "-PreleaseVersion=${{ steps.version.outputs.VERSION }}"
 
       - name: Install packaging tools
         run: sudo apt-get update && sudo apt-get install -y fakeroot
 
       - name: Build desktop .deb
-        run: ./gradlew :desktop:jpackageDeb -PreleaseVersion=${{ steps.version.outputs.VERSION }}
+        run: ./gradlew :desktop:jpackageDeb "-PreleaseVersion=${{ steps.version.outputs.VERSION }}"
 
       - name: Upload release assets
         uses: softprops/action-gh-release@v2
@@ -64,7 +64,7 @@ jobs:
         run: echo "VERSION=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
 
       - name: Build desktop .exe
-        run: ./gradlew :desktop:jpackageExe -PreleaseVersion=${{ steps.version.outputs.VERSION }}
+        run: ./gradlew :desktop:jpackageExe "-PreleaseVersion=${{ steps.version.outputs.VERSION }}"
 
       - name: Upload release assets
         uses: softprops/action-gh-release@v2
@@ -98,7 +98,7 @@ jobs:
           ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
           ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
           ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
-        run: ./gradlew :android:assembleRelease -PreleaseVersion=${{ steps.version.outputs.VERSION }}
+        run: ./gradlew :android:assembleRelease "-PreleaseVersion=${{ steps.version.outputs.VERSION }}"
 
       - name: Upload release assets
         uses: softprops/action-gh-release@v2
