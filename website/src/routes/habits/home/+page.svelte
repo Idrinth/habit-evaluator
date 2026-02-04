@@ -24,6 +24,7 @@
 	let loadingDefaults = $state(false);
 	let loadingEval = $state(false);
 	let actionInProgress: string | null = $state(null);
+	let showFirstStart = $state(false);
 
 	let filteredHabits: Habit[] = $derived.by(() => {
 		if (!selectedCategoryId) return habitList;
@@ -86,8 +87,20 @@
 		return getTodayEntryCount(habit) >= habit.maxEntriesPerDay;
 	}
 
+	function checkFirstStart() {
+		if (typeof localStorage !== 'undefined' && !localStorage.getItem('firstStartCompleted')) {
+			showFirstStart = true;
+		}
+	}
+
+	function acknowledgeFirstStart() {
+		localStorage.setItem('firstStartCompleted', 'true');
+		showFirstStart = false;
+	}
+
 	onMount(async () => {
 		lang = getLanguage();
+		checkFirstStart();
 		try {
 			const [h, c] = await Promise.all([habits.list(), categories.list()]);
 			habitList = h;
@@ -391,6 +404,19 @@
 	{/if}
 </div>
 
+{#if showFirstStart}
+	<div class="first-start-overlay">
+		<div class="first-start-modal">
+			<h2>{t('firstStart.title', lang)}</h2>
+			<p>{t('firstStart.notProfessionalHelp', lang)}</p>
+			<p>{t('firstStart.noDataSharing', lang)}</p>
+			<button class="first-start-btn" onclick={acknowledgeFirstStart}>
+				{t('firstStart.acknowledge', lang)}
+			</button>
+		</div>
+	</div>
+{/if}
+
 <style>
 	.home-container {
 		max-width: 600px;
@@ -647,5 +673,51 @@
 		font-size: 0.95rem;
 		font-weight: bold;
 		color: var(--color-text);
+	}
+
+	.first-start-overlay {
+		position: fixed;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		background: rgba(0, 0, 0, 0.6);
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		z-index: 1000;
+	}
+
+	.first-start-modal {
+		background: var(--color-bg, #fff);
+		border-radius: 8px;
+		padding: 2rem;
+		max-width: 500px;
+		width: 90%;
+		color: var(--color-text, #222);
+	}
+
+	.first-start-modal h2 {
+		margin: 0 0 1rem 0;
+	}
+
+	.first-start-modal p {
+		margin: 0 0 1rem 0;
+		line-height: 1.5;
+	}
+
+	.first-start-btn {
+		padding: 0.6rem 1.2rem;
+		font-size: 1rem;
+		border: none;
+		border-radius: 4px;
+		background-color: var(--color-primary, #4a90d9);
+		color: #fff;
+		cursor: pointer;
+		width: 100%;
+	}
+
+	.first-start-btn:hover {
+		opacity: 0.9;
 	}
 </style>

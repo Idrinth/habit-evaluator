@@ -101,6 +101,12 @@ settings:
   custom_translations: "Traductions personnalisées"
   custom_translations_label: "Activer les traductions personnalisées des habitudes"
 
+first_start:
+  title: "Bienvenue sur Habit Evaluator"
+  not_professional_help: "Cette application est un outil de suivi personnel et ne remplace pas une aide médicale ou psychologique professionnelle. Si vous avez besoin de soutien, veuillez consulter un professionnel qualifié."
+  no_data_sharing: "Par défaut, toutes vos données restent sur votre appareil et ne sont partagées avec personne. Vous pouvez éventuellement configurer un stockage distant dans les paramètres."
+  acknowledge: "Je comprends"
+
 sync:
   title: "Synchroniser avec le serveur distant"
   description: "Entrez les détails du serveur distant pour synchroniser vos habitudes :"

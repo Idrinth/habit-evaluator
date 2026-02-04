@@ -202,4 +202,8 @@
     <string name="pdf_intro_sleep">This section summarizes your recorded sleep patterns including duration, timing, and consistency across the selected period.</string>
     <string name="pdf_intro_diary">Diary entries capture significant events and their perceived impact. Points are assigned based on the significance level you gave each entry.</string>
     <string name="pdf_intro_emotions">Emotion entries track your self-reported emotional states on paired scales over time. Daily averages are shown per emotion pair.</string>
+    <string name="first_start_title">Welcome to Habit Evaluator</string>
+    <string name="first_start_not_professional_help">This app is a self-tracking tool and does not replace professional medical or psychological help. If you are struggling, please reach out to a qualified professional.</string>
+    <string name="first_start_no_data_sharing">By default, all your data stays on your device and is not shared with anyone. You can optionally configure remote storage in the settings.</string>
+    <string name="first_start_acknowledge">I understand</string>
 </resources>
