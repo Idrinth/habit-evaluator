@@ -223,4 +223,5 @@
     <string name="imprint_not_professional_help">\u2022 This app is a self-tracking tool and does not replace professional medical or psychological help. If you are struggling, please reach out to a qualified professional.</string>
     <string name="imprint_no_data_sharing">\u2022 By default, all your data stays on your device and is not shared with anyone. You can optionally configure remote storage in the settings.</string>
     <string name="imprint_variant_disclaimer">\u2022 The authors of this project are not responsible for modifications made by third-party variants or the actions of webservice hosters.</string>
+    <string name="imprint_libraries">Third-Party Libraries</string>
 </resources>
