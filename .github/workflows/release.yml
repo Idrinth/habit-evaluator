@@ -98,6 +98,7 @@ jobs:
           ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
           ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
           ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          ANDROID_VERSION_CODE: ${{ github.run_number }}
         run: ./gradlew :android:assembleRelease "-PreleaseVersion=${{ steps.version.outputs.VERSION }}"
 
       - name: Upload release assets
@@ -132,6 +133,7 @@ jobs:
           ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
           ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
           ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          ANDROID_VERSION_CODE: ${{ github.run_number }}
         run: ./gradlew :android:bundleRelease "-PreleaseVersion=${{ steps.version.outputs.VERSION }}"
 
       - name: Upload release assets
