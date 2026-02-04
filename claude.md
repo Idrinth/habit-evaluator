@@ -261,6 +261,8 @@ GitHub Actions workflows at `.github/workflows/`:
 - Android file-based persistence using GSON with thread-safe ConcurrentHashMap
 - Bidirectional sync via SyncController merging client and server data by ID
 
+**Library documentation:** When adding or updating third-party libraries, their name, version, and license must be documented in the Project legal (info) page of the respective project part (website, homepage, desktop, android).
+
 **Default branch:** `the-one` (not `main` or `master`)
 
 ## Docker Deployment
