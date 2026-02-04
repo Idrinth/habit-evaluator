@@ -78,7 +78,11 @@ const translations: Record<Language, Record<string, string>> = {
 		'imprint.disclaimers': 'Disclaimers',
 		'imprint.notProfessionalHelp': 'This app is a self-tracking tool and does not replace professional medical or psychological help. If you are struggling, please reach out to a qualified professional.',
 		'imprint.noDataSharing': 'By default, all your data stays on your device and is not shared with anyone. You can optionally configure remote storage in the settings.',
-		'imprint.variantDisclaimer': 'The authors of this project are not responsible for modifications made by third-party variants or the actions of webservice hosters.'
+		'imprint.variantDisclaimer': 'The authors of this project are not responsible for modifications made by third-party variants or the actions of webservice hosters.',
+		'imprint.libraries': 'Third-Party Libraries',
+		'imprint.libraryName': 'Library',
+		'imprint.libraryVersion': 'Version',
+		'imprint.libraryLicense': 'License'
 	},
 	de: {
 		'nav.home': 'Start',
@@ -150,7 +154,11 @@ const translations: Record<Language, Record<string, string>> = {
 		'imprint.disclaimers': 'Haftungsausschlüsse',
 		'imprint.notProfessionalHelp': 'Diese App ist ein Selbstbeobachtungswerkzeug und ersetzt keine professionelle medizinische oder psychologische Hilfe. Wenn Sie Unterstützung brauchen, wenden Sie sich bitte an eine qualifizierte Fachperson.',
 		'imprint.noDataSharing': 'Standardmäßig bleiben alle Ihre Daten auf Ihrem Gerät und werden mit niemandem geteilt. Sie können optional einen Remote-Speicher in den Einstellungen konfigurieren.',
-		'imprint.variantDisclaimer': 'Die Autoren dieses Projekts übernehmen keine Verantwortung für Änderungen durch Drittvarianten oder das Handeln von Webservice-Hostern.'
+		'imprint.variantDisclaimer': 'Die Autoren dieses Projekts übernehmen keine Verantwortung für Änderungen durch Drittvarianten oder das Handeln von Webservice-Hostern.',
+		'imprint.libraries': 'Drittanbieter-Bibliotheken',
+		'imprint.libraryName': 'Bibliothek',
+		'imprint.libraryVersion': 'Version',
+		'imprint.libraryLicense': 'Lizenz'
 	},
 	es: {
 		'nav.home': 'Inicio',
@@ -222,7 +230,11 @@ const translations: Record<Language, Record<string, string>> = {
 		'imprint.disclaimers': 'Descargos de responsabilidad',
 		'imprint.notProfessionalHelp': 'Esta aplicaci\u00f3n es una herramienta de autoseguimiento y no reemplaza la ayuda profesional m\u00e9dica o psicol\u00f3gica. Si necesita apoyo, consulte a un profesional cualificado.',
 		'imprint.noDataSharing': 'Por defecto, todos sus datos permanecen en su dispositivo y no se comparten con nadie. Opcionalmente, puede configurar almacenamiento remoto en los ajustes.',
-		'imprint.variantDisclaimer': 'Los autores de este proyecto no son responsables de las modificaciones realizadas por variantes de terceros ni de las acciones de los proveedores de servicios web.'
+		'imprint.variantDisclaimer': 'Los autores de este proyecto no son responsables de las modificaciones realizadas por variantes de terceros ni de las acciones de los proveedores de servicios web.',
+		'imprint.libraries': 'Bibliotecas de terceros',
+		'imprint.libraryName': 'Biblioteca',
+		'imprint.libraryVersion': 'Versi\u00f3n',
+		'imprint.libraryLicense': 'Licencia'
 	},
 	fr: {
 		'nav.home': 'Accueil',
@@ -294,7 +306,11 @@ const translations: Record<Language, Record<string, string>> = {
 		'imprint.disclaimers': 'Avertissements',
 		'imprint.notProfessionalHelp': "Cette application est un outil de suivi personnel et ne remplace pas une aide m\u00e9dicale ou psychologique professionnelle. Si vous avez besoin de soutien, veuillez consulter un professionnel qualifi\u00e9.",
 		'imprint.noDataSharing': "Par d\u00e9faut, toutes vos donn\u00e9es restent sur votre appareil et ne sont partag\u00e9es avec personne. Vous pouvez \u00e9ventuellement configurer un stockage distant dans les param\u00e8tres.",
-		'imprint.variantDisclaimer': "Les auteurs de ce projet ne sont pas responsables des modifications apport\u00e9es par des variantes tierces ni des actions des h\u00e9bergeurs de services web."
+		'imprint.variantDisclaimer': "Les auteurs de ce projet ne sont pas responsables des modifications apport\u00e9es par des variantes tierces ni des actions des h\u00e9bergeurs de services web.",
+		'imprint.libraries': 'Biblioth\u00e8ques tierces',
+		'imprint.libraryName': 'Biblioth\u00e8que',
+		'imprint.libraryVersion': 'Version',
+		'imprint.libraryLicense': 'Licence'
 	}
 };
 

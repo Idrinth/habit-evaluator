@@ -223,4 +223,5 @@
     <string name="imprint_not_professional_help">\u2022 Cette application est un outil de suivi personnel et ne remplace pas une aide médicale ou psychologique professionnelle. Si vous avez besoin de soutien, veuillez consulter un professionnel qualifié.</string>
     <string name="imprint_no_data_sharing">\u2022 Par défaut, toutes vos données restent sur votre appareil et ne sont partagées avec personne. Vous pouvez éventuellement configurer un stockage distant dans les paramètres.</string>
     <string name="imprint_variant_disclaimer">\u2022 Les auteurs de ce projet ne sont pas responsables des modifications apportées par des variantes tierces ni des actions des hébergeurs de services web.</string>
+    <string name="imprint_libraries">Bibliothèques tierces</string>
 </resources>
