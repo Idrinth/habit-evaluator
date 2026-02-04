@@ -112,45 +112,47 @@
 						{/each}
 
 						<!-- Line path connecting non-null points -->
-						{@const points = pair.dailyAverages.map((v, i) => v != null ? { x: leftMargin + i * pointSpacing, y: midY - (v / maxAbs) * (plotHeight / 2), v } : null)}
-						{@const segments = (() => {
-							const segs: string[] = [];
-							let current = '';
-							for (const pt of points) {
-								if (pt) {
-									current += (current === '' ? 'M' : 'L') + pt.x + ',' + pt.y;
-								} else if (current !== '') {
-									segs.push(current);
-									current = '';
+						{#if true}
+							{@const points = pair.dailyAverages.map((v, i) => v != null ? { x: leftMargin + i * pointSpacing, y: midY - (v / maxAbs) * (plotHeight / 2), v } : null)}
+							{@const segments = (() => {
+								const segs: string[] = [];
+								let current = '';
+								for (const pt of points) {
+									if (pt) {
+										current += (current === '' ? 'M' : 'L') + pt.x + ',' + pt.y;
+									} else if (current !== '') {
+										segs.push(current);
+										current = '';
+									}
 								}
-							}
-							if (current !== '') segs.push(current);
-							return segs;
-						})()}
-						{#each segments as segment}
-							<path
-								d={segment}
-								fill="none"
-								stroke={color}
-								stroke-width="2"
-								stroke-linejoin="round"
-								stroke-linecap="round"
-							/>
-						{/each}
+								if (current !== '') segs.push(current);
+								return segs;
+							})()}
+							{#each segments as segment}
+								<path
+									d={segment}
+									fill="none"
+									stroke={color}
+									stroke-width="2"
+									stroke-linejoin="round"
+									stroke-linecap="round"
+								/>
+							{/each}
 
-						<!-- Data points -->
-						{#each points as pt, i}
-							{#if pt}
-								<circle
-									cx={pt.x}
-									cy={pt.y}
-									r="3"
-									fill={color}
-								>
-									<title>{data.labels[i]}: {formatStrength(pt.v, pair.negativeLabel, pair.positiveLabel)}</title>
-								</circle>
-							{/if}
-						{/each}
+							<!-- Data points -->
+							{#each points as pt, i}
+								{#if pt}
+									<circle
+										cx={pt.x}
+										cy={pt.y}
+										r="3"
+										fill={color}
+									>
+										<title>{data.labels[i]}: {formatStrength(pt.v, pair.negativeLabel, pair.positiveLabel)}</title>
+									</circle>
+								{/if}
+							{/each}
+						{/if}
 
 						<!-- Average line -->
 						{#if pair.totalEntries > 0}
