@@ -183,6 +183,14 @@
     <string name="backup_password_confirm_hint">Confirmar contraseña de respaldo</string>
     <string name="backup_password_required">La contraseña de respaldo es obligatoria cuando los respaldos están activados</string>
     <string name="backup_passwords_mismatch">Las contraseñas no coinciden</string>
+    <string name="restore_backup_title">Restaurar respaldo</string>
+    <string name="restore_backup_button">Restaurar desde respaldo</string>
+    <string name="restore_no_backups">No se encontraron respaldos</string>
+    <string name="restore_select_backup">Seleccionar un respaldo para restaurar</string>
+    <string name="restore_enter_password">Introducir contraseña del respaldo</string>
+    <string name="restore_in_progress">Restaurando respaldo…</string>
+    <string name="restore_success">Restaurado: %1$d hábitos añadidos, %2$d hábitos fusionados, %3$d entradas añadidas, %4$d entradas de diario añadidas, %5$d entradas de sueño añadidas, %6$d categorías añadidas</string>
+    <string name="restore_failed">Error al restaurar: %s</string>
     <string name="record_emotion_entry">Registrar emoción</string>
     <string name="record_emotion">Registrar</string>
     <string name="emotion_notes_hint">Notas (opcional)</string>

@@ -111,6 +111,16 @@
         </HBox>
 
         <Label fx:id="backupStatusLabel" text="" style="-fx-font-size: 11px;"/>
+
+        <Separator/>
+
+        <Label text="Restore Backup" style="-fx-font-size: 12px; -fx-font-weight: bold;"/>
+
+        <HBox spacing="10" alignment="CENTER_LEFT">
+            <Button text="Restore from Backup..." onAction="#handleRestoreBackup" styleClass="primary-button"/>
+        </HBox>
+
+        <Label fx:id="restoreStatusLabel" text="" style="-fx-font-size: 11px;"/>
     </VBox>
 
     <Region VBox.vgrow="ALWAYS"/>

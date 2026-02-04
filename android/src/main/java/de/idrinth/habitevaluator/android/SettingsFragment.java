@@ -1,11 +1,13 @@
 package de.idrinth.habitevaluator.android;
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -13,11 +15,15 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.fragment.app.Fragment;
 
+import java.io.File;
 import java.io.IOException;
 
 import de.idrinth.habitevaluator.android.databinding.FragmentSettingsBinding;
 import de.idrinth.habitevaluator.shared.api.ApiClient;
 import de.idrinth.habitevaluator.shared.api.StorageConfig;
+import de.idrinth.habitevaluator.shared.backup.BackupException;
+import de.idrinth.habitevaluator.shared.backup.BackupService;
+import de.idrinth.habitevaluator.shared.backup.MergeResult;
 
 public class SettingsFragment extends Fragment {
 
@@ -105,6 +111,7 @@ public class SettingsFragment extends Fragment {
 
         binding.testConnectionButton.setOnClickListener(v -> testConnection());
         binding.saveSettingsButton.setOnClickListener(v -> saveSettings());
+        binding.restoreBackupButton.setOnClickListener(v -> restoreBackup());
     }
 
     private void testConnection() {
@@ -222,6 +229,85 @@ public class SettingsFragment extends Fragment {
         if (getActivity() instanceof MainActivity) {
             ((MainActivity) getActivity()).onSettingsChanged();
         }
+    }
+
+    private void restoreBackup() {
+        File backupDir = new File(requireContext().getFilesDir(), "backups");
+        BackupService backupService = new BackupService();
+        File[] backups = backupService.listBackups(backupDir);
+
+        if (backups.length == 0) {
+            binding.restoreStatusText.setText(R.string.restore_no_backups);
+            binding.restoreStatusText.setTextColor(requireContext().getColor(android.R.color.holo_red_dark));
+            return;
+        }
+
+        String[] backupNames = new String[backups.length];
+        for (int i = 0; i < backups.length; i++) {
+            backupNames[i] = backups[i].getName().replace(".backup", "");
+        }
+
+        new AlertDialog.Builder(requireContext())
+                .setTitle(R.string.restore_select_backup)
+                .setItems(backupNames, (dialog, which) -> {
+                    File selectedFile = backups[which];
+                    showPasswordDialogAndRestore(backupService, selectedFile);
+                })
+                .setNegativeButton(android.R.string.cancel, null)
+                .show();
+    }
+
+    private void showPasswordDialogAndRestore(BackupService backupService, File selectedFile) {
+        EditText passwordInput = new EditText(requireContext());
+        passwordInput.setHint(R.string.backup_password_hint);
+        passwordInput.setInputType(android.text.InputType.TYPE_CLASS_TEXT | android.text.InputType.TYPE_TEXT_VARIATION_PASSWORD);
+
+        new AlertDialog.Builder(requireContext())
+                .setTitle(R.string.restore_enter_password)
+                .setView(passwordInput)
+                .setPositiveButton(android.R.string.ok, (dialog, which) -> {
+                    String password = passwordInput.getText().toString();
+                    if (password.isEmpty()) {
+                        binding.restoreStatusText.setText(R.string.backup_password_required);
+                        binding.restoreStatusText.setTextColor(requireContext().getColor(android.R.color.holo_red_dark));
+                        return;
+                    }
+                    binding.restoreStatusText.setText(R.string.restore_in_progress);
+                    binding.restoreStatusText.setTextColor(requireContext().getColor(R.color.text_secondary));
+
+                    new Thread(() -> {
+                        try {
+                            MergeResult result = backupService.mergeBackup(
+                                    selectedFile, password,
+                                    MainActivity.getSharedCurrentUser(),
+                                    MainActivity.getSharedHabitRepository(),
+                                    MainActivity.getSharedCategoryRepository(),
+                                    MainActivity.getSharedDiaryEntryRepository(),
+                                    MainActivity.getSharedSleepEntryRepository());
+                            if (isAdded()) {
+                                requireActivity().runOnUiThread(() -> {
+                                    binding.restoreStatusText.setText(getString(R.string.restore_success,
+                                            result.getHabitsAdded(), result.getHabitsMerged(),
+                                            result.getEntriesAdded(), result.getDiaryEntriesAdded(),
+                                            result.getSleepEntriesAdded(), result.getCategoriesAdded()));
+                                    binding.restoreStatusText.setTextColor(requireContext().getColor(android.R.color.holo_green_dark));
+                                    if (getActivity() instanceof MainActivity) {
+                                        ((MainActivity) getActivity()).onSettingsChanged();
+                                    }
+                                });
+                            }
+                        } catch (BackupException e) {
+                            if (isAdded()) {
+                                requireActivity().runOnUiThread(() -> {
+                                    binding.restoreStatusText.setText(getString(R.string.restore_failed, e.getMessage()));
+                                    binding.restoreStatusText.setTextColor(requireContext().getColor(android.R.color.holo_red_dark));
+                                });
+                            }
+                        }
+                    }).start();
+                })
+                .setNegativeButton(android.R.string.cancel, null)
+                .show();
     }
 
     @Override

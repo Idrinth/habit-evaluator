@@ -2,6 +2,15 @@ package de.idrinth.habitevaluator.desktop.controller;
 
 import de.idrinth.habitevaluator.shared.api.ApiClient;
 import de.idrinth.habitevaluator.shared.api.StorageConfig;
+import de.idrinth.habitevaluator.shared.backup.BackupException;
+import de.idrinth.habitevaluator.shared.backup.BackupService;
+import de.idrinth.habitevaluator.shared.backup.MergeResult;
+import de.idrinth.habitevaluator.shared.model.User;
+import de.idrinth.habitevaluator.shared.repository.DiaryEntryRepository;
+import de.idrinth.habitevaluator.shared.repository.HabitCategoryRepository;
+import de.idrinth.habitevaluator.shared.repository.HabitRepository;
+import de.idrinth.habitevaluator.shared.repository.SleepEntryRepository;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.CheckBox;
@@ -9,11 +18,15 @@ import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.VBox;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
+import java.io.File;
 import java.io.IOException;
+import java.util.Optional;
 
 /**
  * Controller for the storage settings dialog.
@@ -93,8 +106,17 @@ public class SettingsDialogController {
     @FXML
     private Label backupStatusLabel;
 
+    @FXML
+    private Label restoreStatusLabel;
+
     private StorageConfig storageConfig;
     private boolean saved;
+    private final BackupService backupService = new BackupService();
+    private User currentUser;
+    private HabitRepository habitRepository;
+    private HabitCategoryRepository categoryRepository;
+    private DiaryEntryRepository diaryEntryRepository;
+    private SleepEntryRepository sleepEntryRepository;
 
     @FXML
     public void initialize() {
@@ -252,6 +274,85 @@ public class SettingsDialogController {
 
         Stage stage = (Stage) localRadio.getScene().getWindow();
         stage.close();
+    }
+
+    public void setCurrentUser(User user) {
+        this.currentUser = user;
+    }
+
+    public void setHabitRepository(HabitRepository habitRepository) {
+        this.habitRepository = habitRepository;
+    }
+
+    public void setCategoryRepository(HabitCategoryRepository categoryRepository) {
+        this.categoryRepository = categoryRepository;
+    }
+
+    public void setDiaryEntryRepository(DiaryEntryRepository diaryEntryRepository) {
+        this.diaryEntryRepository = diaryEntryRepository;
+    }
+
+    public void setSleepEntryRepository(SleepEntryRepository sleepEntryRepository) {
+        this.sleepEntryRepository = sleepEntryRepository;
+    }
+
+    @FXML
+    private void handleRestoreBackup() {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Select Backup File");
+        fileChooser.getExtensionFilters().add(
+                new FileChooser.ExtensionFilter("Backup Files", "*.backup"));
+
+        String backupDir = System.getProperty("user.home") + "/.habit-evaluator/backups";
+        File backupDirFile = new File(backupDir);
+        if (backupDirFile.exists() && backupDirFile.isDirectory()) {
+            fileChooser.setInitialDirectory(backupDirFile);
+        }
+
+        Stage stage = (Stage) localRadio.getScene().getWindow();
+        File selectedFile = fileChooser.showOpenDialog(stage);
+        if (selectedFile == null) {
+            return;
+        }
+
+        TextInputDialog passwordDialog = new TextInputDialog();
+        passwordDialog.setTitle("Backup Password");
+        passwordDialog.setHeaderText("Enter the password for this backup");
+        passwordDialog.setContentText("Password:");
+        Optional<String> passwordResult = passwordDialog.showAndWait();
+        if (passwordResult.isEmpty() || passwordResult.get().isEmpty()) {
+            restoreStatusLabel.setText("Restore cancelled: no password provided.");
+            restoreStatusLabel.setStyle("-fx-text-fill: red;");
+            return;
+        }
+
+        String password = passwordResult.get();
+        restoreStatusLabel.setText("Restoring backup...");
+        restoreStatusLabel.setStyle("-fx-text-fill: grey;");
+
+        new Thread(() -> {
+            try {
+                MergeResult result = backupService.mergeBackup(selectedFile, password,
+                        currentUser, habitRepository, categoryRepository,
+                        diaryEntryRepository, sleepEntryRepository);
+                Platform.runLater(() -> {
+                    restoreStatusLabel.setText(
+                            "Restore complete: " + result.getHabitsAdded() + " habits added, "
+                            + result.getHabitsMerged() + " habits merged, "
+                            + result.getEntriesAdded() + " entries added, "
+                            + result.getDiaryEntriesAdded() + " diary entries added, "
+                            + result.getSleepEntriesAdded() + " sleep entries added, "
+                            + result.getCategoriesAdded() + " categories added.");
+                    restoreStatusLabel.setStyle("-fx-text-fill: green;");
+                    saved = true;
+                });
+            } catch (BackupException e) {
+                Platform.runLater(() -> {
+                    restoreStatusLabel.setText("Restore failed: " + e.getMessage());
+                    restoreStatusLabel.setStyle("-fx-text-fill: red;");
+                });
+            }
+        }).start();
     }
 
     @FXML
