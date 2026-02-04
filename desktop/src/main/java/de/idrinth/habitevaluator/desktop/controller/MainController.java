@@ -541,7 +541,7 @@ public class MainController {
             Parent root = loader.load();
 
             Stage dialogStage = new Stage();
-            dialogStage.setTitle("Imprint");
+            dialogStage.setTitle("Project legal");
             dialogStage.initModality(Modality.APPLICATION_MODAL);
             dialogStage.initOwner(habitListView.getScene().getWindow());
 

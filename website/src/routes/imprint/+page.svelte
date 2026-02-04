@@ -39,6 +39,15 @@
 	</ul>
 </section>
 
+<section>
+	<h2>{t('imprint.disclaimers', lang)}</h2>
+	<ul>
+		<li>{t('imprint.notProfessionalHelp', lang)}</li>
+		<li>{t('imprint.noDataSharing', lang)}</li>
+		<li>{t('imprint.variantDisclaimer', lang)}</li>
+	</ul>
+</section>
+
 <style>
 	h1 {
 		font-size: 2rem;
