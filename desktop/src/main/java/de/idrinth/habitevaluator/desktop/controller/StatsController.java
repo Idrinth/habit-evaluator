@@ -223,18 +223,27 @@ public class StatsController {
             allEntries = emotionEntryRepository.findByUserId(currentUser.getId());
         }
 
-        List<EmotionEntry> rangeEntries = new ArrayList<>();
+        // Find earliest entry date to determine full range
+        LocalDate earliest = today;
         for (EmotionEntry entry : allEntries) {
             LocalDate entryDate = entry.getRecordedAt().toLocalDate();
-            if (!entryDate.isBefore(startDate) && !entryDate.isAfter(today)) {
-                rangeEntries.add(entry);
+            if (entryDate.isBefore(earliest)) {
+                earliest = entryDate;
             }
+        }
+
+        // Build full date range labels
+        List<String> emotionLabels = new ArrayList<>();
+        List<LocalDate> dates = new ArrayList<>();
+        for (LocalDate d = earliest; !d.isAfter(today); d = d.plusDays(1)) {
+            emotionLabels.add(d.format(LABEL_FORMAT));
+            dates.add(d);
         }
 
         // Group entries by emotion pair
         Map<String, List<EmotionEntry>> entriesByPair = new TreeMap<>();
         Map<String, String> pairLabelMap = new TreeMap<>();
-        for (EmotionEntry entry : rangeEntries) {
+        for (EmotionEntry entry : allEntries) {
             if (entry.getEmotionPair() != null) {
                 String pairId = entry.getEmotionPair().getId();
                 entriesByPair.computeIfAbsent(pairId, k -> new ArrayList<>()).add(entry);
@@ -242,13 +251,7 @@ public class StatsController {
             }
         }
 
-        // Build date list
-        List<LocalDate> dates = new ArrayList<>();
-        for (LocalDate d = startDate; !d.isAfter(today); d = d.plusDays(1)) {
-            dates.add(d);
-        }
-
-        emotionXAxis.setCategories(FXCollections.observableArrayList(labels));
+        emotionXAxis.setCategories(FXCollections.observableArrayList(emotionLabels));
         emotionPairsChart.getData().clear();
 
         // For each pair, compute daily average strength and add as a series
@@ -270,7 +273,7 @@ public class StatsController {
                     for (int s : strengths) {
                         sum += s;
                     }
-                    series.getData().add(new XYChart.Data<>(labels.get(i), sum / strengths.size()));
+                    series.getData().add(new XYChart.Data<>(emotionLabels.get(i), sum / strengths.size()));
                 }
                 i++;
             }

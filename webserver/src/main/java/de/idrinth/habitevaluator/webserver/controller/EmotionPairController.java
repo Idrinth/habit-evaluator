@@ -50,30 +50,34 @@ public class EmotionPairController {
     }
 
     @GetMapping("/graph")
-    public ResponseEntity<Map<String, Object>> getGraphData(
-            @RequestParam(defaultValue = "week") String period,
-            HttpSession session) {
+    public ResponseEntity<Map<String, Object>> getGraphData(HttpSession session) {
         String userId = (String) session.getAttribute("userId");
         if (userId == null) {
             return ResponseEntity.status(401).build();
         }
 
-        int days = "month".equals(period) ? 30 : 7;
-        LocalDate today = LocalDate.now();
-        LocalDate startDate = today.minusDays(days - 1);
-
-        List<String> labels = new ArrayList<>();
-        for (LocalDate d = startDate; !d.isAfter(today); d = d.plusDays(1)) {
-            labels.add(d.format(LABEL_FORMAT));
-        }
-
         List<EmotionPair> pairs = emotionPairRepository.findByUserId(userId);
         List<EmotionEntry> allEntries = emotionEntryRepository.findByUserId(userId);
+
+        // Find the date range from all entries
+        LocalDate today = LocalDate.now();
+        LocalDate earliest = today;
+        for (EmotionEntry entry : allEntries) {
+            LocalDate entryDate = entry.getRecordedAt().toLocalDate();
+            if (entryDate.isBefore(earliest)) {
+                earliest = entryDate;
+            }
+        }
+
+        List<String> labels = new ArrayList<>();
+        for (LocalDate d = earliest; !d.isAfter(today); d = d.plusDays(1)) {
+            labels.add(d.format(LABEL_FORMAT));
+        }
 
         List<Map<String, Object>> pairSeries = new ArrayList<>();
         for (EmotionPair pair : pairs) {
             Map<LocalDate, List<Integer>> dayStrengths = new TreeMap<>();
-            for (LocalDate d = startDate; !d.isAfter(today); d = d.plusDays(1)) {
+            for (LocalDate d = earliest; !d.isAfter(today); d = d.plusDays(1)) {
                 dayStrengths.put(d, new ArrayList<>());
             }
 
@@ -81,7 +85,7 @@ public class EmotionPairController {
                 if (entry.getEmotionPair() != null
                         && pair.getId().equals(entry.getEmotionPair().getId())) {
                     LocalDate entryDate = entry.getRecordedAt().toLocalDate();
-                    if (!entryDate.isBefore(startDate) && !entryDate.isAfter(today)) {
+                    if (!entryDate.isBefore(earliest) && !entryDate.isAfter(today)) {
                         dayStrengths.get(entryDate).add(entry.getStrength());
                     }
                 }
@@ -90,7 +94,7 @@ public class EmotionPairController {
             List<Double> dailyAverages = new ArrayList<>();
             double totalSum = 0;
             int totalCount = 0;
-            for (LocalDate d = startDate; !d.isAfter(today); d = d.plusDays(1)) {
+            for (LocalDate d = earliest; !d.isAfter(today); d = d.plusDays(1)) {
                 List<Integer> strengths = dayStrengths.get(d);
                 if (strengths.isEmpty()) {
                     dailyAverages.add(null);
@@ -118,7 +122,6 @@ public class EmotionPairController {
 
         Map<String, Object> result = new LinkedHashMap<>();
         result.put("labels", labels);
-        result.put("period", period);
         result.put("pairs", pairSeries);
         return ResponseEntity.ok(result);
     }

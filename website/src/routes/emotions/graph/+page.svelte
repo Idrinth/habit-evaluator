@@ -6,7 +6,6 @@
 
 	let data: EmotionGraphData | null = $state(null);
 	let error: string | null = $state(null);
-	let period: 'week' | 'month' = $state('week');
 	let loading = $state(true);
 	let lang: Language = $state('en');
 
@@ -24,7 +23,7 @@
 		loading = true;
 		error = null;
 		try {
-			data = await emotions.graph(period);
+			data = await emotions.graph();
 		} catch (e) {
 			if (e instanceof Error && e.message.includes('401')) {
 				goto('/login');
@@ -34,11 +33,6 @@
 		} finally {
 			loading = false;
 		}
-	}
-
-	function handlePeriodChange(newPeriod: 'week' | 'month') {
-		period = newPeriod;
-		loadData();
 	}
 
 	function pairColor(index: number): string {
@@ -56,19 +50,6 @@
 <div class="emotions-graph-container">
 	<h1>{t('emotions.graphTitle', lang)}</h1>
 
-	<div class="controls">
-		<div class="period-toggle">
-			<button
-				class:active={period === 'week'}
-				onclick={() => handlePeriodChange('week')}
-			>{t('emotions.week', lang)}</button>
-			<button
-				class:active={period === 'month'}
-				onclick={() => handlePeriodChange('month')}
-			>{t('emotions.month', lang)}</button>
-		</div>
-	</div>
-
 	{#if error}
 		<p class="error">{error}</p>
 	{:else if loading}
@@ -85,10 +66,9 @@
 			{@const plotBottom = chartHeight - 30}
 			{@const plotHeight = plotBottom - plotTop}
 			{@const midY = plotTop + plotHeight / 2}
-			{@const barWidth = Math.max(12, Math.min(20, 600 / data.labels.length - 4))}
-			{@const chartWidth = data.labels.length * (barWidth + 4) + 50}
+			{@const pointSpacing = Math.max(8, Math.min(20, 700 / Math.max(data.labels.length - 1, 1)))}
 			{@const leftMargin = 40}
-			{@const totalWidth = chartWidth + leftMargin}
+			{@const totalWidth = leftMargin + (data.labels.length - 1) * pointSpacing + 20}
 			<div class="chart-card">
 				<div class="chart-header">
 					<h2>
@@ -131,36 +111,44 @@
 							</text>
 						{/each}
 
-						<!-- Bars -->
-						{#each pair.dailyAverages as value, i}
-							{#if value != null}
-								{@const barX = leftMargin + i * (barWidth + 4) + 2}
-								{@const barH = Math.abs(value) / maxAbs * (plotHeight / 2)}
-								{#if value >= 0}
-									<rect
-										x={barX}
-										y={midY - barH}
-										width={barWidth}
-										height={Math.max(barH, 0.5)}
-										fill={color}
-										opacity="0.85"
-										rx="2"
-									>
-										<title>{data.labels[i]}: {formatStrength(value, pair.negativeLabel, pair.positiveLabel)}</title>
-									</rect>
-								{:else}
-									<rect
-										x={barX}
-										y={midY}
-										width={barWidth}
-										height={Math.max(barH, 0.5)}
-										fill={color}
-										opacity="0.5"
-										rx="2"
-									>
-										<title>{data.labels[i]}: {formatStrength(value, pair.negativeLabel, pair.positiveLabel)}</title>
-									</rect>
-								{/if}
+						<!-- Line path connecting non-null points -->
+						{@const points = pair.dailyAverages.map((v, i) => v != null ? { x: leftMargin + i * pointSpacing, y: midY - (v / maxAbs) * (plotHeight / 2), v } : null)}
+						{@const segments = (() => {
+							const segs: string[] = [];
+							let current = '';
+							for (const pt of points) {
+								if (pt) {
+									current += (current === '' ? 'M' : 'L') + pt.x + ',' + pt.y;
+								} else if (current !== '') {
+									segs.push(current);
+									current = '';
+								}
+							}
+							if (current !== '') segs.push(current);
+							return segs;
+						})()}
+						{#each segments as segment}
+							<path
+								d={segment}
+								fill="none"
+								stroke={color}
+								stroke-width="2"
+								stroke-linejoin="round"
+								stroke-linecap="round"
+							/>
+						{/each}
+
+						<!-- Data points -->
+						{#each points as pt, i}
+							{#if pt}
+								<circle
+									cx={pt.x}
+									cy={pt.y}
+									r="3"
+									fill={color}
+								>
+									<title>{data.labels[i]}: {formatStrength(pt.v, pair.negativeLabel, pair.positiveLabel)}</title>
+								</circle>
 							{/if}
 						{/each}
 
@@ -190,10 +178,10 @@
 
 						<!-- X-axis labels -->
 						{#each data.labels as label, i}
-							{@const labelInterval = data.labels.length > 14 ? 5 : data.labels.length > 7 ? 2 : 1}
+							{@const labelInterval = data.labels.length > 60 ? 14 : data.labels.length > 30 ? 7 : data.labels.length > 14 ? 3 : data.labels.length > 7 ? 2 : 1}
 							{#if i % labelInterval === 0}
 								<text
-									x={leftMargin + i * (barWidth + 4) + barWidth / 2 + 2}
+									x={leftMargin + i * pointSpacing}
 									y={chartHeight - 4}
 									text-anchor="middle"
 									font-size="7"
@@ -208,12 +196,8 @@
 
 				<div class="chart-legend">
 					<span class="legend-item">
-						<span class="legend-bar" style="background: {color}; opacity: 0.85;"></span>
-						{t('emotions.positive', lang)}
-					</span>
-					<span class="legend-item">
-						<span class="legend-bar" style="background: {color}; opacity: 0.5;"></span>
-						{t('emotions.negative', lang)}
+						<span class="legend-dot" style="background: {color};"></span>
+						{t('emotions.entries', lang)}
 					</span>
 					<span class="legend-item">
 						<span class="legend-line"></span>
@@ -235,34 +219,6 @@
 	h1 {
 		text-align: center;
 		margin-bottom: 1rem;
-	}
-
-	.controls {
-		display: flex;
-		justify-content: center;
-		margin-bottom: 1.5rem;
-	}
-
-	.period-toggle {
-		display: flex;
-		border: 1px solid var(--color-border);
-		border-radius: 4px;
-		overflow: hidden;
-	}
-
-	.period-toggle button {
-		padding: 0.4rem 1.2rem;
-		border: none;
-		border-radius: 0;
-		background: var(--color-input-bg);
-		color: var(--color-text);
-		cursor: pointer;
-		font-size: 0.9rem;
-	}
-
-	.period-toggle button.active {
-		background: var(--color-primary);
-		color: #fff;
 	}
 
 	.loading, .empty {
@@ -342,11 +298,11 @@
 		gap: 0.3rem;
 	}
 
-	.legend-bar {
+	.legend-dot {
 		display: inline-block;
-		width: 14px;
-		height: 10px;
-		border-radius: 2px;
+		width: 8px;
+		height: 8px;
+		border-radius: 50%;
 	}
 
 	.legend-line {
