@@ -10,8 +10,8 @@ android {
         applicationId "de.idrinth.habitevaluator.android"
         minSdk 26
         targetSdk 35
-        versionCode (System.getenv("ANDROID_VERSION_CODE") ?: "1").toInteger()
-        versionName project.version.toString().replace('-SNAPSHOT', '')
+        versionCode = (System.getenv("ANDROID_VERSION_CODE") ?: "1").toInteger()
+        versionName = project.version.toString().replace('-SNAPSHOT', '')
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
