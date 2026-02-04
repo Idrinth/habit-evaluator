@@ -59,6 +59,17 @@
                 android:textSize="18sp"
                 android:textStyle="bold" />
 
+            <TextView
+                android:id="@+id/remotePrivacyWarning"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:padding="12dp"
+                android:background="@android:color/holo_orange_light"
+                android:text="@string/remote_privacy_warning"
+                android:textColor="@android:color/black"
+                android:textSize="13sp" />
+
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/apiUrlLayout"
                 android:layout_width="match_parent"

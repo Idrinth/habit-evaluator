@@ -30,9 +30,14 @@
     <VBox fx:id="remoteSettingsPane" spacing="10" disable="true">
         <Label text="Remote API Configuration" styleClass="section-title"/>
 
+        <Label fx:id="remotePrivacyWarningLabel"
+               text="When using a remote server, the server owner's data protection and privacy policy applies to your data. Make sure you trust the server operator."
+               wrapText="true"
+               style="-fx-background-color: #fff3cd; -fx-padding: 10; -fx-border-color: #ffc107; -fx-border-width: 1; -fx-font-size: 11px;"/>
+
         <HBox spacing="10" alignment="CENTER_LEFT">
             <Label text="Server URL:" prefWidth="100"/>
-            <TextField fx:id="apiUrlField" HBox.hgrow="ALWAYS" promptText="http://your-server:8080"/>
+            <TextField fx:id="apiUrlField" HBox.hgrow="ALWAYS" promptText="https://your-server:8080"/>
         </HBox>
 
         <HBox spacing="10" alignment="CENTER_LEFT">

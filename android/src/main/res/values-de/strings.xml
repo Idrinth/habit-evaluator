@@ -28,6 +28,8 @@
     <string name="connection_success">Verbindung erfolgreich</string>
     <string name="auth_failed">Authentifizierung fehlgeschlagen</string>
     <string name="connection_failed">Verbindung fehlgeschlagen: %s</string>
+    <string name="https_required">Die Remote-Server-URL muss HTTPS verwenden. Nur localhost ist über unverschlüsseltes HTTP erlaubt.</string>
+    <string name="remote_privacy_warning">Bei Verwendung eines Remote-Servers gelten die Datenschutzrichtlinien des Serverbetreibers für Ihre Daten. Stellen Sie sicher, dass Sie dem Serverbetreiber vertrauen.</string>
     <string name="storage_mode_local">Speicher: Lokal</string>
     <string name="storage_mode_remote">Speicher: Remote-API</string>
     <string name="load_defaults">Standards laden</string>
