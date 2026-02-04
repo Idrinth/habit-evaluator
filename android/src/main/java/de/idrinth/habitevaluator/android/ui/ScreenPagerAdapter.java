@@ -11,6 +11,7 @@ import de.idrinth.habitevaluator.android.DiaryFragment;
 import de.idrinth.habitevaluator.android.EditHabitsFragment;
 import de.idrinth.habitevaluator.android.EmotionalStateFragment;
 import de.idrinth.habitevaluator.android.HomeFragment;
+import de.idrinth.habitevaluator.android.ImprintFragment;
 import de.idrinth.habitevaluator.android.PointDevelopmentFragment;
 import de.idrinth.habitevaluator.android.RecordEmotionEntryFragment;
 import de.idrinth.habitevaluator.android.SettingsFragment;
@@ -30,7 +31,8 @@ public class ScreenPagerAdapter extends FragmentStateAdapter {
     public static final int PAGE_ADD_EMOTION_PAIR = 8;
     public static final int PAGE_RECORD_EMOTION_ENTRY = 9;
     public static final int PAGE_SETTINGS = 10;
-    public static final int PAGE_COUNT = 11;
+    public static final int PAGE_IMPRINT = 11;
+    public static final int PAGE_COUNT = 12;
 
     public ScreenPagerAdapter(@NonNull FragmentActivity fragmentActivity) {
         super(fragmentActivity);
@@ -62,6 +64,8 @@ public class ScreenPagerAdapter extends FragmentStateAdapter {
                 return new RecordEmotionEntryFragment();
             case PAGE_SETTINGS:
                 return new SettingsFragment();
+            case PAGE_IMPRINT:
+                return new ImprintFragment();
             default:
                 return new HomeFragment();
         }

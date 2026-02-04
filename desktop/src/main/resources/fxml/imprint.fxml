@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns:fx="http://javafx.com/fxml"
+      fx:controller="de.idrinth.habitevaluator.desktop.controller.ImprintController"
+      spacing="15" prefWidth="450">
+
+    <padding>
+        <Insets top="20" right="20" bottom="20" left="20"/>
+    </padding>
+
+    <Label text="Imprint" styleClass="section-title"/>
+
+    <Separator/>
+
+    <Label text="Contact" style="-fx-font-weight: bold; -fx-font-size: 14px;"/>
+    <VBox spacing="4">
+        <Label text="Name" style="-fx-font-weight: bold;"/>
+        <Label text="Björn 'Idrinth' Buttner"/>
+        <Label text="Email" style="-fx-font-weight: bold;"/>
+        <Hyperlink fx:id="emailLink" text="self@idrinth.de" onAction="#handleEmailLink"/>
+    </VBox>
+
+    <Separator/>
+
+    <Label text="License" style="-fx-font-weight: bold; -fx-font-size: 14px;"/>
+    <Label text="This project is licensed under the MIT License." wrapText="true"/>
+
+    <Separator/>
+
+    <Label text="Data Protection" style="-fx-font-weight: bold; -fx-font-size: 14px;"/>
+    <VBox spacing="4">
+        <Label text="• No remote storing of data unless explicitly enabled by the user." wrapText="true"/>
+        <Label text="• No tracking." wrapText="true"/>
+        <Label text="• No usage of any provided data besides providing the service." wrapText="true"/>
+    </VBox>
+
+    <Separator/>
+
+    <HBox alignment="CENTER_RIGHT">
+        <Button text="Close" onAction="#handleClose"/>
+    </HBox>
+</VBox>

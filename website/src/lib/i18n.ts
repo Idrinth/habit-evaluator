@@ -63,7 +63,18 @@ const translations: Record<Language, Record<string, string>> = {
 		'firstStart.title': 'Welcome to Habit Evaluator',
 		'firstStart.notProfessionalHelp': 'This app is a self-tracking tool and does not replace professional medical or psychological help. If you are struggling, please reach out to a qualified professional.',
 		'firstStart.noDataSharing': 'By default, all your data stays on your device and is not shared with anyone. You can optionally configure remote storage in the settings.',
-		'firstStart.acknowledge': 'I understand'
+		'firstStart.acknowledge': 'I understand',
+		'nav.imprint': 'Imprint',
+		'imprint.title': 'Imprint',
+		'imprint.contact': 'Contact',
+		'imprint.name': 'Name',
+		'imprint.email': 'Email',
+		'imprint.license': 'License',
+		'imprint.licenseText': 'This project is licensed under the MIT License.',
+		'imprint.dataProtection': 'Data Protection',
+		'imprint.noRemoteStorage': 'No remote storing of data unless explicitly enabled by the user.',
+		'imprint.noTracking': 'No tracking.',
+		'imprint.noDataUsage': 'No usage of any provided data besides providing the service.'
 	},
 	de: {
 		'nav.home': 'Start',
@@ -120,7 +131,18 @@ const translations: Record<Language, Record<string, string>> = {
 		'firstStart.title': 'Willkommen bei Habit Evaluator',
 		'firstStart.notProfessionalHelp': 'Diese App ist ein Selbstbeobachtungswerkzeug und ersetzt keine professionelle medizinische oder psychologische Hilfe. Wenn Sie Unterstützung brauchen, wenden Sie sich bitte an eine qualifizierte Fachperson.',
 		'firstStart.noDataSharing': 'Standardmäßig bleiben alle Ihre Daten auf Ihrem Gerät und werden mit niemandem geteilt. Sie können optional einen Remote-Speicher in den Einstellungen konfigurieren.',
-		'firstStart.acknowledge': 'Ich verstehe'
+		'firstStart.acknowledge': 'Ich verstehe',
+		'nav.imprint': 'Impressum',
+		'imprint.title': 'Impressum',
+		'imprint.contact': 'Kontakt',
+		'imprint.name': 'Name',
+		'imprint.email': 'E-Mail',
+		'imprint.license': 'Lizenz',
+		'imprint.licenseText': 'Dieses Projekt ist unter der MIT-Lizenz lizenziert.',
+		'imprint.dataProtection': 'Datenschutz',
+		'imprint.noRemoteStorage': 'Keine Speicherung von Daten auf einem Server, sofern nicht ausdrücklich vom Benutzer aktiviert.',
+		'imprint.noTracking': 'Kein Tracking.',
+		'imprint.noDataUsage': 'Keine Nutzung bereitgestellter Daten außer zur Bereitstellung des Dienstes.'
 	},
 	es: {
 		'nav.home': 'Inicio',
@@ -177,7 +199,18 @@ const translations: Record<Language, Record<string, string>> = {
 		'firstStart.title': 'Bienvenido a Habit Evaluator',
 		'firstStart.notProfessionalHelp': 'Esta aplicación es una herramienta de autoseguimiento y no reemplaza la ayuda profesional médica o psicológica. Si necesita apoyo, consulte a un profesional cualificado.',
 		'firstStart.noDataSharing': 'Por defecto, todos sus datos permanecen en su dispositivo y no se comparten con nadie. Opcionalmente, puede configurar almacenamiento remoto en los ajustes.',
-		'firstStart.acknowledge': 'Entendido'
+		'firstStart.acknowledge': 'Entendido',
+		'nav.imprint': 'Aviso legal',
+		'imprint.title': 'Aviso legal',
+		'imprint.contact': 'Contacto',
+		'imprint.name': 'Nombre',
+		'imprint.email': 'Correo electr\u00f3nico',
+		'imprint.license': 'Licencia',
+		'imprint.licenseText': 'Este proyecto est\u00e1 licenciado bajo la Licencia MIT.',
+		'imprint.dataProtection': 'Protecci\u00f3n de datos',
+		'imprint.noRemoteStorage': 'No se almacenan datos de forma remota a menos que el usuario lo habilite expl\u00edcitamente.',
+		'imprint.noTracking': 'Sin rastreo.',
+		'imprint.noDataUsage': 'No se utilizan los datos proporcionados m\u00e1s all\u00e1 de la prestaci\u00f3n del servicio.'
 	},
 	fr: {
 		'nav.home': 'Accueil',
@@ -234,7 +267,18 @@ const translations: Record<Language, Record<string, string>> = {
 		'firstStart.title': 'Bienvenue sur Habit Evaluator',
 		'firstStart.notProfessionalHelp': "Cette application est un outil de suivi personnel et ne remplace pas une aide médicale ou psychologique professionnelle. Si vous avez besoin de soutien, veuillez consulter un professionnel qualifié.",
 		'firstStart.noDataSharing': "Par défaut, toutes vos données restent sur votre appareil et ne sont partagées avec personne. Vous pouvez éventuellement configurer un stockage distant dans les paramètres.",
-		'firstStart.acknowledge': 'Je comprends'
+		'firstStart.acknowledge': 'Je comprends',
+		'nav.imprint': 'Mentions l\u00e9gales',
+		'imprint.title': 'Mentions l\u00e9gales',
+		'imprint.contact': 'Contact',
+		'imprint.name': 'Nom',
+		'imprint.email': 'E-mail',
+		'imprint.license': 'Licence',
+		'imprint.licenseText': 'Ce projet est sous licence MIT.',
+		'imprint.dataProtection': 'Protection des donn\u00e9es',
+		'imprint.noRemoteStorage': "Aucun stockage distant des donn\u00e9es sauf activation explicite par l'utilisateur.",
+		'imprint.noTracking': 'Aucun suivi.',
+		'imprint.noDataUsage': "Aucune utilisation des donn\u00e9es fournies en dehors de la fourniture du service."
 	}
 };
 
