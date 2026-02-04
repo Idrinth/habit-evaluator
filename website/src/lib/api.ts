@@ -1,25 +1,45 @@
 const BASE = '/api';
+const CIRCUIT_BREAKER_COOLDOWN_MS = 5 * 60 * 1000; // 5 minutes
+
+let lastFailureTime: number | null = null;
+
+function isCircuitOpen(): boolean {
+	if (lastFailureTime === null) {
+		return false;
+	}
+	return Date.now() - lastFailureTime < CIRCUIT_BREAKER_COOLDOWN_MS;
+}
 
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
-	const response = await fetch(`${BASE}${path}`, {
-		headers: {
-			'Content-Type': 'application/json',
-			...options.headers
-		},
-		...options
-	});
-	if (!response.ok) {
-		const body = await response.json().catch(() => null);
-		throw new Error(body?.message || `Request failed with status ${response.status}`);
+	if (isCircuitOpen()) {
+		const remaining = CIRCUIT_BREAKER_COOLDOWN_MS - (Date.now() - lastFailureTime!);
+		throw new Error(`Requests paused after failure, retrying in ${Math.ceil(remaining / 1000)}s`);
 	}
-	if (response.status === 204 || response.headers.get('content-length') === '0') {
-		return null as T;
+	try {
+		const response = await fetch(`${BASE}${path}`, {
+			headers: {
+				'Content-Type': 'application/json',
+				...options.headers
+			},
+			...options
+		});
+		if (!response.ok) {
+			const body = await response.json().catch(() => null);
+			throw new Error(body?.message || `Request failed with status ${response.status}`);
+		}
+		lastFailureTime = null;
+		if (response.status === 204 || response.headers.get('content-length') === '0') {
+			return null as T;
+		}
+		const text = await response.text();
+		if (!text) {
+			return null as T;
+		}
+		return JSON.parse(text);
+	} catch (e) {
+		lastFailureTime = Date.now();
+		throw e;
 	}
-	const text = await response.text();
-	if (!text) {
-		return null as T;
-	}
-	return JSON.parse(text);
 }
 
 export interface LoginResponse {
