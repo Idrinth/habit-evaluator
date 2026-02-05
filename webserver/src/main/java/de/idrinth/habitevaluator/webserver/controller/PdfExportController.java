@@ -1081,22 +1081,34 @@ public class PdfExportController {
     }
 
     private double[] calculateTrendLine(List<Float> values) {
-        int n = values.size();
-        if (n < 2) {
-            double intercept = n > 0 ? values.get(0) : 0;
+        int totalValues = values.size();
+        if (totalValues < 2) {
+            double intercept = totalValues > 0 ? values.get(0) : 0;
             return new double[]{0, intercept};
         }
 
+        // Only include non-zero data points in the regression (0 means no data)
         double sumX = 0;
         double sumY = 0;
         double sumXY = 0;
         double sumXX = 0;
+        int n = 0;
 
-        for (int i = 0; i < n; i++) {
-            sumX += i;
-            sumY += values.get(i);
-            sumXY += i * values.get(i);
-            sumXX += i * i;
+        for (int i = 0; i < totalValues; i++) {
+            float value = values.get(i);
+            if (value != 0) {
+                sumX += i;
+                sumY += value;
+                sumXY += i * value;
+                sumXX += i * i;
+                n++;
+            }
+        }
+
+        if (n < 2) {
+            // Not enough data points with values, return flat line at average
+            double avg = n > 0 ? sumY / n : 0;
+            return new double[]{0, avg};
         }
 
         double denom = n * sumXX - sumX * sumX;
