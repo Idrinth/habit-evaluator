@@ -94,7 +94,6 @@ public class Habit {
         this.targetFrequency = 1;
         this.maxEntriesPerDay = 1;
         this.positiveScoring = true;
-        this.scoringRule = new ScoringRule();
     }
 
     public Habit(String name, String description) {
