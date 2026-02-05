@@ -1,23 +1,26 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { stats, type DashboardData, type DailyTimelineData, type CorrelationEntry } from '$lib/api';
+	import { stats, type DashboardData, type DailyTimelineData, type CorrelationEntry, type EmotionScatterData } from '$lib/api';
 	import { goto } from '$app/navigation';
 
 	let data: DashboardData | null = $state(null);
 	let timelineData: DailyTimelineData | null = $state(null);
 	let correlationData: CorrelationEntry[] | null = $state(null);
+	let emotionScatterData: EmotionScatterData | null = $state(null);
 	let error: string | null = $state(null);
 
 	onMount(async () => {
 		try {
-			const [dashboardResult, timelineResult, correlationResult] = await Promise.all([
+			const [dashboardResult, timelineResult, correlationResult, emotionScatterResult] = await Promise.all([
 				stats.dashboard(),
 				stats.dailyTimeline(),
-				stats.correlations()
+				stats.correlations(),
+				stats.emotionScatter()
 			]);
 			data = dashboardResult;
 			timelineData = timelineResult;
 			correlationData = correlationResult;
+			emotionScatterData = emotionScatterResult;
 		} catch (e) {
 			if (e instanceof Error && e.message.includes('401')) {
 				goto('/login');
@@ -46,6 +49,12 @@
 		const h = Math.floor(hour);
 		const m = Math.round((hour - h) * 60);
 		return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+	}
+
+	function formatStrength(strength: number): string {
+		if (strength === 0) return '0%';
+		if (strength > 0) return `+${strength * 10}%`;
+		return `${strength * 10}%`;
 	}
 </script>
 
@@ -250,6 +259,82 @@
 			</div>
 		{/if}
 
+		{#if emotionScatterData && emotionScatterData.pairs.length > 0}
+			{@const scatterWidth = emotionScatterData.labels.length * 20}
+			{@const scatterTop = 10}
+			{@const scatterBottom = 220}
+			{@const scatterHeight = scatterBottom - scatterTop}
+			{@const scatterLeftMargin = 35}
+			{@const scatterTotalWidth = scatterWidth + scatterLeftMargin}
+			{@const scatterCenter = scatterTop + scatterHeight / 2}
+			<div class="chart-card scatter-card">
+				<h2>Daytime Emotion Distribution</h2>
+				<p class="chart-avg">Emotion recordings by time of day over the past 30 days</p>
+				<div class="scatter-wrapper">
+					<svg viewBox="0 0 {scatterTotalWidth} 250" class="scatter-chart">
+						<!-- Y-axis grid lines for emotion strength (-10 to +10) -->
+						{#each [-10, -5, 0, 5, 10] as strength}
+							{@const y = scatterCenter - (strength / 10) * (scatterHeight / 2)}
+							<line
+								x1={scatterLeftMargin}
+								y1={y}
+								x2={scatterTotalWidth}
+								y2={y}
+								stroke="var(--color-border)"
+								stroke-width={strength === 0 ? '1' : '0.5'}
+								stroke-dasharray={strength === 0 ? '0' : '2,2'}
+							/>
+							<text
+								x={scatterLeftMargin - 3}
+								y={y + 3}
+								text-anchor="end"
+								font-size="7"
+								fill="var(--color-text-muted)"
+							>
+								{strength > 0 ? '+' : ''}{strength}
+							</text>
+						{/each}
+						<!-- X-axis labels -->
+						{#each emotionScatterData.labels as label, i}
+							{#if i % 5 === 0}
+								<text
+									x={scatterLeftMargin + i * 20 + 10}
+									y={248}
+									text-anchor="middle"
+									font-size="6"
+									fill="var(--color-text-muted)"
+								>
+									{label}
+								</text>
+							{/if}
+						{/each}
+						<!-- Scatter points for each emotion pair -->
+						{#each emotionScatterData.pairs as pair}
+							{#each pair.entries as entry}
+								<circle
+									cx={scatterLeftMargin + entry.dayIndex * 20 + 10}
+									cy={scatterCenter - (entry.strength / 10) * (scatterHeight / 2)}
+									r="4"
+									fill={pair.color}
+									opacity="0.7"
+								>
+									<title>{pair.pairLabel} - {emotionScatterData.labels[entry.dayIndex]} at {formatHour(entry.hour)}: {formatStrength(entry.strength)}</title>
+								</circle>
+							{/each}
+						{/each}
+					</svg>
+				</div>
+				<div class="scatter-legend">
+					{#each emotionScatterData.pairs as pair}
+						<span class="legend-item">
+							<span class="legend-dot" style="background: {pair.color}"></span>
+							{pair.pairLabel}
+						</span>
+					{/each}
+				</div>
+			</div>
+		{/if}
+
 		{#if correlationData && correlationData.length > 0}
 			<div class="chart-card correlation-card">
 				<h2>Event Correlations (Yearly, Time-Weighted)</h2>
@@ -387,6 +472,29 @@
 		width: 10px;
 		height: 10px;
 		border-radius: 50%;
+	}
+
+	.scatter-card {
+		grid-column: 1 / -1;
+		margin-top: 1rem;
+	}
+
+	.scatter-wrapper {
+		overflow-x: auto;
+	}
+
+	.scatter-chart {
+		width: 100%;
+		height: auto;
+		min-width: 400px;
+	}
+
+	.scatter-legend {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.75rem;
+		margin-top: 0.75rem;
+		font-size: 0.8rem;
 	}
 
 	.correlation-card {
