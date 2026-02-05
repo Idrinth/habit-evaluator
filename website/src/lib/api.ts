@@ -146,7 +146,7 @@ export const habits = {
 	list() {
 		return request<Habit[]>('/habits');
 	},
-	create(habit: { name: string; description?: string; categoryId?: string; frequencyType: string; targetFrequency: number; maxEntriesPerDay: number; positiveScoring: boolean; nameTranslations?: Record<string, string>; descriptionTranslations?: Record<string, string> }) {
+	create(habit: { name: string; description?: string; categoryId?: string; frequencyType: string; targetFrequency: number; maxEntriesPerDay: number; positiveScoring: boolean; scoringRule?: { thresholdFor1Point: number; thresholdFor2Points: number; thresholdFor4Points: number; thresholdFor8Points: number }; nameTranslations?: Record<string, string>; descriptionTranslations?: Record<string, string> }) {
 		return request<Habit>('/habits', {
 			method: 'POST',
 			body: JSON.stringify(habit)

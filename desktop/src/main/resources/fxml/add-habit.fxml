@@ -43,6 +43,18 @@
         <CheckBox fx:id="positiveScoringCheckBox" text="Positive scoring" selected="true"/>
     </HBox>
 
+    <Label text="Scoring thresholds:" styleClass="field-label"/>
+    <HBox spacing="10" alignment="CENTER_LEFT">
+        <Label text="1pt:" prefWidth="30"/>
+        <TextField fx:id="threshold1Field" prefWidth="60" promptText="1" text="1"/>
+        <Label text="2pt:" prefWidth="30"/>
+        <TextField fx:id="threshold2Field" prefWidth="60" promptText="2" text="2"/>
+        <Label text="4pt:" prefWidth="30"/>
+        <TextField fx:id="threshold4Field" prefWidth="60" promptText="4" text="4"/>
+        <Label text="8pt:" prefWidth="30"/>
+        <TextField fx:id="threshold8Field" prefWidth="60" promptText="7" text="7"/>
+    </HBox>
+
     <VBox fx:id="translationsContainer" spacing="8" visible="false" managed="false"/>
 
     <Button text="Add Habit" onAction="#handleAddHabit" styleClass="primary-button"/>

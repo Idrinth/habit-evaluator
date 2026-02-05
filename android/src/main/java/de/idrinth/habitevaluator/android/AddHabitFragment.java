@@ -27,6 +27,7 @@ import de.idrinth.habitevaluator.shared.api.ApiClient;
 import de.idrinth.habitevaluator.shared.model.FrequencyType;
 import de.idrinth.habitevaluator.shared.model.Habit;
 import de.idrinth.habitevaluator.shared.model.HabitCategory;
+import de.idrinth.habitevaluator.shared.model.ScoringRule;
 import de.idrinth.habitevaluator.shared.model.User;
 import de.idrinth.habitevaluator.shared.repository.HabitCategoryRepository;
 import de.idrinth.habitevaluator.shared.repository.HabitRepository;
@@ -248,6 +249,19 @@ public class AddHabitFragment extends Fragment {
 
         habit.setPositiveScoring(binding.positiveScoringSwitch.isChecked());
 
+        try {
+            int t1 = Integer.parseInt(binding.threshold1Input.getText().toString().trim());
+            int t2 = Integer.parseInt(binding.threshold2Input.getText().toString().trim());
+            int t4 = Integer.parseInt(binding.threshold4Input.getText().toString().trim());
+            int t8 = Integer.parseInt(binding.threshold8Input.getText().toString().trim());
+            if (t1 >= 0 && t2 >= t1 && t4 >= t2 && t8 >= t4) {
+                ScoringRule rule = new ScoringRule("custom", t1, t2, t4, t8);
+                habit.setScoringRule(rule);
+            }
+        } catch (NumberFormatException e) {
+            // keep default scoring rule
+        }
+
         HabitRepository habitRepository = MainActivity.getSharedHabitRepository();
         boolean usingRemote = MainActivity.isSharedUsingRemoteStorage();
         List<Habit> habits = MainActivity.getSharedHabits();
@@ -298,6 +312,10 @@ public class AddHabitFragment extends Fragment {
         binding.targetFrequencyInput.setText("1");
         binding.maxEntriesPerDayInput.setText("1");
         binding.positiveScoringSwitch.setChecked(true);
+        binding.threshold1Input.setText("1");
+        binding.threshold2Input.setText("2");
+        binding.threshold4Input.setText("4");
+        binding.threshold8Input.setText("7");
         if (binding.frequencyTypeSpinner.getAdapter() != null && binding.frequencyTypeSpinner.getAdapter().getCount() > 0) {
             binding.frequencyTypeSpinner.setSelection(0);
         }

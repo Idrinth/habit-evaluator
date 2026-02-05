@@ -3,6 +3,7 @@ package de.idrinth.habitevaluator.desktop.controller;
 import de.idrinth.habitevaluator.shared.model.FrequencyType;
 import de.idrinth.habitevaluator.shared.model.Habit;
 import de.idrinth.habitevaluator.shared.model.HabitCategory;
+import de.idrinth.habitevaluator.shared.model.ScoringRule;
 import de.idrinth.habitevaluator.shared.model.User;
 import de.idrinth.habitevaluator.shared.repository.HabitCategoryRepository;
 import de.idrinth.habitevaluator.shared.repository.HabitRepository;
@@ -50,6 +51,18 @@ public class AddHabitController {
 
     @FXML
     private CheckBox positiveScoringCheckBox;
+
+    @FXML
+    private TextField threshold1Field;
+
+    @FXML
+    private TextField threshold2Field;
+
+    @FXML
+    private TextField threshold4Field;
+
+    @FXML
+    private TextField threshold8Field;
 
     @FXML
     private VBox translationsContainer;
@@ -259,6 +272,19 @@ public class AddHabitController {
         }
 
         habit.setPositiveScoring(positiveScoringCheckBox.isSelected());
+
+        try {
+            int t1 = Integer.parseInt(threshold1Field.getText().trim());
+            int t2 = Integer.parseInt(threshold2Field.getText().trim());
+            int t4 = Integer.parseInt(threshold4Field.getText().trim());
+            int t8 = Integer.parseInt(threshold8Field.getText().trim());
+            if (t1 >= 0 && t2 >= t1 && t4 >= t2 && t8 >= t4) {
+                ScoringRule rule = new ScoringRule("custom", t1, t2, t4, t8);
+                habit.setScoringRule(rule);
+            }
+        } catch (NumberFormatException e) {
+            // keep default scoring rule
+        }
 
         if (!nameTranslationFields.isEmpty()) {
             Map<String, String> nameTranslations = new HashMap<>();

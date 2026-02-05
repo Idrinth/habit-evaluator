@@ -14,6 +14,10 @@
 	let targetFrequency = $state(1);
 	let maxEntriesPerDay = $state(1);
 	let positiveScoring = $state(true);
+	let threshold1 = $state(1);
+	let threshold2 = $state(2);
+	let threshold4 = $state(4);
+	let threshold8 = $state(7);
 	let error = $state('');
 	let success = $state('');
 	let categoryList: HabitCategory[] = $state([]);
@@ -79,6 +83,12 @@
 				targetFrequency,
 				maxEntriesPerDay,
 				positiveScoring,
+				scoringRule: {
+					thresholdFor1Point: threshold1,
+					thresholdFor2Points: threshold2,
+					thresholdFor4Points: threshold4,
+					thresholdFor8Points: threshold8
+				},
 				nameTranslations: cleanTranslations(nameTranslations),
 				descriptionTranslations: cleanTranslations(descriptionTranslations)
 			});
@@ -90,6 +100,10 @@
 			targetFrequency = 1;
 			maxEntriesPerDay = 1;
 			positiveScoring = true;
+			threshold1 = 1;
+			threshold2 = 2;
+			threshold4 = 4;
+			threshold8 = 7;
 			nameTranslations = {};
 			descriptionTranslations = {};
 		} catch (err) {
@@ -142,6 +156,28 @@
 			<input type="checkbox" id="positiveScoring" bind:checked={positiveScoring} />
 			Positive scoring
 		</label>
+
+		<fieldset class="threshold-fieldset">
+			<legend>Scoring thresholds</legend>
+			<div class="threshold-row">
+				<label class="threshold-field">
+					<span class="threshold-field-label">1pt</span>
+					<input type="number" min="0" bind:value={threshold1} />
+				</label>
+				<label class="threshold-field">
+					<span class="threshold-field-label">2pt</span>
+					<input type="number" min="0" bind:value={threshold2} />
+				</label>
+				<label class="threshold-field">
+					<span class="threshold-field-label">4pt</span>
+					<input type="number" min="0" bind:value={threshold4} />
+				</label>
+				<label class="threshold-field">
+					<span class="threshold-field-label">8pt</span>
+					<input type="number" min="0" bind:value={threshold8} />
+				</label>
+			</div>
+		</fieldset>
 
 		{#if translationsEnabled}
 			<fieldset class="translations-fieldset">
@@ -205,5 +241,42 @@
 
 	.translation-input-wide {
 		width: 200px;
+	}
+
+	.threshold-fieldset {
+		border: 1px solid var(--color-border-light);
+		border-radius: 4px;
+		padding: 0.75rem;
+		margin: 0.5rem 0;
+	}
+
+	.threshold-fieldset legend {
+		font-size: 0.9rem;
+		font-weight: bold;
+		color: var(--color-text-secondary);
+	}
+
+	.threshold-row {
+		display: flex;
+		align-items: center;
+		gap: 0.75rem;
+		flex-wrap: wrap;
+	}
+
+	.threshold-field {
+		display: flex;
+		flex-direction: column;
+		gap: 0.15rem;
+	}
+
+	.threshold-field input[type='number'] {
+		width: 60px;
+		padding: 0.25rem;
+		text-align: center;
+	}
+
+	.threshold-field-label {
+		font-size: 0.75rem;
+		color: var(--color-text-muted);
 	}
 </style>
