@@ -204,6 +204,8 @@
     <string name="collapse_emotion_entries">Hide entries</string>
     <string name="no_entries_yet">No entries yet</string>
     <string name="stats_emotion_pairs">Emotion Pairs</string>
+    <string name="stats_emotion_scatter">Daytime Emotion Distribution</string>
+    <string name="stats_emotion_scatter_desc">Emotion recordings over the past 30 days</string>
     <string name="stats_correlations_title">Event Correlations (Yearly, Time-Weighted)</string>
     <string name="stats_no_correlations">Not enough data for correlations</string>
     <string name="pdf_include_emotions">Emotion measurements and graph</string>
