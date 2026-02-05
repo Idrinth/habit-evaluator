@@ -1,5 +1,6 @@
 package de.idrinth.habitevaluator.android;
 
+import android.content.Context;
 import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -18,6 +19,11 @@ import de.idrinth.habitevaluator.shared.model.SleepEntry;
 public class SleepAnalysisActivity extends AppCompatActivity {
 
     private static final DateTimeFormatter LABEL_FORMAT = DateTimeFormatter.ofPattern("MM/dd");
+
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        super.attachBaseContext(FontSizeHelper.applyFontScale(newBase));
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

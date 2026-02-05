@@ -1,6 +1,7 @@
 package de.idrinth.habitevaluator.android;
 
 import android.app.DatePickerDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -38,6 +39,11 @@ import de.idrinth.habitevaluator.shared.service.EventCorrelationService;
 import de.idrinth.habitevaluator.shared.service.HabitScoringService;
 
 public class PdfExportActivity extends AppCompatActivity {
+
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        super.attachBaseContext(FontSizeHelper.applyFontScale(newBase));
+    }
 
     private static final DateTimeFormatter DISPLAY_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     private static final DateTimeFormatter LABEL_FORMAT = DateTimeFormatter.ofPattern("MM/dd");
