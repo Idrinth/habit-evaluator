@@ -2,8 +2,6 @@ package de.idrinth.habitevaluator.desktop.persistence;
 
 import de.idrinth.habitevaluator.shared.model.DiaryEntry;
 import de.idrinth.habitevaluator.shared.repository.DiaryEntryRepository;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityTransaction;
 
 import java.util.List;
 import java.util.Optional;
@@ -12,94 +10,39 @@ public class H2DiaryEntryRepository implements DiaryEntryRepository {
 
     @Override
     public DiaryEntry save(DiaryEntry entry) {
-        EntityManager em = PersistenceManager.createEntityManager();
-        EntityTransaction tx = em.getTransaction();
-        try {
-            tx.begin();
-            DiaryEntry existing = em.find(DiaryEntry.class, entry.getId());
-            DiaryEntry result;
-            if (existing != null) {
-                result = em.merge(entry);
-            } else {
-                em.persist(entry);
-                result = entry;
-            }
-            tx.commit();
-            return result;
-        } catch (Exception e) {
-            if (tx.isActive()) {
-                tx.rollback();
-            }
-            throw e;
-        } finally {
-            em.close();
-        }
+        return JpaTransactionHelper.saveOrUpdate(DiaryEntry.class, entry, DiaryEntry::getId);
     }
 
     @Override
     public Optional<DiaryEntry> findById(String id) {
-        EntityManager em = PersistenceManager.createEntityManager();
-        try {
-            DiaryEntry entry = em.find(DiaryEntry.class, id);
-            return Optional.ofNullable(entry);
-        } finally {
-            em.close();
-        }
+        return JpaTransactionHelper.findById(DiaryEntry.class, id);
     }
 
     @Override
     public List<DiaryEntry> findAll() {
-        EntityManager em = PersistenceManager.createEntityManager();
-        try {
-            return em.createQuery("SELECT d FROM DiaryEntry d", DiaryEntry.class)
-                    .getResultList();
-        } finally {
-            em.close();
-        }
+        return JpaTransactionHelper.findAll(DiaryEntry.class, "DiaryEntry");
     }
 
     @Override
     public void deleteById(String id) {
-        EntityManager em = PersistenceManager.createEntityManager();
-        EntityTransaction tx = em.getTransaction();
-        try {
-            tx.begin();
-            DiaryEntry entry = em.find(DiaryEntry.class, id);
-            if (entry != null) {
-                em.remove(entry);
-            }
-            tx.commit();
-        } catch (Exception e) {
-            if (tx.isActive()) {
-                tx.rollback();
-            }
-            throw e;
-        } finally {
-            em.close();
-        }
+        JpaTransactionHelper.deleteById(DiaryEntry.class, id);
     }
 
     @Override
     public List<DiaryEntry> findByUserId(String userId) {
-        EntityManager em = PersistenceManager.createEntityManager();
-        try {
-            return em.createQuery("SELECT d FROM DiaryEntry d WHERE d.user.id = :userId", DiaryEntry.class)
-                    .setParameter("userId", userId)
-                    .getResultList();
-        } finally {
-            em.close();
-        }
+        return JpaTransactionHelper.findByParameter(
+                DiaryEntry.class,
+                "SELECT d FROM DiaryEntry d WHERE d.user.id = :userId",
+                "userId",
+                userId);
     }
 
     @Override
     public List<String> findDistinctDescriptionsByUserId(String userId) {
-        EntityManager em = PersistenceManager.createEntityManager();
-        try {
-            return em.createQuery("SELECT DISTINCT d.description FROM DiaryEntry d WHERE d.user.id = :userId ORDER BY d.description", String.class)
-                    .setParameter("userId", userId)
-                    .getResultList();
-        } finally {
-            em.close();
-        }
+        return JpaTransactionHelper.findByParameter(
+                String.class,
+                "SELECT DISTINCT d.description FROM DiaryEntry d WHERE d.user.id = :userId ORDER BY d.description",
+                "userId",
+                userId);
     }
 }

@@ -1,33 +1,24 @@
 package de.idrinth.habitevaluator.android.persistence;
 
+import static de.idrinth.habitevaluator.android.persistence.GsonSerializers.*;
+
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
-import com.google.gson.JsonPrimitive;
-import com.google.gson.JsonSerializationContext;
-import com.google.gson.JsonSerializer;
-import com.google.gson.reflect.TypeToken;
 
 import de.idrinth.habitevaluator.shared.model.FrequencyType;
 import de.idrinth.habitevaluator.shared.model.Habit;
 import de.idrinth.habitevaluator.shared.model.HabitEntry;
 import de.idrinth.habitevaluator.shared.model.ScoringRule;
-import de.idrinth.habitevaluator.shared.model.User;
 import de.idrinth.habitevaluator.shared.repository.HabitRepository;
 
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -47,15 +38,8 @@ public class FileSystemHabitRepository implements HabitRepository {
             storageDir.mkdirs();
         }
         this.storageFile = new File(storageDir, "habits.json");
-        this.gson = createGson();
+        this.gson = GsonSerializers.createGsonWithDateTime();
         load();
-    }
-
-    private static Gson createGson() {
-        return new GsonBuilder()
-                .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeSerializer())
-                .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeDeserializer())
-                .create();
     }
 
     @Override
@@ -138,10 +122,7 @@ public class FileSystemHabitRepository implements HabitRepository {
         obj.add("createdAt", gson.toJsonTree(habit.getCreatedAt()));
 
         if (habit.getUser() != null) {
-            JsonObject userObj = new JsonObject();
-            userObj.addProperty("id", habit.getUser().getId());
-            userObj.addProperty("username", habit.getUser().getUsername());
-            obj.add("user", userObj);
+            obj.add("user", serializeUser(habit.getUser()));
         }
 
         if (habit.getScoringRule() != null) {
@@ -212,13 +193,8 @@ public class FileSystemHabitRepository implements HabitRepository {
             habit.setCreatedAt(gson.fromJson(obj.get("createdAt"), LocalDateTime.class));
         }
 
-        if (obj.has("user") && !obj.get("user").isJsonNull()) {
-            JsonObject userObj = obj.getAsJsonObject("user");
-            User user = new User();
-            user.setId(userObj.get("id").getAsString());
-            user.setUsername(getStringOrNull(userObj, "username"));
-            user.setPassword("placeholder");
-            habit.setUser(user);
+        if (hasNonNull(obj, "user")) {
+            habit.setUser(deserializeUser(obj.getAsJsonObject("user")));
         }
 
         if (obj.has("scoringRule") && !obj.get("scoringRule").isJsonNull()) {
@@ -273,33 +249,5 @@ public class FileSystemHabitRepository implements HabitRepository {
         }
 
         return habit;
-    }
-
-    private static String getStringOrNull(JsonObject obj, String key) {
-        if (obj.has(key) && !obj.get(key).isJsonNull()) {
-            return obj.get(key).getAsString();
-        }
-        return null;
-    }
-
-    private static class LocalDateTimeSerializer implements JsonSerializer<LocalDateTime> {
-        @Override
-        public JsonElement serialize(LocalDateTime src, Type typeOfSrc, JsonSerializationContext context) {
-            if (src == null) {
-                return JsonNull.INSTANCE;
-            }
-            return new JsonPrimitive(src.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
-        }
-    }
-
-    private static class LocalDateTimeDeserializer implements JsonDeserializer<LocalDateTime> {
-        @Override
-        public LocalDateTime deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
-                throws JsonParseException {
-            if (json.isJsonNull()) {
-                return null;
-            }
-            return LocalDateTime.parse(json.getAsString(), DateTimeFormatter.ISO_LOCAL_DATE_TIME);
-        }
     }
 }

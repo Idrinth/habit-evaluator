@@ -11,6 +11,7 @@ module de.idrinth.habitevaluator.shared {
     exports de.idrinth.habitevaluator.shared.model;
     exports de.idrinth.habitevaluator.shared.service;
     exports de.idrinth.habitevaluator.shared.repository;
+    exports de.idrinth.habitevaluator.shared.util;
 
     opens de.idrinth.habitevaluator.shared.model;
     opens de.idrinth.habitevaluator.shared.backup to com.google.gson;

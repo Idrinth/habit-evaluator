@@ -1,16 +1,14 @@
 package de.idrinth.habitevaluator.android.persistence;
 
+import static de.idrinth.habitevaluator.android.persistence.GsonSerializers.*;
+
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
-import com.google.gson.JsonPrimitive;
 
 import de.idrinth.habitevaluator.shared.model.EmotionPair;
-import de.idrinth.habitevaluator.shared.model.User;
 import de.idrinth.habitevaluator.shared.repository.EmotionPairRepository;
 
 import java.io.File;
@@ -34,7 +32,7 @@ public class FileSystemEmotionPairRepository implements EmotionPairRepository {
             storageDir.mkdirs();
         }
         this.storageFile = new File(storageDir, "emotion-pairs.json");
-        this.gson = new GsonBuilder().create();
+        this.gson = GsonSerializers.createGson();
         load();
     }
 
@@ -111,10 +109,7 @@ public class FileSystemEmotionPairRepository implements EmotionPairRepository {
         obj.addProperty("positiveLabel", pair.getPositiveLabel());
 
         if (pair.getUser() != null) {
-            JsonObject userObj = new JsonObject();
-            userObj.addProperty("id", pair.getUser().getId());
-            userObj.addProperty("username", pair.getUser().getUsername());
-            obj.add("user", userObj);
+            obj.add("user", serializeUser(pair.getUser()));
         }
 
         return obj;
@@ -126,22 +121,10 @@ public class FileSystemEmotionPairRepository implements EmotionPairRepository {
         pair.setNegativeLabel(getStringOrNull(obj, "negativeLabel"));
         pair.setPositiveLabel(getStringOrNull(obj, "positiveLabel"));
 
-        if (obj.has("user") && !obj.get("user").isJsonNull()) {
-            JsonObject userObj = obj.getAsJsonObject("user");
-            User user = new User();
-            user.setId(userObj.get("id").getAsString());
-            user.setUsername(getStringOrNull(userObj, "username"));
-            user.setPassword("placeholder");
-            pair.setUser(user);
+        if (hasNonNull(obj, "user")) {
+            pair.setUser(deserializeUser(obj.getAsJsonObject("user")));
         }
 
         return pair;
-    }
-
-    private static String getStringOrNull(JsonObject obj, String key) {
-        if (obj.has(key) && !obj.get(key).isJsonNull()) {
-            return obj.get(key).getAsString();
-        }
-        return null;
     }
 }

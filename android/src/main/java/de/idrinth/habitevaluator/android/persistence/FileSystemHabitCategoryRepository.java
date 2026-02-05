@@ -1,29 +1,20 @@
 package de.idrinth.habitevaluator.android.persistence;
 
+import static de.idrinth.habitevaluator.android.persistence.GsonSerializers.*;
+
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
-import com.google.gson.JsonPrimitive;
-import com.google.gson.JsonSerializationContext;
-import com.google.gson.JsonSerializer;
 
 import de.idrinth.habitevaluator.shared.model.HabitCategory;
-import de.idrinth.habitevaluator.shared.model.User;
 import de.idrinth.habitevaluator.shared.repository.HabitCategoryRepository;
 
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.lang.reflect.Type;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -42,16 +33,7 @@ public class FileSystemHabitCategoryRepository implements HabitCategoryRepositor
             storageDir.mkdirs();
         }
         this.storageFile = new File(storageDir, "categories.json");
-        this.gson = new GsonBuilder()
-                .registerTypeAdapter(LocalDateTime.class, (JsonSerializer<LocalDateTime>) (src, typeOfSrc, context) -> {
-                    if (src == null) return JsonNull.INSTANCE;
-                    return new JsonPrimitive(src.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
-                })
-                .registerTypeAdapter(LocalDateTime.class, (JsonDeserializer<LocalDateTime>) (json, typeOfT, context) -> {
-                    if (json.isJsonNull()) return null;
-                    return LocalDateTime.parse(json.getAsString(), DateTimeFormatter.ISO_LOCAL_DATE_TIME);
-                })
-                .create();
+        this.gson = GsonSerializers.createGsonWithDateTime();
         load();
     }
 
@@ -134,10 +116,7 @@ public class FileSystemHabitCategoryRepository implements HabitCategoryRepositor
         obj.addProperty("color", category.getColor());
 
         if (category.getUser() != null) {
-            JsonObject userObj = new JsonObject();
-            userObj.addProperty("id", category.getUser().getId());
-            userObj.addProperty("username", category.getUser().getUsername());
-            obj.add("user", userObj);
+            obj.add("user", serializeUser(category.getUser()));
         }
 
         if (category.getNameTranslations() != null && !category.getNameTranslations().isEmpty()) {
@@ -165,16 +144,11 @@ public class FileSystemHabitCategoryRepository implements HabitCategoryRepositor
         category.setDescription(getStringOrNull(obj, "description"));
         category.setColor(getStringOrNull(obj, "color"));
 
-        if (obj.has("user") && !obj.get("user").isJsonNull()) {
-            JsonObject userObj = obj.getAsJsonObject("user");
-            User user = new User();
-            user.setId(userObj.get("id").getAsString());
-            user.setUsername(getStringOrNull(userObj, "username"));
-            user.setPassword("placeholder");
-            category.setUser(user);
+        if (hasNonNull(obj, "user")) {
+            category.setUser(deserializeUser(obj.getAsJsonObject("user")));
         }
 
-        if (obj.has("nameTranslations") && !obj.get("nameTranslations").isJsonNull()) {
+        if (hasNonNull(obj, "nameTranslations")) {
             Map<String, String> nameTrans = new HashMap<>();
             JsonObject ntObj = obj.getAsJsonObject("nameTranslations");
             for (String key : ntObj.keySet()) {
@@ -184,7 +158,7 @@ public class FileSystemHabitCategoryRepository implements HabitCategoryRepositor
             }
             category.setNameTranslations(nameTrans);
         }
-        if (obj.has("descriptionTranslations") && !obj.get("descriptionTranslations").isJsonNull()) {
+        if (hasNonNull(obj, "descriptionTranslations")) {
             Map<String, String> descTrans = new HashMap<>();
             JsonObject dtObj = obj.getAsJsonObject("descriptionTranslations");
             for (String key : dtObj.keySet()) {
@@ -196,12 +170,5 @@ public class FileSystemHabitCategoryRepository implements HabitCategoryRepositor
         }
 
         return category;
-    }
-
-    private static String getStringOrNull(JsonObject obj, String key) {
-        if (obj.has(key) && !obj.get(key).isJsonNull()) {
-            return obj.get(key).getAsString();
-        }
-        return null;
     }
 }

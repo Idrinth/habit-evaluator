@@ -2,8 +2,6 @@ package de.idrinth.habitevaluator.desktop.persistence;
 
 import de.idrinth.habitevaluator.shared.model.Habit;
 import de.idrinth.habitevaluator.shared.repository.HabitRepository;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityTransaction;
 
 import java.util.List;
 import java.util.Optional;
@@ -16,92 +14,35 @@ public class H2HabitRepository implements HabitRepository {
 
     @Override
     public Habit save(Habit habit) {
-        EntityManager em = PersistenceManager.createEntityManager();
-        EntityTransaction tx = em.getTransaction();
-        try {
-            tx.begin();
-            Habit existingHabit = em.find(Habit.class, habit.getId());
-            Habit result;
-            if (existingHabit != null) {
-                result = em.merge(habit);
-            } else {
-                em.persist(habit);
-                result = habit;
-            }
-            tx.commit();
-            return result;
-        } catch (Exception e) {
-            if (tx.isActive()) {
-                tx.rollback();
-            }
-            throw e;
-        } finally {
-            em.close();
-        }
+        return JpaTransactionHelper.saveOrUpdate(Habit.class, habit, Habit::getId);
     }
 
     @Override
     public Optional<Habit> findById(String id) {
-        EntityManager em = PersistenceManager.createEntityManager();
-        try {
-            Habit habit = em.find(Habit.class, id);
-            return Optional.ofNullable(habit);
-        } finally {
-            em.close();
-        }
+        return JpaTransactionHelper.findById(Habit.class, id);
     }
 
     @Override
     public List<Habit> findAll() {
-        EntityManager em = PersistenceManager.createEntityManager();
-        try {
-            return em.createQuery("SELECT h FROM Habit h", Habit.class)
-                    .getResultList();
-        } finally {
-            em.close();
-        }
+        return JpaTransactionHelper.findAll(Habit.class, "Habit");
     }
 
     @Override
     public void deleteById(String id) {
-        EntityManager em = PersistenceManager.createEntityManager();
-        EntityTransaction tx = em.getTransaction();
-        try {
-            tx.begin();
-            Habit habit = em.find(Habit.class, id);
-            if (habit != null) {
-                em.remove(habit);
-            }
-            tx.commit();
-        } catch (Exception e) {
-            if (tx.isActive()) {
-                tx.rollback();
-            }
-            throw e;
-        } finally {
-            em.close();
-        }
+        JpaTransactionHelper.deleteById(Habit.class, id);
     }
 
     @Override
     public boolean existsById(String id) {
-        EntityManager em = PersistenceManager.createEntityManager();
-        try {
-            return em.find(Habit.class, id) != null;
-        } finally {
-            em.close();
-        }
+        return JpaTransactionHelper.existsById(Habit.class, id);
     }
 
     @Override
     public List<Habit> findByUserId(String userId) {
-        EntityManager em = PersistenceManager.createEntityManager();
-        try {
-            return em.createQuery("SELECT h FROM Habit h WHERE h.user.id = :userId", Habit.class)
-                    .setParameter("userId", userId)
-                    .getResultList();
-        } finally {
-            em.close();
-        }
+        return JpaTransactionHelper.findByParameter(
+                Habit.class,
+                "SELECT h FROM Habit h WHERE h.user.id = :userId",
+                "userId",
+                userId);
     }
 }

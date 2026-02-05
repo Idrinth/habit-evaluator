@@ -1,7 +1,8 @@
 package de.idrinth.habitevaluator.android.persistence;
 
+import static de.idrinth.habitevaluator.android.persistence.GsonSerializers.*;
+
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -9,7 +10,6 @@ import com.google.gson.JsonParseException;
 
 import de.idrinth.habitevaluator.shared.model.EmotionEntry;
 import de.idrinth.habitevaluator.shared.model.EmotionPair;
-import de.idrinth.habitevaluator.shared.model.User;
 import de.idrinth.habitevaluator.shared.repository.EmotionEntryRepository;
 import de.idrinth.habitevaluator.shared.repository.EmotionPairRepository;
 
@@ -38,7 +38,7 @@ public class FileSystemEmotionEntryRepository implements EmotionEntryRepository 
             storageDir.mkdirs();
         }
         this.storageFile = new File(storageDir, "emotion-entries.json");
-        this.gson = new GsonBuilder().create();
+        this.gson = GsonSerializers.createGson();
         this.emotionPairRepository = emotionPairRepository;
         load();
     }
@@ -123,10 +123,7 @@ public class FileSystemEmotionEntryRepository implements EmotionEntryRepository 
         }
 
         if (entry.getUser() != null) {
-            JsonObject userObj = new JsonObject();
-            userObj.addProperty("id", entry.getUser().getId());
-            userObj.addProperty("username", entry.getUser().getUsername());
-            obj.add("user", userObj);
+            obj.add("user", serializeUser(entry.getUser()));
         }
 
         return obj;
@@ -137,15 +134,13 @@ public class FileSystemEmotionEntryRepository implements EmotionEntryRepository 
         entry.setId(obj.get("id").getAsString());
         entry.setStrength(obj.get("strength").getAsInt());
 
-        if (obj.has("recordedAt") && !obj.get("recordedAt").isJsonNull()) {
+        if (hasNonNull(obj, "recordedAt")) {
             entry.setRecordedAt(LocalDateTime.parse(obj.get("recordedAt").getAsString(), FORMATTER));
         }
 
-        if (obj.has("notes") && !obj.get("notes").isJsonNull()) {
-            entry.setNotes(obj.get("notes").getAsString());
-        }
+        entry.setNotes(getStringOrNull(obj, "notes"));
 
-        if (obj.has("emotionPairId") && !obj.get("emotionPairId").isJsonNull()) {
+        if (hasNonNull(obj, "emotionPairId")) {
             String pairId = obj.get("emotionPairId").getAsString();
             Optional<EmotionPair> pair = emotionPairRepository.findById(pairId);
             if (pair.isPresent()) {
@@ -155,15 +150,8 @@ public class FileSystemEmotionEntryRepository implements EmotionEntryRepository 
             }
         }
 
-        if (obj.has("user") && !obj.get("user").isJsonNull()) {
-            JsonObject userObj = obj.getAsJsonObject("user");
-            User user = new User();
-            user.setId(userObj.get("id").getAsString());
-            if (userObj.has("username") && !userObj.get("username").isJsonNull()) {
-                user.setUsername(userObj.get("username").getAsString());
-            }
-            user.setPassword("placeholder");
-            entry.setUser(user);
+        if (hasNonNull(obj, "user")) {
+            entry.setUser(deserializeUser(obj.getAsJsonObject("user")));
         }
 
         return entry;
