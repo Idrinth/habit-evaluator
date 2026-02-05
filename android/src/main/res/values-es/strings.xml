@@ -188,6 +188,15 @@
     <string name="restore_in_progress">Restaurando respaldo…</string>
     <string name="restore_success">Restaurado: %1$d hábitos añadidos, %2$d hábitos fusionados, %3$d entradas añadidas, %4$d entradas de diario añadidas, %5$d entradas de sueño añadidas, %6$d categorías añadidas</string>
     <string name="restore_failed">Error al restaurar: %s</string>
+    <string name="download_backup_title">Download Backup</string>
+    <string name="download_backup_button">Download Backup (.hez)</string>
+    <string name="download_backup_in_progress">Creating backup…</string>
+    <string name="download_backup_success">Backup saved successfully</string>
+    <string name="download_backup_failed">Backup download failed: %s</string>
+    <string name="restore_from_file_title">Restore from File</string>
+    <string name="restore_from_file_button">Restore from File (.hez)</string>
+    <string name="restore_from_file_select">Select a .hez backup file</string>
+    <string name="restore_from_file_invalid">Invalid backup file. Please select a .hez file.</string>
     <string name="emotional_state">Emociones</string>
     <string name="add_emotion_pair">Añadir par de emociones</string>
     <string name="negative_label_hint">Etiqueta negativa (ej. apático)</string>
