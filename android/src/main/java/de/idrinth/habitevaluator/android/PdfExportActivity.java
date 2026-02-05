@@ -615,7 +615,7 @@ public class PdfExportActivity extends AppCompatActivity {
         }
 
         // Draw emotion scatter chart (daytime distribution)
-        commands.add(new EmotionScatterChartCommand(labels, dates, pairIds, pairLabelMap, entriesByPair,
+        commands.add(new EmotionScatterChartCommand(pairIds, pairLabelMap, entriesByPair,
                 MARGIN, yPosition, PAGE_WIDTH - 2 * MARGIN, 200,
                 getString(R.string.pdf_scatter_chart_title)));
         yPosition += 220 + legendHeight;
@@ -1108,8 +1108,6 @@ public class PdfExportActivity extends AppCompatActivity {
     }
 
     private static class EmotionScatterChartCommand implements DrawCommand {
-        private final List<String> labels;
-        private final List<LocalDate> dates;
         private final List<String> pairIds;
         private final Map<String, String> pairLabelMap;
         private final Map<String, List<EmotionEntry>> entriesByPair;
@@ -1119,11 +1117,9 @@ public class PdfExportActivity extends AppCompatActivity {
         private final float height;
         private final String title;
 
-        EmotionScatterChartCommand(List<String> labels, List<LocalDate> dates, List<String> pairIds,
+        EmotionScatterChartCommand(List<String> pairIds,
                                     Map<String, String> pairLabelMap, Map<String, List<EmotionEntry>> entriesByPair,
                                     float x, float y, float width, float height, String title) {
-            this.labels = labels;
-            this.dates = dates;
             this.pairIds = pairIds;
             this.pairLabelMap = pairLabelMap;
             this.entriesByPair = entriesByPair;
@@ -1180,15 +1176,7 @@ public class PdfExportActivity extends AppCompatActivity {
                 canvas.drawText(label, chartLeft - 4, gridY + 3, gridLabelPaint);
             }
 
-            if (labels.isEmpty() || dates.isEmpty()) {
-                return;
-            }
-
-            int count = labels.size();
-            float pointSpacing = count > 1 ? chartWidth / (count - 1) : chartWidth;
-            LocalDate startDate = dates.get(0);
-
-            // Draw scatter points for each emotion pair
+            // Draw scatter points for each emotion pair (X-axis: 0-24 hours)
             Paint dotPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
             dotPaint.setStyle(Paint.Style.FILL);
 
@@ -1201,30 +1189,29 @@ public class PdfExportActivity extends AppCompatActivity {
 
                 dotPaint.setColor(pointColor);
                 for (EmotionEntry entry : pairEntries) {
-                    LocalDate entryDate = entry.getRecordedAt().toLocalDate();
-                    int dayIndex = (int) java.time.temporal.ChronoUnit.DAYS.between(startDate, entryDate);
-                    if (dayIndex >= 0 && dayIndex < count) {
-                        float px = count > 1 ? chartLeft + pointSpacing * dayIndex : chartLeft + chartWidth / 2f;
+                    float hourOfDay = entry.getRecordedAt().getHour()
+                            + entry.getRecordedAt().getMinute() / 60f;
+                    if (hourOfDay >= 0 && hourOfDay <= 24) {
+                        float px = chartLeft + (hourOfDay / 24f) * chartWidth;
                         float py = yCenter - (entry.getStrength() / 10f) * (chartHeight / 2f);
                         canvas.drawCircle(px, py, 3f, dotPaint);
                     }
                 }
             }
 
-            // X-axis labels
+            // X-axis labels (hours: 00:00, 06:00, 12:00, 18:00, 24:00)
             Paint labelPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
             labelPaint.setColor(Color.DKGRAY);
             labelPaint.setTextSize(7f);
             labelPaint.setTextAlign(Paint.Align.CENTER);
-            int labelStep = Math.max(1, count / 10);
-            for (int i = 0; i < count; i += labelStep) {
-                float centerX = count > 1 ? chartLeft + pointSpacing * i : chartLeft + chartWidth / 2f;
-                if (i < labels.size()) {
-                    canvas.save();
-                    canvas.rotate(-45, centerX, chartBottom + 6);
-                    canvas.drawText(labels.get(i), centerX, chartBottom + 14, labelPaint);
-                    canvas.restore();
-                }
+            String[] hourLabels = {"00:00", "06:00", "12:00", "18:00", "24:00"};
+            for (int i = 0; i < hourLabels.length; i++) {
+                int hour = i * 6;
+                float centerX = chartLeft + (hour / 24f) * chartWidth;
+                canvas.save();
+                canvas.rotate(-45, centerX, chartBottom + 6);
+                canvas.drawText(hourLabels[i], centerX, chartBottom + 14, labelPaint);
+                canvas.restore();
             }
 
             // Legend below chart

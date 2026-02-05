@@ -234,7 +234,6 @@ export interface CorrelationEntry {
 }
 
 export interface EmotionScatterEntry {
-	dayIndex: number;
 	hour: number;
 	strength: number;
 }

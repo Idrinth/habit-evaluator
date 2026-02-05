@@ -297,23 +297,24 @@ public class StatsFragment extends Fragment {
             }
         }
 
-        // Build scatter pairs
+        // Build scatter pairs using time of day
         List<EmotionScatterChartView.ScatterPair> scatterPairs = new ArrayList<>();
         for (Map.Entry<String, List<EmotionEntry>> mapEntry : entriesByPair.entrySet()) {
             String pairLabel = pairLabelMap.get(mapEntry.getKey());
             List<EmotionScatterChartView.ScatterEntry> scatterEntries = new ArrayList<>();
 
             for (EmotionEntry entry : mapEntry.getValue()) {
-                LocalDate entryDate = entry.getRecordedAt().toLocalDate();
-                int dayIndex = (int) java.time.temporal.ChronoUnit.DAYS.between(startDate, entryDate);
+                // Extract hour of day (including minutes as decimal)
+                float hourOfDay = entry.getRecordedAt().getHour()
+                        + entry.getRecordedAt().getMinute() / 60f;
                 float strength = entry.getStrength();
-                scatterEntries.add(new EmotionScatterChartView.ScatterEntry(dayIndex, strength));
+                scatterEntries.add(new EmotionScatterChartView.ScatterEntry(hourOfDay, strength));
             }
 
             scatterPairs.add(new EmotionScatterChartView.ScatterPair(pairLabel, scatterEntries));
         }
 
-        binding.emotionScatterChart.setData(labels, scatterPairs);
+        binding.emotionScatterChart.setData(scatterPairs);
     }
 
     private void updateCorrelations() {

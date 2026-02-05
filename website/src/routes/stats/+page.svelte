@@ -369,7 +369,7 @@
 		{/if}
 
 		{#if emotionScatterData && emotionScatterData.pairs.length > 0}
-			{@const scatterWidth = emotionScatterData.labels.length * 20}
+			{@const scatterWidth = 480}
 			{@const scatterTop = 10}
 			{@const scatterBottom = 220}
 			{@const scatterHeight = scatterBottom - scatterTop}
@@ -403,31 +403,30 @@
 								{strength > 0 ? '+' : ''}{strength}
 							</text>
 						{/each}
-						<!-- X-axis labels -->
+						<!-- X-axis labels (hours: 00:00, 06:00, 12:00, 18:00, 24:00) -->
 						{#each emotionScatterData.labels as label, i}
-							{#if i % 5 === 0}
-								<text
-									x={scatterLeftMargin + i * 20 + 10}
-									y={248}
-									text-anchor="middle"
-									font-size="6"
-									fill="var(--color-text-muted)"
-								>
-									{label}
-								</text>
-							{/if}
+							{@const hour = i * 6}
+							<text
+								x={scatterLeftMargin + (hour / 24) * scatterWidth}
+								y={248}
+								text-anchor="middle"
+								font-size="6"
+								fill="var(--color-text-muted)"
+							>
+								{label}
+							</text>
 						{/each}
 						<!-- Scatter points for each emotion pair -->
 						{#each emotionScatterData.pairs as pair}
 							{#each pair.entries as entry}
 								<circle
-									cx={scatterLeftMargin + entry.dayIndex * 20 + 10}
+									cx={scatterLeftMargin + (entry.hour / 24) * scatterWidth}
 									cy={scatterCenter - (entry.strength / 10) * (scatterHeight / 2)}
 									r="4"
 									fill={pair.color}
 									opacity="0.7"
 								>
-									<title>{pair.pairLabel} - {emotionScatterData.labels[entry.dayIndex]} at {formatHour(entry.hour)}: {formatStrength(entry.strength)}</title>
+									<title>{pair.pairLabel} at {formatHour(entry.hour)}: {formatStrength(entry.strength)}</title>
 								</circle>
 							{/each}
 						{/each}
