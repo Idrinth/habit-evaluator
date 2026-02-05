@@ -29,6 +29,32 @@ public final class SettingsActivity {
     public static final String KEY_BACKUP_ENABLED = "backup_enabled";
     public static final String KEY_BACKUP_PASSWORD = "backup_password";
     public static final String KEY_FIRST_START_COMPLETED = "first_start_completed";
+    public static final String KEY_FONT_SIZE = "font_size";
+    public static final String FONT_SIZE_XS = "XS";
+    public static final String FONT_SIZE_SMALL = "SMALL";
+    public static final String FONT_SIZE_NORMAL = "NORMAL";
+    public static final String FONT_SIZE_LARGE = "LARGE";
+
+    /**
+     * Returns the font scale multiplier for the given font size setting.
+     * XS = 0.8, SMALL = 0.9, NORMAL = 1.0, LARGE = 1.2
+     */
+    public static float getFontScale(String fontSizeSetting) {
+        if (fontSizeSetting == null) {
+            return 1.0f;
+        }
+        switch (fontSizeSetting) {
+            case FONT_SIZE_XS:
+                return 0.8f;
+            case FONT_SIZE_SMALL:
+                return 0.9f;
+            case FONT_SIZE_LARGE:
+                return 1.2f;
+            case FONT_SIZE_NORMAL:
+            default:
+                return 1.0f;
+        }
+    }
 
     private SettingsActivity() {
     }

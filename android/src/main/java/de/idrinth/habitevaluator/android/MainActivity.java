@@ -2,6 +2,7 @@ package de.idrinth.habitevaluator.android;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.widget.Toast;
@@ -46,6 +47,11 @@ import de.idrinth.habitevaluator.shared.repository.SleepEntryRepository;
 import de.idrinth.habitevaluator.shared.service.DefaultDataInitializer;
 
 public class MainActivity extends AppCompatActivity {
+
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        super.attachBaseContext(FontSizeHelper.applyFontScale(newBase));
+    }
 
     private static final String PLACEHOLDER_USERNAME = "android_user";
     private static List<Habit> sharedHabits;

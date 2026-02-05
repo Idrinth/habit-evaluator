@@ -226,6 +226,53 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
+            android:text="@string/font_size_settings"
+            android:textSize="24sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/font_size_mode_label"
+            android:textSize="16sp" />
+
+        <RadioGroup
+            android:id="@+id/fontSizeModeGroup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp">
+
+            <RadioButton
+                android:id="@+id/fontSizeXsRadio"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/font_size_xs" />
+
+            <RadioButton
+                android:id="@+id/fontSizeSmallRadio"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/font_size_small" />
+
+            <RadioButton
+                android:id="@+id/fontSizeNormalRadio"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/font_size_normal"
+                android:checked="true" />
+
+            <RadioButton
+                android:id="@+id/fontSizeLargeRadio"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/font_size_large" />
+        </RadioGroup>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
             android:text="@string/translation_settings"
             android:textSize="24sp"
             android:textStyle="bold" />

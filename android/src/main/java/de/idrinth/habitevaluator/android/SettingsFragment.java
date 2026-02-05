@@ -81,6 +81,17 @@ public class SettingsFragment extends Fragment {
             binding.languageSystemRadio.setChecked(true);
         }
 
+        String fontSize = prefs.getString(SettingsActivity.KEY_FONT_SIZE, SettingsActivity.FONT_SIZE_NORMAL);
+        if (SettingsActivity.FONT_SIZE_XS.equals(fontSize)) {
+            binding.fontSizeXsRadio.setChecked(true);
+        } else if (SettingsActivity.FONT_SIZE_SMALL.equals(fontSize)) {
+            binding.fontSizeSmallRadio.setChecked(true);
+        } else if (SettingsActivity.FONT_SIZE_LARGE.equals(fontSize)) {
+            binding.fontSizeLargeRadio.setChecked(true);
+        } else {
+            binding.fontSizeNormalRadio.setChecked(true);
+        }
+
         binding.apiUrlInput.setText(url);
         binding.apiUsernameInput.setText(username);
         binding.apiPasswordInput.setText(password);
@@ -204,6 +215,18 @@ public class SettingsFragment extends Fragment {
             language = SettingsActivity.LANGUAGE_SYSTEM;
         }
         editor.putString(SettingsActivity.KEY_LANGUAGE, language);
+
+        String fontSize;
+        if (binding.fontSizeXsRadio.isChecked()) {
+            fontSize = SettingsActivity.FONT_SIZE_XS;
+        } else if (binding.fontSizeSmallRadio.isChecked()) {
+            fontSize = SettingsActivity.FONT_SIZE_SMALL;
+        } else if (binding.fontSizeLargeRadio.isChecked()) {
+            fontSize = SettingsActivity.FONT_SIZE_LARGE;
+        } else {
+            fontSize = SettingsActivity.FONT_SIZE_NORMAL;
+        }
+        editor.putString(SettingsActivity.KEY_FONT_SIZE, fontSize);
 
         editor.putString(SettingsActivity.KEY_API_URL, url);
         editor.putString(SettingsActivity.KEY_API_USERNAME, username);

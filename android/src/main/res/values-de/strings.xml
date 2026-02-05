@@ -68,6 +68,12 @@
     <string name="theme_dark">Dunkel</string>
     <string name="language_settings">Spracheinstellungen</string>
     <string name="language_mode_label">App-Sprache wählen:</string>
+    <string name="font_size_settings">Schriftgrößeneinstellungen</string>
+    <string name="font_size_mode_label">Schriftgröße wählen:</string>
+    <string name="font_size_xs">Extra Klein</string>
+    <string name="font_size_small">Klein</string>
+    <string name="font_size_normal">Normal</string>
+    <string name="font_size_large">Groß</string>
     <string name="language_system">Systemstandard</string>
     <string name="language_en">English</string>
     <string name="language_de">Deutsch</string>
