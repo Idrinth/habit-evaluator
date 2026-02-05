@@ -25,6 +25,7 @@ import de.idrinth.habitevaluator.android.persistence.FileSystemHabitCategoryRepo
 import de.idrinth.habitevaluator.android.persistence.FileSystemHabitRepository;
 import de.idrinth.habitevaluator.android.persistence.FileSystemSleepEntryRepository;
 import de.idrinth.habitevaluator.android.ui.ScreenPagerAdapter;
+import de.idrinth.habitevaluator.android.ui.ViewPager2SwipeSensitivityReducer;
 import de.idrinth.habitevaluator.shared.api.ApiClient;
 import de.idrinth.habitevaluator.shared.api.RemoteHabitRepository;
 import de.idrinth.habitevaluator.shared.api.RemoteUserRepository;
@@ -233,6 +234,7 @@ public class MainActivity extends AppCompatActivity {
         binding.viewPager.setAdapter(pagerAdapter);
         binding.viewPager.setOffscreenPageLimit(ScreenPagerAdapter.PAGE_COUNT);
         binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_HOME, false);
+        ViewPager2SwipeSensitivityReducer.reduce(binding.viewPager, 3);
 
         binding.viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
             @Override
