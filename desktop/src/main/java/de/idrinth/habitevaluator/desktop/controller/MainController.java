@@ -485,7 +485,9 @@ public class MainController {
     private void loadHabits() {
         habits.clear();
         if (currentUser != null) {
-            habits.addAll(habitRepository.findByUserId(currentUser.getId()));
+            List<Habit> loaded = new ArrayList<>(habitRepository.findByUserId(currentUser.getId()));
+            loaded.sort((a, b) -> a.getName().compareToIgnoreCase(b.getName()));
+            habits.addAll(loaded);
         }
         updateLoadDefaultsButtonVisibility();
     }

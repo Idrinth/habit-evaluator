@@ -178,6 +178,7 @@ public class HomeFragment extends Fragment implements HabitAdapter.OnHabitClickL
                 }
             }
         }
+        filteredHabits.sort((a, b) -> a.getName().compareToIgnoreCase(b.getName()));
         habitAdapter.notifyDataSetChanged();
     }
 

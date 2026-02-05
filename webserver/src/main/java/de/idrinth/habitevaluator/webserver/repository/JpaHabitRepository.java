@@ -15,6 +15,6 @@ import java.util.List;
 @Repository
 public interface JpaHabitRepository extends JpaRepository<Habit, String> {
 
-    @Query("SELECT h FROM Habit h WHERE h.user.id = :userId")
+    @Query("SELECT h FROM Habit h WHERE h.user.id = :userId ORDER BY LOWER(h.name)")
     List<Habit> findByUserId(@Param("userId") String userId);
 }
