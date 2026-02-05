@@ -71,6 +71,7 @@
     <string name="language_mode_label">Choose app language:</string>
     <string name="font_size_settings">Font Size Settings</string>
     <string name="font_size_mode_label">Choose font size:</string>
+    <string name="font_size_system">System default</string>
     <string name="font_size_xs">Extra Small</string>
     <string name="font_size_small">Small</string>
     <string name="font_size_normal">Normal</string>

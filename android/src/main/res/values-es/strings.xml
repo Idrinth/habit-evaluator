@@ -70,6 +70,7 @@
     <string name="language_mode_label">Elegir idioma de la aplicación:</string>
     <string name="font_size_settings">Configuración de tamaño de fuente</string>
     <string name="font_size_mode_label">Elegir tamaño de fuente:</string>
+    <string name="font_size_system">Predeterminado del sistema</string>
     <string name="font_size_xs">Extra pequeño</string>
     <string name="font_size_small">Pequeño</string>
     <string name="font_size_normal">Normal</string>

@@ -70,6 +70,7 @@
     <string name="language_mode_label">Choisir la langue de l\'application :</string>
     <string name="font_size_settings">Paramètres de taille de police</string>
     <string name="font_size_mode_label">Choisir la taille de police :</string>
+    <string name="font_size_system">Par défaut du système</string>
     <string name="font_size_xs">Très petit</string>
     <string name="font_size_small">Petit</string>
     <string name="font_size_normal">Normal</string>

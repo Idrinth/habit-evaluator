@@ -81,15 +81,17 @@ public class SettingsFragment extends Fragment {
             binding.languageSystemRadio.setChecked(true);
         }
 
-        String fontSize = prefs.getString(SettingsActivity.KEY_FONT_SIZE, SettingsActivity.FONT_SIZE_NORMAL);
+        String fontSize = prefs.getString(SettingsActivity.KEY_FONT_SIZE, SettingsActivity.FONT_SIZE_SYSTEM);
         if (SettingsActivity.FONT_SIZE_XS.equals(fontSize)) {
             binding.fontSizeXsRadio.setChecked(true);
         } else if (SettingsActivity.FONT_SIZE_SMALL.equals(fontSize)) {
             binding.fontSizeSmallRadio.setChecked(true);
+        } else if (SettingsActivity.FONT_SIZE_NORMAL.equals(fontSize)) {
+            binding.fontSizeNormalRadio.setChecked(true);
         } else if (SettingsActivity.FONT_SIZE_LARGE.equals(fontSize)) {
             binding.fontSizeLargeRadio.setChecked(true);
         } else {
-            binding.fontSizeNormalRadio.setChecked(true);
+            binding.fontSizeSystemRadio.setChecked(true);
         }
 
         binding.apiUrlInput.setText(url);
@@ -221,10 +223,12 @@ public class SettingsFragment extends Fragment {
             fontSize = SettingsActivity.FONT_SIZE_XS;
         } else if (binding.fontSizeSmallRadio.isChecked()) {
             fontSize = SettingsActivity.FONT_SIZE_SMALL;
+        } else if (binding.fontSizeNormalRadio.isChecked()) {
+            fontSize = SettingsActivity.FONT_SIZE_NORMAL;
         } else if (binding.fontSizeLargeRadio.isChecked()) {
             fontSize = SettingsActivity.FONT_SIZE_LARGE;
         } else {
-            fontSize = SettingsActivity.FONT_SIZE_NORMAL;
+            fontSize = SettingsActivity.FONT_SIZE_SYSTEM;
         }
         editor.putString(SettingsActivity.KEY_FONT_SIZE, fontSize);
 

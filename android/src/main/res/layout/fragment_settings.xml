@@ -244,6 +244,13 @@
             android:layout_marginTop="8dp">
 
             <RadioButton
+                android:id="@+id/fontSizeSystemRadio"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/font_size_system"
+                android:checked="true" />
+
+            <RadioButton
                 android:id="@+id/fontSizeXsRadio"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -259,8 +266,7 @@
                 android:id="@+id/fontSizeNormalRadio"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/font_size_normal"
-                android:checked="true" />
+                android:text="@string/font_size_normal" />
 
             <RadioButton
                 android:id="@+id/fontSizeLargeRadio"
