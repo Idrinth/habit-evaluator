@@ -177,6 +177,8 @@
     <string name="delete_emotion_pair">Emotionspaar löschen</string>
     <string name="delete_emotion_pair_confirmation">„%1$s" löschen? Dies kann nicht rückgängig gemacht werden.</string>
     <string name="stats_emotion_pairs">Emotionspaare</string>
+    <string name="stats_emotion_scatter">Tägliche Emotionsverteilung</string>
+    <string name="stats_emotion_scatter_desc">Emotionsaufzeichnungen der letzten 30 Tage</string>
     <string name="stats_correlations_title">Ereigniskorrelationen (Jährlich, Zeitgewichtet)</string>
     <string name="stats_no_correlations">Nicht genug Daten für Korrelationen</string>
     <string name="backup_settings">Backup-Einstellungen</string>
