@@ -27,8 +27,10 @@
 	let showFirstStart = $state(false);
 
 	let filteredHabits: Habit[] = $derived.by(() => {
-		if (!selectedCategoryId) return habitList;
-		return habitList.filter((h) => h.categoryId === selectedCategoryId);
+		const list = !selectedCategoryId
+			? habitList
+			: habitList.filter((h) => h.categoryId === selectedCategoryId);
+		return [...list].sort((a, b) => a.name.localeCompare(b.name));
 	});
 
 	interface CategoryGroup {
