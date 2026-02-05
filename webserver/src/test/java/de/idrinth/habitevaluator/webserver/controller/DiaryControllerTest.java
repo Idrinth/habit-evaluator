@@ -4,6 +4,7 @@ import de.idrinth.habitevaluator.shared.model.DiaryEntry;
 import de.idrinth.habitevaluator.shared.model.EventSignificance;
 import de.idrinth.habitevaluator.shared.model.User;
 import de.idrinth.habitevaluator.shared.repository.DiaryEntryRepository;
+import de.idrinth.habitevaluator.shared.repository.DiaryReferenceRepository;
 import de.idrinth.habitevaluator.shared.repository.UserRepository;
 import de.idrinth.habitevaluator.shared.service.DiaryService;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,6 +25,7 @@ import static org.mockito.Mockito.*;
 class DiaryControllerTest {
 
     private DiaryEntryRepository diaryEntryRepository;
+    private DiaryReferenceRepository diaryReferenceRepository;
     private UserRepository userRepository;
     private DiaryService diaryService;
     private DiaryController controller;
@@ -33,9 +35,10 @@ class DiaryControllerTest {
     @BeforeEach
     void setUp() {
         diaryEntryRepository = mock(DiaryEntryRepository.class);
+        diaryReferenceRepository = mock(DiaryReferenceRepository.class);
         userRepository = mock(UserRepository.class);
         diaryService = mock(DiaryService.class);
-        controller = new DiaryController(diaryEntryRepository, userRepository, diaryService);
+        controller = new DiaryController(diaryEntryRepository, diaryReferenceRepository, userRepository, diaryService);
         session = new MockHttpSession();
         testUser = new User("testuser", "password");
         session.setAttribute("userId", testUser.getId());
@@ -112,7 +115,7 @@ class DiaryControllerTest {
 
     @Test
     void testGetSuggestionsSuccess() {
-        when(diaryEntryRepository.findDistinctDescriptionsByUserId(testUser.getId()))
+        when(diaryReferenceRepository.findDistinctDescriptionsByUserId(testUser.getId()))
                 .thenReturn(List.of("Meeting", "Exercise"));
 
         ResponseEntity<List<String>> response = controller.getSuggestions(session);
