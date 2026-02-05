@@ -72,6 +72,15 @@ public class DiaryController {
         return ResponseEntity.noContent().build();
     }
 
+    @GetMapping("/suggestions")
+    public ResponseEntity<List<String>> getSuggestions(HttpSession session) {
+        String userId = (String) session.getAttribute("userId");
+        if (userId == null) {
+            return ResponseEntity.status(401).build();
+        }
+        return ResponseEntity.ok(diaryEntryRepository.findDistinctDescriptionsByUserId(userId));
+    }
+
     @GetMapping("/stats")
     public ResponseEntity<Map<String, Object>> getStats(HttpSession session) {
         String userId = (String) session.getAttribute("userId");

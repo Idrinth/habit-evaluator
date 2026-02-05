@@ -167,6 +167,18 @@ public class DiaryFragment extends Fragment {
 
         adapter.notifyDataSetChanged();
         updateStats();
+        updateSuggestions();
+    }
+
+    private void updateSuggestions() {
+        DiaryEntryRepository repository = MainActivity.getSharedDiaryEntryRepository();
+        if (repository != null && MainActivity.getSharedCurrentUser() != null) {
+            List<String> suggestions = repository.findDistinctDescriptionsByUserId(
+                    MainActivity.getSharedCurrentUser().getId());
+            ArrayAdapter<String> suggestionsAdapter = new ArrayAdapter<>(requireContext(),
+                    android.R.layout.simple_dropdown_item_1line, suggestions);
+            binding.eventDescriptionInput.setAdapter(suggestionsAdapter);
+        }
     }
 
     private void updateStats() {

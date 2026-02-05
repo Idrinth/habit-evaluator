@@ -13,4 +13,7 @@ public interface JpaDiaryEntryRepository extends JpaRepository<DiaryEntry, Strin
 
     @Query("SELECT d FROM DiaryEntry d WHERE d.user.id = :userId")
     List<DiaryEntry> findByUserId(@Param("userId") String userId);
+
+    @Query("SELECT DISTINCT d.description FROM DiaryEntry d WHERE d.user.id = :userId ORDER BY d.description")
+    List<String> findDistinctDescriptionsByUserId(@Param("userId") String userId);
 }

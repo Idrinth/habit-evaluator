@@ -47,6 +47,7 @@ import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.geometry.Side;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import com.google.gson.reflect.TypeToken;
@@ -191,6 +192,8 @@ public class MainController {
     private ApiClient apiClient;
     private User currentUser;
     private List<DiaryEntry> diaryEntries = new ArrayList<>();
+    private List<String> diarySuggestions = new ArrayList<>();
+    private final ContextMenu suggestionsPopup = new ContextMenu();
     private HabitRepository localBackupRepository;
     private User localBackupUser;
     private List<HabitCategory> categoryList = new ArrayList<>();
@@ -238,6 +241,7 @@ public class MainController {
         diaryDatePicker.setValue(LocalDate.now());
         diarySignificanceComboBox.setItems(FXCollections.observableArrayList("Minor (1pt)", "Normal (2pt)", "Major (4pt)"));
         diarySignificanceComboBox.getSelectionModel().select(1);
+        setupDiarySuggestions();
         loadDiaryEntries();
 
         performDailyBackupIfEnabled();
@@ -1193,6 +1197,45 @@ public class MainController {
         cumulativeChart.getData().clear();
     }
 
+    private void setupDiarySuggestions() {
+        diaryDescriptionField.textProperty().addListener((obs, oldVal, newVal) -> {
+            suggestionsPopup.hide();
+            if (newVal == null || newVal.isEmpty() || diarySuggestions.isEmpty()) {
+                return;
+            }
+            String lower = newVal.toLowerCase();
+            List<String> filtered = diarySuggestions.stream()
+                    .filter(s -> s.toLowerCase().contains(lower))
+                    .collect(java.util.stream.Collectors.toList());
+            if (filtered.isEmpty() || (filtered.size() == 1 && filtered.get(0).equals(newVal))) {
+                return;
+            }
+            suggestionsPopup.getItems().clear();
+            for (String suggestion : filtered) {
+                MenuItem item = new MenuItem(suggestion);
+                item.setOnAction(e -> {
+                    diaryDescriptionField.setText(suggestion);
+                    diaryDescriptionField.positionCaret(suggestion.length());
+                    suggestionsPopup.hide();
+                });
+                suggestionsPopup.getItems().add(item);
+            }
+            suggestionsPopup.show(diaryDescriptionField, Side.BOTTOM, 0, 0);
+        });
+        diaryDescriptionField.focusedProperty().addListener((obs, oldVal, newVal) -> {
+            if (!newVal) {
+                suggestionsPopup.hide();
+            }
+        });
+    }
+
+    private void updateDiarySuggestions() {
+        diarySuggestions.clear();
+        if (diaryEntryRepository != null && currentUser != null) {
+            diarySuggestions.addAll(diaryEntryRepository.findDistinctDescriptionsByUserId(currentUser.getId()));
+        }
+    }
+
     private void loadDiaryEntries() {
         diaryEntries.clear();
         if (diaryEntryRepository != null && currentUser != null) {
@@ -1202,6 +1245,7 @@ public class MainController {
         }
         refreshDiaryStats();
         refreshDiaryEntriesList();
+        updateDiarySuggestions();
     }
 
     private void refreshDiaryStats() {

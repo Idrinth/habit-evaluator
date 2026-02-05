@@ -293,6 +293,9 @@ export const diary = {
 	},
 	stats() {
 		return request<DiaryStats>('/diary/stats');
+	},
+	suggestions() {
+		return request<string[]>('/diary/suggestions');
 	}
 };
 

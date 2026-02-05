@@ -19,4 +19,6 @@ public interface DiaryEntryRepository {
     void deleteById(String id);
 
     List<DiaryEntry> findByUserId(String userId);
+
+    List<String> findDistinctDescriptionsByUserId(String userId);
 }
