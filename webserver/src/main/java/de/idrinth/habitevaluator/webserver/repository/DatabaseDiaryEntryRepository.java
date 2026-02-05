@@ -40,4 +40,9 @@ public class DatabaseDiaryEntryRepository implements DiaryEntryRepository {
     public List<DiaryEntry> findByUserId(String userId) {
         return jpaRepository.findByUserId(userId);
     }
+
+    @Override
+    public List<String> findDistinctDescriptionsByUserId(String userId) {
+        return jpaRepository.findDistinctDescriptionsByUserId(userId);
+    }
 }

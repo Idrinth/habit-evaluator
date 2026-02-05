@@ -90,4 +90,16 @@ public class H2DiaryEntryRepository implements DiaryEntryRepository {
             em.close();
         }
     }
+
+    @Override
+    public List<String> findDistinctDescriptionsByUserId(String userId) {
+        EntityManager em = PersistenceManager.createEntityManager();
+        try {
+            return em.createQuery("SELECT DISTINCT d.description FROM DiaryEntry d WHERE d.user.id = :userId ORDER BY d.description", String.class)
+                    .setParameter("userId", userId)
+                    .getResultList();
+        } finally {
+            em.close();
+        }
+    }
 }

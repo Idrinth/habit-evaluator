@@ -87,6 +87,17 @@ public class FileSystemDiaryEntryRepository implements DiaryEntryRepository {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public List<String> findDistinctDescriptionsByUserId(String userId) {
+        return store.values().stream()
+                .filter(e -> e.getUser() != null && userId.equals(e.getUser().getId()))
+                .map(DiaryEntry::getDescription)
+                .filter(d -> d != null && !d.isEmpty())
+                .distinct()
+                .sorted()
+                .collect(Collectors.toList());
+    }
+
     private synchronized void persist() {
         try {
             JsonArray array = new JsonArray();

@@ -4,6 +4,7 @@
 
 	let entries: DiaryEntry[] = $state([]);
 	let stats: DiaryStats | null = $state(null);
+	let suggestions: string[] = $state([]);
 	let error = $state('');
 	let loading = $state(true);
 
@@ -21,11 +22,12 @@
 		loading = true;
 		error = '';
 		try {
-			const [e, s] = await Promise.all([diary.list(), diary.stats()]);
+			const [e, s, sug] = await Promise.all([diary.list(), diary.stats(), diary.suggestions()]);
 			entries = e.sort(
 				(a, b) => b.eventDate.localeCompare(a.eventDate) || b.createdAt.localeCompare(a.createdAt)
 			);
 			stats = s;
+			suggestions = sug || [];
 		} catch (err) {
 			error = err instanceof Error ? err.message : 'Failed to load diary';
 		} finally {
@@ -100,7 +102,12 @@
 		{/if}
 
 		<form class="add-form" onsubmit={handleAdd}>
-			<input type="text" bind:value={description} placeholder="Positive event description" required />
+			<input type="text" bind:value={description} placeholder="Positive event description" required list="event-suggestions" autocomplete="off" />
+			<datalist id="event-suggestions">
+				{#each suggestions as suggestion}
+					<option value={suggestion}></option>
+				{/each}
+			</datalist>
 			<div class="form-row">
 				<input type="date" bind:value={eventDate} />
 				<select bind:value={significance}>
