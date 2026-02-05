@@ -17,6 +17,7 @@ public class SleepGraphView extends View {
 
     private final Paint barPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint averagePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private final Paint trendPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint textPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint axisPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint gridPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -54,6 +55,11 @@ public class SleepGraphView extends View {
         averagePaint.setStyle(Paint.Style.STROKE);
         averagePaint.setStrokeWidth(3f);
         averagePaint.setPathEffect(new DashPathEffect(new float[]{10f, 6f}, 0));
+
+        trendPaint.setColor(0xFFE91E63);
+        trendPaint.setStyle(Paint.Style.STROKE);
+        trendPaint.setStrokeWidth(3f);
+        trendPaint.setPathEffect(new DashPathEffect(new float[]{8f, 4f}, 0));
 
         textPaint.setTextSize(24f);
 
@@ -177,6 +183,24 @@ public class SleepGraphView extends View {
                     chartRight - 120, avgY - 6, textPaint);
         }
 
+        // Draw trend line
+        if (count >= 2) {
+            double[] trend = calculateTrendLine();
+            double startY = getTrendY(trend, 0);
+            double endY = getTrendY(trend, count - 1);
+
+            float trendStartY = chartBottom - (float) (startY / maxValue) * chartHeight;
+            float trendEndY = chartBottom - (float) (endY / maxValue) * chartHeight;
+
+            // Clamp to chart bounds
+            trendStartY = Math.max(chartTop, Math.min(chartBottom, trendStartY));
+            trendEndY = Math.max(chartTop, Math.min(chartBottom, trendEndY));
+
+            float startX = chartLeft + barSpacing / 2;
+            float endX = chartLeft + barSpacing * (count - 1) + barSpacing / 2;
+            canvas.drawLine(startX, trendStartY, endX, trendEndY, trendPaint);
+        }
+
         // Draw X-axis labels
         textPaint.setColor(getTextColor());
         textPaint.setTextSize(18f);
@@ -211,5 +235,39 @@ public class SleepGraphView extends View {
         int color = ta.getColor(0, Color.BLACK);
         ta.recycle();
         return color;
+    }
+
+    private double[] calculateTrendLine() {
+        int n = values.size();
+        if (n < 2) {
+            double intercept = n > 0 ? values.get(0) : 0;
+            return new double[]{0, intercept};
+        }
+
+        double sumX = 0;
+        double sumY = 0;
+        double sumXY = 0;
+        double sumXX = 0;
+
+        for (int i = 0; i < n; i++) {
+            sumX += i;
+            sumY += values.get(i);
+            sumXY += i * values.get(i);
+            sumXX += i * i;
+        }
+
+        double denom = n * sumXX - sumX * sumX;
+        if (denom == 0) {
+            return new double[]{0, sumY / n};
+        }
+
+        double slope = (n * sumXY - sumX * sumY) / denom;
+        double intercept = (sumY - slope * sumX) / n;
+
+        return new double[]{slope, intercept};
+    }
+
+    private double getTrendY(double[] trend, int x) {
+        return trend[0] * x + trend[1];
     }
 }

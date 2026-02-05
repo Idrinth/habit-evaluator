@@ -56,6 +56,35 @@
 		if (strength > 0) return `+${strength * 10}%`;
 		return `${strength * 10}%`;
 	}
+
+	function calculateTrendLine(values: number[]): { slope: number; intercept: number } {
+		const n = values.length;
+		if (n < 2) return { slope: 0, intercept: values[0] || 0 };
+
+		let sumX = 0;
+		let sumY = 0;
+		let sumXY = 0;
+		let sumXX = 0;
+
+		for (let i = 0; i < n; i++) {
+			sumX += i;
+			sumY += values[i];
+			sumXY += i * values[i];
+			sumXX += i * i;
+		}
+
+		const denom = n * sumXX - sumX * sumX;
+		if (denom === 0) return { slope: 0, intercept: sumY / n };
+
+		const slope = (n * sumXY - sumX * sumY) / denom;
+		const intercept = (sumY - slope * sumX) / n;
+
+		return { slope, intercept };
+	}
+
+	function getTrendY(trend: { slope: number; intercept: number }, x: number): number {
+		return trend.slope * x + trend.intercept;
+	}
 </script>
 
 <div class="stats-container">
@@ -70,121 +99,189 @@
 			<div class="chart-card">
 				<h2>Habit Points</h2>
 				<p class="chart-avg">Avg: {formatValue(average(data.habitPoints), 1)}</p>
-				<div class="chart-wrapper">
-					<svg viewBox="0 0 {data.labels.length * 20} 200" class="bar-chart">
-						{#each data.habitPoints as value, i}
-							{@const height = maxValue(data.habitPoints) > 0 ? (value / maxValue(data.habitPoints)) * 170 : 0}
-							<rect
-								x={i * 20 + 2}
-								y={180 - height}
-								width="16"
-								height={Math.max(height, 0)}
-								fill="#4CAF50"
-								rx="2"
-							>
-								<title>{data.labels[i]}: {value}</title>
-							</rect>
-						{/each}
-						<line x1="0" y1="180" x2={data.labels.length * 20} y2="180" stroke="var(--color-border)" stroke-width="1" />
-					</svg>
-					<div class="chart-labels">
-						{#each data.labels as label, i}
-							{#if i % 5 === 0}
-								<span style="left: {(i / data.labels.length) * 100}%">{label}</span>
+				{#if true}
+					{@const habitTrend = calculateTrendLine(data.habitPoints)}
+					{@const habitMax = maxValue(data.habitPoints)}
+					<div class="chart-wrapper">
+						<svg viewBox="0 0 {data.labels.length * 20} 200" class="bar-chart">
+							{#each data.habitPoints as value, i}
+								{@const height = habitMax > 0 ? (value / habitMax) * 170 : 0}
+								<rect
+									x={i * 20 + 2}
+									y={180 - height}
+									width="16"
+									height={Math.max(height, 0)}
+									fill="#4CAF50"
+									rx="2"
+								>
+									<title>{data.labels[i]}: {value}</title>
+								</rect>
+							{/each}
+							<line x1="0" y1="180" x2={data.labels.length * 20} y2="180" stroke="var(--color-border)" stroke-width="1" />
+							{#if data.habitPoints.length >= 2}
+								{@const startY = habitMax > 0 ? 180 - (getTrendY(habitTrend, 0) / habitMax) * 170 : 180}
+								{@const endY = habitMax > 0 ? 180 - (getTrendY(habitTrend, data.habitPoints.length - 1) / habitMax) * 170 : 180}
+								<line
+									x1="10"
+									y1={Math.max(10, Math.min(180, startY))}
+									x2={data.labels.length * 20 - 10}
+									y2={Math.max(10, Math.min(180, endY))}
+									stroke="#E91E63"
+									stroke-width="2"
+									stroke-dasharray="4,2"
+								/>
 							{/if}
-						{/each}
+						</svg>
+						<div class="chart-labels">
+							{#each data.labels as label, i}
+								{#if i % 5 === 0}
+									<span style="left: {(i / data.labels.length) * 100}%">{label}</span>
+								{/if}
+							{/each}
+						</div>
 					</div>
-				</div>
+				{/if}
 			</div>
 
 			<div class="chart-card">
 				<h2>Diary Points</h2>
 				<p class="chart-avg">Avg: {formatValue(average(data.diaryPoints), 1)}</p>
-				<div class="chart-wrapper">
-					<svg viewBox="0 0 {data.labels.length * 20} 200" class="bar-chart">
-						{#each data.diaryPoints as value, i}
-							{@const height = maxValue(data.diaryPoints) > 0 ? (value / maxValue(data.diaryPoints)) * 170 : 0}
-							<rect
-								x={i * 20 + 2}
-								y={180 - height}
-								width="16"
-								height={Math.max(height, 0)}
-								fill="#66BB6A"
-								rx="2"
-							>
-								<title>{data.labels[i]}: {value}</title>
-							</rect>
-						{/each}
-						<line x1="0" y1="180" x2={data.labels.length * 20} y2="180" stroke="var(--color-border)" stroke-width="1" />
-					</svg>
-					<div class="chart-labels">
-						{#each data.labels as label, i}
-							{#if i % 5 === 0}
-								<span style="left: {(i / data.labels.length) * 100}%">{label}</span>
+				{#if true}
+					{@const diaryTrend = calculateTrendLine(data.diaryPoints)}
+					{@const diaryMax = maxValue(data.diaryPoints)}
+					<div class="chart-wrapper">
+						<svg viewBox="0 0 {data.labels.length * 20} 200" class="bar-chart">
+							{#each data.diaryPoints as value, i}
+								{@const height = diaryMax > 0 ? (value / diaryMax) * 170 : 0}
+								<rect
+									x={i * 20 + 2}
+									y={180 - height}
+									width="16"
+									height={Math.max(height, 0)}
+									fill="#66BB6A"
+									rx="2"
+								>
+									<title>{data.labels[i]}: {value}</title>
+								</rect>
+							{/each}
+							<line x1="0" y1="180" x2={data.labels.length * 20} y2="180" stroke="var(--color-border)" stroke-width="1" />
+							{#if data.diaryPoints.length >= 2}
+								{@const startY = diaryMax > 0 ? 180 - (getTrendY(diaryTrend, 0) / diaryMax) * 170 : 180}
+								{@const endY = diaryMax > 0 ? 180 - (getTrendY(diaryTrend, data.diaryPoints.length - 1) / diaryMax) * 170 : 180}
+								<line
+									x1="10"
+									y1={Math.max(10, Math.min(180, startY))}
+									x2={data.labels.length * 20 - 10}
+									y2={Math.max(10, Math.min(180, endY))}
+									stroke="#E91E63"
+									stroke-width="2"
+									stroke-dasharray="4,2"
+								/>
 							{/if}
-						{/each}
+						</svg>
+						<div class="chart-labels">
+							{#each data.labels as label, i}
+								{#if i % 5 === 0}
+									<span style="left: {(i / data.labels.length) * 100}%">{label}</span>
+								{/if}
+							{/each}
+						</div>
 					</div>
-				</div>
+				{/if}
 			</div>
 
 			<div class="chart-card">
 				<h2>Sleep Duration (hours)</h2>
 				<p class="chart-avg">Avg: {formatValue(average(data.sleepDuration), 1)}h</p>
-				<div class="chart-wrapper">
-					<svg viewBox="0 0 {data.labels.length * 20} 200" class="bar-chart">
-						{#each data.sleepDuration as value, i}
-							{@const height = maxValue(data.sleepDuration) > 0 ? (value / maxValue(data.sleepDuration)) * 170 : 0}
-							<rect
-								x={i * 20 + 2}
-								y={180 - height}
-								width="16"
-								height={Math.max(height, 0)}
-								fill="#42A5F5"
-								rx="2"
-							>
-								<title>{data.labels[i]}: {value.toFixed(1)}h</title>
-							</rect>
-						{/each}
-						<line x1="0" y1="180" x2={data.labels.length * 20} y2="180" stroke="var(--color-border)" stroke-width="1" />
-					</svg>
-					<div class="chart-labels">
-						{#each data.labels as label, i}
-							{#if i % 5 === 0}
-								<span style="left: {(i / data.labels.length) * 100}%">{label}</span>
+				{#if true}
+					{@const sleepDurTrend = calculateTrendLine(data.sleepDuration)}
+					{@const sleepDurMax = maxValue(data.sleepDuration)}
+					<div class="chart-wrapper">
+						<svg viewBox="0 0 {data.labels.length * 20} 200" class="bar-chart">
+							{#each data.sleepDuration as value, i}
+								{@const height = sleepDurMax > 0 ? (value / sleepDurMax) * 170 : 0}
+								<rect
+									x={i * 20 + 2}
+									y={180 - height}
+									width="16"
+									height={Math.max(height, 0)}
+									fill="#42A5F5"
+									rx="2"
+								>
+									<title>{data.labels[i]}: {value.toFixed(1)}h</title>
+								</rect>
+							{/each}
+							<line x1="0" y1="180" x2={data.labels.length * 20} y2="180" stroke="var(--color-border)" stroke-width="1" />
+							{#if data.sleepDuration.length >= 2}
+								{@const startY = sleepDurMax > 0 ? 180 - (getTrendY(sleepDurTrend, 0) / sleepDurMax) * 170 : 180}
+								{@const endY = sleepDurMax > 0 ? 180 - (getTrendY(sleepDurTrend, data.sleepDuration.length - 1) / sleepDurMax) * 170 : 180}
+								<line
+									x1="10"
+									y1={Math.max(10, Math.min(180, startY))}
+									x2={data.labels.length * 20 - 10}
+									y2={Math.max(10, Math.min(180, endY))}
+									stroke="#E91E63"
+									stroke-width="2"
+									stroke-dasharray="4,2"
+								/>
 							{/if}
-						{/each}
+						</svg>
+						<div class="chart-labels">
+							{#each data.labels as label, i}
+								{#if i % 5 === 0}
+									<span style="left: {(i / data.labels.length) * 100}%">{label}</span>
+								{/if}
+							{/each}
+						</div>
 					</div>
-				</div>
+				{/if}
 			</div>
 
 			<div class="chart-card">
 				<h2>Sleep Entries</h2>
 				<p class="chart-avg">Avg: {formatValue(average(data.sleepEntries), 1)}</p>
-				<div class="chart-wrapper">
-					<svg viewBox="0 0 {data.labels.length * 20} 200" class="bar-chart">
-						{#each data.sleepEntries as value, i}
-							{@const height = maxValue(data.sleepEntries) > 0 ? (value / maxValue(data.sleepEntries)) * 170 : 0}
-							<rect
-								x={i * 20 + 2}
-								y={180 - height}
-								width="16"
-								height={Math.max(height, 0)}
-								fill="#81C784"
-								rx="2"
-							>
-								<title>{data.labels[i]}: {value}</title>
-							</rect>
-						{/each}
-						<line x1="0" y1="180" x2={data.labels.length * 20} y2="180" stroke="var(--color-border)" stroke-width="1" />
-					</svg>
-					<div class="chart-labels">
-						{#each data.labels as label, i}
-							{#if i % 5 === 0}
-								<span style="left: {(i / data.labels.length) * 100}%">{label}</span>
+				{#if true}
+					{@const sleepEntTrend = calculateTrendLine(data.sleepEntries)}
+					{@const sleepEntMax = maxValue(data.sleepEntries)}
+					<div class="chart-wrapper">
+						<svg viewBox="0 0 {data.labels.length * 20} 200" class="bar-chart">
+							{#each data.sleepEntries as value, i}
+								{@const height = sleepEntMax > 0 ? (value / sleepEntMax) * 170 : 0}
+								<rect
+									x={i * 20 + 2}
+									y={180 - height}
+									width="16"
+									height={Math.max(height, 0)}
+									fill="#81C784"
+									rx="2"
+								>
+									<title>{data.labels[i]}: {value}</title>
+								</rect>
+							{/each}
+							<line x1="0" y1="180" x2={data.labels.length * 20} y2="180" stroke="var(--color-border)" stroke-width="1" />
+							{#if data.sleepEntries.length >= 2}
+								{@const startY = sleepEntMax > 0 ? 180 - (getTrendY(sleepEntTrend, 0) / sleepEntMax) * 170 : 180}
+								{@const endY = sleepEntMax > 0 ? 180 - (getTrendY(sleepEntTrend, data.sleepEntries.length - 1) / sleepEntMax) * 170 : 180}
+								<line
+									x1="10"
+									y1={Math.max(10, Math.min(180, startY))}
+									x2={data.labels.length * 20 - 10}
+									y2={Math.max(10, Math.min(180, endY))}
+									stroke="#E91E63"
+									stroke-width="2"
+									stroke-dasharray="4,2"
+								/>
 							{/if}
-						{/each}
+						</svg>
+						<div class="chart-labels">
+							{#each data.labels as label, i}
+								{#if i % 5 === 0}
+									<span style="left: {(i / data.labels.length) * 100}%">{label}</span>
+								{/if}
+							{/each}
+						</div>
 					</div>
-				</div>
+				{/if}
 			</div>
 		</div>
 

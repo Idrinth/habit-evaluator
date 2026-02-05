@@ -1022,6 +1022,31 @@ public class PdfExportController {
             cb.endText();
         }
 
+        // Trend line
+        if (count >= 2) {
+            double[] trend = calculateTrendLine(values);
+            double startYVal = getTrendY(trend, 0);
+            double endYVal = getTrendY(trend, count - 1);
+
+            float trendStartY = yBottom + (float) (startYVal / maxValue) * chartHeight;
+            float trendEndY = yBottom + (float) (endYVal / maxValue) * chartHeight;
+
+            // Clamp to chart bounds
+            trendStartY = Math.max(yBottom, Math.min(yTop, trendStartY));
+            trendEndY = Math.max(yBottom, Math.min(yTop, trendEndY));
+
+            float startX = chartLeft + barSpacing / 2;
+            float endX = chartLeft + barSpacing * (count - 1) + barSpacing / 2;
+
+            cb.setColorStroke(new Color(0xE9, 0x1E, 0x63));
+            cb.setLineWidth(1.5f);
+            cb.setLineDash(4f, 2f, 0f);
+            cb.moveTo(startX, trendStartY);
+            cb.lineTo(endX, trendEndY);
+            cb.stroke();
+            cb.setLineDash(0);
+        }
+
         // X-axis labels
         int labelStep = Math.max(1, count / 10);
         for (int i = 0; i < count; i += labelStep) {
@@ -1053,5 +1078,39 @@ public class PdfExportController {
         PdfPCell cell = new PdfPCell(new Phrase(text, TABLE_BODY_FONT));
         cell.setPadding(4);
         table.addCell(cell);
+    }
+
+    private double[] calculateTrendLine(List<Float> values) {
+        int n = values.size();
+        if (n < 2) {
+            double intercept = n > 0 ? values.get(0) : 0;
+            return new double[]{0, intercept};
+        }
+
+        double sumX = 0;
+        double sumY = 0;
+        double sumXY = 0;
+        double sumXX = 0;
+
+        for (int i = 0; i < n; i++) {
+            sumX += i;
+            sumY += values.get(i);
+            sumXY += i * values.get(i);
+            sumXX += i * i;
+        }
+
+        double denom = n * sumXX - sumX * sumX;
+        if (denom == 0) {
+            return new double[]{0, sumY / n};
+        }
+
+        double slope = (n * sumXY - sumX * sumY) / denom;
+        double intercept = (sumY - slope * sumX) / n;
+
+        return new double[]{slope, intercept};
+    }
+
+    private double getTrendY(double[] trend, int x) {
+        return trend[0] * x + trend[1];
     }
 }
