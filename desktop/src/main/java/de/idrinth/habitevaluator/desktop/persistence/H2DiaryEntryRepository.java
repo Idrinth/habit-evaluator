@@ -41,7 +41,7 @@ public class H2DiaryEntryRepository implements DiaryEntryRepository {
     public List<String> findDistinctDescriptionsByUserId(String userId) {
         return JpaTransactionHelper.findByParameter(
                 String.class,
-                "SELECT DISTINCT COALESCE(d.diaryReference.description, d.legacyDescription) FROM DiaryEntry d WHERE d.user.id = :userId AND (d.diaryReference IS NOT NULL OR d.legacyDescription IS NOT NULL) ORDER BY COALESCE(d.diaryReference.description, d.legacyDescription)",
+                "SELECT DISTINCT COALESCE(r.description, d.legacyDescription) FROM DiaryEntry d LEFT JOIN d.diaryReference r WHERE d.user.id = :userId AND (d.diaryReference IS NOT NULL OR d.legacyDescription IS NOT NULL) ORDER BY COALESCE(r.description, d.legacyDescription)",
                 "userId",
                 userId);
     }
