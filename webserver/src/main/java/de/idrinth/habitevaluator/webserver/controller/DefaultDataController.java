@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Collections;
@@ -19,6 +20,8 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api/init-defaults")
 public class DefaultDataController {
+
+    private static final String DEFAULT_LANGUAGE = "en";
 
     private final HabitCategoryRepository categoryRepository;
     private final HabitRepository habitRepository;
@@ -34,7 +37,9 @@ public class DefaultDataController {
 
     @PostMapping
     @Transactional
-    public ResponseEntity<Map<String, Object>> initializeDefaults(HttpSession session) {
+    public ResponseEntity<Map<String, Object>> initializeDefaults(
+            HttpSession session,
+            @RequestParam(value = "language", required = false, defaultValue = DEFAULT_LANGUAGE) String language) {
         String userId = (String) session.getAttribute("userId");
         if (userId == null) {
             return ResponseEntity.status(401).build();
@@ -44,7 +49,7 @@ public class DefaultDataController {
             return ResponseEntity.status(401).build();
         }
         DefaultDataInitializer initializer = new DefaultDataInitializer(categoryRepository, habitRepository);
-        initializer.initializeDefaults(userOpt.get());
+        initializer.initializeDefaults(userOpt.get(), language);
         return ResponseEntity.ok(Collections.singletonMap("success", true));
     }
 }

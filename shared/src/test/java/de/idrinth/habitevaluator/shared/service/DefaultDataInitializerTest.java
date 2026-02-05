@@ -97,6 +97,53 @@ class DefaultDataInitializerTest {
         }
     }
 
+    @Test
+    void testInitializeDefaultsWithGermanLanguage() {
+        initializer.initializeDefaults(user, "de");
+        List<HabitCategory> categories = categoryRepository.findByUserId(user.getId());
+        assertFalse(categories.isEmpty());
+        // Verify that at least one category has a German name
+        boolean hasGermanCategory = categories.stream()
+                .anyMatch(c -> "Hobbys".equals(c.getName()) || "Arbeit".equals(c.getName())
+                        || "Emotionen".equals(c.getName()) || "Schlaf".equals(c.getName()));
+        assertTrue(hasGermanCategory, "Should have German category names");
+    }
+
+    @Test
+    void testInitializeDefaultsWithEnglishLanguage() {
+        initializer.initializeDefaults(user, "en");
+        List<HabitCategory> categories = categoryRepository.findByUserId(user.getId());
+        assertFalse(categories.isEmpty());
+        // Verify that at least one category has an English name
+        boolean hasEnglishCategory = categories.stream()
+                .anyMatch(c -> "Hobbies".equals(c.getName()) || "Work".equals(c.getName())
+                        || "Emotions".equals(c.getName()) || "Sleep".equals(c.getName()));
+        assertTrue(hasEnglishCategory, "Should have English category names");
+    }
+
+    @Test
+    void testInitializeDefaultsWithDifferentLanguagesCreatesDifferentNames() {
+        // Create two users with different languages
+        User germanUser = new User("germanuser", "password");
+        User englishUser = new User("englishuser", "password");
+
+        initializer.initializeDefaults(germanUser, "de");
+        initializer.initializeDefaults(englishUser, "en");
+
+        List<HabitCategory> germanCategories = categoryRepository.findByUserId(germanUser.getId());
+        List<HabitCategory> englishCategories = categoryRepository.findByUserId(englishUser.getId());
+
+        // Both should have 10 categories
+        assertEquals(10, germanCategories.size());
+        assertEquals(10, englishCategories.size());
+
+        // Get first category names and verify they are different
+        String germanFirstCategoryName = germanCategories.get(0).getName();
+        String englishFirstCategoryName = englishCategories.get(0).getName();
+        assertNotEquals(germanFirstCategoryName, englishFirstCategoryName,
+                "German and English category names should be different");
+    }
+
     // Simple in-memory repository implementations for testing
 
     private static class InMemoryHabitCategoryRepository implements HabitCategoryRepository {
