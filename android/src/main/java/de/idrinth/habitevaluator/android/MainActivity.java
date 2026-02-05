@@ -522,6 +522,7 @@ public class MainActivity extends AppCompatActivity {
     private void syncSharedCategories() {
         sharedCategories.clear();
         sharedCategories.addAll(categoryList);
+        sharedCategories.sort((a, b) -> a.getName().compareToIgnoreCase(b.getName()));
     }
 
     private void loadHabits() {

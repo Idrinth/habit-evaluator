@@ -304,6 +304,7 @@ public class MainController {
                 // categories are optional, continue without them
             }
         }
+        categoryList.sort((a, b) -> a.getName().compareToIgnoreCase(b.getName()));
         populateCategoryComboBoxes();
         updateLoadDefaultsButtonVisibility();
     }

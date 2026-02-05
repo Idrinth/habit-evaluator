@@ -59,7 +59,9 @@
 			}
 		}
 
-		const result: CategoryGroup[] = [...groups.values()];
+		const result: CategoryGroup[] = [...groups.values()].sort((a, b) =>
+			(a.category?.name ?? '').localeCompare(b.category?.name ?? '')
+		);
 		if (uncategorized.length > 0) {
 			result.push({ category: null, habits: uncategorized });
 		}
@@ -242,7 +244,7 @@
 			<div class="filter-bar">
 				<select bind:value={selectedCategoryId} class="category-filter">
 					<option value="">{t('home.allCategories', lang)}</option>
-					{#each categoryList as cat (cat.id)}
+					{#each [...categoryList].sort((a, b) => a.name.localeCompare(b.name)) as cat (cat.id)}
 						<option value={cat.id}>{cat.name}</option>
 					{/each}
 				</select>
