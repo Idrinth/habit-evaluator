@@ -829,12 +829,13 @@ public class MainController {
     private void handleLoadDefaults() {
         new Thread(() -> {
             try {
+                String language = storageConfig.getEffectiveLanguage();
                 if (storageConfig.isRemote() && apiClient != null) {
-                    apiClient.post("/api/init-defaults", Collections.emptyMap(),
+                    apiClient.post("/api/init-defaults?language=" + language, Collections.emptyMap(),
                             new TypeToken<Map<String, Object>>() {}.getType());
                 } else if (categoryRepository != null && currentUser != null) {
                     DefaultDataInitializer initializer = new DefaultDataInitializer(categoryRepository, habitRepository);
-                    initializer.initializeDefaults(currentUser);
+                    initializer.initializeDefaults(currentUser, language);
                 }
                 Platform.runLater(() -> {
                     loadCategories();

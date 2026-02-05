@@ -647,12 +647,15 @@ public class MainActivity extends AppCompatActivity {
     public void loadDefaults() {
         new Thread(() -> {
             try {
+                SharedPreferences prefs = getSharedPreferences(SettingsActivity.PREFS_NAME, MODE_PRIVATE);
+                String languageSetting = prefs.getString(SettingsActivity.KEY_LANGUAGE, SettingsActivity.LANGUAGE_SYSTEM);
+                String language = SettingsActivity.getEffectiveLanguage(languageSetting);
                 if (usingRemoteStorage && apiClient != null) {
-                    apiClient.post("/api/init-defaults", Collections.emptyMap(),
+                    apiClient.post("/api/init-defaults?language=" + language, Collections.emptyMap(),
                             new TypeToken<Map<String, Object>>() {}.getType());
                 } else if (categoryRepository != null && habitRepository != null && currentUser != null) {
                     DefaultDataInitializer initializer = new DefaultDataInitializer(categoryRepository, habitRepository);
-                    initializer.initializeDefaults(currentUser);
+                    initializer.initializeDefaults(currentUser, language);
                 }
                 runOnUiThread(() -> {
                     Toast.makeText(this, R.string.defaults_loaded, Toast.LENGTH_SHORT).show();

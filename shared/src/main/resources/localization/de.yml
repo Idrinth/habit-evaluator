@@ -117,3 +117,118 @@ sync:
   sync_failed: "Synchronisierung fehlgeschlagen: %s"
   fill_all_fields: "Bitte füllen Sie alle Felder aus"
   failed_to_open: "Synchronisierungsdialog konnte nicht geöffnet werden: %s"
+
+default_data:
+  # Kategorien
+  category_hobbies_name: "Hobbys"
+  category_hobbies_description: "Verfolgung der Beschäftigung mit persönlichen Hobbys und Freizeitaktivitäten"
+  category_work_name: "Arbeit"
+  category_work_description: "Verfolgung von Arbeitsgewohnheiten und Produktivität"
+  category_emotions_name: "Emotionen"
+  category_emotions_description: "Überwachung emotionaler Zustände und Warnsignale"
+  category_sleep_name: "Schlaf"
+  category_sleep_description: "Verfolgung von Schlafmustern und Koffeinkonsum"
+  category_sport_name: "Sport"
+  category_sport_description: "Verfolgung körperlicher Aktivität und Entspannungsübungen"
+  category_food_name: "Ernährung"
+  category_food_description: "Verfolgung von Essgewohnheiten und Mahlzeitenzubereitung"
+  category_motivation_name: "Motivation"
+  category_motivation_description: "Verfolgung des täglichen Antriebs und der Initiative"
+  category_hygiene_name: "Hygiene"
+  category_hygiene_description: "Verfolgung persönlicher Hygieneroutinen"
+  category_pet_care_name: "Tierpflege"
+  category_pet_care_description: "Verfolgung der Tierpflegeverantwortlichkeiten"
+  category_social_name: "Soziales"
+  category_social_description: "Verfolgung sozialer Interaktionen und Verbindungen"
+
+  # Hobbys-Gewohnheiten
+  habit_computer_games_name: "Tage mit Computerspielen"
+  habit_computer_games_description: "Tage, die mit Computerspielen verbracht wurden"
+  habit_watching_movies_name: "Tage mit Filmen"
+  habit_watching_movies_description: "Tage, die mit Filmen verbracht wurden"
+  habit_reading_name: "Tage mit Lesen"
+  habit_reading_description: "Tage, die mit Lesen verbracht wurden"
+  habit_modding_name: "Modding-Tage"
+  habit_modding_description: "Tage, die mit Modding verbracht wurden"
+  habit_soapstone_name: "Specksteinschnitzen"
+  habit_soapstone_description: "Tage, die mit Specksteinschnitzen verbracht wurden"
+
+  # Arbeits-Gewohnheiten
+  habit_opensource_name: "Open-Source-Tage"
+  habit_opensource_description: "Tage mit Beiträgen zu Open-Source-Projekten"
+  habit_punctual_name: "Pünktlich gestartet"
+  habit_punctual_description: "Tage, an denen die Arbeit pünktlich begonnen wurde"
+  habit_work_hours_name: "Arbeitsstunden pro Woche"
+  habit_work_hours_description: "Gesamte Arbeitsstunden in der Woche"
+  habit_emails_name: "E-Mails bearbeitet"
+  habit_emails_description: "Anzahl bearbeiteter E-Mails"
+
+  # Emotions-Gewohnheiten
+  habit_irritability_name: "Reizbarkeit"
+  habit_irritability_description: "Tage mit Reizbarkeit"
+  habit_listlessness_name: "Antriebslosigkeit"
+  habit_listlessness_description: "Tage mit Antriebslosigkeit oder Apathie"
+  habit_tiredness_of_life_name: "Lebensmüdigkeit"
+  habit_tiredness_of_life_description: "Tage mit Lebensmüdigkeit"
+
+  # Schlaf-Gewohnheiten
+  habit_late_sleep_name: "Einschlafen nach Mitternacht"
+  habit_late_sleep_description: "Tage, an denen der Schlaf nach 0:00 Uhr begann"
+  habit_early_wake_name: "Aufwachen vor 5:00 Uhr"
+  habit_early_wake_description: "Tage, an denen das Aufwachen vor 5:00 Uhr erfolgte"
+  habit_caffeine_name: "Liter Cola/Kaffee/Tee"
+  habit_caffeine_description: "Liter konsumierter koffeinhaltiger Getränke"
+  habit_awake_on_time_name: "Um 6 Uhr pünktlich wach"
+  habit_awake_on_time_description: "Tage, an denen pünktlich um 6:00 Uhr aufgestanden wurde"
+  habit_napped_name: "Tagsüber geschlafen"
+  habit_napped_description: "Tage mit Mittagsschlaf"
+
+  # Sport-Gewohnheiten
+  habit_walking_name: "Spaziergang"
+  habit_walking_description: "Tage mit einem Spaziergang"
+  habit_fencing_name: "Fechttraining"
+  habit_fencing_description: "Tage mit Fechttraining"
+  habit_muscle_relaxation_name: "Muskelentspannung (Jacobsen)"
+  habit_muscle_relaxation_description: "Tage mit progressiver Muskelentspannung"
+
+  # Ernährungs-Gewohnheiten
+  habit_meals_cooked_name: "Selbst gekochte Mahlzeiten"
+  habit_meals_cooked_description: "Anzahl selbst gekochter Mahlzeiten"
+  habit_meals_ordered_name: "Bestellte Mahlzeiten"
+  habit_meals_ordered_description: "Anzahl bestellter Mahlzeiten"
+  habit_breakfasts_name: "Frühstücke gegessen"
+  habit_breakfasts_description: "Anzahl gegessener Frühstücke"
+
+  # Motivations-Gewohnheiten
+  habit_left_house_name: "Das Haus verlassen"
+  habit_left_house_description: "Tage, an denen das Haus verlassen wurde"
+  habit_got_mail_name: "Post geholt"
+  habit_got_mail_description: "Tage, an denen Post abgeholt wurde"
+  habit_morning_shower_name: "Morgens geduscht"
+  habit_morning_shower_description: "Tage mit einer Morgendusche"
+  habit_sexuality_name: "Sexualität"
+  habit_sexuality_description: "Tage mit sexueller Aktivität"
+
+  # Hygiene-Gewohnheiten
+  habit_shaved_name: "Täglich rasiert"
+  habit_shaved_description: "Tage mit täglicher Rasur"
+  habit_showered_name: "Täglich geduscht"
+  habit_showered_description: "Tage mit täglicher Dusche"
+  habit_brushed_teeth_name: "Zweimal täglich Zähne geputzt"
+  habit_brushed_teeth_description: "Tage mit zweimaligem Zähneputzen"
+  habit_relaxation_baths_name: "Entspannungsbäder"
+  habit_relaxation_baths_description: "Anzahl genommener Entspannungsbäder"
+
+  # Tierpflege-Gewohnheiten
+  habit_cage_cleaning_name: "Käfigreinigung"
+  habit_cage_cleaning_description: "Tage, an denen der Käfig gereinigt wurde"
+  habit_fed_pets_name: "Tiere gefüttert"
+  habit_fed_pets_description: "Tage, an denen die Tiere gefüttert wurden"
+  habit_food_stocked_name: "Futter aufgestockt"
+  habit_food_stocked_description: "Tage, an denen der Tiernahrungsvorrat überprüft/aufgestockt wurde"
+
+  # Soziale Gewohnheiten
+  habit_met_someone_name: "Jemanden persönlich getroffen"
+  habit_met_someone_description: "Tage, an denen jemand im echten Leben getroffen wurde"
+  habit_discord_calls_name: "Discord-Anrufe"
+  habit_discord_calls_description: "Tage mit Sprach-/Videoanrufen auf Discord"
