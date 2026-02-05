@@ -9,8 +9,10 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 
 import de.idrinth.habitevaluator.shared.model.DiaryEntry;
+import de.idrinth.habitevaluator.shared.model.DiaryReference;
 import de.idrinth.habitevaluator.shared.model.EventSignificance;
 import de.idrinth.habitevaluator.shared.repository.DiaryEntryRepository;
+import de.idrinth.habitevaluator.shared.repository.DiaryReferenceRepository;
 
 import java.io.File;
 import java.io.FileReader;
@@ -30,6 +32,7 @@ public class FileSystemDiaryEntryRepository implements DiaryEntryRepository {
     private final Map<String, DiaryEntry> store = new ConcurrentHashMap<>();
     private final File storageFile;
     private final Gson gson;
+    private DiaryReferenceRepository diaryReferenceRepository;
 
     public FileSystemDiaryEntryRepository(File storageDir) {
         if (!storageDir.exists()) {
@@ -38,6 +41,14 @@ public class FileSystemDiaryEntryRepository implements DiaryEntryRepository {
         this.storageFile = new File(storageDir, "diary_entries.json");
         this.gson = GsonSerializers.createGsonWithDateTimeAndDate();
         load();
+    }
+
+    /**
+     * Sets the diary reference repository. This is used to look up references during deserialization.
+     * Must be called after construction and before accessing entries.
+     */
+    public void setDiaryReferenceRepository(DiaryReferenceRepository diaryReferenceRepository) {
+        this.diaryReferenceRepository = diaryReferenceRepository;
     }
 
     @Override
@@ -81,6 +92,14 @@ public class FileSystemDiaryEntryRepository implements DiaryEntryRepository {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public List<DiaryEntry> findEntriesNeedingMigration(String userId) {
+        return store.values().stream()
+                .filter(e -> e.getUser() != null && userId.equals(e.getUser().getId()))
+                .filter(DiaryEntry::needsMigration)
+                .collect(Collectors.toList());
+    }
+
     private synchronized void persist() {
         try {
             JsonArray array = new JsonArray();
@@ -116,10 +135,19 @@ public class FileSystemDiaryEntryRepository implements DiaryEntryRepository {
     private JsonObject serializeEntry(DiaryEntry entry) {
         JsonObject obj = new JsonObject();
         obj.addProperty("id", entry.getId());
-        obj.addProperty("description", entry.getDescription());
         obj.addProperty("significance", entry.getSignificance() != null ? entry.getSignificance().name() : null);
         obj.add("eventDate", gson.toJsonTree(entry.getEventDate()));
         obj.add("createdAt", gson.toJsonTree(entry.getCreatedAt()));
+
+        // Store reference ID if available, otherwise store legacy description
+        if (entry.getDiaryReference() != null) {
+            obj.addProperty("diaryReferenceId", entry.getDiaryReference().getId());
+        } else {
+            obj.addProperty("legacyDescription", entry.getLegacyDescription());
+        }
+
+        // Keep description for backward compatibility with old format readers
+        obj.addProperty("description", entry.getDescription());
 
         if (entry.getUser() != null) {
             obj.add("user", serializeUser(entry.getUser()));
@@ -131,7 +159,23 @@ public class FileSystemDiaryEntryRepository implements DiaryEntryRepository {
     private DiaryEntry deserializeEntry(JsonObject obj) {
         DiaryEntry entry = new DiaryEntry();
         entry.setId(obj.get("id").getAsString());
-        entry.setDescription(getStringOrNull(obj, "description"));
+
+        // Check for reference ID first (new format)
+        String refId = getStringOrNull(obj, "diaryReferenceId");
+        if (refId != null && diaryReferenceRepository != null) {
+            diaryReferenceRepository.findById(refId).ifPresent(entry::setDiaryReference);
+        }
+
+        // Fall back to legacy description or old description field
+        if (entry.getDiaryReference() == null) {
+            String legacyDesc = getStringOrNull(obj, "legacyDescription");
+            if (legacyDesc != null) {
+                entry.setLegacyDescription(legacyDesc);
+            } else {
+                // Old format: description was stored directly
+                entry.setLegacyDescription(getStringOrNull(obj, "description"));
+            }
+        }
 
         String significance = getStringOrNull(obj, "significance");
         if (significance != null) {

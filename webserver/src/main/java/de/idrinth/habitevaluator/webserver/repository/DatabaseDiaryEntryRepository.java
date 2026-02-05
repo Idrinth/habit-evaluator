@@ -45,4 +45,9 @@ public class DatabaseDiaryEntryRepository implements DiaryEntryRepository {
     public List<String> findDistinctDescriptionsByUserId(String userId) {
         return jpaRepository.findDistinctDescriptionsByUserId(userId);
     }
+
+    @Override
+    public List<DiaryEntry> findEntriesNeedingMigration(String userId) {
+        return jpaRepository.findEntriesNeedingMigration(userId);
+    }
 }
