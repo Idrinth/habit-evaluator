@@ -202,6 +202,15 @@
     <string name="restore_in_progress">Restaurando respaldo…</string>
     <string name="restore_success">Restaurado: %1$d hábitos añadidos, %2$d hábitos fusionados, %3$d entradas añadidas, %4$d entradas de diario añadidas, %5$d entradas de sueño añadidas, %6$d categorías añadidas</string>
     <string name="restore_failed">Error al restaurar: %s</string>
+    <string name="download_backup_title">Descargar respaldo</string>
+    <string name="download_backup_button">Descargar respaldo (.hez)</string>
+    <string name="download_backup_in_progress">Creando respaldo…</string>
+    <string name="download_backup_success">Respaldo guardado correctamente</string>
+    <string name="download_backup_failed">Error al descargar respaldo: %s</string>
+    <string name="restore_from_file_title">Restaurar desde archivo</string>
+    <string name="restore_from_file_button">Restaurar desde archivo (.hez)</string>
+    <string name="restore_from_file_select">Seleccionar un archivo de respaldo .hez</string>
+    <string name="restore_from_file_invalid">Archivo de respaldo inválido. Por favor, seleccione un archivo .hez.</string>
     <string name="record_emotion_entry">Registrar emoción</string>
     <string name="record_emotion">Registrar</string>
     <string name="emotion_notes_hint">Notas (opcional)</string>

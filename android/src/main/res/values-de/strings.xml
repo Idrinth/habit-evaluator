@@ -202,6 +202,15 @@
     <string name="restore_in_progress">Backup wird wiederhergestellt…</string>
     <string name="restore_success">Wiederhergestellt: %1$d Gewohnheiten hinzugefügt, %2$d Gewohnheiten zusammengeführt, %3$d Einträge hinzugefügt, %4$d Tagebucheinträge hinzugefügt, %5$d Schlafeinträge hinzugefügt, %6$d Kategorien hinzugefügt</string>
     <string name="restore_failed">Wiederherstellung fehlgeschlagen: %s</string>
+    <string name="download_backup_title">Backup herunterladen</string>
+    <string name="download_backup_button">Backup herunterladen (.hez)</string>
+    <string name="download_backup_in_progress">Backup wird erstellt…</string>
+    <string name="download_backup_success">Backup erfolgreich gespeichert</string>
+    <string name="download_backup_failed">Backup-Download fehlgeschlagen: %s</string>
+    <string name="restore_from_file_title">Aus Datei wiederherstellen</string>
+    <string name="restore_from_file_button">Aus Datei wiederherstellen (.hez)</string>
+    <string name="restore_from_file_select">Eine .hez-Backup-Datei auswählen</string>
+    <string name="restore_from_file_invalid">Ungültige Backup-Datei. Bitte wählen Sie eine .hez-Datei.</string>
     <string name="record_emotion_entry">Emotion erfassen</string>
     <string name="record_emotion">Erfassen</string>
     <string name="emotion_notes_hint">Notizen (optional)</string>
