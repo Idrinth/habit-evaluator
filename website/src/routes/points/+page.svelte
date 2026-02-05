@@ -98,6 +98,18 @@
 	function getTrendY(trend: { slope: number; intercept: number }, x: number): number {
 		return trend.slope * x + trend.intercept;
 	}
+
+	function findDataBounds(values: number[]): { first: number; last: number } {
+		let first = -1;
+		let last = -1;
+		for (let i = 0; i < values.length; i++) {
+			if (values[i] !== 0) {
+				if (first === -1) first = i;
+				last = i;
+			}
+		}
+		return { first, last };
+	}
 </script>
 
 <div class="container charts-container">
@@ -177,20 +189,25 @@
 							</div>
 						{/if}
 						{#if chartData.dailyPoints.length >= 2}
-							{@const startY = ((maxVal - getTrendY(dailyTrend, 0)) / range) * 100}
-							{@const endY = ((maxVal - getTrendY(dailyTrend, chartData.dailyPoints.length - 1)) / range) * 100}
-							<svg class="trend-line-svg" viewBox="0 0 100 100" preserveAspectRatio="none">
-								<line
-									x1="2"
-									y1={Math.max(0, Math.min(100, startY))}
-									x2="98"
-									y2={Math.max(0, Math.min(100, endY))}
-									stroke="#E91E63"
-									stroke-width="2"
-									stroke-dasharray="4,2"
-									vector-effect="non-scaling-stroke"
-								/>
-							</svg>
+							{@const bounds = findDataBounds(chartData.dailyPoints)}
+							{#if bounds.first !== -1 && bounds.last !== -1 && bounds.first !== bounds.last}
+								{@const startY = ((maxVal - getTrendY(dailyTrend, bounds.first)) / range) * 100}
+								{@const endY = ((maxVal - getTrendY(dailyTrend, bounds.last)) / range) * 100}
+								{@const startX = (bounds.first + 0.5) / chartData.dailyPoints.length * 100}
+								{@const endX = (bounds.last + 0.5) / chartData.dailyPoints.length * 100}
+								<svg class="trend-line-svg" viewBox="0 0 100 100" preserveAspectRatio="none">
+									<line
+										x1={startX}
+										y1={Math.max(0, Math.min(100, startY))}
+										x2={endX}
+										y2={Math.max(0, Math.min(100, endY))}
+										stroke="#E91E63"
+										stroke-width="2"
+										stroke-dasharray="4,2"
+										vector-effect="non-scaling-stroke"
+									/>
+								</svg>
+							{/if}
 						{/if}
 					</div>
 				</div>
@@ -226,20 +243,25 @@
 							</div>
 						{/each}
 						{#if chartData.runningAverages.length >= 2}
-							{@const startY = ((avgMax - getTrendY(avgTrend, 0)) / avgRange) * 100}
-							{@const endY = ((avgMax - getTrendY(avgTrend, chartData.runningAverages.length - 1)) / avgRange) * 100}
-							<svg class="trend-line-svg" viewBox="0 0 100 100" preserveAspectRatio="none">
-								<line
-									x1="2"
-									y1={Math.max(0, Math.min(100, startY))}
-									x2="98"
-									y2={Math.max(0, Math.min(100, endY))}
-									stroke="#E91E63"
-									stroke-width="2"
-									stroke-dasharray="4,2"
-									vector-effect="non-scaling-stroke"
-								/>
-							</svg>
+							{@const bounds = findDataBounds(chartData.runningAverages)}
+							{#if bounds.first !== -1 && bounds.last !== -1 && bounds.first !== bounds.last}
+								{@const startY = ((avgMax - getTrendY(avgTrend, bounds.first)) / avgRange) * 100}
+								{@const endY = ((avgMax - getTrendY(avgTrend, bounds.last)) / avgRange) * 100}
+								{@const startX = (bounds.first + 0.5) / chartData.runningAverages.length * 100}
+								{@const endX = (bounds.last + 0.5) / chartData.runningAverages.length * 100}
+								<svg class="trend-line-svg" viewBox="0 0 100 100" preserveAspectRatio="none">
+									<line
+										x1={startX}
+										y1={Math.max(0, Math.min(100, startY))}
+										x2={endX}
+										y2={Math.max(0, Math.min(100, endY))}
+										stroke="#E91E63"
+										stroke-width="2"
+										stroke-dasharray="4,2"
+										vector-effect="non-scaling-stroke"
+									/>
+								</svg>
+							{/if}
 						{/if}
 					</div>
 				</div>
@@ -275,20 +297,25 @@
 							</div>
 						{/each}
 						{#if chartData.cumulativeTotals.length >= 2}
-							{@const startY = ((cumMax - getTrendY(cumTrend, 0)) / cumRange) * 100}
-							{@const endY = ((cumMax - getTrendY(cumTrend, chartData.cumulativeTotals.length - 1)) / cumRange) * 100}
-							<svg class="trend-line-svg" viewBox="0 0 100 100" preserveAspectRatio="none">
-								<line
-									x1="2"
-									y1={Math.max(0, Math.min(100, startY))}
-									x2="98"
-									y2={Math.max(0, Math.min(100, endY))}
-									stroke="#E91E63"
-									stroke-width="2"
-									stroke-dasharray="4,2"
-									vector-effect="non-scaling-stroke"
-								/>
-							</svg>
+							{@const bounds = findDataBounds(chartData.cumulativeTotals)}
+							{#if bounds.first !== -1 && bounds.last !== -1 && bounds.first !== bounds.last}
+								{@const startY = ((cumMax - getTrendY(cumTrend, bounds.first)) / cumRange) * 100}
+								{@const endY = ((cumMax - getTrendY(cumTrend, bounds.last)) / cumRange) * 100}
+								{@const startX = (bounds.first + 0.5) / chartData.cumulativeTotals.length * 100}
+								{@const endX = (bounds.last + 0.5) / chartData.cumulativeTotals.length * 100}
+								<svg class="trend-line-svg" viewBox="0 0 100 100" preserveAspectRatio="none">
+									<line
+										x1={startX}
+										y1={Math.max(0, Math.min(100, startY))}
+										x2={endX}
+										y2={Math.max(0, Math.min(100, endY))}
+										stroke="#E91E63"
+										stroke-width="2"
+										stroke-dasharray="4,2"
+										vector-effect="non-scaling-stroke"
+									/>
+								</svg>
+							{/if}
 						{/if}
 					</div>
 				</div>
