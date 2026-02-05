@@ -120,8 +120,8 @@ describe('Login Page', () => {
 	});
 
 	it('should not display error initially', () => {
-		render(LoginPage);
+		const { container } = render(LoginPage);
 
-		expect(screen.queryByClassName?.('error')).toBeFalsy();
+		expect(container.querySelector('.error')).toBeNull();
 	});
 });
