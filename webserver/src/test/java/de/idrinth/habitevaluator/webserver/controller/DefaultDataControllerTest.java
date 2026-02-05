@@ -38,7 +38,7 @@ class DefaultDataControllerTest {
     @Test
     void testInitializeDefaultsUnauthenticated() {
         MockHttpSession unauthSession = new MockHttpSession();
-        ResponseEntity<Map<String, Object>> response = controller.initializeDefaults(unauthSession);
+        ResponseEntity<Map<String, Object>> response = controller.initializeDefaults(unauthSession, "en");
         assertEquals(401, response.getStatusCode().value());
     }
 
@@ -46,7 +46,7 @@ class DefaultDataControllerTest {
     void testInitializeDefaultsUserNotFound() {
         when(userRepository.findById(testUser.getId())).thenReturn(Optional.empty());
 
-        ResponseEntity<Map<String, Object>> response = controller.initializeDefaults(session);
+        ResponseEntity<Map<String, Object>> response = controller.initializeDefaults(session, "en");
         assertEquals(401, response.getStatusCode().value());
     }
 
@@ -54,7 +54,7 @@ class DefaultDataControllerTest {
     void testInitializeDefaultsSuccess() {
         when(userRepository.findById(testUser.getId())).thenReturn(Optional.of(testUser));
 
-        ResponseEntity<Map<String, Object>> response = controller.initializeDefaults(session);
+        ResponseEntity<Map<String, Object>> response = controller.initializeDefaults(session, "en");
 
         assertEquals(200, response.getStatusCode().value());
         assertEquals(true, response.getBody().get("success"));
