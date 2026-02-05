@@ -26,3 +26,9 @@
 
 # SLF4J uses ServiceLoader; suppress warnings for missing implementations
 -dontwarn org.slf4j.**
+
+# SnakeYAML uses java.beans for introspection which is not available on Android
+# The library works without it by falling back to field-based access
+-dontwarn java.beans.**
+-dontwarn org.yaml.snakeyaml.introspector.**
+-keep class org.yaml.snakeyaml.** { *; }
