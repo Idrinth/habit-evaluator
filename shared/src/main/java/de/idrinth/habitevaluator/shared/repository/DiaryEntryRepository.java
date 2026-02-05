@@ -21,4 +21,9 @@ public interface DiaryEntryRepository {
     List<DiaryEntry> findByUserId(String userId);
 
     List<String> findDistinctDescriptionsByUserId(String userId);
+
+    /**
+     * Finds entries that need migration from legacy description to reference.
+     */
+    List<DiaryEntry> findEntriesNeedingMigration(String userId);
 }

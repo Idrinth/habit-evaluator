@@ -15,6 +15,7 @@
         <class>de.idrinth.habitevaluator.shared.model.HabitCategory</class>
         <class>de.idrinth.habitevaluator.shared.model.ScoringRule</class>
         <class>de.idrinth.habitevaluator.shared.model.DiaryEntry</class>
+        <class>de.idrinth.habitevaluator.shared.model.DiaryReference</class>
         <class>de.idrinth.habitevaluator.shared.model.SleepEntry</class>
         <class>de.idrinth.habitevaluator.shared.model.EmotionPair</class>
         <class>de.idrinth.habitevaluator.shared.model.EmotionEntry</class>

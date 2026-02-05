@@ -1,8 +1,10 @@
 package de.idrinth.habitevaluator.webserver.controller;
 
 import de.idrinth.habitevaluator.shared.model.DiaryEntry;
+import de.idrinth.habitevaluator.shared.model.DiaryReference;
 import de.idrinth.habitevaluator.shared.model.User;
 import de.idrinth.habitevaluator.shared.repository.DiaryEntryRepository;
+import de.idrinth.habitevaluator.shared.repository.DiaryReferenceRepository;
 import de.idrinth.habitevaluator.shared.repository.UserRepository;
 import de.idrinth.habitevaluator.shared.service.DiaryService;
 import jakarta.servlet.http.HttpSession;
@@ -20,15 +22,45 @@ import java.util.Optional;
 public class DiaryController {
 
     private final DiaryEntryRepository diaryEntryRepository;
+    private final DiaryReferenceRepository diaryReferenceRepository;
     private final UserRepository userRepository;
     private final DiaryService diaryService;
 
     public DiaryController(DiaryEntryRepository diaryEntryRepository,
+                           DiaryReferenceRepository diaryReferenceRepository,
                            UserRepository userRepository,
                            DiaryService diaryService) {
         this.diaryEntryRepository = diaryEntryRepository;
+        this.diaryReferenceRepository = diaryReferenceRepository;
         this.userRepository = userRepository;
         this.diaryService = diaryService;
+    }
+
+    /**
+     * Migrates entries with legacy descriptions to use diary references.
+     * This is called on first read to ensure old data is converted.
+     */
+    private void migrateEntriesIfNeeded(String userId) {
+        List<DiaryEntry> entriesNeedingMigration = diaryEntryRepository.findEntriesNeedingMigration(userId);
+        if (entriesNeedingMigration.isEmpty()) {
+            return;
+        }
+
+        User user = userRepository.findById(userId).orElse(null);
+        if (user == null) {
+            return;
+        }
+
+        for (DiaryEntry entry : entriesNeedingMigration) {
+            String description = entry.getLegacyDescription();
+            if (description != null && !description.isEmpty()) {
+                DiaryReference reference = diaryReferenceRepository.findOrCreate(
+                        userId, description, () -> user);
+                entry.setDiaryReference(reference);
+                entry.setLegacyDescription(null);
+                diaryEntryRepository.save(entry);
+            }
+        }
     }
 
     @GetMapping
@@ -37,6 +69,7 @@ public class DiaryController {
         if (userId == null) {
             return ResponseEntity.status(401).build();
         }
+        migrateEntriesIfNeeded(userId);
         return ResponseEntity.ok(diaryEntryRepository.findByUserId(userId));
     }
 
@@ -50,7 +83,17 @@ public class DiaryController {
         if (userOpt.isEmpty()) {
             return ResponseEntity.status(401).build();
         }
-        entry.setUser(userOpt.get());
+        User user = userOpt.get();
+        entry.setUser(user);
+
+        // Convert description to reference for new entries
+        String description = entry.getDescription();
+        if (description != null && !description.isEmpty() && entry.getDiaryReference() == null) {
+            DiaryReference reference = diaryReferenceRepository.findOrCreate(userId, description, () -> user);
+            entry.setDiaryReference(reference);
+            entry.setLegacyDescription(null);
+        }
+
         return ResponseEntity.ok(diaryEntryRepository.save(entry));
     }
 
@@ -78,7 +121,9 @@ public class DiaryController {
         if (userId == null) {
             return ResponseEntity.status(401).build();
         }
-        return ResponseEntity.ok(diaryEntryRepository.findDistinctDescriptionsByUserId(userId));
+        // Migrate first to ensure suggestions come from references
+        migrateEntriesIfNeeded(userId);
+        return ResponseEntity.ok(diaryReferenceRepository.findDistinctDescriptionsByUserId(userId));
     }
 
     @GetMapping("/stats")

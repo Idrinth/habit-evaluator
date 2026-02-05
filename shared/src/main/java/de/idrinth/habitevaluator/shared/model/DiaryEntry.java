@@ -9,6 +9,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -26,8 +27,17 @@ public class DiaryEntry {
     @Column(length = 36)
     private String id;
 
-    @Column(nullable = false)
-    private String description;
+    /**
+     * Legacy field for backward compatibility. New entries should use diaryReference.
+     * This field is kept nullable to support migration from older data.
+     * Column name kept as 'description' for backward compatibility with existing databases.
+     */
+    @Column(name = "description", nullable = true)
+    private String legacyDescription;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "diary_reference_id")
+    private DiaryReference diaryReference;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -52,12 +62,23 @@ public class DiaryEntry {
 
     public DiaryEntry(String description, EventSignificance significance) {
         this();
-        this.description = description;
+        this.legacyDescription = description;
         this.significance = significance;
     }
 
     public DiaryEntry(String description, EventSignificance significance, LocalDate eventDate) {
         this(description, significance);
+        this.eventDate = eventDate;
+    }
+
+    public DiaryEntry(DiaryReference diaryReference, EventSignificance significance) {
+        this();
+        this.diaryReference = diaryReference;
+        this.significance = significance;
+    }
+
+    public DiaryEntry(DiaryReference diaryReference, EventSignificance significance, LocalDate eventDate) {
+        this(diaryReference, significance);
         this.eventDate = eventDate;
     }
 
@@ -69,12 +90,46 @@ public class DiaryEntry {
         this.id = id;
     }
 
+    /**
+     * Gets the description text. Returns the reference's description if available,
+     * otherwise falls back to the legacy description for backward compatibility.
+     */
     public String getDescription() {
-        return description;
+        if (diaryReference != null) {
+            return diaryReference.getDescription();
+        }
+        return legacyDescription;
     }
 
+    /**
+     * Sets the legacy description directly. For new code, prefer using setDiaryReference().
+     */
     public void setDescription(String description) {
-        this.description = description;
+        this.legacyDescription = description;
+    }
+
+    public String getLegacyDescription() {
+        return legacyDescription;
+    }
+
+    public void setLegacyDescription(String legacyDescription) {
+        this.legacyDescription = legacyDescription;
+    }
+
+    public DiaryReference getDiaryReference() {
+        return diaryReference;
+    }
+
+    public void setDiaryReference(DiaryReference diaryReference) {
+        this.diaryReference = diaryReference;
+    }
+
+    /**
+     * Checks if this entry needs migration from legacy description to reference.
+     */
+    @Transient
+    public boolean needsMigration() {
+        return diaryReference == null && legacyDescription != null && !legacyDescription.isEmpty();
     }
 
     public EventSignificance getSignificance() {

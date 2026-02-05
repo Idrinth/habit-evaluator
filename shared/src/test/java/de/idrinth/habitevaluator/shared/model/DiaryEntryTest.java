@@ -125,4 +125,78 @@ class DiaryEntryTest {
         e2.setId(e1.getId());
         assertEquals(e1.hashCode(), e2.hashCode());
     }
+
+    @Test
+    void testDiaryReferenceConstructor() {
+        DiaryReference ref = new DiaryReference("Test description");
+        DiaryEntry entry = new DiaryEntry(ref, EventSignificance.MAJOR);
+        assertEquals("Test description", entry.getDescription());
+        assertEquals(EventSignificance.MAJOR, entry.getSignificance());
+        assertSame(ref, entry.getDiaryReference());
+    }
+
+    @Test
+    void testDiaryReferenceWithDateConstructor() {
+        DiaryReference ref = new DiaryReference("Test description");
+        LocalDate date = LocalDate.of(2026, 1, 20);
+        DiaryEntry entry = new DiaryEntry(ref, EventSignificance.MINOR, date);
+        assertEquals("Test description", entry.getDescription());
+        assertEquals(EventSignificance.MINOR, entry.getSignificance());
+        assertEquals(date, entry.getEventDate());
+        assertSame(ref, entry.getDiaryReference());
+    }
+
+    @Test
+    void testGetDescriptionFromReference() {
+        DiaryReference ref = new DiaryReference("Referenced description");
+        DiaryEntry entry = new DiaryEntry();
+        entry.setDiaryReference(ref);
+        assertEquals("Referenced description", entry.getDescription());
+    }
+
+    @Test
+    void testGetDescriptionFallsBackToLegacy() {
+        DiaryEntry entry = new DiaryEntry();
+        entry.setLegacyDescription("Legacy description");
+        assertNull(entry.getDiaryReference());
+        assertEquals("Legacy description", entry.getDescription());
+    }
+
+    @Test
+    void testReferenceOverridesLegacy() {
+        DiaryReference ref = new DiaryReference("From reference");
+        DiaryEntry entry = new DiaryEntry();
+        entry.setLegacyDescription("From legacy");
+        entry.setDiaryReference(ref);
+        assertEquals("From reference", entry.getDescription());
+    }
+
+    @Test
+    void testNeedsMigrationWithLegacyDescription() {
+        DiaryEntry entry = new DiaryEntry();
+        entry.setLegacyDescription("Needs migration");
+        assertTrue(entry.needsMigration());
+    }
+
+    @Test
+    void testNeedsMigrationWithReference() {
+        DiaryReference ref = new DiaryReference("Has reference");
+        DiaryEntry entry = new DiaryEntry();
+        entry.setDiaryReference(ref);
+        assertFalse(entry.needsMigration());
+    }
+
+    @Test
+    void testNeedsMigrationWithEmptyLegacy() {
+        DiaryEntry entry = new DiaryEntry();
+        entry.setLegacyDescription("");
+        assertFalse(entry.needsMigration());
+    }
+
+    @Test
+    void testNeedsMigrationWithNullLegacy() {
+        DiaryEntry entry = new DiaryEntry();
+        entry.setLegacyDescription(null);
+        assertFalse(entry.needsMigration());
+    }
 }
