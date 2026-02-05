@@ -419,6 +419,11 @@ class HezBackupServiceTest {
             }
             return result;
         }
+
+        @Override
+        public List<DiaryEntry> findEntriesNeedingMigration(String userId) {
+            return new ArrayList<>();
+        }
     }
 
     private static class InMemorySleepEntryRepository implements SleepEntryRepository {
