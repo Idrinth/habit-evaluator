@@ -234,22 +234,34 @@ public class PointChartView extends View {
     }
 
     private double[] calculateTrendLine() {
-        int n = dailyPoints.size();
-        if (n < 2) {
-            double intercept = n > 0 ? dailyPoints.get(0) : 0;
+        int totalPoints = dailyPoints.size();
+        if (totalPoints < 2) {
+            double intercept = totalPoints > 0 ? dailyPoints.get(0) : 0;
             return new double[]{0, intercept};
         }
 
+        // Only include non-zero data points in the regression
         double sumX = 0;
         double sumY = 0;
         double sumXY = 0;
         double sumXX = 0;
+        int n = 0;
 
-        for (int i = 0; i < n; i++) {
-            sumX += i;
-            sumY += dailyPoints.get(i);
-            sumXY += i * dailyPoints.get(i);
-            sumXX += i * i;
+        for (int i = 0; i < totalPoints; i++) {
+            int value = dailyPoints.get(i);
+            if (value != 0) {
+                sumX += i;
+                sumY += value;
+                sumXY += i * value;
+                sumXX += i * i;
+                n++;
+            }
+        }
+
+        if (n < 2) {
+            // Not enough data points with values, return flat line at average
+            double avg = n > 0 ? sumY / n : 0;
+            return new double[]{0, avg};
         }
 
         double denom = n * sumXX - sumX * sumX;

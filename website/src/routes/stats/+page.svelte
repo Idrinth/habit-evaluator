@@ -58,19 +58,31 @@
 	}
 
 	function calculateTrendLine(values: number[]): { slope: number; intercept: number } {
-		const n = values.length;
-		if (n < 2) return { slope: 0, intercept: values[0] || 0 };
+		const totalValues = values.length;
+		if (totalValues < 2) return { slope: 0, intercept: values[0] || 0 };
 
+		// Only include non-zero data points in the regression (0 means no data)
 		let sumX = 0;
 		let sumY = 0;
 		let sumXY = 0;
 		let sumXX = 0;
+		let n = 0;
 
-		for (let i = 0; i < n; i++) {
-			sumX += i;
-			sumY += values[i];
-			sumXY += i * values[i];
-			sumXX += i * i;
+		for (let i = 0; i < totalValues; i++) {
+			const value = values[i];
+			if (value !== 0) {
+				sumX += i;
+				sumY += value;
+				sumXY += i * value;
+				sumXX += i * i;
+				n++;
+			}
+		}
+
+		if (n < 2) {
+			// Not enough data points with values, return flat line at average
+			const avg = n > 0 ? sumY / n : 0;
+			return { slope: 0, intercept: avg };
 		}
 
 		const denom = n * sumXX - sumX * sumX;
