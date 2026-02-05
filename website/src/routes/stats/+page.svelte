@@ -97,6 +97,18 @@
 	function getTrendY(trend: { slope: number; intercept: number }, x: number): number {
 		return trend.slope * x + trend.intercept;
 	}
+
+	function findDataBounds(values: number[]): { first: number; last: number } {
+		let first = -1;
+		let last = -1;
+		for (let i = 0; i < values.length; i++) {
+			if (values[i] !== 0) {
+				if (first === -1) first = i;
+				last = i;
+			}
+		}
+		return { first, last };
+	}
 </script>
 
 <div class="stats-container">
@@ -131,17 +143,20 @@
 							{/each}
 							<line x1="0" y1="180" x2={data.labels.length * 20} y2="180" stroke="var(--color-border)" stroke-width="1" />
 							{#if data.habitPoints.length >= 2}
-								{@const startY = habitMax > 0 ? 180 - (getTrendY(habitTrend, 0) / habitMax) * 170 : 180}
-								{@const endY = habitMax > 0 ? 180 - (getTrendY(habitTrend, data.habitPoints.length - 1) / habitMax) * 170 : 180}
-								<line
-									x1="10"
-									y1={Math.max(10, Math.min(180, startY))}
-									x2={data.labels.length * 20 - 10}
-									y2={Math.max(10, Math.min(180, endY))}
-									stroke="#E91E63"
-									stroke-width="2"
-									stroke-dasharray="4,2"
-								/>
+								{@const bounds = findDataBounds(data.habitPoints)}
+								{#if bounds.first !== -1 && bounds.last !== -1 && bounds.first !== bounds.last}
+									{@const startY = habitMax > 0 ? 180 - (getTrendY(habitTrend, bounds.first) / habitMax) * 170 : 180}
+									{@const endY = habitMax > 0 ? 180 - (getTrendY(habitTrend, bounds.last) / habitMax) * 170 : 180}
+									<line
+										x1={bounds.first * 20 + 10}
+										y1={Math.max(10, Math.min(180, startY))}
+										x2={bounds.last * 20 + 10}
+										y2={Math.max(10, Math.min(180, endY))}
+										stroke="#E91E63"
+										stroke-width="2"
+										stroke-dasharray="4,2"
+									/>
+								{/if}
 							{/if}
 						</svg>
 						<div class="chart-labels">
@@ -178,17 +193,20 @@
 							{/each}
 							<line x1="0" y1="180" x2={data.labels.length * 20} y2="180" stroke="var(--color-border)" stroke-width="1" />
 							{#if data.diaryPoints.length >= 2}
-								{@const startY = diaryMax > 0 ? 180 - (getTrendY(diaryTrend, 0) / diaryMax) * 170 : 180}
-								{@const endY = diaryMax > 0 ? 180 - (getTrendY(diaryTrend, data.diaryPoints.length - 1) / diaryMax) * 170 : 180}
-								<line
-									x1="10"
-									y1={Math.max(10, Math.min(180, startY))}
-									x2={data.labels.length * 20 - 10}
-									y2={Math.max(10, Math.min(180, endY))}
-									stroke="#E91E63"
-									stroke-width="2"
-									stroke-dasharray="4,2"
-								/>
+								{@const bounds = findDataBounds(data.diaryPoints)}
+								{#if bounds.first !== -1 && bounds.last !== -1 && bounds.first !== bounds.last}
+									{@const startY = diaryMax > 0 ? 180 - (getTrendY(diaryTrend, bounds.first) / diaryMax) * 170 : 180}
+									{@const endY = diaryMax > 0 ? 180 - (getTrendY(diaryTrend, bounds.last) / diaryMax) * 170 : 180}
+									<line
+										x1={bounds.first * 20 + 10}
+										y1={Math.max(10, Math.min(180, startY))}
+										x2={bounds.last * 20 + 10}
+										y2={Math.max(10, Math.min(180, endY))}
+										stroke="#E91E63"
+										stroke-width="2"
+										stroke-dasharray="4,2"
+									/>
+								{/if}
 							{/if}
 						</svg>
 						<div class="chart-labels">
@@ -225,17 +243,20 @@
 							{/each}
 							<line x1="0" y1="180" x2={data.labels.length * 20} y2="180" stroke="var(--color-border)" stroke-width="1" />
 							{#if data.sleepDuration.length >= 2}
-								{@const startY = sleepDurMax > 0 ? 180 - (getTrendY(sleepDurTrend, 0) / sleepDurMax) * 170 : 180}
-								{@const endY = sleepDurMax > 0 ? 180 - (getTrendY(sleepDurTrend, data.sleepDuration.length - 1) / sleepDurMax) * 170 : 180}
-								<line
-									x1="10"
-									y1={Math.max(10, Math.min(180, startY))}
-									x2={data.labels.length * 20 - 10}
-									y2={Math.max(10, Math.min(180, endY))}
-									stroke="#E91E63"
-									stroke-width="2"
-									stroke-dasharray="4,2"
-								/>
+								{@const bounds = findDataBounds(data.sleepDuration)}
+								{#if bounds.first !== -1 && bounds.last !== -1 && bounds.first !== bounds.last}
+									{@const startY = sleepDurMax > 0 ? 180 - (getTrendY(sleepDurTrend, bounds.first) / sleepDurMax) * 170 : 180}
+									{@const endY = sleepDurMax > 0 ? 180 - (getTrendY(sleepDurTrend, bounds.last) / sleepDurMax) * 170 : 180}
+									<line
+										x1={bounds.first * 20 + 10}
+										y1={Math.max(10, Math.min(180, startY))}
+										x2={bounds.last * 20 + 10}
+										y2={Math.max(10, Math.min(180, endY))}
+										stroke="#E91E63"
+										stroke-width="2"
+										stroke-dasharray="4,2"
+									/>
+								{/if}
 							{/if}
 						</svg>
 						<div class="chart-labels">
@@ -272,17 +293,20 @@
 							{/each}
 							<line x1="0" y1="180" x2={data.labels.length * 20} y2="180" stroke="var(--color-border)" stroke-width="1" />
 							{#if data.sleepEntries.length >= 2}
-								{@const startY = sleepEntMax > 0 ? 180 - (getTrendY(sleepEntTrend, 0) / sleepEntMax) * 170 : 180}
-								{@const endY = sleepEntMax > 0 ? 180 - (getTrendY(sleepEntTrend, data.sleepEntries.length - 1) / sleepEntMax) * 170 : 180}
-								<line
-									x1="10"
-									y1={Math.max(10, Math.min(180, startY))}
-									x2={data.labels.length * 20 - 10}
-									y2={Math.max(10, Math.min(180, endY))}
-									stroke="#E91E63"
-									stroke-width="2"
-									stroke-dasharray="4,2"
-								/>
+								{@const bounds = findDataBounds(data.sleepEntries)}
+								{#if bounds.first !== -1 && bounds.last !== -1 && bounds.first !== bounds.last}
+									{@const startY = sleepEntMax > 0 ? 180 - (getTrendY(sleepEntTrend, bounds.first) / sleepEntMax) * 170 : 180}
+									{@const endY = sleepEntMax > 0 ? 180 - (getTrendY(sleepEntTrend, bounds.last) / sleepEntMax) * 170 : 180}
+									<line
+										x1={bounds.first * 20 + 10}
+										y1={Math.max(10, Math.min(180, startY))}
+										x2={bounds.last * 20 + 10}
+										y2={Math.max(10, Math.min(180, endY))}
+										stroke="#E91E63"
+										stroke-width="2"
+										stroke-dasharray="4,2"
+									/>
+								{/if}
 							{/if}
 						</svg>
 						<div class="chart-labels">
