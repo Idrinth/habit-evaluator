@@ -20,7 +20,7 @@ class HabitTest {
         assertEquals(1, habit.getTargetFrequency());
         assertEquals(1, habit.getMaxEntriesPerDay());
         assertTrue(habit.isPositiveScoring());
-        assertNotNull(habit.getScoringRule());
+        assertNull(habit.getScoringRule());
     }
 
     @Test
