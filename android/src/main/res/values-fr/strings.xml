@@ -202,6 +202,15 @@
     <string name="restore_in_progress">Restauration de la sauvegarde…</string>
     <string name="restore_success">Restauré : %1$d habitudes ajoutées, %2$d habitudes fusionnées, %3$d entrées ajoutées, %4$d entrées de journal ajoutées, %5$d entrées de sommeil ajoutées, %6$d catégories ajoutées</string>
     <string name="restore_failed">Échec de la restauration : %s</string>
+    <string name="download_backup_title">Télécharger la sauvegarde</string>
+    <string name="download_backup_button">Télécharger la sauvegarde (.hez)</string>
+    <string name="download_backup_in_progress">Création de la sauvegarde…</string>
+    <string name="download_backup_success">Sauvegarde enregistrée avec succès</string>
+    <string name="download_backup_failed">Échec du téléchargement de la sauvegarde : %s</string>
+    <string name="restore_from_file_title">Restaurer depuis un fichier</string>
+    <string name="restore_from_file_button">Restaurer depuis un fichier (.hez)</string>
+    <string name="restore_from_file_select">Sélectionner un fichier de sauvegarde .hez</string>
+    <string name="restore_from_file_invalid">Fichier de sauvegarde invalide. Veuillez sélectionner un fichier .hez.</string>
     <string name="record_emotion_entry">Enregistrer une émotion</string>
     <string name="record_emotion">Enregistrer</string>
     <string name="emotion_notes_hint">Notes (facultatif)</string>
