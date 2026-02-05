@@ -1,6 +1,7 @@
 package de.idrinth.habitevaluator.webserver.controller;
 
 import de.idrinth.habitevaluator.shared.model.DiaryEntry;
+import de.idrinth.habitevaluator.shared.model.DiaryReference;
 import de.idrinth.habitevaluator.shared.model.EventSignificance;
 import de.idrinth.habitevaluator.shared.model.User;
 import de.idrinth.habitevaluator.shared.repository.DiaryEntryRepository;
@@ -16,9 +17,11 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
@@ -66,6 +69,9 @@ class DiaryControllerTest {
     void testCreateEntrySuccess() {
         when(userRepository.findById(testUser.getId())).thenReturn(Optional.of(testUser));
         when(diaryEntryRepository.save(any(DiaryEntry.class))).thenAnswer(i -> i.getArgument(0));
+        DiaryReference reference = new DiaryReference("Great meeting");
+        reference.setUser(testUser);
+        when(diaryReferenceRepository.findOrCreate(anyString(), anyString(), any(Supplier.class))).thenReturn(reference);
 
         DiaryEntry entry = new DiaryEntry("Great meeting", EventSignificance.MAJOR);
         ResponseEntity<DiaryEntry> response = controller.createEntry(entry, session);
