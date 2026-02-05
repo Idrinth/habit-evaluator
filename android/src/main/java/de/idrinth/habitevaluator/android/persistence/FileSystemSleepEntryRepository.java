@@ -1,18 +1,14 @@
 package de.idrinth.habitevaluator.android.persistence;
 
+import static de.idrinth.habitevaluator.android.persistence.GsonSerializers.*;
+
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
-import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
-import com.google.gson.JsonPrimitive;
-import com.google.gson.JsonSerializer;
 
 import de.idrinth.habitevaluator.shared.model.SleepEntry;
-import de.idrinth.habitevaluator.shared.model.User;
 import de.idrinth.habitevaluator.shared.repository.SleepEntryRepository;
 
 import java.io.File;
@@ -41,24 +37,7 @@ public class FileSystemSleepEntryRepository implements SleepEntryRepository {
             storageDir.mkdirs();
         }
         this.storageFile = new File(storageDir, "sleep_entries.json");
-        this.gson = new GsonBuilder()
-                .registerTypeAdapter(LocalDateTime.class, (JsonSerializer<LocalDateTime>) (src, typeOfSrc, context) -> {
-                    if (src == null) return JsonNull.INSTANCE;
-                    return new JsonPrimitive(src.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
-                })
-                .registerTypeAdapter(LocalDateTime.class, (JsonDeserializer<LocalDateTime>) (json, typeOfT, context) -> {
-                    if (json.isJsonNull()) return null;
-                    return LocalDateTime.parse(json.getAsString(), DateTimeFormatter.ISO_LOCAL_DATE_TIME);
-                })
-                .registerTypeAdapter(LocalDate.class, (JsonSerializer<LocalDate>) (src, typeOfSrc, context) -> {
-                    if (src == null) return JsonNull.INSTANCE;
-                    return new JsonPrimitive(src.format(DateTimeFormatter.ISO_LOCAL_DATE));
-                })
-                .registerTypeAdapter(LocalDate.class, (JsonDeserializer<LocalDate>) (json, typeOfT, context) -> {
-                    if (json.isJsonNull()) return null;
-                    return LocalDate.parse(json.getAsString(), DateTimeFormatter.ISO_LOCAL_DATE);
-                })
-                .create();
+        this.gson = GsonSerializers.createGson();
         load();
     }
 
@@ -151,10 +130,7 @@ public class FileSystemSleepEntryRepository implements SleepEntryRepository {
         obj.addProperty("notes", entry.getNotes());
 
         if (entry.getUser() != null) {
-            JsonObject userObj = new JsonObject();
-            userObj.addProperty("id", entry.getUser().getId());
-            userObj.addProperty("username", entry.getUser().getUsername());
-            obj.add("user", userObj);
+            obj.add("user", serializeUser(entry.getUser()));
         }
 
         return obj;
@@ -164,31 +140,22 @@ public class FileSystemSleepEntryRepository implements SleepEntryRepository {
         SleepEntry entry = new SleepEntry();
         entry.setId(obj.get("id").getAsString());
 
-        if (obj.has("fromTime") && !obj.get("fromTime").isJsonNull()) {
+        if (hasNonNull(obj, "fromTime")) {
             entry.setFromTime(LocalTime.parse(obj.get("fromTime").getAsString(), TIME_FORMAT));
         }
-        if (obj.has("untilTime") && !obj.get("untilTime").isJsonNull()) {
+        if (hasNonNull(obj, "untilTime")) {
             entry.setUntilTime(LocalTime.parse(obj.get("untilTime").getAsString(), TIME_FORMAT));
         }
-        if (obj.has("date") && !obj.get("date").isJsonNull()) {
+        if (hasNonNull(obj, "date")) {
             entry.setDate(LocalDate.parse(obj.get("date").getAsString(), DateTimeFormatter.ISO_LOCAL_DATE));
         }
-        if (obj.has("createdAt") && !obj.get("createdAt").isJsonNull()) {
+        if (hasNonNull(obj, "createdAt")) {
             entry.setCreatedAt(LocalDateTime.parse(obj.get("createdAt").getAsString(), DateTimeFormatter.ISO_LOCAL_DATE_TIME));
         }
-        if (obj.has("notes") && !obj.get("notes").isJsonNull()) {
-            entry.setNotes(obj.get("notes").getAsString());
-        }
+        entry.setNotes(getStringOrNull(obj, "notes"));
 
-        if (obj.has("user") && !obj.get("user").isJsonNull()) {
-            JsonObject userObj = obj.getAsJsonObject("user");
-            User user = new User();
-            user.setId(userObj.get("id").getAsString());
-            if (userObj.has("username") && !userObj.get("username").isJsonNull()) {
-                user.setUsername(userObj.get("username").getAsString());
-            }
-            user.setPassword("placeholder");
-            entry.setUser(user);
+        if (hasNonNull(obj, "user")) {
+            entry.setUser(deserializeUser(obj.getAsJsonObject("user")));
         }
 
         return entry;
