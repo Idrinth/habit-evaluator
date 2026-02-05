@@ -1,8 +1,11 @@
 package de.idrinth.habitevaluator.android;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,6 +13,8 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatDelegate;
@@ -17,17 +22,52 @@ import androidx.fragment.app.Fragment;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 import de.idrinth.habitevaluator.android.databinding.FragmentSettingsBinding;
 import de.idrinth.habitevaluator.shared.api.ApiClient;
 import de.idrinth.habitevaluator.shared.api.StorageConfig;
 import de.idrinth.habitevaluator.shared.backup.BackupException;
 import de.idrinth.habitevaluator.shared.backup.BackupService;
+import de.idrinth.habitevaluator.shared.backup.HezBackupService;
 import de.idrinth.habitevaluator.shared.backup.MergeResult;
 
 public class SettingsFragment extends Fragment {
 
     private FragmentSettingsBinding binding;
+    private final HezBackupService hezBackupService = new HezBackupService();
+    private byte[] pendingHezBackupData;
+    private ActivityResultLauncher<Intent> createDocumentLauncher;
+    private ActivityResultLauncher<Intent> openDocumentLauncher;
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        createDocumentLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
+                        Uri uri = result.getData().getData();
+                        if (uri != null && pendingHezBackupData != null) {
+                            saveHezBackupToUri(uri, pendingHezBackupData);
+                        }
+                    }
+                    pendingHezBackupData = null;
+                });
+
+        openDocumentLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
+                        Uri uri = result.getData().getData();
+                        if (uri != null) {
+                            showPasswordDialogAndRestoreFromFile(uri);
+                        }
+                    }
+                });
+    }
 
     @Nullable
     @Override
@@ -125,6 +165,8 @@ public class SettingsFragment extends Fragment {
         binding.testConnectionButton.setOnClickListener(v -> testConnection());
         binding.saveSettingsButton.setOnClickListener(v -> saveSettings());
         binding.restoreBackupButton.setOnClickListener(v -> restoreBackup());
+        binding.downloadBackupButton.setOnClickListener(v -> downloadBackup());
+        binding.restoreFromFileButton.setOnClickListener(v -> restoreFromFile());
     }
 
     private void testConnection() {
@@ -338,6 +380,141 @@ public class SettingsFragment extends Fragment {
                                 requireActivity().runOnUiThread(() -> {
                                     binding.restoreStatusText.setText(getString(R.string.restore_failed, e.getMessage()));
                                     binding.restoreStatusText.setTextColor(requireContext().getColor(android.R.color.holo_red_dark));
+                                });
+                            }
+                        }
+                    }).start();
+                })
+                .setNegativeButton(android.R.string.cancel, null)
+                .show();
+    }
+
+    private void downloadBackup() {
+        String backupPassword = binding.backupPasswordInput.getText().toString();
+        if (backupPassword.isEmpty()) {
+            binding.downloadStatusText.setText(R.string.backup_password_required);
+            binding.downloadStatusText.setTextColor(requireContext().getColor(android.R.color.holo_red_dark));
+            return;
+        }
+
+        binding.downloadStatusText.setText(R.string.download_backup_in_progress);
+        binding.downloadStatusText.setTextColor(requireContext().getColor(R.color.text_secondary));
+
+        new Thread(() -> {
+            try {
+                byte[] hezData = hezBackupService.createHezBackup(
+                        backupPassword,
+                        MainActivity.getSharedCurrentUser(),
+                        MainActivity.getSharedHabitRepository(),
+                        MainActivity.getSharedCategoryRepository(),
+                        MainActivity.getSharedDiaryEntryRepository(),
+                        MainActivity.getSharedSleepEntryRepository());
+
+                if (isAdded()) {
+                    requireActivity().runOnUiThread(() -> {
+                        pendingHezBackupData = hezData;
+                        Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
+                        intent.addCategory(Intent.CATEGORY_OPENABLE);
+                        intent.setType("application/octet-stream");
+                        intent.putExtra(Intent.EXTRA_TITLE, hezBackupService.generateDefaultFilename());
+                        createDocumentLauncher.launch(intent);
+                    });
+                }
+            } catch (BackupException e) {
+                if (isAdded()) {
+                    requireActivity().runOnUiThread(() -> {
+                        binding.downloadStatusText.setText(getString(R.string.download_backup_failed, e.getMessage()));
+                        binding.downloadStatusText.setTextColor(requireContext().getColor(android.R.color.holo_red_dark));
+                    });
+                }
+            }
+        }).start();
+    }
+
+    private void saveHezBackupToUri(Uri uri, byte[] data) {
+        new Thread(() -> {
+            try {
+                OutputStream outputStream = requireContext().getContentResolver().openOutputStream(uri);
+                if (outputStream != null) {
+                    outputStream.write(data);
+                    outputStream.close();
+                    if (isAdded()) {
+                        requireActivity().runOnUiThread(() -> {
+                            binding.downloadStatusText.setText(R.string.download_backup_success);
+                            binding.downloadStatusText.setTextColor(requireContext().getColor(android.R.color.holo_green_dark));
+                        });
+                    }
+                }
+            } catch (IOException e) {
+                if (isAdded()) {
+                    requireActivity().runOnUiThread(() -> {
+                        binding.downloadStatusText.setText(getString(R.string.download_backup_failed, e.getMessage()));
+                        binding.downloadStatusText.setTextColor(requireContext().getColor(android.R.color.holo_red_dark));
+                    });
+                }
+            }
+        }).start();
+    }
+
+    private void restoreFromFile() {
+        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.setType("*/*");
+        String[] mimeTypes = {"application/octet-stream", "application/zip"};
+        intent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes);
+        openDocumentLauncher.launch(intent);
+    }
+
+    private void showPasswordDialogAndRestoreFromFile(Uri uri) {
+        EditText passwordInput = new EditText(requireContext());
+        passwordInput.setHint(R.string.backup_password_hint);
+        passwordInput.setInputType(android.text.InputType.TYPE_CLASS_TEXT | android.text.InputType.TYPE_TEXT_VARIATION_PASSWORD);
+
+        new AlertDialog.Builder(requireContext())
+                .setTitle(R.string.restore_enter_password)
+                .setView(passwordInput)
+                .setPositiveButton(android.R.string.ok, (dialog, which) -> {
+                    String password = passwordInput.getText().toString();
+                    if (password.isEmpty()) {
+                        binding.restoreFromFileStatusText.setText(R.string.backup_password_required);
+                        binding.restoreFromFileStatusText.setTextColor(requireContext().getColor(android.R.color.holo_red_dark));
+                        return;
+                    }
+                    binding.restoreFromFileStatusText.setText(R.string.restore_in_progress);
+                    binding.restoreFromFileStatusText.setTextColor(requireContext().getColor(R.color.text_secondary));
+
+                    new Thread(() -> {
+                        try {
+                            InputStream inputStream = requireContext().getContentResolver().openInputStream(uri);
+                            if (inputStream == null) {
+                                throw new BackupException("Could not open file");
+                            }
+                            MergeResult result = hezBackupService.mergeFromHezStream(
+                                    inputStream, password,
+                                    MainActivity.getSharedCurrentUser(),
+                                    MainActivity.getSharedHabitRepository(),
+                                    MainActivity.getSharedCategoryRepository(),
+                                    MainActivity.getSharedDiaryEntryRepository(),
+                                    MainActivity.getSharedSleepEntryRepository());
+                            inputStream.close();
+
+                            if (isAdded()) {
+                                requireActivity().runOnUiThread(() -> {
+                                    binding.restoreFromFileStatusText.setText(getString(R.string.restore_success,
+                                            result.getHabitsAdded(), result.getHabitsMerged(),
+                                            result.getEntriesAdded(), result.getDiaryEntriesAdded(),
+                                            result.getSleepEntriesAdded(), result.getCategoriesAdded()));
+                                    binding.restoreFromFileStatusText.setTextColor(requireContext().getColor(android.R.color.holo_green_dark));
+                                    if (getActivity() instanceof MainActivity) {
+                                        ((MainActivity) getActivity()).onSettingsChanged();
+                                    }
+                                });
+                            }
+                        } catch (BackupException | IOException e) {
+                            if (isAdded()) {
+                                requireActivity().runOnUiThread(() -> {
+                                    binding.restoreFromFileStatusText.setText(getString(R.string.restore_failed, e.getMessage()));
+                                    binding.restoreFromFileStatusText.setTextColor(requireContext().getColor(android.R.color.holo_red_dark));
                                 });
                             }
                         }

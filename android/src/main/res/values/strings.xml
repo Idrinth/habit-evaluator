@@ -189,6 +189,15 @@
     <string name="restore_in_progress">Restoring backup…</string>
     <string name="restore_success">Restored: %1$d habits added, %2$d habits merged, %3$d entries added, %4$d diary entries added, %5$d sleep entries added, %6$d categories added</string>
     <string name="restore_failed">Restore failed: %s</string>
+    <string name="download_backup_title">Download Backup</string>
+    <string name="download_backup_button">Download Backup (.hez)</string>
+    <string name="download_backup_in_progress">Creating backup…</string>
+    <string name="download_backup_success">Backup saved successfully</string>
+    <string name="download_backup_failed">Backup download failed: %s</string>
+    <string name="restore_from_file_title">Restore from File</string>
+    <string name="restore_from_file_button">Restore from File (.hez)</string>
+    <string name="restore_from_file_select">Select a .hez backup file</string>
+    <string name="restore_from_file_invalid">Invalid backup file. Please select a .hez file.</string>
     <string name="emotional_state">Emotions</string>
     <string name="add_emotion_pair">Add Emotion Pair</string>
     <string name="negative_label_hint">Negative label (e.g. listless)</string>
