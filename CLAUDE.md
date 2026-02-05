@@ -15,7 +15,7 @@ habit-evaluator/
 ├── shared/              # Core models, services, repositories, localization
 ├── webserver/           # Spring Boot 3.2.2 web application (REST API)
 ├── desktop/             # JavaFX 21.0.2 desktop application
-├── android/             # Android (SDK 34, min 26) mobile application
+├── android/             # Android (SDK 35, min 26) mobile application
 ├── website/             # SvelteKit 2.0 frontend application
 ├── homepage/            # SvelteKit 2.0 static homepage/documentation site
 ├── .github/workflows/   # CI/CD (GitHub Actions)
@@ -33,9 +33,9 @@ habit-evaluator/
 
 Core library consumed by all platform modules. Uses JPMS (`module-info.java`) and opens model package to Hibernate for reflection.
 
-- **Models:** `Habit`, `HabitEntry`, `User`, `HabitCategory`, `Evaluation`, `ScoringRule`, `WeeklyScore`, `HabitScore`, `MagicLink`, `FrequencyType` (enum: DAILY/WEEKLY/MONTHLY), `DiaryEntry`, `EventSignificance` (enum: MINOR/NORMAL/MAJOR), `SleepEntry`, `SleepStats`
-- **Services:** `HabitEvaluatorService` (streaks, completion rates, on-track detection), `HabitScoringService` (point scoring with thresholds 0/1/2/4/8, weekly aggregation, predicted scores), `DiaryService` (day/week/month points, weekly averages, monthly trends), `SleepEvaluationService` (sleep stats: avg/min/max hours, weekly/monthly aggregation), `DefaultDataInitializer`
-- **Repositories (interfaces):** `HabitRepository`, `UserRepository`, `HabitCategoryRepository`, `ScoringRuleRepository`, `MagicLinkRepository`, `DiaryEntryRepository`, `SleepEntryRepository`
+- **Models:** `Habit`, `HabitEntry`, `User`, `HabitCategory`, `Evaluation`, `ScoringRule`, `WeeklyScore`, `HabitScore`, `PredictedWeeklyScore`, `PredictedHabitScore`, `MagicLink`, `FrequencyType` (enum: DAILY/WEEKLY/MONTHLY), `DiaryEntry`, `EventSignificance` (enum: MINOR/NORMAL/MAJOR), `SleepEntry`, `SleepStats`, `EmotionEntry`, `EmotionPair`, `EventCorrelation`
+- **Services:** `HabitEvaluatorService` (streaks, completion rates, on-track detection), `HabitScoringService` (point scoring with thresholds 0/1/2/4/8, weekly aggregation, predicted scores), `DiaryService` (day/week/month points, weekly averages, monthly trends), `SleepEvaluationService` (sleep stats: avg/min/max hours, weekly/monthly aggregation), `EventCorrelationService` (time-weighted Pearson correlations across habits, diary, sleep, and emotions over past year; returns top 10 by absolute strength), `DefaultDataInitializer`
+- **Repositories (interfaces):** `HabitRepository`, `UserRepository`, `HabitCategoryRepository`, `ScoringRuleRepository`, `MagicLinkRepository`, `DiaryEntryRepository`, `SleepEntryRepository`, `EmotionEntryRepository`, `EmotionPairRepository`
 - **Localization:** `Localizer` service — YAML-based i18n loaded from classpath `localization/{lang}.yml`. Resolution: module.key (requested lang) -> module.key (English) -> general.key (requested lang) -> general.key (English) -> literal fallback. Uses concurrent caching.
 - **API client:** `ApiClient`, `RemoteHabitRepository`, `RemoteUserRepository`, `StorageConfig`, `SyncData` for client-server communication and bidirectional sync
 - **Dependencies:** GSON 2.10.1, SLF4J 2.0.11, SnakeYAML 2.2, Jakarta Persistence API 3.1.0 (compile-only), Jackson Annotations 2.16.1 (compile-only)
@@ -45,7 +45,7 @@ Core library consumed by all platform modules. Uses JPMS (`module-info.java`) an
 Spring Boot 3.2.2 application with Spring Security, Spring Data JPA.
 
 - **Entry point:** `de.idrinth.habitevaluator.webserver.HabitEvaluatorWebApplication`
-- **Controllers:** `HabitController`, `AuthController`, `CategoryController`, `ScoringRuleController`, `MagicLinkController`, `DefaultDataController`, `SyncController`
+- **Controllers:** `HabitController`, `AuthController`, `CategoryController`, `ScoringRuleController`, `MagicLinkController`, `DefaultDataController`, `SyncController`, `DiaryController`, `SleepEntryController`, `EmotionPairController`, `StatsController`, `PdfExportController`
 - **Repositories:** `DatabaseHabitRepository`, `DatabaseUserRepository`, `DatabaseMagicLinkRepository` (wrapping Spring Data JPA interfaces: `JpaUserRepository`, `JpaHabitRepository`, `JpaHabitEntryRepository`, `JpaMagicLinkRepository`)
 - **Configuration:** `SecurityConfig` (BCrypt, session-based auth), `AppConfig`, `DataInitializer`
 - **DTOs:** `LoginRequest`, `LoginResponse`, `CreateCategoryRequest`, `CreateScoringRuleRequest`
@@ -66,33 +66,33 @@ JavaFX 21.0.2 application with JPMS module system.
 
 ### android
 
-Android application (SDK 34, min 26).
+Android application (SDK 35, min 26).
 
 - **Namespace:** `de.idrinth.habitevaluator.android`
-- **Activities:** `MainActivity` (launcher with bottom navigation and fragment tabs)
-- **Fragments:** `EditHabitsFragment` (habit editing with category/frequency/threshold/translation fields), `DiaryFragment` (positive event logging with date picker and stats), `SleepTrackingFragment` (sleep duration logging with overlap detection and stats)
+- **Activities:** `MainActivity` (launcher with bottom navigation and fragment tabs), `SettingsActivity`, `PdfExportActivity`, `SleepAnalysisActivity`
+- **Fragments:** `HomeFragment`, `EditHabitsFragment`, `AddHabitFragment`, `DiaryFragment`, `SleepTrackingFragment`, `StatsFragment`, `PointDevelopmentFragment`, `EmotionalStateFragment`, `RecordEmotionEntryFragment`, `AddEmotionPairFragment`, `ImprintFragment`, `SettingsFragment`
 - **UI Adapters:** `HabitAdapter`, `TrackHabitAdapter`, `EditHabitAdapter`, `DiaryEntryAdapter`, `SleepEntryAdapter`, `ScreenPagerAdapter`
 - **Persistence:** `FileSystemHabitRepository`, `FileSystemHabitCategoryRepository`, `FileSystemDiaryEntryRepository`, `FileSystemSleepEntryRepository` (JSON file-based storage using GSON)
 - **Permissions:** INTERNET
 - **Dependencies:** AndroidX AppCompat 1.6.1, Material 1.11.0, ConstraintLayout 2.1.4, RecyclerView 1.3.2, CardView 1.0.0, ViewPager2 1.0.0, Lifecycle (ViewModel/LiveData 2.7.0), SLF4J no-op 2.0.11
-- **Build:** ProGuard minification and resource shrinking in release builds, signing config for release APKs
+- **Build:** ProGuard minification and resource shrinking in release builds, signing config for release APKs, AAB (Android App Bundle) support
 
 ### website
 
 SvelteKit 2.0 frontend application with TypeScript.
 
-- **Routes:** Login, habits (add/edit), categories (add), score-rules (add)
+- **Routes:** Login, habits (add/edit/home), categories (add), score-rules (add), diary, sleep, emotions graph, stats dashboard, points, PDF export, imprint
 - **API client:** `src/lib/api.ts`
-- **Build:** Vite 7.3.1, `svelte-check` for type checking
-- **Docker:** `website/Dockerfile` — Node.js alpine build, nginx alpine runtime
+- **Build:** Vite 7.3.1, `svelte-check` for type checking, TypeScript 5.9.3 (strict mode)
+- **Docker:** `website/Dockerfile` — Node.js 22 alpine build, nginx alpine runtime
 
 ### homepage
 
 SvelteKit 2.0 static homepage and documentation site.
 
-- **Routes:** Features page, documentation pages (android, desktop, api, webserver)
+- **Routes:** Features page, documentation pages (android, desktop, api, webserver), imprint
 - **Build:** Same toolchain as website
-- **Docker:** `homepage/Dockerfile` — Node.js alpine build, nginx alpine runtime
+- **Docker:** `homepage/Dockerfile` — Node.js 22 alpine build, nginx alpine runtime
 
 ## REST API
 
@@ -115,6 +115,20 @@ SvelteKit 2.0 static homepage and documentation site.
 | GET | `/api/auth/me` | Get current user |
 | GET | `/api/magic-links` | Magic link management |
 | GET | `/api/shared/{token}` | Public shared data access |
+| GET | `/api/diary` | List user's diary entries |
+| POST | `/api/diary` | Create diary entry |
+| DELETE | `/api/diary/{id}` | Delete diary entry |
+| GET | `/api/diary/stats` | Diary stats (today/week/month points, weekly average, monthly trend) |
+| GET | `/api/sleep-entries` | List user's sleep entries |
+| POST | `/api/sleep-entries` | Create sleep entry (validates no overlaps) |
+| DELETE | `/api/sleep-entries/{id}` | Delete sleep entry |
+| GET | `/api/sleep-entries/stats` | Sleep stats (weekly and monthly: avg/min/max hours) |
+| GET | `/api/emotions/pairs` | List user's emotion pairs with labels |
+| GET | `/api/emotions/graph` | Emotion graph data (daily averages, overall averages per pair) |
+| GET | `/api/stats/dashboard` | 30-day dashboard (habit points, diary points, sleep duration/entries) |
+| GET | `/api/stats/daily-timeline` | 30-day daily timeline of habit entries with category colors |
+| GET | `/api/stats/correlations` | Top event correlations across habits, diary, sleep, emotions |
+| GET | `/api/export/pdf` | PDF report (params: from, to, habits, sleep, diary, emotions flags) |
 
 ## Database Schema
 
@@ -128,6 +142,8 @@ All entities use UUID string IDs (`@Id @Column(length = 36)`).
 - **magic_links** — id, token (unique), user_id (FK), categoryId, filterStart, filterEnd, created_at, expiresAt
 - **diary_entries** — id, description, significance (ENUM: MINOR/NORMAL/MAJOR), event_date, created_at, user_id (FK)
 - **sleep_entries** — id, from_time, until_time, date, created_at, notes, user_id (FK)
+- **emotion_pairs** — id, negative_label, positive_label, user_id (FK)
+- **emotion_entries** — id, emotion_pair_id (FK), strength (int, -10 to +10), recorded_at, notes (max 500), user_id (FK)
 
 **Unique constraints:** Habit (name + categoryId + userId), User (username)
 **Cascade:** User -> habits (delete), Habit -> entries (delete), User -> diary_entries (delete), User -> sleep_entries (delete)
@@ -171,6 +187,13 @@ All entities use UUID string IDs (`@Id @Column(length = 36)`).
 - `getCurrentWeekStats()` / `getCurrentMonthStats()` — convenience methods
 - Sleep duration handles midnight crossing (e.g., 23:00 to 07:00)
 
+**EventCorrelationService:**
+- Calculates time-weighted Pearson correlations across habits, diary, sleep, and emotions over the past year (365 days)
+- Creates daily signals for habit completions, diary points, sleep hours, and emotion pair averages
+- Applies linear decay weights (newer entries weighted higher)
+- Returns top 10 correlations sorted by absolute strength, requiring minimum 7 shared days
+- Used by `StatsController` for `/api/stats/correlations` and `PdfExportController` for reports
+
 ## Build Commands
 
 ```bash
@@ -192,14 +215,23 @@ All entities use UUID string IDs (`@Id @Column(length = 36)`).
 # Build Android APK (debug)
 ./gradlew :android:assembleDebug
 
+# Build Android AAB (release bundle)
+./gradlew :android:bundleRelease
+
 # Docker Compose (full stack)
 docker compose up --build
 
 # Website development
 cd website && npm install && npm run dev
 
+# Website type checking
+cd website && npm run check
+
 # Homepage development
 cd homepage && npm install && npm run dev
+
+# Homepage type checking
+cd homepage && npm run check
 ```
 
 ## Testing
@@ -226,12 +258,10 @@ cd homepage && npm install && npm run dev
 
 GitHub Actions workflows at `.github/workflows/`:
 
-- **build.yml** — Primary build: triggers on push/PR to `the-one`, JDK 17 (Temurin), `./gradlew build`
-- **apk.yml** — Android APK release: push to `the-one`, conditional on signing secrets, builds signed APK
-- **website.yml** — SvelteKit CI: push/PR to `the-one`, Node.js 22, `npm run check` and `npm run build`
-- **homepage.yml** — Homepage deployment
-- **release.yml** — Release automation: Docker builds to GHCR (webserver, website, homepage), artifact uploads (JAR, desktop JAR)
-- **latest.yml** — Latest tag management
+- **build.yml** — Primary build: triggers on push/PR to `the-one`, JDK 17 (Temurin), `./gradlew build`, parallel jobs for desktop packaging (.deb, .exe) and Android builds (APK, AAB with signing secrets)
+- **frontend.yml** — SvelteKit CI: push/PR to `the-one`, Node.js 22, `npm run check` and `npm run build` for both website and homepage
+- **release.yml** — Release automation: Docker builds to GHCR (webserver, website, homepage), artifact uploads (JAR, DEB, EXE, APK, AAB)
+- **docker.yml** — Docker image builds
 - **coderabbit-retry.yml** — Code review automation
 
 ## Architecture & Conventions
@@ -244,11 +274,11 @@ GitHub Actions workflows at `.github/workflows/`:
 **Package naming:** `de.idrinth.habitevaluator.[module].[layer]`
 
 **Naming patterns:**
-- Entities: PascalCase (`Habit`, `HabitEntry`, `User`, `DiaryEntry`, `SleepEntry`)
-- Services: `*Service` (`HabitEvaluatorService`, `DiaryService`, `SleepEvaluationService`)
+- Entities: PascalCase (`Habit`, `HabitEntry`, `User`, `DiaryEntry`, `SleepEntry`, `EmotionEntry`, `EmotionPair`)
+- Services: `*Service` (`HabitEvaluatorService`, `DiaryService`, `SleepEvaluationService`, `EventCorrelationService`)
 - Repositories: `*Repository` (interface), `Database*Repository` (Spring Data wrapper), `H2*Repository` (desktop), `FileSystem*Repository` (Android)
-- Controllers: `*Controller` (`HabitController`, `AuthController`, `CategoryController`)
-- Fragments (Android): `*Fragment` (`DiaryFragment`, `SleepTrackingFragment`, `EditHabitsFragment`)
+- Controllers: `*Controller` (`HabitController`, `AuthController`, `CategoryController`, `StatsController`, `PdfExportController`)
+- Fragments (Android): `*Fragment` (`DiaryFragment`, `SleepTrackingFragment`, `EditHabitsFragment`, `EmotionalStateFragment`, `StatsFragment`)
 - Adapters (Android): `*Adapter` (`HabitAdapter`, `DiaryEntryAdapter`, `SleepEntryAdapter`)
 - Methods: camelCase (`evaluate`, `calculateTargetEntries`, `isExpired`)
 
@@ -260,6 +290,7 @@ GitHub Actions workflows at `.github/workflows/`:
 - JPMS module system for shared and desktop modules
 - Android file-based persistence using GSON with thread-safe ConcurrentHashMap
 - Bidirectional sync via SyncController merging client and server data by ID
+- Emotion strength clamped to [-10, +10] range with validation in model
 
 **Library documentation:** When adding or updating third-party libraries, their name, version, and license must be documented in the Project legal (info) page of the respective project part (website, homepage, desktop, android).
 
