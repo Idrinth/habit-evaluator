@@ -7,15 +7,20 @@
     "dev": "vite dev",
     "build": "vite build",
     "preview": "vite preview",
-    "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json"
+    "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
   },
   "devDependencies": {
     "@sveltejs/adapter-static": "^3.0.10",
     "@sveltejs/kit": "^2.50.1",
     "@sveltejs/vite-plugin-svelte": "^6.2.4",
+    "@vitest/coverage-v8": "^3.0.4",
     "svelte": "^5.49.1",
     "svelte-check": "^4.3.6",
     "typescript": "^5.9.3",
-    "vite": "^7.3.1"
+    "vite": "^7.3.1",
+    "vitest": "^3.0.4"
   }
 }

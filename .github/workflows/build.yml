@@ -27,6 +27,28 @@ jobs:
       - name: Build
         run: ./gradlew build
 
+      - name: Generate coverage reports
+        run: ./gradlew jacocoTestReport
+        if: always()
+
+      - name: Verify coverage thresholds
+        run: ./gradlew jacocoTestCoverageVerification
+        if: always()
+
+      - name: Upload shared coverage report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: shared-coverage-report
+          path: shared/build/reports/jacoco/
+
+      - name: Upload webserver coverage report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: webserver-coverage-report
+          path: webserver/build/reports/jacoco/
+
   desktop-jar:
     runs-on: ubuntu-latest
     steps:

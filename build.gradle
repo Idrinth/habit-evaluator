@@ -1,6 +1,7 @@
 plugins {
     id 'java'
     id 'idea'
+    id 'jacoco'
 }
 
 allprojects {
@@ -16,6 +17,8 @@ subprojects {
 
     afterEvaluate {
         if (plugins.hasPlugin('java') || plugins.hasPlugin('java-library')) {
+            apply plugin: 'jacoco'
+
             java {
                 sourceCompatibility = JavaVersion.VERSION_17
                 targetCompatibility = JavaVersion.VERSION_17
@@ -23,6 +26,30 @@ subprojects {
 
             test {
                 useJUnitPlatform()
+                finalizedBy jacocoTestReport
+            }
+
+            jacoco {
+                toolVersion = '0.8.11'
+            }
+
+            jacocoTestReport {
+                dependsOn test
+                reports {
+                    xml.required = true
+                    html.required = true
+                    csv.required = false
+                }
+            }
+
+            jacocoTestCoverageVerification {
+                violationRules {
+                    rule {
+                        limit {
+                            minimum = 0.0
+                        }
+                    }
+                }
             }
 
             dependencies {
