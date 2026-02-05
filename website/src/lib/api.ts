@@ -1,4 +1,5 @@
-const BASE = '/api';
+import { getApiBaseUrl } from './config';
+
 const CIRCUIT_BREAKER_COOLDOWN_MS = 5 * 60 * 1000; // 5 minutes
 
 let lastFailureTime: number | null = null;
@@ -16,7 +17,7 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
 		throw new Error(`Requests paused after failure, retrying in ${Math.ceil(remaining / 1000)}s`);
 	}
 	try {
-		const response = await fetch(`${BASE}${path}`, {
+		const response = await fetch(`${getApiBaseUrl()}${path}`, {
 			headers: {
 				'Content-Type': 'application/json',
 				...options.headers
@@ -274,7 +275,7 @@ export const pdfExport = {
 			sleep: String(params.sleep),
 			diary: String(params.diary)
 		});
-		const response = await fetch(`${BASE}/export/pdf?${query.toString()}`);
+		const response = await fetch(`${getApiBaseUrl()}/export/pdf?${query.toString()}`);
 		if (!response.ok) {
 			throw new Error(`Export failed with status ${response.status}`);
 		}

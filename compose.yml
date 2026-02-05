@@ -32,6 +32,10 @@ services:
     build:
       context: website
       dockerfile: Dockerfile
+    environment:
+      # API base URL - defaults to /api (proxied to webserver via nginx)
+      # Override to point to a different API server, e.g., https://api.example.com
+      API_BASE_URL: ${API_BASE_URL:-/api}
     configs:
       - source: nginx
         target: /etc/nginx/conf.d/default.conf
