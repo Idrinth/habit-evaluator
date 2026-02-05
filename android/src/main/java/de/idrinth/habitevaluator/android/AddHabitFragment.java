@@ -263,6 +263,9 @@ public class AddHabitFragment extends Fragment {
                             }
                             Toast.makeText(requireContext(), "Habit added", Toast.LENGTH_SHORT).show();
                             clearForm();
+                            if (getActivity() instanceof MainActivity) {
+                                ((MainActivity) getActivity()).navigateToHome();
+                            }
                         });
                     }
                 }).start();
@@ -273,6 +276,9 @@ public class AddHabitFragment extends Fragment {
                 }
                 Toast.makeText(requireContext(), "Habit added", Toast.LENGTH_SHORT).show();
                 clearForm();
+                if (getActivity() instanceof MainActivity) {
+                    ((MainActivity) getActivity()).navigateToHome();
+                }
             }
         } else {
             if (habits != null) {
@@ -280,6 +286,9 @@ public class AddHabitFragment extends Fragment {
             }
             Toast.makeText(requireContext(), "Habit added", Toast.LENGTH_SHORT).show();
             clearForm();
+            if (getActivity() instanceof MainActivity) {
+                ((MainActivity) getActivity()).navigateToHome();
+            }
         }
     }
 

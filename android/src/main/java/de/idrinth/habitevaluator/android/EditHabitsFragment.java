@@ -168,10 +168,10 @@ public class EditHabitsFragment extends Fragment {
         MainActivity.saveAllHabits();
 
         String message = getString(R.string.habits_saved_success, count);
-        binding.editMessage.setText(message);
-        binding.editMessage.setTextColor(requireContext().getResources().getColor(android.R.color.holo_green_dark, requireContext().getTheme()));
-        binding.editMessage.setVisibility(View.VISIBLE);
         Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show();
+        if (getActivity() instanceof MainActivity) {
+            ((MainActivity) getActivity()).navigateToHome();
+        }
     }
 
     @Override

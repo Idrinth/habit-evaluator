@@ -53,6 +53,9 @@ public class AddEmotionPairFragment extends Fragment {
             MainActivity.getSharedEmotionPairs().add(pair);
             Toast.makeText(requireContext(), R.string.emotion_pair_added, Toast.LENGTH_SHORT).show();
             clearForm();
+            if (getActivity() instanceof MainActivity) {
+                ((MainActivity) getActivity()).navigateToEmotionalState();
+            }
         }
     }
 
