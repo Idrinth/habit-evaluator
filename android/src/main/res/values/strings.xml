@@ -208,6 +208,7 @@
     <string name="stats_no_correlations">Not enough data for correlations</string>
     <string name="pdf_include_emotions">Emotion measurements and graph</string>
     <string name="pdf_section_emotions">Emotions</string>
+    <string name="pdf_scatter_chart_title">Daytime Emotion Distribution</string>
     <string name="pdf_emotion_entries">Emotion Entries</string>
     <string name="pdf_section_correlations">Event Correlations</string>
     <string name="pdf_correlation_description">Time-weighted Pearson correlations over the past year.</string>
