@@ -244,9 +244,10 @@ public class StatsController {
         LocalDate today = LocalDate.now();
         LocalDate startDate = today.minusDays(DAYS - 1);
 
+        // Hour-based labels for time-of-day X-axis
         List<String> labels = new ArrayList<>();
-        for (LocalDate d = startDate; !d.isAfter(today); d = d.plusDays(1)) {
-            labels.add(d.format(LABEL_FORMAT));
+        for (int h = 0; h <= 24; h += 6) {
+            labels.add(String.format("%02d:00", h));
         }
 
         List<EmotionEntry> allEntries = emotionEntryRepository.findByUserId(userId);
@@ -280,12 +281,9 @@ public class StatsController {
             List<Map<String, Object>> points = new ArrayList<>();
             for (EmotionEntry entry : pairEntries) {
                 LocalDateTime recordedAt = entry.getRecordedAt();
-                LocalDate entryDate = recordedAt.toLocalDate();
-                int dayIndex = (int) ChronoUnit.DAYS.between(startDate, entryDate);
                 double hour = recordedAt.getHour() + recordedAt.getMinute() / 60.0;
 
                 Map<String, Object> point = new LinkedHashMap<>();
-                point.put("dayIndex", dayIndex);
                 point.put("hour", hour);
                 point.put("strength", entry.getStrength());
                 points.add(point);

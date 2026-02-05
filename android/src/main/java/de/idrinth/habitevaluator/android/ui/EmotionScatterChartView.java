@@ -67,9 +67,13 @@ public class EmotionScatterChartView extends View {
         legendBoxPaint.setStyle(Paint.Style.FILL);
     }
 
-    public void setData(List<String> labels, List<ScatterPair> pairs) {
-        this.labels = labels != null ? labels : new ArrayList<>();
+    public void setData(List<ScatterPair> pairs) {
         this.pairs = pairs != null ? pairs : new ArrayList<>();
+        // Generate hour labels for 24-hour X-axis
+        this.labels = new ArrayList<>();
+        for (int h = 0; h <= 24; h += 6) {
+            labels.add(String.format("%02d:00", h));
+        }
         invalidate();
     }
 
@@ -121,10 +125,7 @@ public class EmotionScatterChartView extends View {
             canvas.drawText(label, chartLeft - 6, gridY + 6, textPaint);
         }
 
-        int count = labels.size();
-        float pointSpacing = count > 1 ? chartWidth / (count - 1) : chartWidth;
-
-        // Draw scatter points for each emotion pair
+        // Draw scatter points for each emotion pair (X-axis: 0-24 hours)
         for (int p = 0; p < pairs.size(); p++) {
             int color = PAIR_COLORS[p % PAIR_COLORS.length];
             ScatterPair pair = pairs.get(p);
@@ -132,38 +133,25 @@ public class EmotionScatterChartView extends View {
             dotPaint.setAlpha(180);
 
             for (ScatterEntry entry : pair.entries) {
-                if (entry.dayIndex >= 0 && entry.dayIndex < count) {
-                    float px = count > 1 ? chartLeft + pointSpacing * entry.dayIndex : chartLeft + chartWidth / 2f;
+                if (entry.hourOfDay >= 0 && entry.hourOfDay <= 24) {
+                    float px = chartLeft + (entry.hourOfDay / 24f) * chartWidth;
                     float py = yCenter - (entry.strength / 10f) * (chartHeight / 2f);
                     canvas.drawCircle(px, py, 8f, dotPaint);
                 }
             }
         }
 
-        // X-axis labels
+        // X-axis labels (hours: 00:00, 06:00, 12:00, 18:00, 24:00)
         textPaint.setColor(getTextColor());
         textPaint.setTextSize(18f);
         textPaint.setTextAlign(Paint.Align.CENTER);
-        int labelStep = Math.max(1, count / 10);
-        for (int i = 0; i < count; i += labelStep) {
-            float centerX = count > 1 ? chartLeft + pointSpacing * i : chartLeft + chartWidth / 2f;
-            if (i < labels.size()) {
-                canvas.save();
-                canvas.rotate(-45, centerX, chartBottom + 12);
-                canvas.drawText(labels.get(i), centerX, chartBottom + 28, textPaint);
-                canvas.restore();
-            }
-        }
-        // Always draw last label
-        if (count > 1) {
-            int lastIdx = count - 1;
-            float centerX = chartLeft + pointSpacing * lastIdx;
-            if (lastIdx < labels.size() && lastIdx % labelStep != 0) {
-                canvas.save();
-                canvas.rotate(-45, centerX, chartBottom + 12);
-                canvas.drawText(labels.get(lastIdx), centerX, chartBottom + 28, textPaint);
-                canvas.restore();
-            }
+        for (int i = 0; i < labels.size(); i++) {
+            int hour = i * 6;
+            float centerX = chartLeft + (hour / 24f) * chartWidth;
+            canvas.save();
+            canvas.rotate(-45, centerX, chartBottom + 12);
+            canvas.drawText(labels.get(i), centerX, chartBottom + 28, textPaint);
+            canvas.restore();
         }
 
         // Legend below chart
@@ -219,11 +207,11 @@ public class EmotionScatterChartView extends View {
     }
 
     public static class ScatterEntry {
-        public int dayIndex;
+        public float hourOfDay;
         public float strength;
 
-        public ScatterEntry(int dayIndex, float strength) {
-            this.dayIndex = dayIndex;
+        public ScatterEntry(float hourOfDay, float strength) {
+            this.hourOfDay = hourOfDay;
             this.strength = strength;
         }
     }
