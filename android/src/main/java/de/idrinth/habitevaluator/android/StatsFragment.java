@@ -32,6 +32,7 @@ import de.idrinth.habitevaluator.shared.model.User;
 import de.idrinth.habitevaluator.shared.service.DiaryService;
 import de.idrinth.habitevaluator.shared.service.EventCorrelationService;
 import de.idrinth.habitevaluator.shared.service.HabitScoringService;
+import de.idrinth.habitevaluator.android.ui.EmotionScatterChartView;
 
 public class StatsFragment extends Fragment {
 
@@ -79,6 +80,7 @@ public class StatsFragment extends Fragment {
         updateDiaryChart(startDate, today, labels);
         updateHabitChart(startDate, today, labels);
         updateEmotionChart(startDate, today, labels);
+        updateEmotionScatterChart(startDate, today, labels);
         updateCorrelations();
     }
 
@@ -259,6 +261,59 @@ public class StatsFragment extends Fragment {
         }
 
         binding.emotionChart.setData(emotionLabels, pairNames, pairDailyValues);
+    }
+
+    private void updateEmotionScatterChart(LocalDate startDate, LocalDate today, List<String> labels) {
+        List<EmotionEntry> allEntries = new ArrayList<>();
+        User user = MainActivity.getSharedCurrentUser();
+        if (user != null && MainActivity.getSharedEmotionEntryRepository() != null) {
+            allEntries = MainActivity.getSharedEmotionEntryRepository().findByUserId(user.getId());
+        }
+
+        // Filter entries within the date range
+        List<EmotionEntry> rangeEntries = new ArrayList<>();
+        for (EmotionEntry entry : allEntries) {
+            LocalDate entryDate = entry.getRecordedAt().toLocalDate();
+            if (!entryDate.isBefore(startDate) && !entryDate.isAfter(today)) {
+                rangeEntries.add(entry);
+            }
+        }
+
+        if (rangeEntries.isEmpty()) {
+            binding.emotionScatterCard.setVisibility(View.GONE);
+            return;
+        }
+
+        binding.emotionScatterCard.setVisibility(View.VISIBLE);
+
+        // Group entries by emotion pair
+        Map<String, List<EmotionEntry>> entriesByPair = new TreeMap<>();
+        Map<String, String> pairLabelMap = new TreeMap<>();
+        for (EmotionEntry entry : rangeEntries) {
+            if (entry.getEmotionPair() != null) {
+                String pairId = entry.getEmotionPair().getId();
+                entriesByPair.computeIfAbsent(pairId, k -> new ArrayList<>()).add(entry);
+                pairLabelMap.put(pairId, entry.getEmotionPair().toString());
+            }
+        }
+
+        // Build scatter pairs
+        List<EmotionScatterChartView.ScatterPair> scatterPairs = new ArrayList<>();
+        for (Map.Entry<String, List<EmotionEntry>> mapEntry : entriesByPair.entrySet()) {
+            String pairLabel = pairLabelMap.get(mapEntry.getKey());
+            List<EmotionScatterChartView.ScatterEntry> scatterEntries = new ArrayList<>();
+
+            for (EmotionEntry entry : mapEntry.getValue()) {
+                LocalDate entryDate = entry.getRecordedAt().toLocalDate();
+                int dayIndex = (int) java.time.temporal.ChronoUnit.DAYS.between(startDate, entryDate);
+                float strength = entry.getStrength();
+                scatterEntries.add(new EmotionScatterChartView.ScatterEntry(dayIndex, strength));
+            }
+
+            scatterPairs.add(new EmotionScatterChartView.ScatterPair(pairLabel, scatterEntries));
+        }
+
+        binding.emotionScatterChart.setData(labels, scatterPairs);
     }
 
     private void updateCorrelations() {
