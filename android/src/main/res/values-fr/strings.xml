@@ -177,6 +177,8 @@
     <string name="delete_emotion_pair">Supprimer la paire d\'émotions</string>
     <string name="delete_emotion_pair_confirmation">Supprimer « %1$s » ? Cette action est irréversible.</string>
     <string name="stats_emotion_pairs">Paires d\'émotions</string>
+    <string name="stats_emotion_scatter">Distribution journalière des émotions</string>
+    <string name="stats_emotion_scatter_desc">Enregistrements d\'émotions des 30 derniers jours</string>
     <string name="stats_correlations_title">Corrélations d\'événements (Annuel, Pondéré)</string>
     <string name="stats_no_correlations">Pas assez de données pour les corrélations</string>
     <string name="backup_settings">Paramètres de sauvegarde</string>
