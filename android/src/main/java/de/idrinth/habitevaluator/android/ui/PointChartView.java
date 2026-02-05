@@ -28,6 +28,7 @@ public class PointChartView extends View {
     private final Paint barPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint negativeBarPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint averageLinePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private final Paint trendLinePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint labelPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint valuePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint gridPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -77,6 +78,11 @@ public class PointChartView extends View {
         averageLinePaint.setStyle(Paint.Style.STROKE);
         averageLinePaint.setStrokeWidth(dpToPx(2f));
         averageLinePaint.setPathEffect(new android.graphics.DashPathEffect(new float[]{dpToPx(6f), dpToPx(4f)}, 0));
+
+        trendLinePaint.setColor(0xFFE91E63);
+        trendLinePaint.setStyle(Paint.Style.STROKE);
+        trendLinePaint.setStrokeWidth(dpToPx(2f));
+        trendLinePaint.setPathEffect(new android.graphics.DashPathEffect(new float[]{dpToPx(4f), dpToPx(2f)}, 0));
 
         averageLabelPaint.setColor(errorColor);
         averageLabelPaint.setTextSize(spToPx(VALUE_TEXT_SIZE_SP));
@@ -198,6 +204,25 @@ public class PointChartView extends View {
             String avgLabel = String.format("%.1f", average);
             canvas.drawText(avgLabel, width - sidePadding - dpToPx(2f), avgY - dpToPx(3f), averageLabelPaint);
         }
+
+        // Draw trend line
+        if (barCount >= 2) {
+            double[] trend = calculateTrendLine();
+            double startY = getTrendY(trend, 0);
+            double endY = getTrendY(trend, barCount - 1);
+
+            float trendStartY = topPadding + (float) ((maxPoints - startY) / range * chartHeight);
+            float trendEndY = topPadding + (float) ((maxPoints - endY) / range * chartHeight);
+
+            // Clamp to chart bounds
+            trendStartY = Math.max(topPadding, Math.min(topPadding + chartHeight, trendStartY));
+            trendEndY = Math.max(topPadding, Math.min(topPadding + chartHeight, trendEndY));
+
+            Path trendPath = new Path();
+            trendPath.moveTo(sidePadding + totalBarWidth / 2, trendStartY);
+            trendPath.lineTo(width - sidePadding - totalBarWidth / 2, trendEndY);
+            canvas.drawPath(trendPath, trendLinePaint);
+        }
     }
 
     private float dpToPx(float dp) {
@@ -206,5 +231,39 @@ public class PointChartView extends View {
 
     private float spToPx(float sp) {
         return sp * getResources().getDisplayMetrics().scaledDensity;
+    }
+
+    private double[] calculateTrendLine() {
+        int n = dailyPoints.size();
+        if (n < 2) {
+            double intercept = n > 0 ? dailyPoints.get(0) : 0;
+            return new double[]{0, intercept};
+        }
+
+        double sumX = 0;
+        double sumY = 0;
+        double sumXY = 0;
+        double sumXX = 0;
+
+        for (int i = 0; i < n; i++) {
+            sumX += i;
+            sumY += dailyPoints.get(i);
+            sumXY += i * dailyPoints.get(i);
+            sumXX += i * i;
+        }
+
+        double denom = n * sumXX - sumX * sumX;
+        if (denom == 0) {
+            return new double[]{0, sumY / n};
+        }
+
+        double slope = (n * sumXY - sumX * sumY) / denom;
+        double intercept = (sumY - slope * sumX) / n;
+
+        return new double[]{slope, intercept};
+    }
+
+    private double getTrendY(double[] trend, int x) {
+        return trend[0] * x + trend[1];
     }
 }

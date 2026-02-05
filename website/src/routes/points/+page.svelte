@@ -57,6 +57,35 @@
 	function getMin(data: number[]): number {
 		return Math.min(0, ...data);
 	}
+
+	function calculateTrendLine(values: number[]): { slope: number; intercept: number } {
+		const n = values.length;
+		if (n < 2) return { slope: 0, intercept: values[0] || 0 };
+
+		let sumX = 0;
+		let sumY = 0;
+		let sumXY = 0;
+		let sumXX = 0;
+
+		for (let i = 0; i < n; i++) {
+			sumX += i;
+			sumY += values[i];
+			sumXY += i * values[i];
+			sumXX += i * i;
+		}
+
+		const denom = n * sumXX - sumX * sumX;
+		if (denom === 0) return { slope: 0, intercept: sumY / n };
+
+		const slope = (n * sumXY - sumX * sumY) / denom;
+		const intercept = (sumY - slope * sumX) / n;
+
+		return { slope, intercept };
+	}
+
+	function getTrendY(trend: { slope: number; intercept: number }, x: number): number {
+		return trend.slope * x + trend.intercept;
+	}
 </script>
 
 <div class="container charts-container">
@@ -109,6 +138,7 @@
 				{@const range = Math.max(maxVal - minVal, 1)}
 				{@const positiveRatio = maxVal / range}
 				{@const hasNeg = minVal < 0}
+				{@const dailyTrend = calculateTrendLine(chartData.dailyPoints)}
 				<div class="chart-wrapper">
 					<div class="chart" style="--positive-ratio: {positiveRatio}; --has-neg: {hasNeg ? 1 : 0}">
 						{#each chartData.dailyPoints as value, i}
@@ -134,6 +164,22 @@
 								<span class="average-label">{chartData.average}</span>
 							</div>
 						{/if}
+						{#if chartData.dailyPoints.length >= 2}
+							{@const startY = ((maxVal - getTrendY(dailyTrend, 0)) / range) * 100}
+							{@const endY = ((maxVal - getTrendY(dailyTrend, chartData.dailyPoints.length - 1)) / range) * 100}
+							<svg class="trend-line-svg" viewBox="0 0 100 100" preserveAspectRatio="none">
+								<line
+									x1="2"
+									y1={Math.max(0, Math.min(100, startY))}
+									x2="98"
+									y2={Math.max(0, Math.min(100, endY))}
+									stroke="#E91E63"
+									stroke-width="2"
+									stroke-dasharray="4,2"
+									vector-effect="non-scaling-stroke"
+								/>
+							</svg>
+						{/if}
 					</div>
 				</div>
 				{/if}
@@ -147,6 +193,7 @@
 				{@const avgRange = Math.max(avgMax - avgMin, 1)}
 				{@const avgPosRatio = avgMax / avgRange}
 				{@const avgHasNeg = avgMin < 0}
+				{@const avgTrend = calculateTrendLine(chartData.runningAverages)}
 				<div class="chart-wrapper">
 					<div class="chart" style="--positive-ratio: {avgPosRatio}; --has-neg: {avgHasNeg ? 1 : 0}">
 						{#each chartData.runningAverages as value, i}
@@ -166,6 +213,22 @@
 								<span class="bar-label">{chartData.labels[i]}</span>
 							</div>
 						{/each}
+						{#if chartData.runningAverages.length >= 2}
+							{@const startY = ((avgMax - getTrendY(avgTrend, 0)) / avgRange) * 100}
+							{@const endY = ((avgMax - getTrendY(avgTrend, chartData.runningAverages.length - 1)) / avgRange) * 100}
+							<svg class="trend-line-svg" viewBox="0 0 100 100" preserveAspectRatio="none">
+								<line
+									x1="2"
+									y1={Math.max(0, Math.min(100, startY))}
+									x2="98"
+									y2={Math.max(0, Math.min(100, endY))}
+									stroke="#E91E63"
+									stroke-width="2"
+									stroke-dasharray="4,2"
+									vector-effect="non-scaling-stroke"
+								/>
+							</svg>
+						{/if}
 					</div>
 				</div>
 				{/if}
@@ -179,6 +242,7 @@
 				{@const cumRange = Math.max(cumMax - cumMin, 1)}
 				{@const cumPosRatio = cumMax / cumRange}
 				{@const cumHasNeg = cumMin < 0}
+				{@const cumTrend = calculateTrendLine(chartData.cumulativeTotals)}
 				<div class="chart-wrapper">
 					<div class="chart" style="--positive-ratio: {cumPosRatio}; --has-neg: {cumHasNeg ? 1 : 0}">
 						{#each chartData.cumulativeTotals as value, i}
@@ -198,6 +262,22 @@
 								<span class="bar-label">{chartData.labels[i]}</span>
 							</div>
 						{/each}
+						{#if chartData.cumulativeTotals.length >= 2}
+							{@const startY = ((cumMax - getTrendY(cumTrend, 0)) / cumRange) * 100}
+							{@const endY = ((cumMax - getTrendY(cumTrend, chartData.cumulativeTotals.length - 1)) / cumRange) * 100}
+							<svg class="trend-line-svg" viewBox="0 0 100 100" preserveAspectRatio="none">
+								<line
+									x1="2"
+									y1={Math.max(0, Math.min(100, startY))}
+									x2="98"
+									y2={Math.max(0, Math.min(100, endY))}
+									stroke="#E91E63"
+									stroke-width="2"
+									stroke-dasharray="4,2"
+									vector-effect="non-scaling-stroke"
+								/>
+							</svg>
+						{/if}
 					</div>
 				</div>
 				{/if}
@@ -401,6 +481,15 @@
 		top: -14px;
 		font-size: 0.65rem;
 		color: var(--color-error);
+	}
+
+	.trend-line-svg {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: calc(100% - 1.5rem);
+		pointer-events: none;
 	}
 
 	.loading-text {
