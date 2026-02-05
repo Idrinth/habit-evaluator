@@ -205,23 +205,41 @@ public class PointChartView extends View {
             canvas.drawText(avgLabel, width - sidePadding - dpToPx(2f), avgY - dpToPx(3f), averageLabelPaint);
         }
 
-        // Draw trend line
+        // Draw trend line (only between first and last days with data)
         if (barCount >= 2) {
-            double[] trend = calculateTrendLine();
-            double startY = getTrendY(trend, 0);
-            double endY = getTrendY(trend, barCount - 1);
+            // Find first and last indices with non-zero values
+            int firstDataIndex = -1;
+            int lastDataIndex = -1;
+            for (int i = 0; i < barCount; i++) {
+                if (dailyPoints.get(i) != 0) {
+                    if (firstDataIndex == -1) {
+                        firstDataIndex = i;
+                    }
+                    lastDataIndex = i;
+                }
+            }
 
-            float trendStartY = topPadding + (float) ((maxPoints - startY) / range * chartHeight);
-            float trendEndY = topPadding + (float) ((maxPoints - endY) / range * chartHeight);
+            // Only draw trend if we have at least 2 data points
+            if (firstDataIndex != -1 && lastDataIndex != -1 && firstDataIndex != lastDataIndex) {
+                double[] trend = calculateTrendLine();
+                double startY = getTrendY(trend, firstDataIndex);
+                double endY = getTrendY(trend, lastDataIndex);
 
-            // Clamp to chart bounds
-            trendStartY = Math.max(topPadding, Math.min(topPadding + chartHeight, trendStartY));
-            trendEndY = Math.max(topPadding, Math.min(topPadding + chartHeight, trendEndY));
+                float trendStartY = topPadding + (float) ((maxPoints - startY) / range * chartHeight);
+                float trendEndY = topPadding + (float) ((maxPoints - endY) / range * chartHeight);
 
-            Path trendPath = new Path();
-            trendPath.moveTo(sidePadding + totalBarWidth / 2, trendStartY);
-            trendPath.lineTo(width - sidePadding - totalBarWidth / 2, trendEndY);
-            canvas.drawPath(trendPath, trendLinePaint);
+                // Clamp to chart bounds
+                trendStartY = Math.max(topPadding, Math.min(topPadding + chartHeight, trendStartY));
+                trendEndY = Math.max(topPadding, Math.min(topPadding + chartHeight, trendEndY));
+
+                float startX = sidePadding + firstDataIndex * totalBarWidth + totalBarWidth / 2;
+                float endX = sidePadding + lastDataIndex * totalBarWidth + totalBarWidth / 2;
+
+                Path trendPath = new Path();
+                trendPath.moveTo(startX, trendStartY);
+                trendPath.lineTo(endX, trendEndY);
+                canvas.drawPath(trendPath, trendLinePaint);
+            }
         }
     }
 

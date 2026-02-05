@@ -183,22 +183,37 @@ public class SleepGraphView extends View {
                     chartRight - 120, avgY - 6, textPaint);
         }
 
-        // Draw trend line
+        // Draw trend line (only between first and last days with data)
         if (count >= 2) {
-            double[] trend = calculateTrendLine();
-            double startY = getTrendY(trend, 0);
-            double endY = getTrendY(trend, count - 1);
+            // Find first and last indices with non-zero values
+            int firstDataIndex = -1;
+            int lastDataIndex = -1;
+            for (int i = 0; i < count; i++) {
+                if (values.get(i) > 0) {
+                    if (firstDataIndex == -1) {
+                        firstDataIndex = i;
+                    }
+                    lastDataIndex = i;
+                }
+            }
 
-            float trendStartY = chartBottom - (float) (startY / maxValue) * chartHeight;
-            float trendEndY = chartBottom - (float) (endY / maxValue) * chartHeight;
+            // Only draw trend if we have at least 2 data points
+            if (firstDataIndex != -1 && lastDataIndex != -1 && firstDataIndex != lastDataIndex) {
+                double[] trend = calculateTrendLine();
+                double startY = getTrendY(trend, firstDataIndex);
+                double endY = getTrendY(trend, lastDataIndex);
 
-            // Clamp to chart bounds
-            trendStartY = Math.max(chartTop, Math.min(chartBottom, trendStartY));
-            trendEndY = Math.max(chartTop, Math.min(chartBottom, trendEndY));
+                float trendStartY = chartBottom - (float) (startY / maxValue) * chartHeight;
+                float trendEndY = chartBottom - (float) (endY / maxValue) * chartHeight;
 
-            float startX = chartLeft + barSpacing / 2;
-            float endX = chartLeft + barSpacing * (count - 1) + barSpacing / 2;
-            canvas.drawLine(startX, trendStartY, endX, trendEndY, trendPaint);
+                // Clamp to chart bounds
+                trendStartY = Math.max(chartTop, Math.min(chartBottom, trendStartY));
+                trendEndY = Math.max(chartTop, Math.min(chartBottom, trendEndY));
+
+                float startX = chartLeft + barSpacing * firstDataIndex + barSpacing / 2;
+                float endX = chartLeft + barSpacing * lastDataIndex + barSpacing / 2;
+                canvas.drawLine(startX, trendStartY, endX, trendEndY, trendPaint);
+            }
         }
 
         // Draw X-axis labels
