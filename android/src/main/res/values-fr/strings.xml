@@ -207,6 +207,7 @@
     <string name="no_entries_yet">Aucune entrée pour le moment</string>
     <string name="pdf_include_emotions">Mesures d\'émotions et graphique</string>
     <string name="pdf_section_emotions">Émotions</string>
+    <string name="pdf_scatter_chart_title">Distribution journalière des émotions</string>
     <string name="pdf_emotion_entries">Entrées d\'émotions</string>
     <string name="pdf_section_correlations">Corrélations d\'événements</string>
     <string name="pdf_correlation_description">Corrélations de Pearson pondérées dans le temps sur l\'année écoulée.</string>

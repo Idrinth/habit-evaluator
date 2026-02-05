@@ -607,6 +607,19 @@ public class PdfExportActivity extends AppCompatActivity {
                 getString(R.string.pdf_section_emotions)));
         yPosition += 220 + legendHeight;
 
+        // Check if we need a new page for scatter chart
+        if (yPosition > PAGE_HEIGHT - 300) {
+            flushPage(document, commands, pageNumber);
+            pageNumber++;
+            yPosition = MARGIN;
+        }
+
+        // Draw emotion scatter chart (daytime distribution)
+        commands.add(new EmotionScatterChartCommand(labels, dates, pairIds, pairLabelMap, entriesByPair,
+                MARGIN, yPosition, PAGE_WIDTH - 2 * MARGIN, 200,
+                getString(R.string.pdf_scatter_chart_title)));
+        yPosition += 220 + legendHeight;
+
         // Summary
         commands.add(new TextCommand(
                 String.format("Total: %d entries across %d emotion pairs", rangeEntries.size(), pairIds.size()),
@@ -1090,6 +1103,154 @@ public class PdfExportActivity extends AppCompatActivity {
                     label = label.substring(0, 27) + "...";
                 }
                 canvas.drawText(label != null ? label : "", lx + 13, ly + 3, legendTextPaint);
+            }
+        }
+    }
+
+    private static class EmotionScatterChartCommand implements DrawCommand {
+        private final List<String> labels;
+        private final List<LocalDate> dates;
+        private final List<String> pairIds;
+        private final Map<String, String> pairLabelMap;
+        private final Map<String, List<EmotionEntry>> entriesByPair;
+        private final float x;
+        private final float y;
+        private final float width;
+        private final float height;
+        private final String title;
+
+        EmotionScatterChartCommand(List<String> labels, List<LocalDate> dates, List<String> pairIds,
+                                    Map<String, String> pairLabelMap, Map<String, List<EmotionEntry>> entriesByPair,
+                                    float x, float y, float width, float height, String title) {
+            this.labels = labels;
+            this.dates = dates;
+            this.pairIds = pairIds;
+            this.pairLabelMap = pairLabelMap;
+            this.entriesByPair = entriesByPair;
+            this.x = x;
+            this.y = y;
+            this.width = width;
+            this.height = height;
+            this.title = title;
+        }
+
+        @Override
+        public void draw(Canvas canvas) {
+            Paint titlePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+            titlePaint.setColor(Color.BLACK);
+            titlePaint.setTextSize(12f);
+            titlePaint.setFakeBoldText(true);
+            canvas.drawText(title, x, y + 12f, titlePaint);
+
+            float chartTop = y + 20f;
+            float chartLeft = x + 30f;
+            float chartRight = x + width;
+            float chartBottom = y + height - 20f;
+            float chartWidth = chartRight - chartLeft;
+            float chartHeight = chartBottom - chartTop;
+            float yCenter = chartTop + chartHeight / 2f;
+
+            // Axes
+            Paint axisPaint = new Paint();
+            axisPaint.setColor(Color.DKGRAY);
+            axisPaint.setStrokeWidth(1f);
+            canvas.drawLine(chartLeft, chartTop, chartLeft, chartBottom, axisPaint);
+            canvas.drawLine(chartLeft, chartBottom, chartRight, chartBottom, axisPaint);
+
+            // Grid lines at -10, -5, 0, 5, 10
+            Paint gridPaint = new Paint();
+            gridPaint.setStrokeWidth(0.5f);
+            Paint gridLabelPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+            gridLabelPaint.setColor(Color.GRAY);
+            gridLabelPaint.setTextSize(8f);
+            gridLabelPaint.setTextAlign(Paint.Align.RIGHT);
+
+            int[] gridValues = {-10, -5, 0, 5, 10};
+            for (int val : gridValues) {
+                float gridY = yCenter - (val / 10f) * (chartHeight / 2f);
+                if (val == 0) {
+                    gridPaint.setColor(Color.GRAY);
+                    gridPaint.setStrokeWidth(0.8f);
+                } else {
+                    gridPaint.setColor(Color.LTGRAY);
+                    gridPaint.setStrokeWidth(0.5f);
+                }
+                canvas.drawLine(chartLeft, gridY, chartRight, gridY, gridPaint);
+                String label = val > 0 ? "+" + val : String.valueOf(val);
+                canvas.drawText(label, chartLeft - 4, gridY + 3, gridLabelPaint);
+            }
+
+            if (labels.isEmpty() || dates.isEmpty()) {
+                return;
+            }
+
+            int count = labels.size();
+            float pointSpacing = count > 1 ? chartWidth / (count - 1) : chartWidth;
+            LocalDate startDate = dates.get(0);
+
+            // Draw scatter points for each emotion pair
+            Paint dotPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+            dotPaint.setStyle(Paint.Style.FILL);
+
+            for (int p = 0; p < pairIds.size(); p++) {
+                int pointColor = PAIR_COLORS_ANDROID[p % PAIR_COLORS_ANDROID.length];
+                List<EmotionEntry> pairEntries = entriesByPair.get(pairIds.get(p));
+                if (pairEntries == null) {
+                    continue;
+                }
+
+                dotPaint.setColor(pointColor);
+                for (EmotionEntry entry : pairEntries) {
+                    LocalDate entryDate = entry.getRecordedAt().toLocalDate();
+                    int dayIndex = (int) java.time.temporal.ChronoUnit.DAYS.between(startDate, entryDate);
+                    if (dayIndex >= 0 && dayIndex < count) {
+                        float px = count > 1 ? chartLeft + pointSpacing * dayIndex : chartLeft + chartWidth / 2f;
+                        float py = yCenter - (entry.getStrength() / 10f) * (chartHeight / 2f);
+                        canvas.drawCircle(px, py, 3f, dotPaint);
+                    }
+                }
+            }
+
+            // X-axis labels
+            Paint labelPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+            labelPaint.setColor(Color.DKGRAY);
+            labelPaint.setTextSize(7f);
+            labelPaint.setTextAlign(Paint.Align.CENTER);
+            int labelStep = Math.max(1, count / 10);
+            for (int i = 0; i < count; i += labelStep) {
+                float centerX = count > 1 ? chartLeft + pointSpacing * i : chartLeft + chartWidth / 2f;
+                if (i < labels.size()) {
+                    canvas.save();
+                    canvas.rotate(-45, centerX, chartBottom + 6);
+                    canvas.drawText(labels.get(i), centerX, chartBottom + 14, labelPaint);
+                    canvas.restore();
+                }
+            }
+
+            // Legend below chart
+            float legendY = chartBottom + 25;
+            float colWidth = chartWidth / 3f;
+            Paint legendDotPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+            legendDotPaint.setStyle(Paint.Style.FILL);
+            Paint legendTextPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+            legendTextPaint.setColor(Color.DKGRAY);
+            legendTextPaint.setTextSize(7f);
+
+            for (int p = 0; p < pairIds.size(); p++) {
+                int pointColor = PAIR_COLORS_ANDROID[p % PAIR_COLORS_ANDROID.length];
+                int col = p % 3;
+                int row = p / 3;
+                float lx = chartLeft + col * colWidth;
+                float ly = legendY + row * 14f;
+
+                legendDotPaint.setColor(pointColor);
+                canvas.drawCircle(lx + 3, ly, 4, legendDotPaint);
+
+                String label = pairLabelMap.get(pairIds.get(p));
+                if (label != null && label.length() > 30) {
+                    label = label.substring(0, 27) + "...";
+                }
+                canvas.drawText(label != null ? label : "", lx + 10, ly + 3, legendTextPaint);
             }
         }
     }
