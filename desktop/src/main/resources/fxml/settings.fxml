@@ -119,13 +119,33 @@
 
         <Separator/>
 
-        <Label text="Restore Backup" style="-fx-font-size: 12px; -fx-font-weight: bold;"/>
+        <Label text="Download Backup" style="-fx-font-size: 12px; -fx-font-weight: bold;"/>
+
+        <HBox spacing="10" alignment="CENTER_LEFT">
+            <Button text="Download Backup (.hez)..." onAction="#handleDownloadBackup" styleClass="primary-button"/>
+        </HBox>
+
+        <Label fx:id="downloadStatusLabel" text="" style="-fx-font-size: 11px;"/>
+
+        <Separator/>
+
+        <Label text="Restore from Internal Backup" style="-fx-font-size: 12px; -fx-font-weight: bold;"/>
 
         <HBox spacing="10" alignment="CENTER_LEFT">
             <Button text="Restore from Backup..." onAction="#handleRestoreBackup" styleClass="primary-button"/>
         </HBox>
 
         <Label fx:id="restoreStatusLabel" text="" style="-fx-font-size: 11px;"/>
+
+        <Separator/>
+
+        <Label text="Restore from File (.hez)" style="-fx-font-size: 12px; -fx-font-weight: bold;"/>
+
+        <HBox spacing="10" alignment="CENTER_LEFT">
+            <Button text="Restore from File (.hez)..." onAction="#handleRestoreFromFile" styleClass="primary-button"/>
+        </HBox>
+
+        <Label fx:id="restoreFromFileStatusLabel" text="" style="-fx-font-size: 11px;"/>
     </VBox>
 
     <Region VBox.vgrow="ALWAYS"/>

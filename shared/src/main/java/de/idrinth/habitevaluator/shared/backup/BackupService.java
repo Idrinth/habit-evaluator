@@ -159,6 +159,30 @@ public class BackupService {
                                    DiaryEntryRepository diaryEntryRepository,
                                    SleepEntryRepository sleepEntryRepository) throws BackupException {
         BackupData backupData = restoreBackup(backupFile, password);
+        return mergeBackupData(backupData, user, habitRepository, categoryRepository,
+                diaryEntryRepository, sleepEntryRepository);
+    }
+
+    /**
+     * Merges data from a BackupData object into the current user's existing data.
+     * Categories are matched by name; new ones are created.
+     * Habits are matched by name and category; new ones are created, existing ones get missing entries merged.
+     * Diary entries and sleep entries are matched by ID; new ones are added.
+     *
+     * @param backupData           the backup data to merge
+     * @param user                 the current user
+     * @param habitRepository      habit data source
+     * @param categoryRepository   category data source (may be null)
+     * @param diaryEntryRepository diary entry data source (may be null)
+     * @param sleepEntryRepository sleep entry data source (may be null)
+     * @return a summary of what was merged
+     * @throws BackupException if merge fails
+     */
+    public MergeResult mergeBackupData(BackupData backupData, User user,
+                                       HabitRepository habitRepository,
+                                       HabitCategoryRepository categoryRepository,
+                                       DiaryEntryRepository diaryEntryRepository,
+                                       SleepEntryRepository sleepEntryRepository) throws BackupException {
         if (user == null) {
             throw new BackupException("User must not be null for merge");
         }

@@ -4,6 +4,7 @@ import de.idrinth.habitevaluator.shared.api.ApiClient;
 import de.idrinth.habitevaluator.shared.api.StorageConfig;
 import de.idrinth.habitevaluator.shared.backup.BackupException;
 import de.idrinth.habitevaluator.shared.backup.BackupService;
+import de.idrinth.habitevaluator.shared.backup.HezBackupService;
 import de.idrinth.habitevaluator.shared.backup.MergeResult;
 import de.idrinth.habitevaluator.shared.model.User;
 import de.idrinth.habitevaluator.shared.repository.DiaryEntryRepository;
@@ -109,9 +110,16 @@ public class SettingsDialogController {
     @FXML
     private Label restoreStatusLabel;
 
+    @FXML
+    private Label downloadStatusLabel;
+
+    @FXML
+    private Label restoreFromFileStatusLabel;
+
     private StorageConfig storageConfig;
     private boolean saved;
     private final BackupService backupService = new BackupService();
+    private final HezBackupService hezBackupService = new HezBackupService();
     private User currentUser;
     private HabitRepository habitRepository;
     private HabitCategoryRepository categoryRepository;
@@ -364,6 +372,101 @@ public class SettingsDialogController {
                 Platform.runLater(() -> {
                     restoreStatusLabel.setText("Restore failed: " + e.getMessage());
                     restoreStatusLabel.setStyle("-fx-text-fill: red;");
+                });
+            }
+        }).start();
+    }
+
+    @FXML
+    private void handleDownloadBackup() {
+        String backupPassword = backupPasswordField.getText();
+        if (backupPassword == null || backupPassword.isEmpty()) {
+            downloadStatusLabel.setText("Backup password is required");
+            downloadStatusLabel.setStyle("-fx-text-fill: red;");
+            return;
+        }
+
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Save Backup File");
+        fileChooser.getExtensionFilters().add(
+                new FileChooser.ExtensionFilter("Hez Backup Files", "*.hez"));
+        fileChooser.setInitialFileName(hezBackupService.generateDefaultFilename());
+
+        Stage stage = (Stage) localRadio.getScene().getWindow();
+        File selectedFile = fileChooser.showSaveDialog(stage);
+        if (selectedFile == null) {
+            return;
+        }
+
+        downloadStatusLabel.setText("Creating backup...");
+        downloadStatusLabel.setStyle("-fx-text-fill: grey;");
+
+        new Thread(() -> {
+            try {
+                hezBackupService.createHezBackupToFile(selectedFile, backupPassword,
+                        currentUser, habitRepository, categoryRepository,
+                        diaryEntryRepository, sleepEntryRepository);
+                Platform.runLater(() -> {
+                    downloadStatusLabel.setText("Backup saved successfully: " + selectedFile.getName());
+                    downloadStatusLabel.setStyle("-fx-text-fill: green;");
+                });
+            } catch (BackupException e) {
+                Platform.runLater(() -> {
+                    downloadStatusLabel.setText("Backup failed: " + e.getMessage());
+                    downloadStatusLabel.setStyle("-fx-text-fill: red;");
+                });
+            }
+        }).start();
+    }
+
+    @FXML
+    private void handleRestoreFromFile() {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Select Backup File");
+        fileChooser.getExtensionFilters().add(
+                new FileChooser.ExtensionFilter("Hez Backup Files", "*.hez"));
+
+        Stage stage = (Stage) localRadio.getScene().getWindow();
+        File selectedFile = fileChooser.showOpenDialog(stage);
+        if (selectedFile == null) {
+            return;
+        }
+
+        TextInputDialog passwordDialog = new TextInputDialog();
+        passwordDialog.setTitle("Backup Password");
+        passwordDialog.setHeaderText("Enter the password for this backup");
+        passwordDialog.setContentText("Password:");
+        Optional<String> passwordResult = passwordDialog.showAndWait();
+        if (passwordResult.isEmpty() || passwordResult.get().isEmpty()) {
+            restoreFromFileStatusLabel.setText("Restore cancelled: no password provided.");
+            restoreFromFileStatusLabel.setStyle("-fx-text-fill: red;");
+            return;
+        }
+
+        String password = passwordResult.get();
+        restoreFromFileStatusLabel.setText("Restoring from file...");
+        restoreFromFileStatusLabel.setStyle("-fx-text-fill: grey;");
+
+        new Thread(() -> {
+            try {
+                MergeResult result = hezBackupService.mergeFromHezFile(selectedFile, password,
+                        currentUser, habitRepository, categoryRepository,
+                        diaryEntryRepository, sleepEntryRepository);
+                Platform.runLater(() -> {
+                    restoreFromFileStatusLabel.setText(
+                            "Restore complete: " + result.getHabitsAdded() + " habits added, "
+                            + result.getHabitsMerged() + " habits merged, "
+                            + result.getEntriesAdded() + " entries added, "
+                            + result.getDiaryEntriesAdded() + " diary entries added, "
+                            + result.getSleepEntriesAdded() + " sleep entries added, "
+                            + result.getCategoriesAdded() + " categories added.");
+                    restoreFromFileStatusLabel.setStyle("-fx-text-fill: green;");
+                    saved = true;
+                });
+            } catch (BackupException e) {
+                Platform.runLater(() -> {
+                    restoreFromFileStatusLabel.setText("Restore failed: " + e.getMessage());
+                    restoreFromFileStatusLabel.setStyle("-fx-text-fill: red;");
                 });
             }
         }).start();
