@@ -1,16 +1,19 @@
 package de.idrinth.habitevaluator.shared.service;
 
 import de.idrinth.habitevaluator.shared.localization.Localizer;
+import de.idrinth.habitevaluator.shared.model.EmotionPair;
 import de.idrinth.habitevaluator.shared.model.FrequencyType;
 import de.idrinth.habitevaluator.shared.model.Habit;
 import de.idrinth.habitevaluator.shared.model.HabitCategory;
 import de.idrinth.habitevaluator.shared.model.ScoringRule;
 import de.idrinth.habitevaluator.shared.model.User;
+import de.idrinth.habitevaluator.shared.repository.EmotionPairRepository;
 import de.idrinth.habitevaluator.shared.repository.HabitCategoryRepository;
 import de.idrinth.habitevaluator.shared.repository.HabitRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -19,8 +22,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * Initializes default categories and habits when a user's database is first set up.
- * Categories are global; habits are created per user.
+ * Initializes default categories, habits, and emotion pairs when a user's database is first set up.
+ * Categories are global; habits and emotion pairs are created per user.
  * Supports localization via the Localizer service.
  */
 public class DefaultDataInitializer {
@@ -31,15 +34,21 @@ public class DefaultDataInitializer {
 
     private final HabitCategoryRepository categoryRepository;
     private final HabitRepository habitRepository;
+    private final EmotionPairRepository emotionPairRepository;
     private final Localizer localizer;
 
     public DefaultDataInitializer(HabitCategoryRepository categoryRepository, HabitRepository habitRepository) {
-        this(categoryRepository, habitRepository, new Localizer());
+        this(categoryRepository, habitRepository, null, new Localizer());
     }
 
-    public DefaultDataInitializer(HabitCategoryRepository categoryRepository, HabitRepository habitRepository, Localizer localizer) {
+    public DefaultDataInitializer(HabitCategoryRepository categoryRepository, HabitRepository habitRepository, EmotionPairRepository emotionPairRepository) {
+        this(categoryRepository, habitRepository, emotionPairRepository, new Localizer());
+    }
+
+    public DefaultDataInitializer(HabitCategoryRepository categoryRepository, HabitRepository habitRepository, EmotionPairRepository emotionPairRepository, Localizer localizer) {
         this.categoryRepository = categoryRepository;
         this.habitRepository = habitRepository;
+        this.emotionPairRepository = emotionPairRepository;
         this.localizer = localizer;
     }
 
@@ -336,6 +345,59 @@ public class DefaultDataInitializer {
     }
 
     /**
+     * Builds the default emotion pairs for tracking emotional states.
+     * Uses the localizer to translate emotion labels.
+     *
+     * @param language the language code to use for translations (e.g., "en", "de", "es", "fr")
+     */
+    private List<EmotionPairDefinition> buildDefaultEmotionPairs(String language) {
+        List<EmotionPairDefinition> pairs = new ArrayList<>();
+
+        pairs.add(new EmotionPairDefinition(
+            localizer.translate(MODULE, "emotion_pair_sadness_negative", language),
+            localizer.translate(MODULE, "emotion_pair_sadness_positive", language)
+        ));
+        pairs.add(new EmotionPairDefinition(
+            localizer.translate(MODULE, "emotion_pair_anxiety_negative", language),
+            localizer.translate(MODULE, "emotion_pair_anxiety_positive", language)
+        ));
+        pairs.add(new EmotionPairDefinition(
+            localizer.translate(MODULE, "emotion_pair_anger_negative", language),
+            localizer.translate(MODULE, "emotion_pair_anger_positive", language)
+        ));
+        pairs.add(new EmotionPairDefinition(
+            localizer.translate(MODULE, "emotion_pair_hope_negative", language),
+            localizer.translate(MODULE, "emotion_pair_hope_positive", language)
+        ));
+        pairs.add(new EmotionPairDefinition(
+            localizer.translate(MODULE, "emotion_pair_connection_negative", language),
+            localizer.translate(MODULE, "emotion_pair_connection_positive", language)
+        ));
+        pairs.add(new EmotionPairDefinition(
+            localizer.translate(MODULE, "emotion_pair_energy_negative", language),
+            localizer.translate(MODULE, "emotion_pair_energy_positive", language)
+        ));
+        pairs.add(new EmotionPairDefinition(
+            localizer.translate(MODULE, "emotion_pair_stress_negative", language),
+            localizer.translate(MODULE, "emotion_pair_stress_positive", language)
+        ));
+        pairs.add(new EmotionPairDefinition(
+            localizer.translate(MODULE, "emotion_pair_motivation_negative", language),
+            localizer.translate(MODULE, "emotion_pair_motivation_positive", language)
+        ));
+        pairs.add(new EmotionPairDefinition(
+            localizer.translate(MODULE, "emotion_pair_control_negative", language),
+            localizer.translate(MODULE, "emotion_pair_control_positive", language)
+        ));
+        pairs.add(new EmotionPairDefinition(
+            localizer.translate(MODULE, "emotion_pair_confidence_negative", language),
+            localizer.translate(MODULE, "emotion_pair_confidence_positive", language)
+        ));
+
+        return pairs;
+    }
+
+    /**
      * Initializes default categories and habits for a user using the default language (English).
      * Idempotent: reuses existing categories by name and skips habits
      * that already exist for the user with the same name and category.
@@ -347,15 +409,15 @@ public class DefaultDataInitializer {
     }
 
     /**
-     * Initializes default categories and habits for a user using the specified language.
-     * Idempotent: reuses existing categories by name and skips habits
-     * that already exist for the user with the same name and category.
+     * Initializes default categories, habits, and emotion pairs for a user using the specified language.
+     * Idempotent: reuses existing categories by name and skips habits and emotion pairs
+     * that already exist for the user with the same name/labels.
      *
-     * @param user the user to create default habits for
+     * @param user the user to create default data for
      * @param language the language code for translations (e.g., "en", "de", "es", "fr")
      */
     public void initializeDefaults(User user, String language) {
-        logger.info("Initializing default categories and habits for user: {} in language: {}", user.getUsername(), language);
+        logger.info("Initializing default categories, habits, and emotion pairs for user: {} in language: {}", user.getUsername(), language);
         Map<HabitCategory, List<HabitDefinition>> defaults = buildDefaults(language);
 
         // Build lookup of existing categories by name for this user
@@ -424,7 +486,45 @@ public class DefaultDataInitializer {
             }
         }
 
+        // Initialize default emotion pairs if repository is available
+        if (emotionPairRepository != null) {
+            initializeDefaultEmotionPairs(user, language);
+        }
+
         logger.info("Default data initialization complete");
+    }
+
+    /**
+     * Initializes default emotion pairs for a user.
+     * Idempotent: skips emotion pairs that already exist for the user with the same labels.
+     *
+     * @param user the user to create default emotion pairs for
+     * @param language the language code for translations (e.g., "en", "de", "es", "fr")
+     */
+    private void initializeDefaultEmotionPairs(User user, String language) {
+        List<EmotionPairDefinition> defaultPairs = buildDefaultEmotionPairs(language);
+
+        // Build lookup of existing emotion pairs by (negativeLabel, positiveLabel)
+        Set<String> existingPairKeys = emotionPairRepository.findByUserId(user.getId()).stream()
+                .map(p -> p.getNegativeLabel() + "\0" + p.getPositiveLabel())
+                .collect(Collectors.toSet());
+
+        for (EmotionPairDefinition def : defaultPairs) {
+            String pairKey = def.negativeLabel + "\0" + def.positiveLabel;
+            if (existingPairKeys.contains(pairKey)) {
+                logger.info("Emotion pair already exists, skipping: {} — {}", def.negativeLabel, def.positiveLabel);
+                continue;
+            }
+            try {
+                EmotionPair pair = new EmotionPair(def.negativeLabel, def.positiveLabel);
+                pair.setUser(user);
+                emotionPairRepository.save(pair);
+                logger.info("Created default emotion pair: {} — {}", def.negativeLabel, def.positiveLabel);
+            } catch (RuntimeException e) {
+                logger.info("Emotion pair already exists (concurrent insert), skipping: {} — {}",
+                        def.negativeLabel, def.positiveLabel);
+            }
+        }
     }
 
     private static class HabitDefinition {
@@ -447,6 +547,16 @@ public class DefaultDataInitializer {
             this.targetFrequency = targetFrequency;
             this.positiveScoring = positiveScoring;
             this.scoringThresholds = scoringThresholds;
+        }
+    }
+
+    private static class EmotionPairDefinition {
+        final String negativeLabel;
+        final String positiveLabel;
+
+        EmotionPairDefinition(String negativeLabel, String positiveLabel) {
+            this.negativeLabel = negativeLabel;
+            this.positiveLabel = positiveLabel;
         }
     }
 }
