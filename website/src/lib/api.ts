@@ -233,6 +233,24 @@ export interface CorrelationEntry {
 	sharedDays: number;
 }
 
+export interface EmotionScatterEntry {
+	dayIndex: number;
+	hour: number;
+	strength: number;
+}
+
+export interface EmotionScatterPair {
+	pairId: string;
+	pairLabel: string;
+	color: string;
+	entries: EmotionScatterEntry[];
+}
+
+export interface EmotionScatterData {
+	labels: string[];
+	pairs: EmotionScatterPair[];
+}
+
 export const stats = {
 	dashboard() {
 		return request<DashboardData>('/stats/dashboard');
@@ -242,6 +260,9 @@ export const stats = {
 	},
 	correlations() {
 		return request<CorrelationEntry[]>('/stats/correlations');
+	},
+	emotionScatter() {
+		return request<EmotionScatterData>('/stats/emotion-scatter');
 	}
 };
 

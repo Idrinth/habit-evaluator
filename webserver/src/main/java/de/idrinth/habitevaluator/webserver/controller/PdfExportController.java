@@ -516,6 +516,9 @@ public class PdfExportController {
 
         drawEmotionLineChart(writer, document, labels, pairIds, pairLabels, pairDailyValues);
 
+        // Scatter chart of daytime emotion distribution
+        drawEmotionScatterChart(writer, document, labels, dates, pairIds, pairLabels, entriesByPair);
+
         // Summary stats
         Paragraph stats = new Paragraph(
                 String.format("Total: %d entries across %d emotion pairs", rangeEntries.size(), pairIds.size()),
@@ -715,6 +718,148 @@ public class PdfExportController {
                 label = label.substring(0, 27) + "...";
             }
             cb.showTextAligned(Element.ALIGN_LEFT, label != null ? label : "", lx + 13, ly - 3, 0);
+            cb.endText();
+        }
+    }
+
+    private void drawEmotionScatterChart(PdfWriter writer, Document document, List<String> labels,
+                                          List<LocalDate> dates, List<String> pairIds,
+                                          Map<String, String> pairLabels,
+                                          Map<String, List<EmotionEntry>> entriesByPair) throws DocumentException, IOException {
+        float chartWidth = PageSize.A4.getWidth() - 80;
+        float chartHeight = 180f;
+        int legendLines = (pairIds.size() + 2) / 3;
+        float legendHeight = legendLines * 14f + 10f;
+        float totalHeight = chartHeight + 40 + legendHeight;
+
+        Paragraph spacer = new Paragraph();
+        spacer.setSpacingAfter(totalHeight);
+        document.add(spacer);
+
+        PdfContentByte cb = writer.getDirectContent();
+        float pageHeight = document.getPageSize().getHeight();
+        float xStart = document.leftMargin();
+        float yBottom = pageHeight - document.topMargin() - writer.getVerticalPosition(false) + totalHeight - chartHeight - 15;
+        float yTop = yBottom + chartHeight;
+
+        // Chart title
+        cb.beginText();
+        cb.setFontAndSize(com.lowagie.text.pdf.BaseFont.createFont(
+                com.lowagie.text.pdf.BaseFont.HELVETICA_BOLD,
+                com.lowagie.text.pdf.BaseFont.CP1252,
+                com.lowagie.text.pdf.BaseFont.NOT_EMBEDDED), 11);
+        cb.setColorFill(Color.BLACK);
+        cb.showTextAligned(Element.ALIGN_LEFT, "Daytime Emotion Distribution", xStart, yTop + 15, 0);
+        cb.endText();
+
+        float chartLeft = xStart + 30;
+        float chartRight = xStart + chartWidth;
+        float chartAreaWidth = chartRight - chartLeft;
+        float yCenter = yBottom + chartHeight / 2f;
+
+        // Axes
+        cb.setColorStroke(Color.DARK_GRAY);
+        cb.setLineWidth(1f);
+        cb.moveTo(chartLeft, yBottom);
+        cb.lineTo(chartLeft, yTop);
+        cb.stroke();
+        cb.moveTo(chartLeft, yBottom);
+        cb.lineTo(chartRight, yBottom);
+        cb.stroke();
+
+        // Grid lines at -10, -5, 0, 5, 10
+        cb.setColorStroke(Color.LIGHT_GRAY);
+        cb.setLineWidth(0.5f);
+        com.lowagie.text.pdf.BaseFont bf = com.lowagie.text.pdf.BaseFont.createFont(
+                com.lowagie.text.pdf.BaseFont.HELVETICA,
+                com.lowagie.text.pdf.BaseFont.CP1252,
+                com.lowagie.text.pdf.BaseFont.NOT_EMBEDDED);
+        int[] gridValues = {-10, -5, 0, 5, 10};
+        for (int val : gridValues) {
+            float gridY = yCenter + (val / 10f) * (chartHeight / 2f);
+            if (val == 0) {
+                cb.setColorStroke(Color.GRAY);
+                cb.setLineWidth(0.8f);
+            } else {
+                cb.setColorStroke(Color.LIGHT_GRAY);
+                cb.setLineWidth(0.5f);
+            }
+            cb.moveTo(chartLeft, gridY);
+            cb.lineTo(chartRight, gridY);
+            cb.stroke();
+
+            cb.beginText();
+            cb.setFontAndSize(bf, 7);
+            cb.setColorFill(Color.GRAY);
+            String label = val > 0 ? "+" + val : String.valueOf(val);
+            cb.showTextAligned(Element.ALIGN_RIGHT, label, chartLeft - 4, gridY - 3, 0);
+            cb.endText();
+        }
+
+        if (labels.isEmpty() || dates.isEmpty()) {
+            return;
+        }
+
+        int count = labels.size();
+        float pointSpacing = count > 1 ? chartAreaWidth / (count - 1) : chartAreaWidth;
+        LocalDate startDate = dates.get(0);
+
+        // Draw scatter points for each emotion pair
+        for (int p = 0; p < pairIds.size(); p++) {
+            Color pointColor = PAIR_COLORS[p % PAIR_COLORS.length];
+            List<EmotionEntry> pairEntries = entriesByPair.get(pairIds.get(p));
+
+            cb.setColorFill(pointColor);
+            for (EmotionEntry entry : pairEntries) {
+                LocalDate entryDate = entry.getRecordedAt().toLocalDate();
+                int dayIndex = (int) java.time.temporal.ChronoUnit.DAYS.between(startDate, entryDate);
+                if (dayIndex >= 0 && dayIndex < count) {
+                    float x = count > 1 ? chartLeft + pointSpacing * dayIndex : chartLeft + chartAreaWidth / 2f;
+                    float y = yCenter + (entry.getStrength() / 10f) * (chartHeight / 2f);
+                    cb.circle(x, y, 3f);
+                    cb.fill();
+                }
+            }
+        }
+
+        // X-axis labels
+        int labelStep = Math.max(1, count / 10);
+        for (int i = 0; i < count; i += labelStep) {
+            float centerX = count > 1 ? chartLeft + pointSpacing * i : chartLeft + chartAreaWidth / 2f;
+            if (i < labels.size()) {
+                cb.saveState();
+                cb.beginText();
+                cb.setFontAndSize(bf, 7);
+                cb.setColorFill(Color.DARK_GRAY);
+                cb.showTextAligned(Element.ALIGN_CENTER, labels.get(i), centerX, yBottom - 10, 0);
+                cb.endText();
+                cb.restoreState();
+            }
+        }
+
+        // Legend below chart
+        float legendY = yBottom - 25;
+        float legendX = chartLeft;
+        float colWidth = chartAreaWidth / 3f;
+        for (int p = 0; p < pairIds.size(); p++) {
+            Color pointColor = PAIR_COLORS[p % PAIR_COLORS.length];
+            int col = p % 3;
+            int row = p / 3;
+            float lx = legendX + col * colWidth;
+            float ly = legendY - row * 14f;
+
+            cb.setColorFill(pointColor);
+            cb.circle(lx + 3, ly, 4);
+            cb.fill();
+
+            cb.beginText();
+            cb.setFontAndSize(bf, 7);
+            cb.setColorFill(Color.DARK_GRAY);
+            String pairLabel = pairLabels.get(pairIds.get(p));
+            if (pairLabel != null && pairLabel.length() > 30) {
+                pairLabel = pairLabel.substring(0, 27) + "...";
+            }
+            cb.showTextAligned(Element.ALIGN_LEFT, pairLabel != null ? pairLabel : "", lx + 10, ly - 3, 0);
             cb.endText();
         }
     }

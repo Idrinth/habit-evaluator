@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -229,6 +230,81 @@ public class StatsController {
             entry.put("sharedDays", corr.getSharedDays());
             result.add(entry);
         }
+
+        return ResponseEntity.ok(result);
+    }
+
+    @GetMapping("/emotion-scatter")
+    public ResponseEntity<Map<String, Object>> getEmotionScatter(HttpSession session) {
+        String userId = (String) session.getAttribute("userId");
+        if (userId == null) {
+            return ResponseEntity.status(401).build();
+        }
+
+        LocalDate today = LocalDate.now();
+        LocalDate startDate = today.minusDays(DAYS - 1);
+
+        List<String> labels = new ArrayList<>();
+        for (LocalDate d = startDate; !d.isAfter(today); d = d.plusDays(1)) {
+            labels.add(d.format(LABEL_FORMAT));
+        }
+
+        List<EmotionEntry> allEntries = emotionEntryRepository.findByUserId(userId);
+
+        // Group entries by emotion pair
+        Map<String, List<EmotionEntry>> entriesByPair = new LinkedHashMap<>();
+        Map<String, String> pairLabels = new LinkedHashMap<>();
+
+        for (EmotionEntry entry : allEntries) {
+            LocalDate entryDate = entry.getRecordedAt().toLocalDate();
+            if (!entryDate.isBefore(startDate) && !entryDate.isAfter(today)) {
+                if (entry.getEmotionPair() != null) {
+                    String pairId = entry.getEmotionPair().getId();
+                    entriesByPair.computeIfAbsent(pairId, k -> new ArrayList<>()).add(entry);
+                    pairLabels.put(pairId, entry.getEmotionPair().toString());
+                }
+            }
+        }
+
+        String[] defaultColors = {
+            "#4CAF50", "#2196F3", "#FF9800", "#E91E63", "#9C27B0",
+            "#00BCD4", "#FF5722", "#795548", "#607D8B", "#8BC34A"
+        };
+
+        List<Map<String, Object>> pairScatters = new ArrayList<>();
+        int colorIndex = 0;
+        for (Map.Entry<String, List<EmotionEntry>> pairEntry : entriesByPair.entrySet()) {
+            String pairId = pairEntry.getKey();
+            List<EmotionEntry> pairEntries = pairEntry.getValue();
+
+            List<Map<String, Object>> points = new ArrayList<>();
+            for (EmotionEntry entry : pairEntries) {
+                LocalDateTime recordedAt = entry.getRecordedAt();
+                LocalDate entryDate = recordedAt.toLocalDate();
+                int dayIndex = (int) ChronoUnit.DAYS.between(startDate, entryDate);
+                double hour = recordedAt.getHour() + recordedAt.getMinute() / 60.0;
+
+                Map<String, Object> point = new LinkedHashMap<>();
+                point.put("dayIndex", dayIndex);
+                point.put("hour", hour);
+                point.put("strength", entry.getStrength());
+                points.add(point);
+            }
+
+            if (!points.isEmpty()) {
+                Map<String, Object> scatter = new LinkedHashMap<>();
+                scatter.put("pairId", pairId);
+                scatter.put("pairLabel", pairLabels.get(pairId));
+                scatter.put("color", defaultColors[colorIndex % defaultColors.length]);
+                scatter.put("entries", points);
+                pairScatters.add(scatter);
+                colorIndex++;
+            }
+        }
+
+        Map<String, Object> result = new LinkedHashMap<>();
+        result.put("labels", labels);
+        result.put("pairs", pairScatters);
 
         return ResponseEntity.ok(result);
     }
