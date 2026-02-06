@@ -39,6 +39,7 @@ jobs:
       - name: Upload release assets
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: v${{ steps.version.outputs.VERSION }}
           files: |
             webserver/build/libs/habit-evaluator-web*.jar
             desktop/build/libs/*.jar
@@ -69,6 +70,7 @@ jobs:
       - name: Upload release assets
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: v${{ steps.version.outputs.VERSION }}
           files: desktop/build/jpackage-exe/*.exe
 
   artifacts-apk:
@@ -104,6 +106,7 @@ jobs:
       - name: Upload release assets
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: v${{ steps.version.outputs.VERSION }}
           files: android/build/outputs/apk/release/*.apk
 
   artifacts-aab:
@@ -139,4 +142,5 @@ jobs:
       - name: Upload release assets
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: v${{ steps.version.outputs.VERSION }}
           files: android/build/outputs/bundle/release/*.aab
