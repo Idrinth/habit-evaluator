@@ -16,6 +16,7 @@ import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -133,7 +134,7 @@ public class PdfExportActivity extends AppCompatActivity {
     private void writePdfToUri(Uri uri) {
         binding.statusText.setVisibility(View.VISIBLE);
         binding.statusText.setText(R.string.pdf_generating);
-        binding.statusText.setTextColor(getColor(R.color.text_secondary));
+        binding.statusText.setTextColor(ContextCompat.getColor(this, R.color.text_secondary));
         binding.exportButton.setEnabled(false);
 
         new Thread(() -> {
@@ -147,13 +148,13 @@ public class PdfExportActivity extends AppCompatActivity {
                 document.close();
                 runOnUiThread(() -> {
                     binding.statusText.setText(R.string.pdf_export_success);
-                    binding.statusText.setTextColor(getColor(android.R.color.holo_green_dark));
+                    binding.statusText.setTextColor(ContextCompat.getColor(PdfExportActivity.this, android.R.color.holo_green_dark));
                     binding.exportButton.setEnabled(true);
                 });
             } catch (IOException e) {
                 runOnUiThread(() -> {
                     binding.statusText.setText(getString(R.string.pdf_export_failed, e.getMessage()));
-                    binding.statusText.setTextColor(getColor(android.R.color.holo_red_dark));
+                    binding.statusText.setTextColor(ContextCompat.getColor(PdfExportActivity.this, android.R.color.holo_red_dark));
                     binding.exportButton.setEnabled(true);
                 });
             }

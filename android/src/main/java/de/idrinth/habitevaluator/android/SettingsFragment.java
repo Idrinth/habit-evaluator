@@ -18,6 +18,7 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatDelegate;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import java.io.File;
@@ -176,18 +177,18 @@ public class SettingsFragment extends Fragment {
 
         if (url.isEmpty() || username.isEmpty() || password.isEmpty()) {
             binding.connectionStatusText.setText(R.string.fill_all_fields);
-            binding.connectionStatusText.setTextColor(requireContext().getColor(android.R.color.holo_red_dark));
+            binding.connectionStatusText.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_red_dark));
             return;
         }
 
         if (!StorageConfig.isUrlSecure(url)) {
             binding.connectionStatusText.setText(R.string.https_required);
-            binding.connectionStatusText.setTextColor(requireContext().getColor(android.R.color.holo_red_dark));
+            binding.connectionStatusText.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_red_dark));
             return;
         }
 
         binding.connectionStatusText.setText(R.string.testing_connection);
-        binding.connectionStatusText.setTextColor(requireContext().getColor(R.color.text_secondary));
+        binding.connectionStatusText.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_secondary));
 
         new Thread(() -> {
             try {
@@ -197,10 +198,10 @@ public class SettingsFragment extends Fragment {
                     requireActivity().runOnUiThread(() -> {
                         if (success) {
                             binding.connectionStatusText.setText(R.string.connection_success);
-                            binding.connectionStatusText.setTextColor(requireContext().getColor(android.R.color.holo_green_dark));
+                            binding.connectionStatusText.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_green_dark));
                         } else {
                             binding.connectionStatusText.setText(R.string.auth_failed);
-                            binding.connectionStatusText.setTextColor(requireContext().getColor(android.R.color.holo_red_dark));
+                            binding.connectionStatusText.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_red_dark));
                         }
                     });
                 }
@@ -208,7 +209,7 @@ public class SettingsFragment extends Fragment {
                 if (isAdded()) {
                     requireActivity().runOnUiThread(() -> {
                         binding.connectionStatusText.setText(getString(R.string.connection_failed, e.getMessage()));
-                        binding.connectionStatusText.setTextColor(requireContext().getColor(android.R.color.holo_red_dark));
+                        binding.connectionStatusText.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_red_dark));
                     });
                 }
             }
@@ -285,12 +286,12 @@ public class SettingsFragment extends Fragment {
             String confirmPassword = binding.backupPasswordConfirmInput.getText().toString();
             if (backupPassword.isEmpty()) {
                 binding.backupStatusText.setText(R.string.backup_password_required);
-                binding.backupStatusText.setTextColor(requireContext().getColor(android.R.color.holo_red_dark));
+                binding.backupStatusText.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_red_dark));
                 return;
             }
             if (!backupPassword.equals(confirmPassword)) {
                 binding.backupStatusText.setText(R.string.backup_passwords_mismatch);
-                binding.backupStatusText.setTextColor(requireContext().getColor(android.R.color.holo_red_dark));
+                binding.backupStatusText.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_red_dark));
                 return;
             }
             editor.putBoolean(SettingsActivity.KEY_BACKUP_ENABLED, true);
@@ -317,7 +318,7 @@ public class SettingsFragment extends Fragment {
 
         if (backups.length == 0) {
             binding.restoreStatusText.setText(R.string.restore_no_backups);
-            binding.restoreStatusText.setTextColor(requireContext().getColor(android.R.color.holo_red_dark));
+            binding.restoreStatusText.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_red_dark));
             return;
         }
 
@@ -348,11 +349,11 @@ public class SettingsFragment extends Fragment {
                     String password = passwordInput.getText().toString();
                     if (password.isEmpty()) {
                         binding.restoreStatusText.setText(R.string.backup_password_required);
-                        binding.restoreStatusText.setTextColor(requireContext().getColor(android.R.color.holo_red_dark));
+                        binding.restoreStatusText.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_red_dark));
                         return;
                     }
                     binding.restoreStatusText.setText(R.string.restore_in_progress);
-                    binding.restoreStatusText.setTextColor(requireContext().getColor(R.color.text_secondary));
+                    binding.restoreStatusText.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_secondary));
 
                     new Thread(() -> {
                         try {
@@ -369,7 +370,7 @@ public class SettingsFragment extends Fragment {
                                             result.getHabitsAdded(), result.getHabitsMerged(),
                                             result.getEntriesAdded(), result.getDiaryEntriesAdded(),
                                             result.getSleepEntriesAdded(), result.getCategoriesAdded()));
-                                    binding.restoreStatusText.setTextColor(requireContext().getColor(android.R.color.holo_green_dark));
+                                    binding.restoreStatusText.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_green_dark));
                                     if (getActivity() instanceof MainActivity) {
                                         ((MainActivity) getActivity()).onSettingsChanged();
                                     }
@@ -379,7 +380,7 @@ public class SettingsFragment extends Fragment {
                             if (isAdded()) {
                                 requireActivity().runOnUiThread(() -> {
                                     binding.restoreStatusText.setText(getString(R.string.restore_failed, e.getMessage()));
-                                    binding.restoreStatusText.setTextColor(requireContext().getColor(android.R.color.holo_red_dark));
+                                    binding.restoreStatusText.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_red_dark));
                                 });
                             }
                         }
@@ -393,12 +394,12 @@ public class SettingsFragment extends Fragment {
         String backupPassword = binding.backupPasswordInput.getText().toString();
         if (backupPassword.isEmpty()) {
             binding.downloadStatusText.setText(R.string.backup_password_required);
-            binding.downloadStatusText.setTextColor(requireContext().getColor(android.R.color.holo_red_dark));
+            binding.downloadStatusText.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_red_dark));
             return;
         }
 
         binding.downloadStatusText.setText(R.string.download_backup_in_progress);
-        binding.downloadStatusText.setTextColor(requireContext().getColor(R.color.text_secondary));
+        binding.downloadStatusText.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_secondary));
 
         new Thread(() -> {
             try {
@@ -424,7 +425,7 @@ public class SettingsFragment extends Fragment {
                 if (isAdded()) {
                     requireActivity().runOnUiThread(() -> {
                         binding.downloadStatusText.setText(getString(R.string.download_backup_failed, e.getMessage()));
-                        binding.downloadStatusText.setTextColor(requireContext().getColor(android.R.color.holo_red_dark));
+                        binding.downloadStatusText.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_red_dark));
                     });
                 }
             }
@@ -441,7 +442,7 @@ public class SettingsFragment extends Fragment {
                     if (isAdded()) {
                         requireActivity().runOnUiThread(() -> {
                             binding.downloadStatusText.setText(R.string.download_backup_success);
-                            binding.downloadStatusText.setTextColor(requireContext().getColor(android.R.color.holo_green_dark));
+                            binding.downloadStatusText.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_green_dark));
                         });
                     }
                 }
@@ -449,7 +450,7 @@ public class SettingsFragment extends Fragment {
                 if (isAdded()) {
                     requireActivity().runOnUiThread(() -> {
                         binding.downloadStatusText.setText(getString(R.string.download_backup_failed, e.getMessage()));
-                        binding.downloadStatusText.setTextColor(requireContext().getColor(android.R.color.holo_red_dark));
+                        binding.downloadStatusText.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_red_dark));
                     });
                 }
             }
@@ -477,11 +478,11 @@ public class SettingsFragment extends Fragment {
                     String password = passwordInput.getText().toString();
                     if (password.isEmpty()) {
                         binding.restoreFromFileStatusText.setText(R.string.backup_password_required);
-                        binding.restoreFromFileStatusText.setTextColor(requireContext().getColor(android.R.color.holo_red_dark));
+                        binding.restoreFromFileStatusText.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_red_dark));
                         return;
                     }
                     binding.restoreFromFileStatusText.setText(R.string.restore_in_progress);
-                    binding.restoreFromFileStatusText.setTextColor(requireContext().getColor(R.color.text_secondary));
+                    binding.restoreFromFileStatusText.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_secondary));
 
                     new Thread(() -> {
                         try {
@@ -504,7 +505,7 @@ public class SettingsFragment extends Fragment {
                                             result.getHabitsAdded(), result.getHabitsMerged(),
                                             result.getEntriesAdded(), result.getDiaryEntriesAdded(),
                                             result.getSleepEntriesAdded(), result.getCategoriesAdded()));
-                                    binding.restoreFromFileStatusText.setTextColor(requireContext().getColor(android.R.color.holo_green_dark));
+                                    binding.restoreFromFileStatusText.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_green_dark));
                                     if (getActivity() instanceof MainActivity) {
                                         ((MainActivity) getActivity()).onSettingsChanged();
                                     }
@@ -514,7 +515,7 @@ public class SettingsFragment extends Fragment {
                             if (isAdded()) {
                                 requireActivity().runOnUiThread(() -> {
                                     binding.restoreFromFileStatusText.setText(getString(R.string.restore_failed, e.getMessage()));
-                                    binding.restoreFromFileStatusText.setTextColor(requireContext().getColor(android.R.color.holo_red_dark));
+                                    binding.restoreFromFileStatusText.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_red_dark));
                                 });
                             }
                         }
