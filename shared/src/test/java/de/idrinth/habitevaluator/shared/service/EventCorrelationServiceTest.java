@@ -190,4 +190,153 @@ class EventCorrelationServiceTest {
 
         assertFalse(result.isEmpty());
     }
+
+    @Test
+    void testProximityBoostAffectsCorrelation() {
+        LocalDate today = LocalDate.now();
+
+        // Run 1: habit and diary entries close in time on shared days (within 2h)
+        Habit habitClose = new Habit("Close", "Test");
+        List<DiaryEntry> diaryClose = new ArrayList<>();
+
+        // Run 2: habit and diary entries far apart in time on shared days
+        Habit habitFar = new Habit("Far", "Test");
+        List<DiaryEntry> diaryFar = new ArrayList<>();
+
+        // Create entries on 2/3 of days for habits, 2/3 of days for diary,
+        // resulting in 1/3 of days as shared (where both are non-zero)
+        for (int i = 0; i < 90; i++) {
+            LocalDate date = today.minusDays(i);
+            int value = (i % 4) + 1;
+            EventSignificance sig = i % 2 == 0 ? EventSignificance.MAJOR : EventSignificance.MINOR;
+
+            if (i % 3 != 2) { // 2/3 of days have habit entries
+                HabitEntry he1 = new HabitEntry();
+                he1.setCompletedAt(date.atTime(10, 0));
+                he1.setValue(value);
+                habitClose.addEntry(he1);
+
+                HabitEntry he2 = new HabitEntry();
+                he2.setCompletedAt(date.atTime(10, 0));
+                he2.setValue(value);
+                habitFar.addEntry(he2);
+            }
+
+            if (i % 3 != 1) { // 2/3 of days have diary entries
+                DiaryEntry de1 = new DiaryEntry("Event", sig, date);
+                de1.setCreatedAt(date.atTime(11, 0)); // 1h after habit -> within 2h
+                diaryClose.add(de1);
+
+                DiaryEntry de2 = new DiaryEntry("Event", sig, date);
+                de2.setCreatedAt(date.atTime(22, 0)); // 12h after habit -> not within 2h
+                diaryFar.add(de2);
+            }
+        }
+
+        List<EventCorrelation> resultClose = service.calculateCorrelations(
+                List.of(habitClose), diaryClose, new ArrayList<>(), new ArrayList<>());
+        List<EventCorrelation> resultFar = service.calculateCorrelations(
+                List.of(habitFar), diaryFar, new ArrayList<>(), new ArrayList<>());
+
+        assertFalse(resultClose.isEmpty());
+        assertFalse(resultFar.isEmpty());
+
+        double corrClose = findCorrelation(resultClose, "Close", "Diary");
+        double corrFar = findCorrelation(resultFar, "Far", "Diary");
+
+        // The correlations should differ because proximity boost changes weights
+        // selectively on shared days
+        assertNotEquals(corrClose, corrFar, 0.001);
+    }
+
+    @Test
+    void testDiaryUsesCreatedAtForProximity() {
+        LocalDate today = LocalDate.now();
+
+        Habit habit = new Habit("Workout", "Test");
+        List<DiaryEntry> diaryEntries = new ArrayList<>();
+
+        for (int i = 0; i < 30; i++) {
+            LocalDate date = today.minusDays(i);
+
+            HabitEntry he = new HabitEntry();
+            he.setCompletedAt(date.atTime(14, 0));
+            habit.addEntry(he);
+
+            // eventDate has no time component, createdAt provides the time
+            DiaryEntry diary = new DiaryEntry("Event", EventSignificance.NORMAL, date);
+            diary.setCreatedAt(date.atTime(14, 30)); // 30 min after habit -> within 2h
+            diaryEntries.add(diary);
+        }
+
+        List<EventCorrelation> result = service.calculateCorrelations(
+                List.of(habit), diaryEntries, new ArrayList<>(), new ArrayList<>());
+
+        // Should produce results without errors
+        assertFalse(result.isEmpty());
+    }
+
+    @Test
+    void testSleepUsesFromTimeForProximity() {
+        LocalDate today = LocalDate.now();
+
+        Habit habit = new Habit("Evening routine", "Test");
+        List<SleepEntry> sleepEntries = new ArrayList<>();
+
+        for (int i = 0; i < 30; i++) {
+            LocalDate date = today.minusDays(i);
+
+            HabitEntry he = new HabitEntry();
+            he.setCompletedAt(date.atTime(21, 30));
+            habit.addEntry(he);
+
+            // Sleep entry with fromTime close to habit completion
+            SleepEntry se = new SleepEntry(LocalTime.of(22, 0), LocalTime.of(6, 0), date);
+            sleepEntries.add(se);
+        }
+
+        List<EventCorrelation> result = service.calculateCorrelations(
+                List.of(habit), new ArrayList<>(), sleepEntries, new ArrayList<>());
+
+        // Should produce results with sleep using fromTime for proximity
+        assertFalse(result.isEmpty());
+    }
+
+    @Test
+    void testEmotionProximityWithHabit() {
+        LocalDate today = LocalDate.now();
+
+        EmotionPair pair = new EmotionPair("anxious", "calm");
+        Habit habit = new Habit("Meditation", "Test");
+        List<EmotionEntry> emotionEntries = new ArrayList<>();
+
+        for (int i = 0; i < 30; i++) {
+            LocalDate date = today.minusDays(i);
+
+            HabitEntry he = new HabitEntry();
+            he.setCompletedAt(date.atTime(8, 0));
+            habit.addEntry(he);
+
+            // Emotion recorded 30 min after meditation -> within 2h
+            emotionEntries.add(new EmotionEntry(pair, 7, date.atTime(8, 30), null));
+        }
+
+        List<EventCorrelation> result = service.calculateCorrelations(
+                List.of(habit), new ArrayList<>(), new ArrayList<>(), emotionEntries);
+
+        assertFalse(result.isEmpty());
+        boolean foundHabitEmotion = result.stream()
+                .anyMatch(c -> (c.getEventA().contains("Meditation") && c.getEventB().contains("Emotion"))
+                        || (c.getEventA().contains("Emotion") && c.getEventB().contains("Meditation")));
+        assertTrue(foundHabitEmotion);
+    }
+
+    private double findCorrelation(List<EventCorrelation> correlations, String partA, String partB) {
+        return correlations.stream()
+                .filter(c -> (c.getEventA().contains(partA) && c.getEventB().contains(partB))
+                        || (c.getEventA().contains(partB) && c.getEventB().contains(partA)))
+                .findFirst()
+                .map(EventCorrelation::getCorrelation)
+                .orElse(0.0);
+    }
 }
