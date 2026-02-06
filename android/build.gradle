@@ -22,12 +22,13 @@ android {
         legacy {
             dimension "apiLevel"
             minSdk 21
-            versionNameSuffix "-21"
+            versionNameSuffix "-legacy"
+            versionCode = (System.getenv("ANDROID_VERSION_CODE") ?: "1").toInteger() * 100 + 21
         }
         modern {
             dimension "apiLevel"
             minSdk 26
-            versionNameSuffix "-26"
+            versionCode = (System.getenv("ANDROID_VERSION_CODE") ?: "1").toInteger() * 100 + 26
         }
     }
 
