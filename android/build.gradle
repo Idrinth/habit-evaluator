@@ -17,6 +17,19 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    flavorDimensions "apiLevel"
+    productFlavors {
+        legacy {
+            dimension "apiLevel"
+            minSdk 21
+            versionNameSuffix "-legacy"
+        }
+        modern {
+            dimension "apiLevel"
+            minSdk 26
+        }
+    }
+
     signingConfigs {
         release {
             def keystoreFilePath = System.getenv("ANDROID_KEYSTORE_FILE")
@@ -42,6 +55,7 @@ android {
     }
 
     compileOptions {
+        coreLibraryDesugaringEnabled true
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
     }
@@ -62,6 +76,8 @@ android {
 }
 
 dependencies {
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.4'
+
     implementation project(':shared')
 
     // Jakarta Persistence API to resolve shared module's JPA annotations at compile time
@@ -94,7 +110,7 @@ jacoco {
 }
 
 tasks.register('jacocoTestReport', JacocoReport) {
-    dependsOn 'testDebugUnitTest'
+    dependsOn 'testModernDebugUnitTest', 'testLegacyDebugUnitTest'
 
     reports {
         xml.required = true
@@ -111,15 +127,22 @@ tasks.register('jacocoTestReport', JacocoReport) {
         'android/**/*.*'
     ]
 
-    def debugTree = fileTree(
-        dir: "${buildDir}/intermediates/javac/debug/classes",
+    def modernDebugTree = fileTree(
+        dir: "${buildDir}/intermediates/javac/modernDebug/classes",
+        excludes: fileFilter
+    )
+    def legacyDebugTree = fileTree(
+        dir: "${buildDir}/intermediates/javac/legacyDebug/classes",
         excludes: fileFilter
     )
 
-    classDirectories.setFrom(debugTree)
+    classDirectories.setFrom(modernDebugTree + legacyDebugTree)
     sourceDirectories.setFrom(files('src/main/java'))
     executionData.setFrom(fileTree(
         dir: buildDir,
-        includes: ['jacoco/testDebugUnitTest.exec']
+        includes: [
+            'jacoco/testModernDebugUnitTest.exec',
+            'jacoco/testLegacyDebugUnitTest.exec'
+        ]
     ))
 }

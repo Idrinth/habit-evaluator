@@ -75,6 +75,9 @@ jobs:
 
   artifacts-apk:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        flavor: [modern, legacy]
     steps:
       - uses: actions/checkout@v4
 
@@ -94,23 +97,26 @@ jobs:
       - name: Decode keystore
         run: echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 -d > /tmp/keystore.jks
 
-      - name: Build signed APK
+      - name: Build signed APK (${{ matrix.flavor }})
         env:
           ANDROID_KEYSTORE_FILE: /tmp/keystore.jks
           ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
           ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
           ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
           ANDROID_VERSION_CODE: ${{ github.run_number }}
-        run: ./gradlew :android:assembleRelease "-PreleaseVersion=${{ steps.version.outputs.VERSION }}"
+        run: ./gradlew :android:assemble${{ matrix.flavor == 'modern' && 'Modern' || 'Legacy' }}Release "-PreleaseVersion=${{ steps.version.outputs.VERSION }}"
 
-      - name: Upload release assets
+      - name: Upload release assets (${{ matrix.flavor }})
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ steps.version.outputs.VERSION }}
-          files: android/build/outputs/apk/release/*.apk
+          files: android/build/outputs/apk/${{ matrix.flavor }}Release/*.apk
 
   artifacts-aab:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        flavor: [modern, legacy]
     steps:
       - uses: actions/checkout@v4
 
@@ -130,17 +136,17 @@ jobs:
       - name: Decode keystore
         run: echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 -d > /tmp/keystore.jks
 
-      - name: Build signed AAB
+      - name: Build signed AAB (${{ matrix.flavor }})
         env:
           ANDROID_KEYSTORE_FILE: /tmp/keystore.jks
           ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
           ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
           ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
           ANDROID_VERSION_CODE: ${{ github.run_number }}
-        run: ./gradlew :android:bundleRelease "-PreleaseVersion=${{ steps.version.outputs.VERSION }}"
+        run: ./gradlew :android:bundle${{ matrix.flavor == 'modern' && 'Modern' || 'Legacy' }}Release "-PreleaseVersion=${{ steps.version.outputs.VERSION }}"
 
-      - name: Upload release assets
+      - name: Upload release assets (${{ matrix.flavor }})
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ steps.version.outputs.VERSION }}
-          files: android/build/outputs/bundle/release/*.aab
+          files: android/build/outputs/bundle/${{ matrix.flavor }}Release/*.aab
