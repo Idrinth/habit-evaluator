@@ -22,11 +22,12 @@ android {
         legacy {
             dimension "apiLevel"
             minSdk 21
-            versionNameSuffix "-legacy"
+            versionNameSuffix "-21"
         }
         modern {
             dimension "apiLevel"
             minSdk 26
+            versionNameSuffix "-26"
         }
     }
 
