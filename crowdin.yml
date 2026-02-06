@@ -4,3 +4,5 @@ files:
   - source: /android/src/main/res/values/strings.xml
     translation: /android/src/main/res/values-%two_letters_code%/strings.xml
     translate_attributes: 0
+  - source: /android/store*.en
+    translation: /android/%file_name%.%two_letters_code%
