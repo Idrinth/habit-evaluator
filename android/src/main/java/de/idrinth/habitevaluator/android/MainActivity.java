@@ -25,6 +25,15 @@ import de.idrinth.habitevaluator.android.persistence.FileSystemEmotionPairReposi
 import de.idrinth.habitevaluator.android.persistence.FileSystemHabitCategoryRepository;
 import de.idrinth.habitevaluator.android.persistence.FileSystemHabitRepository;
 import de.idrinth.habitevaluator.android.persistence.FileSystemSleepEntryRepository;
+import de.idrinth.habitevaluator.android.persistence.JsonToSqliteMigration;
+import de.idrinth.habitevaluator.android.persistence.SQLiteDiaryEntryRepository;
+import de.idrinth.habitevaluator.android.persistence.SQLiteDiaryReferenceRepository;
+import de.idrinth.habitevaluator.android.persistence.SQLiteEmotionEntryRepository;
+import de.idrinth.habitevaluator.android.persistence.SQLiteEmotionPairRepository;
+import de.idrinth.habitevaluator.android.persistence.SQLiteHabitCategoryRepository;
+import de.idrinth.habitevaluator.android.persistence.SQLiteHabitRepository;
+import de.idrinth.habitevaluator.android.persistence.SQLiteHelper;
+import de.idrinth.habitevaluator.android.persistence.SQLiteSleepEntryRepository;
 import de.idrinth.habitevaluator.android.ui.ScreenPagerAdapter;
 import de.idrinth.habitevaluator.android.ui.ViewPager2SwipeSensitivityReducer;
 import de.idrinth.habitevaluator.shared.api.ApiClient;
@@ -40,6 +49,7 @@ import de.idrinth.habitevaluator.shared.model.HabitEntry;
 import de.idrinth.habitevaluator.shared.model.SleepEntry;
 import de.idrinth.habitevaluator.shared.model.User;
 import de.idrinth.habitevaluator.shared.repository.DiaryEntryRepository;
+import de.idrinth.habitevaluator.shared.repository.DiaryReferenceRepository;
 import de.idrinth.habitevaluator.shared.repository.EmotionEntryRepository;
 import de.idrinth.habitevaluator.shared.repository.EmotionPairRepository;
 import de.idrinth.habitevaluator.shared.repository.HabitCategoryRepository;
@@ -65,6 +75,7 @@ public class MainActivity extends AppCompatActivity {
     private static List<SleepEntry> sharedSleepEntries = new ArrayList<>();
     private static SleepEntryRepository sharedSleepEntryRepository;
     private static DiaryEntryRepository sharedDiaryEntryRepository;
+    private static DiaryReferenceRepository sharedDiaryReferenceRepository;
     private static EmotionPairRepository sharedEmotionPairRepository;
     private static List<EmotionPair> sharedEmotionPairs = new ArrayList<>();
     private static EmotionEntryRepository sharedEmotionEntryRepository;
@@ -110,6 +121,10 @@ public class MainActivity extends AppCompatActivity {
 
     public static DiaryEntryRepository getSharedDiaryEntryRepository() {
         return sharedDiaryEntryRepository;
+    }
+
+    public static DiaryReferenceRepository getSharedDiaryReferenceRepository() {
+        return sharedDiaryReferenceRepository;
     }
 
     public static EmotionPairRepository getSharedEmotionPairRepository() {
@@ -403,11 +418,19 @@ public class MainActivity extends AppCompatActivity {
         usingRemoteStorage = false;
         localBackupRepository = null;
         localBackupUser = null;
-        java.io.File storageDir = new java.io.File(getFilesDir(), "habit-data");
-        habitRepository = new FileSystemHabitRepository(storageDir);
-        categoryRepository = new FileSystemHabitCategoryRepository(storageDir);
-        sleepEntryRepository = new FileSystemSleepEntryRepository(storageDir);
         apiClient = null;
+
+        SQLiteHelper dbHelper = SQLiteHelper.getInstance(this);
+
+        habitRepository = new SQLiteHabitRepository(dbHelper);
+        categoryRepository = new SQLiteHabitCategoryRepository(dbHelper);
+        sleepEntryRepository = new SQLiteSleepEntryRepository(dbHelper);
+        SQLiteDiaryReferenceRepository diaryRefRepo = new SQLiteDiaryReferenceRepository(dbHelper);
+        SQLiteDiaryEntryRepository diaryEntryRepo = new SQLiteDiaryEntryRepository(dbHelper);
+        diaryEntryRepo.setDiaryReferenceRepository(diaryRefRepo);
+        SQLiteEmotionPairRepository emotionPairRepo = new SQLiteEmotionPairRepository(dbHelper);
+        SQLiteEmotionEntryRepository emotionEntryRepo = new SQLiteEmotionEntryRepository(dbHelper, emotionPairRepo);
+
         currentUser = getOrCreateLocalUser();
         sharedHabitRepository = habitRepository;
         sharedUsingRemoteStorage = false;
@@ -415,9 +438,27 @@ public class MainActivity extends AppCompatActivity {
         sharedSleepEntryRepository = sleepEntryRepository;
         sharedApiClient = null;
         sharedCurrentUser = currentUser;
-        sharedDiaryEntryRepository = new FileSystemDiaryEntryRepository(storageDir);
-        sharedEmotionPairRepository = new FileSystemEmotionPairRepository(storageDir);
-        sharedEmotionEntryRepository = new FileSystemEmotionEntryRepository(storageDir, sharedEmotionPairRepository);
+        sharedDiaryEntryRepository = diaryEntryRepo;
+        sharedDiaryReferenceRepository = diaryRefRepo;
+        sharedEmotionPairRepository = emotionPairRepo;
+        sharedEmotionEntryRepository = emotionEntryRepo;
+
+        // Migrate legacy JSON files to SQLite if they exist
+        java.io.File storageDir = new java.io.File(getFilesDir(), "habit-data");
+        JsonToSqliteMigration migration = new JsonToSqliteMigration(
+                storageDir,
+                habitRepository,
+                categoryRepository,
+                diaryRefRepo,
+                diaryEntryRepo,
+                sleepEntryRepository,
+                emotionPairRepo,
+                emotionEntryRepo
+        );
+        if (migration.needsMigration()) {
+            migration.migrate();
+        }
+
         loadSleepEntries();
         loadEmotionPairs();
     }
