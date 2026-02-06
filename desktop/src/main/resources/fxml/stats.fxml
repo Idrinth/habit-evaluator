@@ -82,12 +82,15 @@
     </HBox>
 
     <Label text="Event Correlations (Yearly, Time-Weighted)" styleClass="section-title"/>
+    <Label text="Correlation does not imply causation. Weak correlations (|r| &lt; 0.3) have low statistical confidence and should be interpreted with caution."
+           wrapText="true" style="-fx-text-fill: #9E9E9E; -fx-font-size: 11px;"/>
     <TableView fx:id="correlationTable" prefHeight="250" VBox.vgrow="SOMETIMES">
         <columns>
-            <TableColumn fx:id="eventAColumn" text="Event A" prefWidth="200"/>
-            <TableColumn fx:id="eventBColumn" text="Event B" prefWidth="200"/>
-            <TableColumn fx:id="correlationColumn" text="Correlation" prefWidth="120"/>
-            <TableColumn fx:id="sharedDaysColumn" text="Shared Days" prefWidth="100"/>
+            <TableColumn fx:id="eventAColumn" text="Event A" prefWidth="180"/>
+            <TableColumn fx:id="eventBColumn" text="Event B" prefWidth="180"/>
+            <TableColumn fx:id="correlationColumn" text="Correlation" prefWidth="100"/>
+            <TableColumn fx:id="sharedDaysColumn" text="Shared Days" prefWidth="90"/>
+            <TableColumn fx:id="confidenceColumn" text="Confidence" prefWidth="90"/>
         </columns>
     </TableView>
 </VBox>

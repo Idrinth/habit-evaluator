@@ -22,7 +22,6 @@ import java.util.Map;
 public class EventCorrelationService {
 
     private static final int YEAR_DAYS = 365;
-    private static final int TOP_CORRELATIONS = 10;
     private static final int MIN_SHARED_DAYS = 7;
 
     /**
@@ -34,7 +33,7 @@ public class EventCorrelationService {
      * @param diaryEntries   all diary entries
      * @param sleepEntries   all sleep entries
      * @param emotionEntries all emotion entries
-     * @return the top 10 strongest correlations sorted by absolute correlation strength
+     * @return all correlations sorted by absolute correlation strength
      */
     public List<EventCorrelation> calculateCorrelations(
             List<Habit> habits,
@@ -144,9 +143,6 @@ public class EventCorrelationService {
         correlations.sort(Comparator.comparingDouble(
                 (EventCorrelation c) -> Math.abs(c.getCorrelation())).reversed());
 
-        if (correlations.size() > TOP_CORRELATIONS) {
-            return correlations.subList(0, TOP_CORRELATIONS);
-        }
         return correlations;
     }
 

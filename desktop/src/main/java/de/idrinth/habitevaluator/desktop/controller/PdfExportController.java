@@ -806,20 +806,29 @@ public class PdfExportController {
         description.setSpacingAfter(10);
         document.add(description);
 
-        PdfPTable table = new PdfPTable(4);
+        PdfPTable table = new PdfPTable(5);
         table.setWidthPercentage(100);
-        table.setWidths(new float[]{3, 3, 1.5f, 1.5f});
+        table.setWidths(new float[]{3, 3, 1.5f, 1.2f, 1.3f});
 
         addTableHeader(table, "Event A");
         addTableHeader(table, "Event B");
         addTableHeader(table, "Correlation");
         addTableHeader(table, "Shared Days");
+        addTableHeader(table, "Confidence");
 
         for (EventCorrelation corr : correlations) {
             addTableCell(table, corr.getEventA());
             addTableCell(table, corr.getEventB());
             addTableCell(table, String.format("%+.3f", corr.getCorrelation()));
             addTableCell(table, String.valueOf(corr.getSharedDays()));
+            double abs = Math.abs(corr.getCorrelation());
+            if (abs >= 0.5) {
+                addTableCell(table, "Strong");
+            } else if (abs >= 0.3) {
+                addTableCell(table, "Moderate");
+            } else {
+                addTableCell(table, "Weak");
+            }
         }
 
         table.setSpacingAfter(15);

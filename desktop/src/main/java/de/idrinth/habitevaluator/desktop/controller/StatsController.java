@@ -82,6 +82,8 @@ public class StatsController {
     private TableColumn<EventCorrelation, Number> correlationColumn;
     @FXML
     private TableColumn<EventCorrelation, Number> sharedDaysColumn;
+    @FXML
+    private TableColumn<EventCorrelation, String> confidenceColumn;
 
     private List<Habit> habits = new ArrayList<>();
     private SleepEntryRepository sleepEntryRepository;
@@ -304,6 +306,16 @@ public class StatsController {
                 new SimpleDoubleProperty(Math.round(c.getValue().getCorrelation() * 1000.0) / 1000.0));
         sharedDaysColumn.setCellValueFactory(c ->
                 new SimpleIntegerProperty(c.getValue().getSharedDays()));
+        confidenceColumn.setCellValueFactory(c -> {
+            double abs = Math.abs(c.getValue().getCorrelation());
+            if (abs >= 0.5) {
+                return new SimpleStringProperty("Strong");
+            } else if (abs >= 0.3) {
+                return new SimpleStringProperty("Moderate");
+            } else {
+                return new SimpleStringProperty("Weak");
+            }
+        });
 
         correlationTable.setItems(FXCollections.observableArrayList(correlations));
     }

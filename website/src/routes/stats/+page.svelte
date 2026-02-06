@@ -1,25 +1,22 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { stats, type DashboardData, type DailyTimelineData, type CorrelationEntry, type EmotionScatterData } from '$lib/api';
+	import { stats, type DashboardData, type DailyTimelineData, type EmotionScatterData } from '$lib/api';
 	import { goto } from '$app/navigation';
 
 	let data: DashboardData | null = $state(null);
 	let timelineData: DailyTimelineData | null = $state(null);
-	let correlationData: CorrelationEntry[] | null = $state(null);
 	let emotionScatterData: EmotionScatterData | null = $state(null);
 	let error: string | null = $state(null);
 
 	onMount(async () => {
 		try {
-			const [dashboardResult, timelineResult, correlationResult, emotionScatterResult] = await Promise.all([
+			const [dashboardResult, timelineResult, emotionScatterResult] = await Promise.all([
 				stats.dashboard(),
 				stats.dailyTimeline(),
-				stats.correlations(),
 				stats.emotionScatter()
 			]);
 			data = dashboardResult;
 			timelineData = timelineResult;
-			correlationData = correlationResult;
 			emotionScatterData = emotionScatterResult;
 		} catch (e) {
 			if (e instanceof Error && e.message.includes('401')) {
@@ -467,42 +464,11 @@
 			</div>
 		{/if}
 
-		{#if correlationData && correlationData.length > 0}
-			<div class="chart-card correlation-card">
-				<h2>Event Correlations (Yearly, Time-Weighted)</h2>
-				<p class="chart-avg">Top {correlationData.length} strongest correlations — newer data weighted higher</p>
-				<table class="correlation-table">
-					<thead>
-						<tr>
-							<th>Event A</th>
-							<th>Event B</th>
-							<th>Correlation</th>
-							<th>Shared Days</th>
-						</tr>
-					</thead>
-					<tbody>
-						{#each correlationData as corr}
-							<tr>
-								<td>{corr.eventA}</td>
-								<td>{corr.eventB}</td>
-								<td>
-									<span class="corr-bar-wrapper">
-										<span
-											class="corr-bar"
-											class:positive={corr.correlation > 0}
-											class:negative={corr.correlation < 0}
-											style="width: {Math.abs(corr.correlation) * 100}%"
-										></span>
-									</span>
-									<span class="corr-value">{corr.correlation > 0 ? '+' : ''}{corr.correlation.toFixed(3)}</span>
-								</td>
-								<td class="shared-days">{corr.sharedDays}</td>
-							</tr>
-						{/each}
-					</tbody>
-				</table>
-			</div>
-		{/if}
+		<div class="chart-card correlation-link-card">
+			<h2>Event Correlations</h2>
+			<p class="chart-avg">Time-weighted correlations across habits, diary, sleep, and emotions</p>
+			<a href="/stats/correlations" class="correlations-link">View all correlations</a>
+		</div>
 	{/if}
 </div>
 
@@ -629,67 +595,26 @@
 		font-size: 0.8rem;
 	}
 
-	.correlation-card {
+	.correlation-link-card {
 		grid-column: 1 / -1;
 		margin-top: 1rem;
-	}
-
-	.correlation-table {
-		width: 100%;
-		border-collapse: collapse;
-		font-size: 0.85rem;
-	}
-
-	.correlation-table th,
-	.correlation-table td {
-		padding: 0.5rem 0.75rem;
-		text-align: left;
-		border-bottom: 1px solid var(--color-border);
-	}
-
-	.correlation-table th {
-		font-weight: 600;
-		color: var(--color-text-muted);
-		font-size: 0.75rem;
-		text-transform: uppercase;
-		letter-spacing: 0.03em;
-	}
-
-	.correlation-table td {
-		color: var(--color-text);
-	}
-
-	.corr-bar-wrapper {
-		display: inline-block;
-		width: 60px;
-		height: 8px;
-		background: var(--color-border);
-		border-radius: 4px;
-		vertical-align: middle;
-		margin-right: 0.5rem;
-		overflow: hidden;
-	}
-
-	.corr-bar {
-		display: block;
-		height: 100%;
-		border-radius: 4px;
-	}
-
-	.corr-bar.positive {
-		background: #4CAF50;
-	}
-
-	.corr-bar.negative {
-		background: #E91E63;
-	}
-
-	.corr-value {
-		font-variant-numeric: tabular-nums;
-	}
-
-	.shared-days {
 		text-align: center;
+	}
+
+	.correlations-link {
+		display: inline-block;
+		margin-top: 0.5rem;
+		padding: 0.5rem 1.5rem;
+		background: #4CAF50;
+		color: #fff;
+		text-decoration: none;
+		border-radius: 6px;
+		font-size: 0.9rem;
+		font-weight: 500;
+	}
+
+	.correlations-link:hover {
+		background: #43A047;
 	}
 
 	@media (max-width: 600px) {

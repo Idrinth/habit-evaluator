@@ -83,7 +83,7 @@ class EventCorrelationServiceTest {
     }
 
     @Test
-    void testResultsLimitedToTop10() {
+    void testAllCorrelationsReturned() {
         LocalDate today = LocalDate.now();
         // Create 12 habits all correlated with each other
         List<Habit> habits = new ArrayList<>();
@@ -100,7 +100,9 @@ class EventCorrelationServiceTest {
         List<EventCorrelation> result = service.calculateCorrelations(
                 habits, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
 
-        assertTrue(result.size() <= 10);
+        // 12 habits + diary + sleep = 14 signals, all pairs with shared days >= 7
+        // should return more than 10 correlations (no cap)
+        assertTrue(result.size() > 10);
     }
 
     @Test
