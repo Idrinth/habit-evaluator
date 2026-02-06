@@ -66,6 +66,14 @@ public class StorageConfig {
     private boolean backupEnabled;
     private String backupPassword;
     private boolean firstStartCompleted;
+    private boolean sleepReminderEnabled;
+    private String sleepReminderTime;
+    private boolean diaryReminderEnabled;
+    private String diaryReminderTime;
+    private boolean emotionReminderEnabled;
+    private int emotionReminderCount;
+    private String wakingHoursStart;
+    private String wakingHoursEnd;
 
     private final File configFile;
 
@@ -79,6 +87,14 @@ public class StorageConfig {
         this.apiPassword = "";
         this.backupEnabled = false;
         this.backupPassword = "";
+        this.sleepReminderEnabled = false;
+        this.sleepReminderTime = "08:00";
+        this.diaryReminderEnabled = false;
+        this.diaryReminderTime = "20:00";
+        this.emotionReminderEnabled = false;
+        this.emotionReminderCount = 3;
+        this.wakingHoursStart = "07:00";
+        this.wakingHoursEnd = "22:00";
         load();
     }
 
@@ -108,6 +124,22 @@ public class StorageConfig {
             backupPassword = props.getProperty("backup.password", "");
             firstStartCompleted = Boolean.parseBoolean(
                     props.getProperty("first.start.completed", "false"));
+            sleepReminderEnabled = Boolean.parseBoolean(
+                    props.getProperty("reminder.sleep.enabled", "false"));
+            sleepReminderTime = props.getProperty("reminder.sleep.time", "08:00");
+            diaryReminderEnabled = Boolean.parseBoolean(
+                    props.getProperty("reminder.diary.enabled", "false"));
+            diaryReminderTime = props.getProperty("reminder.diary.time", "20:00");
+            emotionReminderEnabled = Boolean.parseBoolean(
+                    props.getProperty("reminder.emotion.enabled", "false"));
+            try {
+                emotionReminderCount = Integer.parseInt(
+                        props.getProperty("reminder.emotion.count", "3"));
+            } catch (NumberFormatException e2) {
+                emotionReminderCount = 3;
+            }
+            wakingHoursStart = props.getProperty("reminder.waking.start", "07:00");
+            wakingHoursEnd = props.getProperty("reminder.waking.end", "22:00");
         } catch (IOException e) {
             logger.warn("Failed to load storage config, using defaults", e);
         } catch (IllegalArgumentException e) {
@@ -135,6 +167,14 @@ public class StorageConfig {
         props.setProperty("backup.enabled", String.valueOf(backupEnabled));
         props.setProperty("backup.password", backupPassword != null ? backupPassword : "");
         props.setProperty("first.start.completed", String.valueOf(firstStartCompleted));
+        props.setProperty("reminder.sleep.enabled", String.valueOf(sleepReminderEnabled));
+        props.setProperty("reminder.sleep.time", sleepReminderTime != null ? sleepReminderTime : "08:00");
+        props.setProperty("reminder.diary.enabled", String.valueOf(diaryReminderEnabled));
+        props.setProperty("reminder.diary.time", diaryReminderTime != null ? diaryReminderTime : "20:00");
+        props.setProperty("reminder.emotion.enabled", String.valueOf(emotionReminderEnabled));
+        props.setProperty("reminder.emotion.count", String.valueOf(emotionReminderCount));
+        props.setProperty("reminder.waking.start", wakingHoursStart != null ? wakingHoursStart : "07:00");
+        props.setProperty("reminder.waking.end", wakingHoursEnd != null ? wakingHoursEnd : "22:00");
         try (FileOutputStream fos = new FileOutputStream(configFile)) {
             props.store(fos, "Habit Evaluator Storage Configuration");
         } catch (IOException e) {
@@ -224,6 +264,70 @@ public class StorageConfig {
 
     public void setFirstStartCompleted(boolean firstStartCompleted) {
         this.firstStartCompleted = firstStartCompleted;
+    }
+
+    public boolean isSleepReminderEnabled() {
+        return sleepReminderEnabled;
+    }
+
+    public void setSleepReminderEnabled(boolean sleepReminderEnabled) {
+        this.sleepReminderEnabled = sleepReminderEnabled;
+    }
+
+    public String getSleepReminderTime() {
+        return sleepReminderTime;
+    }
+
+    public void setSleepReminderTime(String sleepReminderTime) {
+        this.sleepReminderTime = sleepReminderTime;
+    }
+
+    public boolean isDiaryReminderEnabled() {
+        return diaryReminderEnabled;
+    }
+
+    public void setDiaryReminderEnabled(boolean diaryReminderEnabled) {
+        this.diaryReminderEnabled = diaryReminderEnabled;
+    }
+
+    public String getDiaryReminderTime() {
+        return diaryReminderTime;
+    }
+
+    public void setDiaryReminderTime(String diaryReminderTime) {
+        this.diaryReminderTime = diaryReminderTime;
+    }
+
+    public boolean isEmotionReminderEnabled() {
+        return emotionReminderEnabled;
+    }
+
+    public void setEmotionReminderEnabled(boolean emotionReminderEnabled) {
+        this.emotionReminderEnabled = emotionReminderEnabled;
+    }
+
+    public int getEmotionReminderCount() {
+        return emotionReminderCount;
+    }
+
+    public void setEmotionReminderCount(int emotionReminderCount) {
+        this.emotionReminderCount = emotionReminderCount;
+    }
+
+    public String getWakingHoursStart() {
+        return wakingHoursStart;
+    }
+
+    public void setWakingHoursStart(String wakingHoursStart) {
+        this.wakingHoursStart = wakingHoursStart;
+    }
+
+    public String getWakingHoursEnd() {
+        return wakingHoursEnd;
+    }
+
+    public void setWakingHoursEnd(String wakingHoursEnd) {
+        this.wakingHoursEnd = wakingHoursEnd;
     }
 
     private static final List<String> SUPPORTED_LANGUAGES = Arrays.asList("en", "de", "es", "fr");

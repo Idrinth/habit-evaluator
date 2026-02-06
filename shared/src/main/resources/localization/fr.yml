@@ -101,6 +101,22 @@ settings:
   custom_translations: "Traductions personnalisées"
   custom_translations_label: "Activer les traductions personnalisées des habitudes"
 
+reminders:
+  settings_title: "Paramètres de rappels"
+  sleep_label: "Me rappeler d'enregistrer les données de sommeil"
+  sleep_time_label: "Heure du rappel sommeil"
+  diary_label: "Me rappeler si aucune entrée de journal aujourd'hui"
+  diary_time_label: "Heure du rappel journal"
+  emotion_label: "Rappels aléatoires d'état émotionnel"
+  emotion_count_label: "Rappels par jour"
+  waking_hours_label: "Heures d'éveil"
+  sleep_notification_title: "Enregistrer votre sommeil"
+  sleep_notification_text: "N'oubliez pas d'enregistrer vos données de sommeil de la nuit dernière."
+  diary_notification_title: "Journal de positivité"
+  diary_notification_text: "Vous n'avez pas ajouté d'entrée de journal aujourd'hui. Des moments positifs à noter ?"
+  emotion_notification_title: "Comment vous sentez-vous ?"
+  emotion_notification_text: "Prenez un moment pour enregistrer votre état émotionnel actuel."
+
 first_start:
   title: "Bienvenue sur Habit Evaluator"
   not_professional_help: "Cette application est un outil de suivi personnel et ne remplace pas une aide médicale ou psychologique professionnelle. Si vous avez besoin de soutien, veuillez consulter un professionnel qualifié."

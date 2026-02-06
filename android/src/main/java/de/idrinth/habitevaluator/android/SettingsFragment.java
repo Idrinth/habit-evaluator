@@ -2,6 +2,7 @@ package de.idrinth.habitevaluator.android;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -11,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.SeekBar;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -142,6 +144,36 @@ public class SettingsFragment extends Fragment {
         boolean customTranslations = prefs.getBoolean(SettingsActivity.KEY_CUSTOM_TRANSLATIONS, false);
         binding.customTranslationsSwitch.setChecked(customTranslations);
 
+        // Reminder settings
+        boolean sleepReminder = prefs.getBoolean(SettingsActivity.KEY_SLEEP_REMINDER_ENABLED, false);
+        binding.sleepReminderSwitch.setChecked(sleepReminder);
+        binding.sleepReminderPanel.setVisibility(sleepReminder ? View.VISIBLE : View.GONE);
+        String sleepTime = prefs.getString(SettingsActivity.KEY_SLEEP_REMINDER_TIME,
+                SettingsActivity.DEFAULT_SLEEP_REMINDER_TIME);
+        binding.sleepReminderTimeButton.setText(sleepTime);
+
+        boolean diaryReminder = prefs.getBoolean(SettingsActivity.KEY_DIARY_REMINDER_ENABLED, false);
+        binding.diaryReminderSwitch.setChecked(diaryReminder);
+        binding.diaryReminderPanel.setVisibility(diaryReminder ? View.VISIBLE : View.GONE);
+        String diaryTime = prefs.getString(SettingsActivity.KEY_DIARY_REMINDER_TIME,
+                SettingsActivity.DEFAULT_DIARY_REMINDER_TIME);
+        binding.diaryReminderTimeButton.setText(diaryTime);
+
+        boolean emotionReminder = prefs.getBoolean(SettingsActivity.KEY_EMOTION_REMINDER_ENABLED, false);
+        binding.emotionReminderSwitch.setChecked(emotionReminder);
+        binding.emotionReminderPanel.setVisibility(emotionReminder ? View.VISIBLE : View.GONE);
+        int emotionCount = prefs.getInt(SettingsActivity.KEY_EMOTION_REMINDER_COUNT,
+                SettingsActivity.DEFAULT_EMOTION_REMINDER_COUNT);
+        binding.emotionReminderCountSeekBar.setProgress(emotionCount);
+        binding.emotionReminderCountLabel.setText(
+                getString(R.string.reminder_emotion_count_label, emotionCount));
+        String wakingStart = prefs.getString(SettingsActivity.KEY_WAKING_HOURS_START,
+                SettingsActivity.DEFAULT_WAKING_HOURS_START);
+        String wakingEnd = prefs.getString(SettingsActivity.KEY_WAKING_HOURS_END,
+                SettingsActivity.DEFAULT_WAKING_HOURS_END);
+        binding.wakingHoursStartButton.setText(wakingStart);
+        binding.wakingHoursEndButton.setText(wakingEnd);
+
         boolean backupEnabled = prefs.getBoolean(SettingsActivity.KEY_BACKUP_ENABLED, false);
         binding.backupEnabledSwitch.setChecked(backupEnabled);
         binding.backupSettingsPanel.setVisibility(backupEnabled ? View.VISIBLE : View.GONE);
@@ -162,6 +194,43 @@ public class SettingsFragment extends Fragment {
         binding.backupEnabledSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
             binding.backupSettingsPanel.setVisibility(isChecked ? View.VISIBLE : View.GONE);
         });
+
+        binding.sleepReminderSwitch.setOnCheckedChangeListener((buttonView, isChecked) ->
+                binding.sleepReminderPanel.setVisibility(isChecked ? View.VISIBLE : View.GONE));
+        binding.diaryReminderSwitch.setOnCheckedChangeListener((buttonView, isChecked) ->
+                binding.diaryReminderPanel.setVisibility(isChecked ? View.VISIBLE : View.GONE));
+        binding.emotionReminderSwitch.setOnCheckedChangeListener((buttonView, isChecked) ->
+                binding.emotionReminderPanel.setVisibility(isChecked ? View.VISIBLE : View.GONE));
+
+        binding.sleepReminderTimeButton.setOnClickListener(v ->
+                showTimePicker(binding.sleepReminderTimeButton.getText().toString(),
+                        (h, m) -> binding.sleepReminderTimeButton.setText(
+                                String.format(java.util.Locale.US, "%02d:%02d", h, m))));
+        binding.diaryReminderTimeButton.setOnClickListener(v ->
+                showTimePicker(binding.diaryReminderTimeButton.getText().toString(),
+                        (h, m) -> binding.diaryReminderTimeButton.setText(
+                                String.format(java.util.Locale.US, "%02d:%02d", h, m))));
+        binding.wakingHoursStartButton.setOnClickListener(v ->
+                showTimePicker(binding.wakingHoursStartButton.getText().toString(),
+                        (h, m) -> binding.wakingHoursStartButton.setText(
+                                String.format(java.util.Locale.US, "%02d:%02d", h, m))));
+        binding.wakingHoursEndButton.setOnClickListener(v ->
+                showTimePicker(binding.wakingHoursEndButton.getText().toString(),
+                        (h, m) -> binding.wakingHoursEndButton.setText(
+                                String.format(java.util.Locale.US, "%02d:%02d", h, m))));
+
+        binding.emotionReminderCountSeekBar.setOnSeekBarChangeListener(
+                new SeekBar.OnSeekBarChangeListener() {
+                    @Override
+                    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                        binding.emotionReminderCountLabel.setText(
+                                getString(R.string.reminder_emotion_count_label, progress));
+                    }
+                    @Override
+                    public void onStartTrackingTouch(SeekBar seekBar) { }
+                    @Override
+                    public void onStopTrackingTouch(SeekBar seekBar) { }
+                });
 
         binding.testConnectionButton.setOnClickListener(v -> testConnection());
         binding.saveSettingsButton.setOnClickListener(v -> saveSettings());
@@ -280,6 +349,24 @@ public class SettingsFragment extends Fragment {
         editor.putString(SettingsActivity.KEY_API_PASSWORD, password);
         editor.putBoolean(SettingsActivity.KEY_CUSTOM_TRANSLATIONS, binding.customTranslationsSwitch.isChecked());
 
+        // Handle reminder settings
+        editor.putBoolean(SettingsActivity.KEY_SLEEP_REMINDER_ENABLED,
+                binding.sleepReminderSwitch.isChecked());
+        editor.putString(SettingsActivity.KEY_SLEEP_REMINDER_TIME,
+                binding.sleepReminderTimeButton.getText().toString());
+        editor.putBoolean(SettingsActivity.KEY_DIARY_REMINDER_ENABLED,
+                binding.diaryReminderSwitch.isChecked());
+        editor.putString(SettingsActivity.KEY_DIARY_REMINDER_TIME,
+                binding.diaryReminderTimeButton.getText().toString());
+        editor.putBoolean(SettingsActivity.KEY_EMOTION_REMINDER_ENABLED,
+                binding.emotionReminderSwitch.isChecked());
+        editor.putInt(SettingsActivity.KEY_EMOTION_REMINDER_COUNT,
+                binding.emotionReminderCountSeekBar.getProgress());
+        editor.putString(SettingsActivity.KEY_WAKING_HOURS_START,
+                binding.wakingHoursStartButton.getText().toString());
+        editor.putString(SettingsActivity.KEY_WAKING_HOURS_END,
+                binding.wakingHoursEndButton.getText().toString());
+
         // Handle backup settings
         if (binding.backupEnabledSwitch.isChecked()) {
             String backupPassword = binding.backupPasswordInput.getText().toString();
@@ -304,11 +391,30 @@ public class SettingsFragment extends Fragment {
         editor.apply();
         SettingsActivity.applyThemeMode(themeMode);
         SettingsActivity.applyLanguage(language);
+        ReminderScheduler.rescheduleAll(requireContext());
         Toast.makeText(requireContext(), R.string.settings_saved, Toast.LENGTH_SHORT).show();
 
         if (getActivity() instanceof MainActivity) {
             ((MainActivity) getActivity()).onSettingsChanged();
         }
+    }
+
+    private void showTimePicker(String currentTime, TimePickerCallback callback) {
+        int hour = 8;
+        int minute = 0;
+        try {
+            String[] parts = currentTime.split(":");
+            hour = Integer.parseInt(parts[0]);
+            minute = Integer.parseInt(parts[1]);
+        } catch (Exception ignored) {
+        }
+        new TimePickerDialog(requireContext(),
+                (view, hourOfDay, minuteOfHour) -> callback.onTimeSet(hourOfDay, minuteOfHour),
+                hour, minute, true).show();
+    }
+
+    private interface TimePickerCallback {
+        void onTimeSet(int hour, int minute);
     }
 
     private void restoreBackup() {

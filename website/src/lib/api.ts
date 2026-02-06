@@ -434,3 +434,26 @@ export const defaults = {
 		});
 	}
 };
+
+export interface ReminderSettings {
+	sleepReminderEnabled: boolean;
+	sleepReminderTime: string | null;
+	diaryReminderEnabled: boolean;
+	diaryReminderTime: string | null;
+	emotionReminderEnabled: boolean;
+	emotionReminderCount: number;
+	wakingHoursStart: string | null;
+	wakingHoursEnd: string | null;
+}
+
+export const reminderSettings = {
+	get() {
+		return request<ReminderSettings>('/reminder-settings');
+	},
+	update(settings: ReminderSettings) {
+		return request<ReminderSettings>('/reminder-settings', {
+			method: 'PUT',
+			body: JSON.stringify(settings)
+		});
+	}
+};

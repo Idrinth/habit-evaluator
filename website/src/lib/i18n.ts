@@ -98,7 +98,8 @@ const translations: Record<Language, Record<string, string>> = {
 		'correlations.noData': 'No correlations found. You need at least 7 days of overlapping data between two tracked events.',
 		'correlations.disclaimer': 'Correlation does not imply causation. Weak correlations (|r| < 0.3) have low statistical confidence and should be interpreted with caution.',
 		'correlations.backToStats': 'Back to Statistics',
-		'nav.correlations': 'Correlations'
+		'nav.correlations': 'Correlations',
+		'nav.settings': 'Settings'
 	},
 	de: {
 		'nav.home': 'Start',
@@ -190,7 +191,8 @@ const translations: Record<Language, Record<string, string>> = {
 		'correlations.noData': 'Keine Korrelationen gefunden. Es werden mindestens 7 Tage überlappende Daten zwischen zwei Ereignissen benötigt.',
 		'correlations.disclaimer': 'Korrelation bedeutet nicht Kausalität. Schwache Korrelationen (|r| < 0,3) haben eine niedrige statistische Konfidenz und sollten mit Vorsicht interpretiert werden.',
 		'correlations.backToStats': 'Zurück zu Statistiken',
-		'nav.correlations': 'Korrelationen'
+		'nav.correlations': 'Korrelationen',
+		'nav.settings': 'Einstellungen'
 	},
 	es: {
 		'nav.home': 'Inicio',
@@ -282,7 +284,8 @@ const translations: Record<Language, Record<string, string>> = {
 		'correlations.noData': 'No se encontraron correlaciones. Se necesitan al menos 7 d\u00edas de datos superpuestos entre dos eventos.',
 		'correlations.disclaimer': 'Correlaci\u00f3n no implica causalidad. Las correlaciones d\u00e9biles (|r| < 0,3) tienen baja confianza estad\u00edstica y deben interpretarse con precauci\u00f3n.',
 		'correlations.backToStats': 'Volver a Estad\u00edsticas',
-		'nav.correlations': 'Correlaciones'
+		'nav.correlations': 'Correlaciones',
+		'nav.settings': 'Ajustes'
 	},
 	fr: {
 		'nav.home': 'Accueil',
@@ -374,7 +377,8 @@ const translations: Record<Language, Record<string, string>> = {
 		'correlations.noData': 'Aucune corr\u00e9lation trouv\u00e9e. Il faut au moins 7 jours de donn\u00e9es communes entre deux \u00e9v\u00e9nements.',
 		'correlations.disclaimer': 'Corr\u00e9lation n\'implique pas causalit\u00e9. Les corr\u00e9lations faibles (|r| < 0,3) ont une faible confiance statistique et doivent \u00eatre interpr\u00e9t\u00e9es avec prudence.',
 		'correlations.backToStats': 'Retour aux Statistiques',
-		'nav.correlations': 'Corr\u00e9lations'
+		'nav.correlations': 'Corr\u00e9lations',
+		'nav.settings': 'Param\u00e8tres'
 	}
 };
 

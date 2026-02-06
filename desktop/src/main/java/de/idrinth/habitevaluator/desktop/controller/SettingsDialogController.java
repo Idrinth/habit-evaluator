@@ -18,9 +18,12 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.RadioButton;
+import javafx.scene.control.Spinner;
+import javafx.scene.control.SpinnerValueFactory;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.ToggleGroup;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -116,6 +119,39 @@ public class SettingsDialogController {
     @FXML
     private Label restoreFromFileStatusLabel;
 
+    @FXML
+    private CheckBox sleepReminderCheckBox;
+
+    @FXML
+    private HBox sleepReminderTimePane;
+
+    @FXML
+    private TextField sleepReminderTimeField;
+
+    @FXML
+    private CheckBox diaryReminderCheckBox;
+
+    @FXML
+    private HBox diaryReminderTimePane;
+
+    @FXML
+    private TextField diaryReminderTimeField;
+
+    @FXML
+    private CheckBox emotionReminderCheckBox;
+
+    @FXML
+    private VBox emotionReminderPane;
+
+    @FXML
+    private Spinner<Integer> emotionReminderCountSpinner;
+
+    @FXML
+    private TextField wakingHoursStartField;
+
+    @FXML
+    private TextField wakingHoursEndField;
+
     private StorageConfig storageConfig;
     private boolean saved;
     private final BackupService backupService = new BackupService();
@@ -134,6 +170,17 @@ public class SettingsDialogController {
         backupEnabledCheckBox.selectedProperty().addListener((obs, oldVal, newVal) -> {
             backupSettingsPane.setDisable(!newVal);
         });
+        sleepReminderCheckBox.selectedProperty().addListener((obs, oldVal, newVal) -> {
+            sleepReminderTimePane.setDisable(!newVal);
+        });
+        diaryReminderCheckBox.selectedProperty().addListener((obs, oldVal, newVal) -> {
+            diaryReminderTimePane.setDisable(!newVal);
+        });
+        emotionReminderCheckBox.selectedProperty().addListener((obs, oldVal, newVal) -> {
+            emotionReminderPane.setDisable(!newVal);
+        });
+        emotionReminderCountSpinner.setValueFactory(
+                new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 10, 3));
     }
 
     public void setStorageConfig(StorageConfig config) {
@@ -177,6 +224,20 @@ public class SettingsDialogController {
         backupSettingsPane.setDisable(!config.isBackupEnabled());
         backupPasswordField.setText(config.getBackupPassword());
         backupPasswordConfirmField.setText(config.getBackupPassword());
+
+        sleepReminderCheckBox.setSelected(config.isSleepReminderEnabled());
+        sleepReminderTimePane.setDisable(!config.isSleepReminderEnabled());
+        sleepReminderTimeField.setText(config.getSleepReminderTime());
+
+        diaryReminderCheckBox.setSelected(config.isDiaryReminderEnabled());
+        diaryReminderTimePane.setDisable(!config.isDiaryReminderEnabled());
+        diaryReminderTimeField.setText(config.getDiaryReminderTime());
+
+        emotionReminderCheckBox.setSelected(config.isEmotionReminderEnabled());
+        emotionReminderPane.setDisable(!config.isEmotionReminderEnabled());
+        emotionReminderCountSpinner.getValueFactory().setValue(config.getEmotionReminderCount());
+        wakingHoursStartField.setText(config.getWakingHoursStart());
+        wakingHoursEndField.setText(config.getWakingHoursEnd());
     }
 
     @FXML
@@ -290,6 +351,15 @@ public class SettingsDialogController {
             storageConfig.setBackupEnabled(false);
             storageConfig.setBackupPassword("");
         }
+
+        storageConfig.setSleepReminderEnabled(sleepReminderCheckBox.isSelected());
+        storageConfig.setSleepReminderTime(sleepReminderTimeField.getText());
+        storageConfig.setDiaryReminderEnabled(diaryReminderCheckBox.isSelected());
+        storageConfig.setDiaryReminderTime(diaryReminderTimeField.getText());
+        storageConfig.setEmotionReminderEnabled(emotionReminderCheckBox.isSelected());
+        storageConfig.setEmotionReminderCount(emotionReminderCountSpinner.getValue());
+        storageConfig.setWakingHoursStart(wakingHoursStartField.getText());
+        storageConfig.setWakingHoursEnd(wakingHoursEndField.getText());
 
         storageConfig.save();
         saved = true;
