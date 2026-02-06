@@ -24,6 +24,7 @@ const mockStats = {
 	weekPoints: 10,
 	monthPoints: 24,
 	weeklyAverage: 8.5,
+	dailyAverage: 1.2,
 	monthlyTrend: 0.15
 };
 
@@ -76,6 +77,7 @@ describe('Diary Page', () => {
 			expect(screen.getByText('This Week')).toBeInTheDocument();
 			expect(screen.getByText('This Month')).toBeInTheDocument();
 			expect(screen.getByText('Weekly Avg')).toBeInTheDocument();
+			expect(screen.getByText('Daily Avg')).toBeInTheDocument();
 			expect(screen.getByText('Trend')).toBeInTheDocument();
 		});
 	});
@@ -88,6 +90,7 @@ describe('Diary Page', () => {
 			expect(screen.getByText('10')).toBeInTheDocument(); // weekPoints
 			expect(screen.getByText('24')).toBeInTheDocument(); // monthPoints
 			expect(screen.getByText('8.5')).toBeInTheDocument(); // weeklyAverage
+			expect(screen.getByText('1.2')).toBeInTheDocument(); // dailyAverage
 			expect(screen.getByText('+15%')).toBeInTheDocument(); // monthlyTrend
 		});
 	});
