@@ -1,1 +1,1 @@
-Une app de suivi de valeurs d'intérêt pour professionnels de santé mentale
+A small app to help you track values of interest for mental health professionals
