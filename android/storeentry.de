@@ -1,0 +1,14 @@
+Diese App versucht, Ihnen Werkzeuge zur Verfügung zu stellen, mit denen Sie Ihren psychischen Zustand verfolgen und dokumentieren können – zur Nutzung durch Fachleute für psychische Gesundheit und Sie selbst.
+
+Die App kann mit einem entfernten Server verbunden werden, teilt aber standardmäßig keine Daten. Daten werden lokal gespeichert und ausgewertet.
+
+Der Quellcode ist auf GitHub unter https://github.com/Idrinth/habit-evaluator verfügbar, falls Sie interessiert sind.
+
+Enthaltene Werkzeuge sind:
+- Gewohnheitstracker
+- Schlafprotokoll
+- Protokoll des emotionalen Zustands
+- Positivitätstagebuch
+- PDF-Export
+
+Diese werden lokal ausgewertet, um einen frühen Blick auf mögliche Veränderungen zu ermöglichen. Diese App versucht nicht und schafft es nicht, Fachleute zu ersetzen – holen Sie sich unbedingt Hilfe, wenn Sie welche brauchen!

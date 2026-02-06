@@ -1,0 +1,14 @@
+Cette application essaie de vous fournir des outils pour vous aider à suivre et documenter votre état mental, à l'usage des professionnels de la santé mentale et de vous-même.
+
+L'application peut être connectée à un serveur distant, mais par défaut, elle ne partage aucune donnée. Les données sont stockées et analysées localement.
+
+Le code est disponible sur GitHub à l'adresse https://github.com/Idrinth/habit-evaluator si cela vous intéresse.
+
+Les outils inclus sont :
+- suivi des habitudes
+- journal du sommeil
+- journal de l'état émotionnel
+- journal de positivité
+- export PDF
+
+Ces données sont évaluées localement pour fournir un aperçu précoce des changements potentiels. Cette application n'essaie pas et ne réussit pas à remplacer les professionnels, assurez-vous d'obtenir de l'aide si vous en avez besoin !
