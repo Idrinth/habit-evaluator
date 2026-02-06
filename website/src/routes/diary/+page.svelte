@@ -91,11 +91,11 @@
 					<span class="stat-label">This Month</span>
 				</div>
 				<div class="stat-card">
-					<span class="stat-value">{stats.weeklyAverage.toFixed(1)}</span>
+					<span class="stat-value">{(stats.weeklyAverage ?? 0).toFixed(1)}</span>
 					<span class="stat-label">Weekly Avg</span>
 				</div>
 				<div class="stat-card">
-					<span class="stat-value">{stats.dailyAverage.toFixed(1)}</span>
+					<span class="stat-value">{(stats.dailyAverage ?? 0).toFixed(1)}</span>
 					<span class="stat-label">Daily Avg</span>
 				</div>
 				<div class="stat-card">
