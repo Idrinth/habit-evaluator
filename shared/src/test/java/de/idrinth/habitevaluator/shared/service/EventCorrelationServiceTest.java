@@ -303,6 +303,36 @@ class EventCorrelationServiceTest {
     }
 
     @Test
+    void testSleepUsesUntilTimeForWakeUpProximity() {
+        LocalDate today = LocalDate.now();
+
+        // Morning habit at 6:30, sleep until 6:00 (wake-up is next day due to midnight crossing)
+        Habit habit = new Habit("Morning jog", "Test");
+        List<SleepEntry> sleepEntries = new ArrayList<>();
+
+        for (int i = 0; i < 30; i++) {
+            LocalDate date = today.minusDays(i);
+
+            HabitEntry he = new HabitEntry();
+            he.setCompletedAt(date.atTime(6, 30));
+            habit.addEntry(he);
+
+            // Sleep 22:00-06:00 recorded on the previous day; wake-up is on 'date'
+            // so fromTime=22:00 is far from 6:30, but untilTime crosses midnight to 06:00
+            // which is only 30 min from the habit
+            LocalDate sleepDate = date.minusDays(1);
+            SleepEntry se = new SleepEntry(LocalTime.of(22, 0), LocalTime.of(6, 0), sleepDate);
+            sleepEntries.add(se);
+        }
+
+        List<EventCorrelation> result = service.calculateCorrelations(
+                List.of(habit), new ArrayList<>(), sleepEntries, new ArrayList<>());
+
+        // Wake-up time (06:00 next day) should be within 2h of morning habit (06:30)
+        assertFalse(result.isEmpty());
+    }
+
+    @Test
     void testEmotionProximityWithHabit() {
         LocalDate today = LocalDate.now();
 

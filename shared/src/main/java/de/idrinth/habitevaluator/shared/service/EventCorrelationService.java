@@ -106,16 +106,26 @@ public class EventCorrelationService {
                 if (sleepTs[dayIndex] == null) {
                     sleepTs[dayIndex] = new ArrayList<>();
                 }
-                // Use date + fromTime as timestamp, fall back to createdAt
-                LocalDateTime timestamp;
+                // Use both fromTime (sleep start) and untilTime (wake-up) so
+                // correlations with events near either boundary are captured.
                 if (entry.getFromTime() != null) {
-                    timestamp = entryDate.atTime(entry.getFromTime());
-                } else if (entry.getCreatedAt() != null) {
-                    timestamp = entry.getCreatedAt();
-                } else {
-                    timestamp = entryDate.atStartOfDay();
+                    sleepTs[dayIndex].add(entryDate.atTime(entry.getFromTime()));
                 }
-                sleepTs[dayIndex].add(timestamp);
+                if (entry.getUntilTime() != null) {
+                    LocalDateTime wakeUp = entryDate.atTime(entry.getUntilTime());
+                    // Handle midnight crossing: if untilTime <= fromTime, wake-up is next day
+                    if (entry.getFromTime() != null
+                            && !entry.getUntilTime().isAfter(entry.getFromTime())) {
+                        wakeUp = entryDate.plusDays(1).atTime(entry.getUntilTime());
+                    }
+                    sleepTs[dayIndex].add(wakeUp);
+                }
+                // Fall back to createdAt when neither time is available
+                if (entry.getFromTime() == null && entry.getUntilTime() == null) {
+                    sleepTs[dayIndex].add(entry.getCreatedAt() != null
+                            ? entry.getCreatedAt()
+                            : entryDate.atStartOfDay());
+                }
             }
         }
         eventSignals.put("Sleep Hours", sleepSignal);
