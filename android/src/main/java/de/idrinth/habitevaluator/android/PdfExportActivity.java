@@ -709,13 +709,24 @@ public class PdfExportActivity extends AppCompatActivity {
                 pageNumber++;
                 yPosition = MARGIN;
             }
+            double absCorr = Math.abs(corr.getCorrelation());
+            String confidence;
+            if (absCorr >= 0.5) {
+                confidence = getString(R.string.stats_confidence_strong);
+            } else if (absCorr >= 0.3) {
+                confidence = getString(R.string.stats_confidence_moderate);
+            } else {
+                confidence = getString(R.string.stats_confidence_weak);
+            }
             String line = corr.getEventA() + " \u2194 " + corr.getEventB()
                     + "  " + String.format("%+.3f", corr.getCorrelation())
-                    + "  (" + corr.getSharedDays() + " days)";
-            if (line.length() > 85) {
-                line = line.substring(0, 82) + "...";
+                    + "  (" + corr.getSharedDays() + " days)"
+                    + "  [" + confidence + "]";
+            if (line.length() > 95) {
+                line = line.substring(0, 92) + "...";
             }
-            commands.add(new TextCommand(line, MARGIN + 10, yPosition, 10f, Color.DKGRAY));
+            int textColor = absCorr < 0.3 ? Color.LTGRAY : Color.DKGRAY;
+            commands.add(new TextCommand(line, MARGIN + 10, yPosition, 10f, textColor));
             yPosition += 14;
         }
         yPosition += 10;

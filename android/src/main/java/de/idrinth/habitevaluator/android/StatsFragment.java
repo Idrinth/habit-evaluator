@@ -351,10 +351,25 @@ public class StatsFragment extends Fragment {
 
         binding.correlationCard.setVisibility(View.VISIBLE);
 
+        // Add disclaimer
+        TextView disclaimer = new TextView(requireContext());
+        disclaimer.setText(getString(R.string.stats_correlation_disclaimer));
+        disclaimer.setTextSize(11);
+        disclaimer.setTextColor(0xFF9E9E9E);
+        disclaimer.setPadding(0, 0, 0, 12);
+        binding.correlationContainer.addView(disclaimer);
+
         for (EventCorrelation corr : correlations) {
             LinearLayout row = new LinearLayout(requireContext());
             row.setOrientation(LinearLayout.HORIZONTAL);
             row.setPadding(0, 8, 0, 8);
+
+            double absCorr = Math.abs(corr.getCorrelation());
+            boolean isWeak = absCorr < 0.3;
+
+            if (isWeak) {
+                row.setAlpha(0.6f);
+            }
 
             TextView events = new TextView(requireContext());
             events.setLayoutParams(new LinearLayout.LayoutParams(
@@ -362,6 +377,24 @@ public class StatsFragment extends Fragment {
             events.setText(corr.getEventA() + " \u2194 " + corr.getEventB());
             events.setTextSize(13);
             row.addView(events);
+
+            TextView confidence = new TextView(requireContext());
+            confidence.setLayoutParams(new LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+            if (absCorr >= 0.5) {
+                confidence.setText(getString(R.string.stats_confidence_strong));
+                confidence.setTextColor(0xFF4CAF50);
+            } else if (absCorr >= 0.3) {
+                confidence.setText(getString(R.string.stats_confidence_moderate));
+                confidence.setTextColor(0xFFFF9800);
+            } else {
+                confidence.setText(getString(R.string.stats_confidence_weak));
+                confidence.setTextColor(0xFF9E9E9E);
+            }
+            confidence.setTextSize(11);
+            confidence.setPadding(8, 0, 8, 0);
+            confidence.setGravity(Gravity.END);
+            row.addView(confidence);
 
             TextView value = new TextView(requireContext());
             value.setLayoutParams(new LinearLayout.LayoutParams(

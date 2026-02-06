@@ -224,6 +224,10 @@
     <string name="stats_emotion_scatter_desc">Emotion recordings over the past 30 days</string>
     <string name="stats_correlations_title">Event Correlations (Yearly, Time-Weighted)</string>
     <string name="stats_no_correlations">Not enough data for correlations</string>
+    <string name="stats_correlation_disclaimer">Correlation does not imply causation. Weak correlations (|r| &lt; 0.3) have low statistical confidence and should be interpreted with caution.</string>
+    <string name="stats_confidence_strong">Strong</string>
+    <string name="stats_confidence_moderate">Moderate</string>
+    <string name="stats_confidence_weak">Weak</string>
     <string name="pdf_include_emotions">Emotion measurements and graph</string>
     <string name="pdf_section_emotions">Emotions</string>
     <string name="pdf_scatter_chart_title">Daytime Emotion Distribution</string>
