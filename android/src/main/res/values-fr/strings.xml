@@ -96,6 +96,7 @@
     <string name="diary_week_points">Semaine : %d pts</string>
     <string name="diary_month_points">Mois : %d pts</string>
     <string name="diary_weekly_avg">Moy. hebdo. : %.1f pts</string>
+    <string name="diary_daily_avg">Daily avg: %.1f pts</string>
     <string name="diary_trend_up">Tendance : +%.0f%%</string>
     <string name="diary_trend_down">Tendance : -%.0f%%</string>
     <string name="diary_trend_stable">Tendance : stable</string>
