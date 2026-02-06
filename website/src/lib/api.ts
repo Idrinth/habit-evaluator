@@ -283,6 +283,31 @@ export const pdfExport = {
 	}
 };
 
+export const backup = {
+	async download(password: string) {
+		const query = new URLSearchParams({ password });
+		const response = await fetch(`${getApiBaseUrl()}/backup?${query.toString()}`);
+		if (!response.ok) {
+			throw new Error(`Backup download failed with status ${response.status}`);
+		}
+		return response.blob();
+	},
+	async upload(file: File, password: string) {
+		const formData = new FormData();
+		formData.append('file', file);
+		formData.append('password', password);
+		const response = await fetch(`${getApiBaseUrl()}/backup`, {
+			method: 'POST',
+			body: formData
+		});
+		if (!response.ok) {
+			const body = await response.json().catch(() => null);
+			throw new Error(body?.message || `Backup upload failed with status ${response.status}`);
+		}
+		return response.json();
+	}
+};
+
 export interface DiaryEntry {
 	id: string;
 	description: string;

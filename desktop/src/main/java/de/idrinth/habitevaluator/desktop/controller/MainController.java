@@ -14,6 +14,8 @@ import de.idrinth.habitevaluator.shared.api.StorageConfig;
 import de.idrinth.habitevaluator.shared.api.SyncService;
 import de.idrinth.habitevaluator.shared.backup.BackupException;
 import de.idrinth.habitevaluator.shared.backup.BackupService;
+import de.idrinth.habitevaluator.shared.backup.HezBackupService;
+import de.idrinth.habitevaluator.shared.backup.MergeResult;
 import de.idrinth.habitevaluator.shared.model.DiaryEntry;
 import de.idrinth.habitevaluator.shared.model.Evaluation;
 import de.idrinth.habitevaluator.shared.model.EventSignificance;
@@ -48,6 +50,7 @@ import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.geometry.Side;
+import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import com.google.gson.reflect.TypeToken;
@@ -180,6 +183,7 @@ public class MainController {
     private final HabitScoringService scoringService = new HabitScoringService();
     private final DiaryService diaryService = new DiaryService();
     private final BackupService backupService = new BackupService();
+    private final HezBackupService hezBackupService = new HezBackupService();
     private final StorageConfig storageConfig = new StorageConfig(new File(CONFIG_FILE));
 
     private HabitRepository habitRepository;
@@ -1347,6 +1351,94 @@ public class MainController {
         diaryDatePicker.setValue(LocalDate.now());
         diarySignificanceComboBox.getSelectionModel().select(1);
         loadDiaryEntries();
+    }
+
+    @FXML
+    private void handleExportHezBackup() {
+        TextInputDialog passwordDialog = new TextInputDialog();
+        passwordDialog.setTitle("Export Backup");
+        passwordDialog.setHeaderText("Enter a password to encrypt the backup");
+        passwordDialog.setContentText("Password:");
+        passwordDialog.showAndWait().ifPresent(password -> {
+            if (password.isEmpty()) {
+                showAlert("Error", "Password must not be empty");
+                return;
+            }
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.setTitle("Save Backup File");
+            fileChooser.getExtensionFilters().add(
+                    new FileChooser.ExtensionFilter("HEZ Backup Files", "*.hez"));
+            fileChooser.setInitialFileName(hezBackupService.generateDefaultFilename());
+            Stage stage = (Stage) habitListView.getScene().getWindow();
+            File file = fileChooser.showSaveDialog(stage);
+            if (file != null) {
+                new Thread(() -> {
+                    try {
+                        hezBackupService.createHezBackupToFile(file, password, currentUser,
+                                habitRepository, categoryRepository,
+                                diaryEntryRepository, sleepEntryRepository);
+                        Platform.runLater(() -> {
+                            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                            alert.setTitle("Export Backup");
+                            alert.setHeaderText(null);
+                            alert.setContentText("Backup exported successfully.");
+                            alert.showAndWait();
+                        });
+                    } catch (BackupException e) {
+                        Platform.runLater(() ->
+                                showAlert("Export Error", "Backup export failed: " + e.getMessage()));
+                    }
+                }).start();
+            }
+        });
+    }
+
+    @FXML
+    private void handleImportHezBackup() {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Open Backup File");
+        fileChooser.getExtensionFilters().add(
+                new FileChooser.ExtensionFilter("HEZ Backup Files", "*.hez"));
+        Stage stage = (Stage) habitListView.getScene().getWindow();
+        File file = fileChooser.showOpenDialog(stage);
+        if (file != null) {
+            TextInputDialog passwordDialog = new TextInputDialog();
+            passwordDialog.setTitle("Import Backup");
+            passwordDialog.setHeaderText("Enter the backup password");
+            passwordDialog.setContentText("Password:");
+            passwordDialog.showAndWait().ifPresent(password -> {
+                if (password.isEmpty()) {
+                    showAlert("Error", "Password must not be empty");
+                    return;
+                }
+                new Thread(() -> {
+                    try {
+                        MergeResult result = hezBackupService.mergeFromHezFile(file, password, currentUser,
+                                habitRepository, categoryRepository,
+                                diaryEntryRepository, sleepEntryRepository);
+                        Platform.runLater(() -> {
+                            loadCategories();
+                            loadHabits();
+                            loadDiaryEntries();
+                            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                            alert.setTitle("Import Backup");
+                            alert.setHeaderText(null);
+                            alert.setContentText("Backup imported successfully.\n"
+                                    + "Categories added: " + result.getCategoriesAdded() + "\n"
+                                    + "Habits added: " + result.getHabitsAdded() + "\n"
+                                    + "Habits merged: " + result.getHabitsMerged() + "\n"
+                                    + "Entries added: " + result.getEntriesAdded() + "\n"
+                                    + "Diary entries added: " + result.getDiaryEntriesAdded() + "\n"
+                                    + "Sleep entries added: " + result.getSleepEntriesAdded());
+                            alert.showAndWait();
+                        });
+                    } catch (BackupException e) {
+                        Platform.runLater(() ->
+                                showAlert("Import Error", "Backup import failed: " + e.getMessage()));
+                    }
+                }).start();
+            });
+        }
     }
 
     private void showAlert(String title, String message) {
