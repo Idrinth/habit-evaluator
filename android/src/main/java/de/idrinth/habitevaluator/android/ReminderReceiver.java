@@ -71,7 +71,7 @@ public class ReminderReceiver extends BroadcastReceiver {
                     context.getString(R.string.reminder_channel_name),
                     NotificationManager.IMPORTANCE_DEFAULT);
             channel.setDescription(context.getString(R.string.reminder_channel_description));
-            NotificationManager manager = context.getSystemService(NotificationManager.class);
+            NotificationManager manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
             if (manager != null) {
                 manager.createNotificationChannel(channel);
             }
@@ -93,7 +93,7 @@ public class ReminderReceiver extends BroadcastReceiver {
                 .setContentIntent(pendingIntent)
                 .setAutoCancel(true);
 
-        NotificationManager manager = context.getSystemService(NotificationManager.class);
+        NotificationManager manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         if (manager != null) {
             manager.notify(notificationId, builder.build());
         }
