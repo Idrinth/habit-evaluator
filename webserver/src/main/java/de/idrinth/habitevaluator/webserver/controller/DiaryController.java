@@ -138,6 +138,7 @@ public class DiaryController {
         stats.put("weekPoints", diaryService.getCurrentWeekPoints(entries));
         stats.put("monthPoints", diaryService.getCurrentMonthPoints(entries));
         stats.put("weeklyAverage", diaryService.getWeeklyAverageForMonth(entries));
+        stats.put("dailyAverage", diaryService.getDailyAverageForMonth(entries));
         stats.put("monthlyTrend", diaryService.getMonthlyTrend(entries));
         return ResponseEntity.ok(stats);
     }

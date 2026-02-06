@@ -101,4 +101,37 @@ class DiaryServiceTest {
         assertEquals(0, service.getPointsInRange(new ArrayList<>(),
                 LocalDate.of(2026, 2, 1), LocalDate.of(2026, 2, 7)));
     }
+
+    @Test
+    void testGetDailyAverageForMonthEmptyList() {
+        assertEquals(0.0, service.getDailyAverageForMonth(new ArrayList<>()));
+    }
+
+    @Test
+    void testGetDailyAverageForMonthWithEntries() {
+        LocalDate today = LocalDate.now();
+        LocalDate monthStart = today.withDayOfMonth(1);
+        long daysElapsed = java.time.temporal.ChronoUnit.DAYS.between(monthStart, today) + 1;
+
+        List<DiaryEntry> entries = new ArrayList<>();
+        // Add entries on the first day of the month
+        entries.add(new DiaryEntry("A", EventSignificance.NORMAL, monthStart));   // 2 pts
+        entries.add(new DiaryEntry("B", EventSignificance.MAJOR, monthStart));    // 4 pts
+        // Total: 6 points over daysElapsed days
+        double expected = 6.0 / daysElapsed;
+        assertEquals(expected, service.getDailyAverageForMonth(entries), 0.001);
+    }
+
+    @Test
+    void testGetDailyAverageForMonthSingleDayMonth() {
+        LocalDate firstOfMonth = LocalDate.now().withDayOfMonth(1);
+        List<DiaryEntry> entries = new ArrayList<>();
+        entries.add(new DiaryEntry("A", EventSignificance.MINOR, firstOfMonth)); // 1 pt
+
+        // If today is the 1st, daysElapsed = 1, so average = 1.0
+        // If today is not the 1st, entries on the 1st still contribute
+        long daysElapsed = java.time.temporal.ChronoUnit.DAYS.between(firstOfMonth, LocalDate.now()) + 1;
+        double expected = 1.0 / daysElapsed;
+        assertEquals(expected, service.getDailyAverageForMonth(entries), 0.001);
+    }
 }

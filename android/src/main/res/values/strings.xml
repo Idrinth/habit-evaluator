@@ -97,6 +97,7 @@
     <string name="diary_week_points">Week: %d pts</string>
     <string name="diary_month_points">Month: %d pts</string>
     <string name="diary_weekly_avg">Weekly avg: %.1f pts</string>
+    <string name="diary_daily_avg">Daily avg: %.1f pts</string>
     <string name="diary_trend_up">Trend: +%.0f%%</string>
     <string name="diary_trend_down">Trend: -%.0f%%</string>
     <string name="diary_trend_stable">Trend: stable</string>

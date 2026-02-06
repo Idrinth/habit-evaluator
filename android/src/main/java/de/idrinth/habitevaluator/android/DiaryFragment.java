@@ -194,6 +194,9 @@ public class DiaryFragment extends Fragment {
         double weeklyAvg = diaryService.getWeeklyAverageForMonth(displayedEntries);
         binding.weeklyAvgText.setText(getString(R.string.diary_weekly_avg, weeklyAvg));
 
+        double dailyAvg = diaryService.getDailyAverageForMonth(displayedEntries);
+        binding.dailyAvgText.setText(getString(R.string.diary_daily_avg, dailyAvg));
+
         double trend = diaryService.getMonthlyTrend(displayedEntries);
         String trendText;
         if (trend > 0.05) {
