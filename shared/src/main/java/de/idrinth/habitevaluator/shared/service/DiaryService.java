@@ -110,4 +110,16 @@ public class DiaryService {
         LocalDate monthStart = today.withDayOfMonth(1);
         return getPointsInRange(entries, monthStart, today);
     }
+
+    /**
+     * Calculates the average points per day for the current month.
+     * Divides total month points by the number of days elapsed (at least 1).
+     */
+    public double getDailyAverageForMonth(List<DiaryEntry> entries) {
+        LocalDate today = LocalDate.now();
+        LocalDate monthStart = today.withDayOfMonth(1);
+        int totalPoints = getPointsInRange(entries, monthStart, today);
+        long daysElapsed = ChronoUnit.DAYS.between(monthStart, today) + 1;
+        return totalPoints / (double) Math.max(1, daysElapsed);
+    }
 }

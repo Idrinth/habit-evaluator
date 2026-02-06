@@ -95,6 +95,10 @@
 					<span class="stat-label">Weekly Avg</span>
 				</div>
 				<div class="stat-card">
+					<span class="stat-value">{stats.dailyAverage.toFixed(1)}</span>
+					<span class="stat-label">Daily Avg</span>
+				</div>
+				<div class="stat-card">
 					<span class="stat-value {stats.monthlyTrend > 0.01 ? 'trend-up' : stats.monthlyTrend < -0.01 ? 'trend-down' : ''}">{formatTrend(stats.monthlyTrend)}</span>
 					<span class="stat-label">Trend</span>
 				</div>

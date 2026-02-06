@@ -321,6 +321,7 @@ export interface DiaryStats {
 	weekPoints: number;
 	monthPoints: number;
 	weeklyAverage: number;
+	dailyAverage: number;
 	monthlyTrend: number;
 }
 
