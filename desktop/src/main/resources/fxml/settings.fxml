@@ -100,6 +100,39 @@
 
     <Separator/>
 
+    <Label text="Reminder Settings" styleClass="section-title"/>
+
+    <CheckBox fx:id="sleepReminderCheckBox" text="Remind me to log sleep data"/>
+
+    <HBox fx:id="sleepReminderTimePane" spacing="10" alignment="CENTER_LEFT" disable="true">
+        <Label text="Reminder time:" prefWidth="100"/>
+        <TextField fx:id="sleepReminderTimeField" prefWidth="80" promptText="08:00" text="08:00"/>
+    </HBox>
+
+    <CheckBox fx:id="diaryReminderCheckBox" text="Remind me if no diary entry today"/>
+
+    <HBox fx:id="diaryReminderTimePane" spacing="10" alignment="CENTER_LEFT" disable="true">
+        <Label text="Reminder time:" prefWidth="100"/>
+        <TextField fx:id="diaryReminderTimeField" prefWidth="80" promptText="20:00" text="20:00"/>
+    </HBox>
+
+    <CheckBox fx:id="emotionReminderCheckBox" text="Random emotion check reminders"/>
+
+    <VBox fx:id="emotionReminderPane" spacing="5" disable="true">
+        <HBox spacing="10" alignment="CENTER_LEFT">
+            <Label text="Reminders/day:" prefWidth="100"/>
+            <Spinner fx:id="emotionReminderCountSpinner" prefWidth="80"/>
+        </HBox>
+        <HBox spacing="10" alignment="CENTER_LEFT">
+            <Label text="Waking hours:" prefWidth="100"/>
+            <TextField fx:id="wakingHoursStartField" prefWidth="80" promptText="07:00" text="07:00"/>
+            <Label text="to"/>
+            <TextField fx:id="wakingHoursEndField" prefWidth="80" promptText="22:00" text="22:00"/>
+        </HBox>
+    </VBox>
+
+    <Separator/>
+
     <Label text="Encrypted Backups" styleClass="section-title"/>
 
     <CheckBox fx:id="backupEnabledCheckBox" text="Enable daily encrypted backups"/>

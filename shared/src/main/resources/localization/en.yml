@@ -101,6 +101,22 @@ settings:
   custom_translations: "Custom Translations"
   custom_translations_label: "Enable custom habit translations"
 
+reminders:
+  settings_title: "Reminder Settings"
+  sleep_label: "Remind me to log sleep data"
+  sleep_time_label: "Sleep reminder time"
+  diary_label: "Remind me if no diary entry today"
+  diary_time_label: "Diary reminder time"
+  emotion_label: "Random emotion check reminders"
+  emotion_count_label: "Reminders per day"
+  waking_hours_label: "Waking hours"
+  sleep_notification_title: "Log your sleep"
+  sleep_notification_text: "Don't forget to record last night's sleep data."
+  diary_notification_title: "Positivity diary"
+  diary_notification_text: "You haven't added a diary entry today. Any positive moments to record?"
+  emotion_notification_title: "How are you feeling?"
+  emotion_notification_text: "Take a moment to record your current emotional state."
+
 first_start:
   title: "Welcome to Habit Evaluator"
   not_professional_help: "This app is a self-tracking tool and does not replace professional medical or psychological help. If you are struggling, please reach out to a qualified professional."

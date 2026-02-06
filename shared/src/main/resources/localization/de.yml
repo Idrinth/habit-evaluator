@@ -101,6 +101,22 @@ settings:
   custom_translations: "Benutzerdefinierte Übersetzungen"
   custom_translations_label: "Benutzerdefinierte Gewohnheitsübersetzungen aktivieren"
 
+reminders:
+  settings_title: "Erinnerungseinstellungen"
+  sleep_label: "An Schlafprotokoll erinnern"
+  sleep_time_label: "Erinnerungszeit Schlaf"
+  diary_label: "Erinnern wenn kein Tagebucheintrag heute"
+  diary_time_label: "Erinnerungszeit Tagebuch"
+  emotion_label: "Zufällige Emotionserinnerungen"
+  emotion_count_label: "Erinnerungen pro Tag"
+  waking_hours_label: "Wachstunden"
+  sleep_notification_title: "Schlaf protokollieren"
+  sleep_notification_text: "Vergiss nicht, die Schlafdaten von letzter Nacht einzutragen."
+  diary_notification_title: "Positivitätstagebuch"
+  diary_notification_text: "Du hast heute noch keinen Tagebucheintrag gemacht. Gibt es positive Momente?"
+  emotion_notification_title: "Wie fühlst du dich?"
+  emotion_notification_text: "Nimm dir einen Moment um deinen aktuellen Gefühlszustand festzuhalten."
+
 first_start:
   title: "Willkommen bei Habit Evaluator"
   not_professional_help: "Diese App ist ein Selbstbeobachtungswerkzeug und ersetzt keine professionelle medizinische oder psychologische Hilfe. Wenn Sie Unterstützung brauchen, wenden Sie sich bitte an eine qualifizierte Fachperson."

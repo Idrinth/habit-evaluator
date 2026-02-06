@@ -20,6 +20,7 @@ public class HabitEvaluatorDesktopApp extends Application {
 
     private static final String CONFIG_FILE = System.getProperty("user.home") + "/.habit-evaluator/storage.properties";
     private MainController mainController;
+    private ReminderService reminderService;
 
     @Override
     public void start(Stage primaryStage) throws IOException {
@@ -42,6 +43,10 @@ public class HabitEvaluatorDesktopApp extends Application {
         primaryStage.setTitle("Habit Evaluator");
         primaryStage.setScene(scene);
         primaryStage.show();
+
+        StorageConfig reminderConfig = new StorageConfig(new File(CONFIG_FILE));
+        reminderService = new ReminderService(reminderConfig);
+        reminderService.reschedule();
     }
 
     private boolean shouldUseDarkMode() {
@@ -118,6 +123,10 @@ public class HabitEvaluatorDesktopApp extends Application {
 
     @Override
     public void stop() {
+        // Stop reminder scheduler
+        if (reminderService != null) {
+            reminderService.stop();
+        }
         // Sync remote data and save local backup before shutdown
         if (mainController != null) {
             mainController.shutdown();

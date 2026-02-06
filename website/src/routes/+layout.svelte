@@ -77,6 +77,7 @@
 		<a href="/stats">{t('nav.stats', lang)}</a>
 		<a href="/export/pdf">{t('nav.exportPdf', lang)}</a>
 		<a href="/backup">{t('nav.backup', lang)}</a>
+		<a href="/settings">{t('nav.settings', lang)}</a>
 		<span style="margin-left: auto; color: var(--color-nav-text);">{data.username}</span>
 		<label class="translations-toggle">
 			<input type="checkbox" checked={customTranslations} onchange={handleTranslationsToggle} />

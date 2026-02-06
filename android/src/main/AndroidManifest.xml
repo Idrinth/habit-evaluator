@@ -2,6 +2,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM"
+        android:maxSdkVersion="32" />
 
     <application
         android:allowBackup="true"
@@ -30,6 +34,17 @@
             android:name=".PdfExportActivity"
             android:exported="false"
             android:parentActivityName=".MainActivity" />
+
+        <receiver
+            android:name=".ReminderReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="de.idrinth.habitevaluator.REMINDER" />
+            </intent-filter>
+        </receiver>
 
         <service
             android:name="androidx.appcompat.app.AppLocalesMetadataHolderService"
