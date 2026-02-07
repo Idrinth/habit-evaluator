@@ -66,8 +66,8 @@ public class EmotionalStateFragment extends Fragment {
         List<EmotionPair> pairs = MainActivity.getSharedEmotionPairs();
         EmotionEntryRepository entryRepository = MainActivity.getSharedEmotionEntryRepository();
         List<EmotionEntry> allEntries = new ArrayList<>();
-        if (entryRepository != null && MainActivity.getSharedCurrentUser() != null) {
-            allEntries.addAll(entryRepository.findByUserId(MainActivity.getSharedCurrentUser().getId()));
+        if (entryRepository != null && MainActivity.getSharedLocalUser() != null) {
+            allEntries.addAll(entryRepository.findByUserId(MainActivity.getSharedLocalUser().getId()));
         }
 
         Map<String, List<EmotionEntry>> entriesByPair = new HashMap<>();

@@ -152,7 +152,7 @@ public class FoodLogFragment extends Fragment implements FoodLogAdapter.OnFoodLo
 
         LocalDateTime dateTime = LocalDateTime.of(selectedDate, selectedTime);
         FoodLog entry = new FoodLog(carbs, kcal, dateTime, foodItems);
-        entry.setUser(MainActivity.getSharedCurrentUser());
+        entry.setUser(MainActivity.getSharedLocalUser());
 
         String notes = binding.foodNotesInput.getText() != null
                 ? binding.foodNotesInput.getText().toString().trim() : "";
@@ -191,8 +191,8 @@ public class FoodLogFragment extends Fragment implements FoodLogAdapter.OnFoodLo
         displayedEntries.clear();
 
         FoodLogRepository repository = MainActivity.getSharedFoodLogRepository();
-        if (repository != null && MainActivity.getSharedCurrentUser() != null) {
-            List<FoodLog> allEntries = repository.findByUserId(MainActivity.getSharedCurrentUser().getId());
+        if (repository != null && MainActivity.getSharedLocalUser() != null) {
+            List<FoodLog> allEntries = repository.findByUserId(MainActivity.getSharedLocalUser().getId());
             allEntries.sort(Comparator.comparing(FoodLog::getDateTime).reversed()
                     .thenComparing(Comparator.comparing(FoodLog::getCreatedAt).reversed()));
             displayedEntries.addAll(allEntries);
@@ -204,8 +204,8 @@ public class FoodLogFragment extends Fragment implements FoodLogAdapter.OnFoodLo
 
     private void updateSuggestions() {
         FoodLogRepository repository = MainActivity.getSharedFoodLogRepository();
-        if (repository != null && MainActivity.getSharedCurrentUser() != null) {
-            List<FoodLog> allEntries = repository.findByUserId(MainActivity.getSharedCurrentUser().getId());
+        if (repository != null && MainActivity.getSharedLocalUser() != null) {
+            List<FoodLog> allEntries = repository.findByUserId(MainActivity.getSharedLocalUser().getId());
             List<String> suggestions = allEntries.stream()
                     .flatMap(e -> e.getFoodItemList().stream())
                     .map(String::trim)

@@ -175,7 +175,7 @@ public class DiaryFragment extends Fragment {
         }
 
         DiaryEntry entry = new DiaryEntry(description, significance, selectedDate);
-        entry.setUser(MainActivity.getSharedCurrentUser());
+        entry.setUser(MainActivity.getSharedLocalUser());
         entry.setStartTime(selectedStartTime);
         entry.setEndTime(selectedEndTime);
 
@@ -199,8 +199,8 @@ public class DiaryFragment extends Fragment {
         displayedEntries.clear();
 
         DiaryEntryRepository repository = MainActivity.getSharedDiaryEntryRepository();
-        if (repository != null && MainActivity.getSharedCurrentUser() != null) {
-            List<DiaryEntry> allEntries = repository.findByUserId(MainActivity.getSharedCurrentUser().getId());
+        if (repository != null && MainActivity.getSharedLocalUser() != null) {
+            List<DiaryEntry> allEntries = repository.findByUserId(MainActivity.getSharedLocalUser().getId());
             allEntries.sort(Comparator.comparing(DiaryEntry::getEventDate).reversed()
                     .thenComparing(Comparator.comparing(DiaryEntry::getCreatedAt).reversed()));
             displayedEntries.addAll(allEntries);
@@ -213,9 +213,9 @@ public class DiaryFragment extends Fragment {
 
     private void updateSuggestions() {
         DiaryEntryRepository repository = MainActivity.getSharedDiaryEntryRepository();
-        if (repository != null && MainActivity.getSharedCurrentUser() != null) {
+        if (repository != null && MainActivity.getSharedLocalUser() != null) {
             List<String> suggestions = repository.findDistinctDescriptionsByUserId(
-                    MainActivity.getSharedCurrentUser().getId());
+                    MainActivity.getSharedLocalUser().getId());
             ArrayAdapter<String> suggestionsAdapter = new ArrayAdapter<>(requireContext(),
                     android.R.layout.simple_dropdown_item_1line, suggestions);
             binding.eventDescriptionInput.setAdapter(suggestionsAdapter);

@@ -132,7 +132,7 @@ public class StatsFragment extends Fragment {
 
     private void updateDiaryChart(LocalDate startDate, LocalDate today, List<String> labels) {
         List<DiaryEntry> allEntries = new ArrayList<>();
-        User user = MainActivity.getSharedCurrentUser();
+        User user = MainActivity.getSharedLocalUser();
         if (user != null && MainActivity.getSharedDiaryEntryRepository() != null) {
             allEntries = MainActivity.getSharedDiaryEntryRepository().findByUserId(user.getId());
         }
@@ -188,7 +188,7 @@ public class StatsFragment extends Fragment {
 
     private void updateEmotionChart(LocalDate startDate, LocalDate today, List<String> labels) {
         List<EmotionEntry> allEntries = new ArrayList<>();
-        User user = MainActivity.getSharedCurrentUser();
+        User user = MainActivity.getSharedLocalUser();
         if (user != null && MainActivity.getSharedEmotionEntryRepository() != null) {
             allEntries = MainActivity.getSharedEmotionEntryRepository().findByUserId(user.getId());
         }
@@ -260,7 +260,7 @@ public class StatsFragment extends Fragment {
 
     private void updateEmotionScatterChart(LocalDate startDate, LocalDate today, List<String> labels) {
         List<EmotionEntry> allEntries = new ArrayList<>();
-        User user = MainActivity.getSharedCurrentUser();
+        User user = MainActivity.getSharedLocalUser();
         if (user != null && MainActivity.getSharedEmotionEntryRepository() != null) {
             allEntries = MainActivity.getSharedEmotionEntryRepository().findByUserId(user.getId());
         }

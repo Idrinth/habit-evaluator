@@ -119,7 +119,7 @@ public class RecordEmotionEntryFragment extends Fragment {
         }
 
         EmotionEntry entry = new EmotionEntry(selectedPair, strength, LocalDateTime.now(), notes);
-        entry.setUser(MainActivity.getSharedCurrentUser());
+        entry.setUser(MainActivity.getSharedLocalUser());
         repository.save(entry);
 
         Toast.makeText(requireContext(), R.string.emotion_entry_recorded, Toast.LENGTH_SHORT).show();
