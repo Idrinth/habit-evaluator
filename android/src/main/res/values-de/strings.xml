@@ -211,6 +211,7 @@
     <string name="restore_in_progress">Backup wird wiederhergestellt…</string>
     <string name="restore_success">Wiederhergestellt: %1$d Gewohnheiten hinzugefügt, %2$d Gewohnheiten zusammengeführt, %3$d Einträge hinzugefügt, %4$d Tagebucheinträge hinzugefügt, %5$d Schlafeinträge hinzugefügt, %6$d Kategorien hinzugefügt</string>
     <string name="restore_failed">Wiederherstellung fehlgeschlagen: %s</string>
+    <string name="restore_failed_not_initialized">Speicher ist noch nicht initialisiert. Bitte warten und erneut versuchen.</string>
     <string name="download_backup_title">Backup herunterladen</string>
     <string name="download_backup_button">Backup herunterladen (.hez)</string>
     <string name="download_backup_in_progress">Backup wird erstellt…</string>

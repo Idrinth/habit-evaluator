@@ -192,6 +192,7 @@
     <string name="restore_in_progress">Restoring backup…</string>
     <string name="restore_success">Restored: %1$d habits added, %2$d habits merged, %3$d entries added, %4$d diary entries added, %5$d sleep entries added, %6$d categories added</string>
     <string name="restore_failed">Restore failed: %s</string>
+    <string name="restore_failed_not_initialized">Storage is not yet initialized. Please wait and try again.</string>
     <string name="download_backup_title">Download Backup</string>
     <string name="download_backup_button">Download Backup (.hez)</string>
     <string name="download_backup_in_progress">Creating backup…</string>

@@ -211,6 +211,7 @@
     <string name="restore_in_progress">Restaurando respaldo…</string>
     <string name="restore_success">Restaurado: %1$d hábitos añadidos, %2$d hábitos fusionados, %3$d entradas añadidas, %4$d entradas de diario añadidas, %5$d entradas de sueño añadidas, %6$d categorías añadidas</string>
     <string name="restore_failed">Error al restaurar: %s</string>
+    <string name="restore_failed_not_initialized">El almacenamiento aún no está inicializado. Por favor espere e intente de nuevo.</string>
     <string name="download_backup_title">Descargar respaldo</string>
     <string name="download_backup_button">Descargar respaldo (.hez)</string>
     <string name="download_backup_in_progress">Creando respaldo…</string>
