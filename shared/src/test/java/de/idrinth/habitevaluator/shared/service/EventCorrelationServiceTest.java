@@ -450,6 +450,37 @@ class EventCorrelationServiceTest {
         assertTrue(foundDurationSleep, "Expected Diary Duration to correlate with Sleep Hours");
     }
 
+    @Test
+    void testDiaryDurationProximityWithEmotions() {
+        LocalDate today = LocalDate.now();
+
+        EmotionPair pair = new EmotionPair("tired", "energetic");
+        List<DiaryEntry> diaryEntries = new ArrayList<>();
+        List<EmotionEntry> emotionEntries = new ArrayList<>();
+
+        for (int i = 0; i < 30; i++) {
+            LocalDate date = today.minusDays(i);
+
+            // Diary entry with duration: 07:00 to 08:00
+            DiaryEntry de = new DiaryEntry("Morning run", EventSignificance.NORMAL, date);
+            de.setStartTime(LocalTime.of(7, 0));
+            de.setEndTime(LocalTime.of(8, 0));
+            diaryEntries.add(de);
+
+            // Emotion recorded 30 min after diary end time -> within 2h proximity
+            emotionEntries.add(new EmotionEntry(pair, 8, date.atTime(8, 30), null));
+        }
+
+        List<EventCorrelation> result = service.calculateCorrelations(
+                new ArrayList<>(), diaryEntries, new ArrayList<>(), emotionEntries);
+
+        // Should find correlation between Diary Duration and the emotion pair
+        boolean foundDurationEmotion = result.stream()
+                .anyMatch(c -> (c.getEventA().contains("Diary Duration") && c.getEventB().contains("Emotion"))
+                        || (c.getEventA().contains("Emotion") && c.getEventB().contains("Diary Duration")));
+        assertTrue(foundDurationEmotion, "Expected Diary Duration to correlate with emotions via temporal proximity");
+    }
+
     private double findCorrelation(List<EventCorrelation> correlations, String partA, String partB) {
         return correlations.stream()
                 .filter(c -> (c.getEventA().contains(partA) && c.getEventB().contains(partB))
