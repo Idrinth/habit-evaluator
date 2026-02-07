@@ -458,6 +458,11 @@ public class SettingsFragment extends Fragment {
                         binding.restoreStatusText.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_red_dark));
                         return;
                     }
+                    if (MainActivity.getSharedLocalUser() == null || MainActivity.getSharedHabitRepository() == null) {
+                        binding.restoreStatusText.setText(R.string.restore_failed_not_initialized);
+                        binding.restoreStatusText.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_red_dark));
+                        return;
+                    }
                     binding.restoreStatusText.setText(R.string.restore_in_progress);
                     binding.restoreStatusText.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_secondary));
 
@@ -482,7 +487,7 @@ public class SettingsFragment extends Fragment {
                                     }
                                 });
                             }
-                        } catch (BackupException e) {
+                        } catch (Exception e) {
                             if (isAdded()) {
                                 requireActivity().runOnUiThread(() -> {
                                     binding.restoreStatusText.setText(getString(R.string.restore_failed, e.getMessage()));
@@ -500,6 +505,12 @@ public class SettingsFragment extends Fragment {
         String backupPassword = binding.backupPasswordInput.getText().toString();
         if (backupPassword.isEmpty()) {
             binding.downloadStatusText.setText(R.string.backup_password_required);
+            binding.downloadStatusText.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_red_dark));
+            return;
+        }
+
+        if (MainActivity.getSharedLocalUser() == null || MainActivity.getSharedHabitRepository() == null) {
+            binding.downloadStatusText.setText(R.string.restore_failed_not_initialized);
             binding.downloadStatusText.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_red_dark));
             return;
         }
@@ -527,7 +538,7 @@ public class SettingsFragment extends Fragment {
                         createDocumentLauncher.launch(intent);
                     });
                 }
-            } catch (BackupException e) {
+            } catch (Exception e) {
                 if (isAdded()) {
                     requireActivity().runOnUiThread(() -> {
                         binding.downloadStatusText.setText(getString(R.string.download_backup_failed, e.getMessage()));
@@ -587,6 +598,11 @@ public class SettingsFragment extends Fragment {
                         binding.restoreFromFileStatusText.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_red_dark));
                         return;
                     }
+                    if (MainActivity.getSharedLocalUser() == null || MainActivity.getSharedHabitRepository() == null) {
+                        binding.restoreFromFileStatusText.setText(R.string.restore_failed_not_initialized);
+                        binding.restoreFromFileStatusText.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_red_dark));
+                        return;
+                    }
                     binding.restoreFromFileStatusText.setText(R.string.restore_in_progress);
                     binding.restoreFromFileStatusText.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_secondary));
 
@@ -617,7 +633,7 @@ public class SettingsFragment extends Fragment {
                                     }
                                 });
                             }
-                        } catch (BackupException | IOException e) {
+                        } catch (Exception e) {
                             if (isAdded()) {
                                 requireActivity().runOnUiThread(() -> {
                                     binding.restoreFromFileStatusText.setText(getString(R.string.restore_failed, e.getMessage()));

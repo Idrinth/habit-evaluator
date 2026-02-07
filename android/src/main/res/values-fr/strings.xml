@@ -211,6 +211,7 @@
     <string name="restore_in_progress">Restauration de la sauvegarde…</string>
     <string name="restore_success">Restauré : %1$d habitudes ajoutées, %2$d habitudes fusionnées, %3$d entrées ajoutées, %4$d entrées de journal ajoutées, %5$d entrées de sommeil ajoutées, %6$d catégories ajoutées</string>
     <string name="restore_failed">Échec de la restauration : %s</string>
+    <string name="restore_failed_not_initialized">Le stockage n\'est pas encore initialisé. Veuillez patienter et réessayer.</string>
     <string name="download_backup_title">Télécharger la sauvegarde</string>
     <string name="download_backup_button">Télécharger la sauvegarde (.hez)</string>
     <string name="download_backup_in_progress">Création de la sauvegarde…</string>

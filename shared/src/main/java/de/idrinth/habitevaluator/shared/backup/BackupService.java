@@ -212,6 +212,23 @@ public class BackupService {
             throw new BackupException("User must not be null for merge");
         }
 
+        try {
+            return doMerge(backupData, user, habitRepository, categoryRepository,
+                    diaryEntryRepository, sleepEntryRepository, sportLogRepository, foodLogRepository);
+        } catch (BackupException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new BackupException("Failed to merge backup data", e);
+        }
+    }
+
+    private MergeResult doMerge(BackupData backupData, User user,
+                                HabitRepository habitRepository,
+                                HabitCategoryRepository categoryRepository,
+                                DiaryEntryRepository diaryEntryRepository,
+                                SleepEntryRepository sleepEntryRepository,
+                                SportLogRepository sportLogRepository,
+                                FoodLogRepository foodLogRepository) throws BackupException {
         int categoriesAdded = 0;
         int habitsAdded = 0;
         int habitsMerged = 0;
@@ -221,7 +238,7 @@ public class BackupService {
 
         // Build a mapping from backup category IDs to local category IDs
         Map<String, String> categoryIdMapping = new HashMap<>();
-        if (categoryRepository != null) {
+        if (categoryRepository != null && backupData.getCategories() != null) {
             List<HabitCategory> existingCategories = categoryRepository.findByUserId(user.getId());
             Map<String, HabitCategory> existingByName = new HashMap<>();
             for (HabitCategory cat : existingCategories) {
@@ -244,7 +261,7 @@ public class BackupService {
         }
 
         // Merge habits
-        if (habitRepository != null) {
+        if (habitRepository != null && backupData.getHabits() != null) {
             List<Habit> existingHabits = habitRepository.findByUserId(user.getId());
             Map<String, Habit> existingByNameAndCategory = new HashMap<>();
             for (Habit habit : existingHabits) {
@@ -263,21 +280,27 @@ public class BackupService {
                 if (existingHabit != null) {
                     // Merge entries into existing habit
                     Set<String> existingEntryIds = new HashSet<>();
-                    for (HabitEntry entry : existingHabit.getEntries()) {
-                        existingEntryIds.add(entry.getId());
+                    List<HabitEntry> existingEntries = existingHabit.getEntries();
+                    if (existingEntries != null) {
+                        for (HabitEntry entry : existingEntries) {
+                            existingEntryIds.add(entry.getId());
+                        }
                     }
                     int addedForThisHabit = 0;
-                    for (BackupData.HabitEntryData entryData : habitData.getEntries()) {
-                        if (!existingEntryIds.contains(entryData.getId())) {
-                            HabitEntry newEntry = new HabitEntry();
-                            newEntry.setId(entryData.getId());
-                            if (entryData.getCompletedAt() != null) {
-                                newEntry.setCompletedAt(LocalDateTime.parse(entryData.getCompletedAt()));
+                    List<BackupData.HabitEntryData> backupEntries = habitData.getEntries();
+                    if (backupEntries != null) {
+                        for (BackupData.HabitEntryData entryData : backupEntries) {
+                            if (!existingEntryIds.contains(entryData.getId())) {
+                                HabitEntry newEntry = new HabitEntry();
+                                newEntry.setId(entryData.getId());
+                                if (entryData.getCompletedAt() != null) {
+                                    newEntry.setCompletedAt(LocalDateTime.parse(entryData.getCompletedAt()));
+                                }
+                                newEntry.setNotes(entryData.getNotes());
+                                newEntry.setValue(entryData.getValue());
+                                existingHabit.addEntry(newEntry);
+                                addedForThisHabit++;
                             }
-                            newEntry.setNotes(entryData.getNotes());
-                            newEntry.setValue(entryData.getValue());
-                            existingHabit.addEntry(newEntry);
-                            addedForThisHabit++;
                         }
                     }
                     if (addedForThisHabit > 0) {
@@ -319,16 +342,19 @@ public class BackupService {
                         newHabit.setScoringRule(rule);
                     }
 
-                    for (BackupData.HabitEntryData entryData : habitData.getEntries()) {
-                        HabitEntry newEntry = new HabitEntry();
-                        newEntry.setId(entryData.getId());
-                        if (entryData.getCompletedAt() != null) {
-                            newEntry.setCompletedAt(LocalDateTime.parse(entryData.getCompletedAt()));
+                    List<BackupData.HabitEntryData> newHabitEntries = habitData.getEntries();
+                    if (newHabitEntries != null) {
+                        for (BackupData.HabitEntryData entryData : newHabitEntries) {
+                            HabitEntry newEntry = new HabitEntry();
+                            newEntry.setId(entryData.getId());
+                            if (entryData.getCompletedAt() != null) {
+                                newEntry.setCompletedAt(LocalDateTime.parse(entryData.getCompletedAt()));
+                            }
+                            newEntry.setNotes(entryData.getNotes());
+                            newEntry.setValue(entryData.getValue());
+                            newHabit.addEntry(newEntry);
+                            entriesAdded++;
                         }
-                        newEntry.setNotes(entryData.getNotes());
-                        newEntry.setValue(entryData.getValue());
-                        newHabit.addEntry(newEntry);
-                        entriesAdded++;
                     }
 
                     habitRepository.save(newHabit);
@@ -338,7 +364,7 @@ public class BackupService {
         }
 
         // Merge diary entries
-        if (diaryEntryRepository != null) {
+        if (diaryEntryRepository != null && backupData.getDiaryEntries() != null) {
             List<DiaryEntry> existingDiaryEntries = diaryEntryRepository.findByUserId(user.getId());
             Set<String> existingDiaryIds = new HashSet<>();
             for (DiaryEntry entry : existingDiaryEntries) {
@@ -368,7 +394,7 @@ public class BackupService {
         }
 
         // Merge sleep entries
-        if (sleepEntryRepository != null) {
+        if (sleepEntryRepository != null && backupData.getSleepEntries() != null) {
             List<SleepEntry> existingSleepEntries = sleepEntryRepository.findByUserId(user.getId());
             Set<String> existingSleepIds = new HashSet<>();
             for (SleepEntry entry : existingSleepEntries) {
@@ -401,7 +427,7 @@ public class BackupService {
 
         // Merge sport logs
         int sportLogsAdded = 0;
-        if (sportLogRepository != null) {
+        if (sportLogRepository != null && backupData.getSportLogs() != null) {
             List<SportLog> existingSportLogs = sportLogRepository.findByUserId(user.getId());
             Set<String> existingSportLogIds = new HashSet<>();
             for (SportLog entry : existingSportLogs) {
