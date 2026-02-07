@@ -300,4 +300,18 @@
     <string name="sport_log_total_entries">Entradas: %d</string>
     <string name="diary_navigation_positivity_description">Registra y sigue los eventos positivos de tu vida</string>
     <string name="diary_navigation_sport_description">Registra tus actividades deportivas y haz seguimiento de mediciones</string>
+    <string name="diary_navigation_food_description">Registra tus comidas, calorías y carbohidratos</string>
+    <string name="food_log_title">Registro de alimentación</string>
+    <string name="food_log_add_entry">Añadir</string>
+    <string name="food_log_food_items_hint">Alimentos (ej. Arroz, Pollo)</string>
+    <string name="food_log_kcal_hint">Kcal</string>
+    <string name="food_log_carbs_hint">Carbohidratos (g)</string>
+    <string name="food_log_datetime_hint">Fecha y hora</string>
+    <string name="food_log_notes_hint">Notas (opcional)</string>
+    <string name="food_log_delete">Eliminar</string>
+    <string name="food_log_entry_added">Registro de alimentación añadido</string>
+    <string name="food_log_entry_removed">Registro de alimentación eliminado</string>
+    <string name="food_log_items_required">Por favor, introduzca al menos un alimento</string>
+    <string name="food_log_kcal_required">Por favor, introduzca un valor de kcal válido</string>
+    <string name="food_log_carbs_invalid">Por favor, introduzca un valor de carbohidratos válido</string>
 </resources>
