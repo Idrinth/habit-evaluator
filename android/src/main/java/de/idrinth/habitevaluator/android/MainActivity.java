@@ -535,6 +535,24 @@ public class MainActivity extends AppCompatActivity {
         String username = prefs.getString(SettingsActivity.KEY_API_USERNAME, "");
         String password = prefs.getString(SettingsActivity.KEY_API_PASSWORD, "");
 
+        // Initialize local-only repositories (no remote implementations exist for these)
+        SQLiteHelper dbHelper = SQLiteHelper.getInstance(this);
+        sleepEntryRepository = new SQLiteSleepEntryRepository(dbHelper);
+        SQLiteDiaryReferenceRepository diaryRefRepo = new SQLiteDiaryReferenceRepository(dbHelper);
+        SQLiteDiaryEntryRepository diaryEntryRepo = new SQLiteDiaryEntryRepository(dbHelper);
+        diaryEntryRepo.setDiaryReferenceRepository(diaryRefRepo);
+        SQLiteEmotionPairRepository emotionPairRepo = new SQLiteEmotionPairRepository(dbHelper);
+        SQLiteEmotionEntryRepository emotionEntryRepo = new SQLiteEmotionEntryRepository(dbHelper, emotionPairRepo);
+        SQLiteSportLogRepository sportLogRepo = new SQLiteSportLogRepository(dbHelper);
+        de.idrinth.habitevaluator.android.persistence.SQLiteFoodLogRepository foodLogRepo = new de.idrinth.habitevaluator.android.persistence.SQLiteFoodLogRepository(dbHelper);
+        sharedSleepEntryRepository = sleepEntryRepository;
+        sharedDiaryEntryRepository = diaryEntryRepo;
+        sharedDiaryReferenceRepository = diaryRefRepo;
+        sharedEmotionPairRepository = emotionPairRepo;
+        sharedEmotionEntryRepository = emotionEntryRepo;
+        sharedSportLogRepository = sportLogRepo;
+        sharedFoodLogRepository = foodLogRepo;
+
         new Thread(() -> {
             try {
                 ApiClient client = new ApiClient(url);
@@ -563,6 +581,8 @@ public class MainActivity extends AppCompatActivity {
                         updateStorageModeLabel();
                         loadCategories();
                         loadHabits();
+                        loadSleepEntries();
+                        loadEmotionPairs();
                     });
                     return;
                 }
