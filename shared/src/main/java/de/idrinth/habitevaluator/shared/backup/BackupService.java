@@ -9,8 +9,10 @@ import de.idrinth.habitevaluator.shared.model.HabitEntry;
 import de.idrinth.habitevaluator.shared.model.ScoringRule;
 import de.idrinth.habitevaluator.shared.model.SleepEntry;
 import de.idrinth.habitevaluator.shared.model.SportLog;
+import de.idrinth.habitevaluator.shared.model.FoodLog;
 import de.idrinth.habitevaluator.shared.model.User;
 import de.idrinth.habitevaluator.shared.repository.DiaryEntryRepository;
+import de.idrinth.habitevaluator.shared.repository.FoodLogRepository;
 import de.idrinth.habitevaluator.shared.repository.HabitCategoryRepository;
 import de.idrinth.habitevaluator.shared.repository.HabitRepository;
 import de.idrinth.habitevaluator.shared.repository.SleepEntryRepository;
@@ -195,6 +197,17 @@ public class BackupService {
                                        DiaryEntryRepository diaryEntryRepository,
                                        SleepEntryRepository sleepEntryRepository,
                                        SportLogRepository sportLogRepository) throws BackupException {
+        return mergeBackupData(backupData, user, habitRepository, categoryRepository,
+                diaryEntryRepository, sleepEntryRepository, sportLogRepository, null);
+    }
+
+    public MergeResult mergeBackupData(BackupData backupData, User user,
+                                       HabitRepository habitRepository,
+                                       HabitCategoryRepository categoryRepository,
+                                       DiaryEntryRepository diaryEntryRepository,
+                                       SleepEntryRepository sleepEntryRepository,
+                                       SportLogRepository sportLogRepository,
+                                       FoodLogRepository foodLogRepository) throws BackupException {
         if (user == null) {
             throw new BackupException("User must not be null for merge");
         }
@@ -422,8 +435,38 @@ public class BackupService {
             }
         }
 
+        // Merge food logs
+        int foodLogsAdded = 0;
+        if (foodLogRepository != null && backupData.getFoodLogs() != null) {
+            List<FoodLog> existingFoodLogs = foodLogRepository.findByUserId(user.getId());
+            Set<String> existingFoodLogIds = new HashSet<>();
+            for (FoodLog entry : existingFoodLogs) {
+                existingFoodLogIds.add(entry.getId());
+            }
+
+            for (BackupData.FoodLogData entryData : backupData.getFoodLogs()) {
+                if (!existingFoodLogIds.contains(entryData.getId())) {
+                    FoodLog newEntry = new FoodLog();
+                    newEntry.setId(entryData.getId());
+                    newEntry.setCarbohydrates(entryData.getCarbohydrates());
+                    newEntry.setKcal(entryData.getKcal());
+                    if (entryData.getDateTime() != null) {
+                        newEntry.setDateTime(LocalDateTime.parse(entryData.getDateTime()));
+                    }
+                    newEntry.setFoodItems(entryData.getFoodItems());
+                    newEntry.setNotes(entryData.getNotes());
+                    if (entryData.getCreatedAt() != null) {
+                        newEntry.setCreatedAt(LocalDateTime.parse(entryData.getCreatedAt()));
+                    }
+                    newEntry.setUser(user);
+                    foodLogRepository.save(newEntry);
+                    foodLogsAdded++;
+                }
+            }
+        }
+
         MergeResult result = new MergeResult(categoriesAdded, habitsAdded, habitsMerged,
-                entriesAdded, diaryEntriesAdded, sleepEntriesAdded, sportLogsAdded);
+                entriesAdded, diaryEntriesAdded, sleepEntriesAdded, sportLogsAdded, foodLogsAdded);
         logger.info("Backup merged: {}", result);
         return result;
     }
@@ -566,6 +609,38 @@ public class BackupService {
                     entryData.setCreatedAt(entry.getCreatedAt().toString());
                 }
                 data.getSportLogs().add(entryData);
+            }
+        }
+
+        return data;
+    }
+
+    BackupData collectBackupData(User user,
+                                         HabitRepository habitRepository,
+                                         HabitCategoryRepository categoryRepository,
+                                         DiaryEntryRepository diaryEntryRepository,
+                                         SleepEntryRepository sleepEntryRepository,
+                                         SportLogRepository sportLogRepository,
+                                         FoodLogRepository foodLogRepository) {
+        BackupData data = collectBackupData(user, habitRepository, categoryRepository,
+                diaryEntryRepository, sleepEntryRepository, sportLogRepository);
+
+        if (foodLogRepository != null) {
+            List<FoodLog> foodLogs = foodLogRepository.findByUserId(user.getId());
+            for (FoodLog entry : foodLogs) {
+                BackupData.FoodLogData entryData = new BackupData.FoodLogData();
+                entryData.setId(entry.getId());
+                entryData.setCarbohydrates(entry.getCarbohydrates());
+                entryData.setKcal(entry.getKcal());
+                if (entry.getDateTime() != null) {
+                    entryData.setDateTime(entry.getDateTime().toString());
+                }
+                entryData.setFoodItems(entry.getFoodItems());
+                entryData.setNotes(entry.getNotes());
+                if (entry.getCreatedAt() != null) {
+                    entryData.setCreatedAt(entry.getCreatedAt().toString());
+                }
+                data.getFoodLogs().add(entryData);
             }
         }
 

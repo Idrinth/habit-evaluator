@@ -19,6 +19,7 @@ public class BackupData {
     private List<DiaryEntryData> diaryEntries = new ArrayList<>();
     private List<SleepEntryData> sleepEntries = new ArrayList<>();
     private List<SportLogData> sportLogs = new ArrayList<>();
+    private List<FoodLogData> foodLogs = new ArrayList<>();
 
     public String getBackupDate() {
         return backupDate;
@@ -82,6 +83,14 @@ public class BackupData {
 
     public void setSportLogs(List<SportLogData> sportLogs) {
         this.sportLogs = sportLogs;
+    }
+
+    public List<FoodLogData> getFoodLogs() {
+        return foodLogs;
+    }
+
+    public void setFoodLogs(List<FoodLogData> foodLogs) {
+        this.foodLogs = foodLogs;
     }
 
     public static class UserData {
@@ -548,6 +557,72 @@ public class BackupData {
 
         public void setDate(String date) {
             this.date = date;
+        }
+
+        public String getNotes() {
+            return notes;
+        }
+
+        public void setNotes(String notes) {
+            this.notes = notes;
+        }
+
+        public String getCreatedAt() {
+            return createdAt;
+        }
+
+        public void setCreatedAt(String createdAt) {
+            this.createdAt = createdAt;
+        }
+    }
+
+    public static class FoodLogData {
+        private String id;
+        private double carbohydrates;
+        private int kcal;
+        private String dateTime;
+        private String foodItems;
+        private String notes;
+        private String createdAt;
+
+        public String getId() {
+            return id;
+        }
+
+        public void setId(String id) {
+            this.id = id;
+        }
+
+        public double getCarbohydrates() {
+            return carbohydrates;
+        }
+
+        public void setCarbohydrates(double carbohydrates) {
+            this.carbohydrates = carbohydrates;
+        }
+
+        public int getKcal() {
+            return kcal;
+        }
+
+        public void setKcal(int kcal) {
+            this.kcal = kcal;
+        }
+
+        public String getDateTime() {
+            return dateTime;
+        }
+
+        public void setDateTime(String dateTime) {
+            this.dateTime = dateTime;
+        }
+
+        public String getFoodItems() {
+            return foodItems;
+        }
+
+        public void setFoodItems(String foodItems) {
+            this.foodItems = foodItems;
         }
 
         public String getNotes() {

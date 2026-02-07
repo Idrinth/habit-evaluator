@@ -82,6 +82,7 @@ public class MainActivity extends AppCompatActivity {
     private static List<EmotionPair> sharedEmotionPairs = new ArrayList<>();
     private static EmotionEntryRepository sharedEmotionEntryRepository;
     private static SportLogRepository sharedSportLogRepository;
+    private static de.idrinth.habitevaluator.shared.repository.FoodLogRepository sharedFoodLogRepository;
     private static String editHabitId;
     private static String pointDevelopmentHabitId;
     private static String recordEmotionPairId;
@@ -168,6 +169,10 @@ public class MainActivity extends AppCompatActivity {
 
     public static SportLogRepository getSharedSportLogRepository() {
         return sharedSportLogRepository;
+    }
+
+    public static de.idrinth.habitevaluator.shared.repository.FoodLogRepository getSharedFoodLogRepository() {
+        return sharedFoodLogRepository;
     }
 
     public static void saveAllHabits() {
@@ -335,6 +340,14 @@ public class MainActivity extends AppCompatActivity {
                             binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_DIARY, false);
                         }
                         break;
+                    case ScreenPagerAdapter.PAGE_FOOD_LOG:
+                        if (isProgrammaticNavigation) {
+                            isProgrammaticNavigation = false;
+                            binding.bottomNavigation.setSelectedItemId(R.id.nav_diary);
+                        } else {
+                            binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_DIARY, false);
+                        }
+                        break;
                     case ScreenPagerAdapter.PAGE_HOME:
                         binding.bottomNavigation.setSelectedItemId(R.id.nav_home);
                         break;
@@ -430,6 +443,11 @@ public class MainActivity extends AppCompatActivity {
         binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_SPORT_LOG, true);
     }
 
+    public void navigateToFoodLog() {
+        isProgrammaticNavigation = true;
+        binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_FOOD_LOG, true);
+    }
+
     public void onSettingsChanged() {
         initializeStorage();
     }
@@ -464,6 +482,7 @@ public class MainActivity extends AppCompatActivity {
         SQLiteEmotionPairRepository emotionPairRepo = new SQLiteEmotionPairRepository(dbHelper);
         SQLiteEmotionEntryRepository emotionEntryRepo = new SQLiteEmotionEntryRepository(dbHelper, emotionPairRepo);
         SQLiteSportLogRepository sportLogRepo = new SQLiteSportLogRepository(dbHelper);
+        de.idrinth.habitevaluator.android.persistence.SQLiteFoodLogRepository foodLogRepo = new de.idrinth.habitevaluator.android.persistence.SQLiteFoodLogRepository(dbHelper);
 
         currentUser = getOrCreateLocalUser();
         sharedHabitRepository = habitRepository;
@@ -477,6 +496,7 @@ public class MainActivity extends AppCompatActivity {
         sharedEmotionPairRepository = emotionPairRepo;
         sharedEmotionEntryRepository = emotionEntryRepo;
         sharedSportLogRepository = sportLogRepo;
+        sharedFoodLogRepository = foodLogRepo;
 
         // Migrate legacy JSON files to SQLite if they exist
         java.io.File storageDir = new java.io.File(getFilesDir(), "habit-data");

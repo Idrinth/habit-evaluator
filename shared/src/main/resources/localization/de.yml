@@ -296,3 +296,17 @@ sport_log:
   min_measurement: "Minimaler Messwert"
   max_measurement: "Maximaler Messwert"
   total_entries: "Gesamteinträge"
+
+food_log:
+  title: "Ernährungsprotokoll"
+  add_entry: "Ernährungseintrag hinzufügen"
+  food_items: "Lebensmittel"
+  food_items_hint: "z.B. Reis, Hähnchen, Salat"
+  kcal: "Kalorien (kcal)"
+  kcal_hint: "z.B. 500"
+  carbohydrates: "Kohlenhydrate (g)"
+  carbohydrates_hint: "z.B. 60.5"
+  date_time: "Datum & Uhrzeit"
+  notes: "Notizen"
+  no_entries: "Noch keine Ernährungseinträge."
+  delete: "Löschen"

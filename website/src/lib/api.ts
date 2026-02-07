@@ -460,3 +460,32 @@ export const reminderSettings = {
 		});
 	}
 };
+
+export interface FoodLog {
+	id: string;
+	carbohydrates: number;
+	kcal: number;
+	dateTime: string;
+	foodItems: string;
+	createdAt: string;
+	notes: string | null;
+	foodItemList: string[];
+}
+
+export const foodLogs = {
+	list() {
+		return request<FoodLog[]>('/food-logs');
+	},
+	create(entry: { carbohydrates: number; kcal: number; dateTime: string; foodItems: string; notes?: string }) {
+		return request<FoodLog>('/food-logs', {
+			method: 'POST',
+			body: JSON.stringify(entry)
+		});
+	},
+	delete(id: string) {
+		return request<void>(`/food-logs/${id}`, { method: 'DELETE' });
+	},
+	suggestions() {
+		return request<string[]>('/food-logs/suggestions');
+	}
+};
