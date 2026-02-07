@@ -13,6 +13,7 @@ import de.idrinth.habitevaluator.shared.repository.EmotionEntryRepository;
 import de.idrinth.habitevaluator.shared.repository.HabitCategoryRepository;
 import de.idrinth.habitevaluator.shared.repository.HabitRepository;
 import de.idrinth.habitevaluator.shared.repository.SleepEntryRepository;
+import de.idrinth.habitevaluator.shared.repository.SportLogRepository;
 import de.idrinth.habitevaluator.shared.service.DiaryService;
 import de.idrinth.habitevaluator.shared.service.EventCorrelationService;
 import de.idrinth.habitevaluator.shared.service.HabitScoringService;
@@ -38,6 +39,7 @@ class StatsControllerTest {
     private DiaryEntryRepository diaryEntryRepository;
     private EmotionEntryRepository emotionEntryRepository;
     private HabitCategoryRepository habitCategoryRepository;
+    private SportLogRepository sportLogRepository;
     private HabitScoringService scoringService;
     private DiaryService diaryService;
     private EventCorrelationService correlationService;
@@ -52,11 +54,12 @@ class StatsControllerTest {
         diaryEntryRepository = mock(DiaryEntryRepository.class);
         emotionEntryRepository = mock(EmotionEntryRepository.class);
         habitCategoryRepository = mock(HabitCategoryRepository.class);
+        sportLogRepository = mock(SportLogRepository.class);
         scoringService = mock(HabitScoringService.class);
         diaryService = mock(DiaryService.class);
         correlationService = mock(EventCorrelationService.class);
         controller = new StatsController(habitRepository, sleepEntryRepository, diaryEntryRepository,
-                emotionEntryRepository, habitCategoryRepository, scoringService, diaryService, correlationService);
+                emotionEntryRepository, habitCategoryRepository, sportLogRepository, scoringService, diaryService, correlationService);
         session = new MockHttpSession();
         testUser = new User("testuser", "password");
         session.setAttribute("userId", testUser.getId());
