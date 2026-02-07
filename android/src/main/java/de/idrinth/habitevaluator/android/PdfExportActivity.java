@@ -451,7 +451,7 @@ public class PdfExportActivity extends AppCompatActivity {
 
     private float addDiarySection(PdfDocument document, List<DrawCommand> commands, int pageNumber, float yPosition) {
         List<DiaryEntry> allEntries = new ArrayList<>();
-        User user = MainActivity.getSharedCurrentUser();
+        User user = MainActivity.getSharedLocalUser();
         if (user != null && MainActivity.getSharedDiaryEntryRepository() != null) {
             allEntries = MainActivity.getSharedDiaryEntryRepository().findByUserId(user.getId());
         }
@@ -536,7 +536,7 @@ public class PdfExportActivity extends AppCompatActivity {
 
     private float addEmotionSection(PdfDocument document, List<DrawCommand> commands, int pageNumber, float yPosition) {
         List<EmotionEntry> allEntries = new ArrayList<>();
-        User user = MainActivity.getSharedCurrentUser();
+        User user = MainActivity.getSharedLocalUser();
         if (user != null && MainActivity.getSharedEmotionEntryRepository() != null) {
             allEntries = MainActivity.getSharedEmotionEntryRepository().findByUserId(user.getId());
         }
@@ -678,7 +678,7 @@ public class PdfExportActivity extends AppCompatActivity {
             sleepEntries = new ArrayList<>();
         }
 
-        User user = MainActivity.getSharedCurrentUser();
+        User user = MainActivity.getSharedLocalUser();
         if (user != null && MainActivity.getSharedDiaryEntryRepository() != null) {
             diaryEntries = MainActivity.getSharedDiaryEntryRepository().findByUserId(user.getId());
         }

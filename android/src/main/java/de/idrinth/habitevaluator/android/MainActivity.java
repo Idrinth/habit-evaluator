@@ -83,6 +83,7 @@ public class MainActivity extends AppCompatActivity {
     private static EmotionEntryRepository sharedEmotionEntryRepository;
     private static SportLogRepository sharedSportLogRepository;
     private static de.idrinth.habitevaluator.shared.repository.FoodLogRepository sharedFoodLogRepository;
+    private static User sharedLocalUser;
     private static String editHabitId;
     private static String pointDevelopmentHabitId;
     private static String recordEmotionPairId;
@@ -121,6 +122,16 @@ public class MainActivity extends AppCompatActivity {
 
     public static User getSharedCurrentUser() {
         return sharedCurrentUser;
+    }
+
+    /**
+     * Returns the local user for local-only data operations (diary, sleep, emotions, sport, food).
+     * In local storage mode this is the same as getSharedCurrentUser().
+     * In remote storage mode this returns the local user whose ID matches entries in the local SQLite database,
+     * rather than the remote API user.
+     */
+    public static User getSharedLocalUser() {
+        return sharedLocalUser;
     }
 
     public static DiaryEntryRepository getSharedDiaryEntryRepository() {
@@ -491,6 +502,7 @@ public class MainActivity extends AppCompatActivity {
         sharedSleepEntryRepository = sleepEntryRepository;
         sharedApiClient = null;
         sharedCurrentUser = currentUser;
+        sharedLocalUser = currentUser;
         sharedDiaryEntryRepository = diaryEntryRepo;
         sharedDiaryReferenceRepository = diaryRefRepo;
         sharedEmotionPairRepository = emotionPairRepo;
@@ -537,6 +549,8 @@ public class MainActivity extends AppCompatActivity {
 
         // Initialize local-only repositories (no remote implementations exist for these)
         SQLiteHelper dbHelper = SQLiteHelper.getInstance(this);
+        SQLiteHabitRepository localHabitRepo = new SQLiteHabitRepository(dbHelper);
+        SQLiteHabitCategoryRepository localCategoryRepo = new SQLiteHabitCategoryRepository(dbHelper);
         sleepEntryRepository = new SQLiteSleepEntryRepository(dbHelper);
         SQLiteDiaryReferenceRepository diaryRefRepo = new SQLiteDiaryReferenceRepository(dbHelper);
         SQLiteDiaryEntryRepository diaryEntryRepo = new SQLiteDiaryEntryRepository(dbHelper);
@@ -552,6 +566,25 @@ public class MainActivity extends AppCompatActivity {
         sharedEmotionEntryRepository = emotionEntryRepo;
         sharedSportLogRepository = sportLogRepo;
         sharedFoodLogRepository = foodLogRepo;
+
+        // Set local user for local-only data access (diary, sleep, emotions, sport, food)
+        sharedLocalUser = getOrCreateLocalUser();
+
+        // Migrate legacy JSON files to SQLite if they exist
+        java.io.File migrationDir = new java.io.File(getFilesDir(), "habit-data");
+        JsonToSqliteMigration migration = new JsonToSqliteMigration(
+                migrationDir,
+                localHabitRepo,
+                localCategoryRepo,
+                diaryRefRepo,
+                diaryEntryRepo,
+                sleepEntryRepository,
+                emotionPairRepo,
+                emotionEntryRepo
+        );
+        if (migration.needsMigration()) {
+            migration.migrate();
+        }
 
         new Thread(() -> {
             try {
@@ -674,16 +707,16 @@ public class MainActivity extends AppCompatActivity {
     private void loadSleepEntries() {
         sleepEntries.clear();
         sharedSleepEntries.clear();
-        if (sleepEntryRepository != null && currentUser != null) {
-            sleepEntries.addAll(sleepEntryRepository.findByUserId(currentUser.getId()));
+        if (sleepEntryRepository != null && sharedLocalUser != null) {
+            sleepEntries.addAll(sleepEntryRepository.findByUserId(sharedLocalUser.getId()));
             sharedSleepEntries.addAll(sleepEntries);
         }
     }
 
     private void loadEmotionPairs() {
         sharedEmotionPairs.clear();
-        if (sharedEmotionPairRepository != null && currentUser != null) {
-            sharedEmotionPairs.addAll(sharedEmotionPairRepository.findByUserId(currentUser.getId()));
+        if (sharedEmotionPairRepository != null && sharedLocalUser != null) {
+            sharedEmotionPairs.addAll(sharedEmotionPairRepository.findByUserId(sharedLocalUser.getId()));
         }
     }
 

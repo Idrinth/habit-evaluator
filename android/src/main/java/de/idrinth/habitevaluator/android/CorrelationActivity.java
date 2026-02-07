@@ -57,7 +57,7 @@ public class CorrelationActivity extends AppCompatActivity {
             sleepEntries = new ArrayList<>();
         }
 
-        User user = MainActivity.getSharedCurrentUser();
+        User user = MainActivity.getSharedLocalUser();
         if (user != null && MainActivity.getSharedDiaryEntryRepository() != null) {
             diaryEntries = MainActivity.getSharedDiaryEntryRepository().findByUserId(user.getId());
         }

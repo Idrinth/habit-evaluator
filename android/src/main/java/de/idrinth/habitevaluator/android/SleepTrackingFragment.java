@@ -119,7 +119,7 @@ public class SleepTrackingFragment extends Fragment implements SleepEntryAdapter
             return;
         }
 
-        User currentUser = MainActivity.getSharedCurrentUser();
+        User currentUser = MainActivity.getSharedLocalUser();
         SleepEntry entry = new SleepEntry(fromTime, untilTime, selectedDate);
         entry.setUser(currentUser);
 

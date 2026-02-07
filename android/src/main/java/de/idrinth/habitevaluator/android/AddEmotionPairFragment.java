@@ -42,7 +42,7 @@ public class AddEmotionPairFragment extends Fragment {
             return;
         }
 
-        User currentUser = MainActivity.getSharedCurrentUser();
+        User currentUser = MainActivity.getSharedLocalUser();
         EmotionPair pair = new EmotionPair(negativeLabel, positiveLabel);
         pair.setUser(currentUser);
 

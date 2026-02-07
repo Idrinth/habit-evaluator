@@ -154,7 +154,7 @@ public class SportLogFragment extends Fragment implements SportLogAdapter.OnSpor
 
         SportLog entry = new SportLog(name, measurement, measurementUnit,
                 selectedStartTime, selectedEndTime, selectedDate);
-        entry.setUser(MainActivity.getSharedCurrentUser());
+        entry.setUser(MainActivity.getSharedLocalUser());
 
         String notes = binding.sportNotesInput.getText() != null
                 ? binding.sportNotesInput.getText().toString().trim() : "";
@@ -196,8 +196,8 @@ public class SportLogFragment extends Fragment implements SportLogAdapter.OnSpor
         displayedEntries.clear();
 
         SportLogRepository repository = MainActivity.getSharedSportLogRepository();
-        if (repository != null && MainActivity.getSharedCurrentUser() != null) {
-            List<SportLog> allEntries = repository.findByUserId(MainActivity.getSharedCurrentUser().getId());
+        if (repository != null && MainActivity.getSharedLocalUser() != null) {
+            List<SportLog> allEntries = repository.findByUserId(MainActivity.getSharedLocalUser().getId());
             allEntries.sort(Comparator.comparing(SportLog::getDate).reversed()
                     .thenComparing(Comparator.comparing(SportLog::getCreatedAt).reversed()));
             displayedEntries.addAll(allEntries);
@@ -210,8 +210,8 @@ public class SportLogFragment extends Fragment implements SportLogAdapter.OnSpor
     private void updateStats() {
         SportLogRepository repository = MainActivity.getSharedSportLogRepository();
         List<SportLog> allEntries = new ArrayList<>();
-        if (repository != null && MainActivity.getSharedCurrentUser() != null) {
-            allEntries = repository.findByUserId(MainActivity.getSharedCurrentUser().getId());
+        if (repository != null && MainActivity.getSharedLocalUser() != null) {
+            allEntries = repository.findByUserId(MainActivity.getSharedLocalUser().getId());
         }
 
         SportLogStats weeklyStats = sportLogService.getCurrentWeekStats(allEntries);
