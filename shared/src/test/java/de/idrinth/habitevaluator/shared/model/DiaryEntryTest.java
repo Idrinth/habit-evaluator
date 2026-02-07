@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -198,5 +199,64 @@ class DiaryEntryTest {
         DiaryEntry entry = new DiaryEntry();
         entry.setLegacyDescription(null);
         assertFalse(entry.needsMigration());
+    }
+
+    @Test
+    void testStartTimeAndEndTimeDefaultNull() {
+        DiaryEntry entry = new DiaryEntry();
+        assertNull(entry.getStartTime());
+        assertNull(entry.getEndTime());
+    }
+
+    @Test
+    void testSetStartTime() {
+        DiaryEntry entry = new DiaryEntry();
+        LocalTime time = LocalTime.of(14, 30);
+        entry.setStartTime(time);
+        assertEquals(time, entry.getStartTime());
+    }
+
+    @Test
+    void testSetEndTime() {
+        DiaryEntry entry = new DiaryEntry();
+        LocalTime time = LocalTime.of(16, 45);
+        entry.setEndTime(time);
+        assertEquals(time, entry.getEndTime());
+    }
+
+    @Test
+    void testGetDurationMinutesNormal() {
+        DiaryEntry entry = new DiaryEntry();
+        entry.setStartTime(LocalTime.of(10, 0));
+        entry.setEndTime(LocalTime.of(11, 30));
+        assertEquals(90, entry.getDurationMinutes());
+    }
+
+    @Test
+    void testGetDurationMinutesMidnightCrossing() {
+        DiaryEntry entry = new DiaryEntry();
+        entry.setStartTime(LocalTime.of(23, 0));
+        entry.setEndTime(LocalTime.of(1, 0));
+        assertEquals(120, entry.getDurationMinutes());
+    }
+
+    @Test
+    void testGetDurationMinutesNullWhenNoStartTime() {
+        DiaryEntry entry = new DiaryEntry();
+        entry.setEndTime(LocalTime.of(12, 0));
+        assertNull(entry.getDurationMinutes());
+    }
+
+    @Test
+    void testGetDurationMinutesNullWhenNoEndTime() {
+        DiaryEntry entry = new DiaryEntry();
+        entry.setStartTime(LocalTime.of(12, 0));
+        assertNull(entry.getDurationMinutes());
+    }
+
+    @Test
+    void testGetDurationMinutesNullWhenBothNull() {
+        DiaryEntry entry = new DiaryEntry();
+        assertNull(entry.getDurationMinutes());
     }
 }

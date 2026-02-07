@@ -11,6 +11,8 @@
 	let description = $state('');
 	let eventDate = $state(new Date().toISOString().split('T')[0]);
 	let significance = $state('NORMAL');
+	let startTime = $state('');
+	let endTime = $state('');
 
 	const POINTS: Record<string, number> = { MINOR: 1, NORMAL: 2, MAJOR: 4 };
 
@@ -40,10 +42,19 @@
 		if (!description.trim()) return;
 		error = '';
 		try {
-			await diary.create({ description: description.trim(), significance, eventDate });
+			const createPayload: { description: string; significance: string; eventDate: string; startTime?: string; endTime?: string } = {
+				description: description.trim(),
+				significance,
+				eventDate
+			};
+			if (startTime) createPayload.startTime = startTime;
+			if (endTime) createPayload.endTime = endTime;
+			await diary.create(createPayload);
 			description = '';
 			eventDate = new Date().toISOString().split('T')[0];
 			significance = 'NORMAL';
+			startTime = '';
+			endTime = '';
 			await loadData();
 		} catch (err) {
 			error = err instanceof Error ? err.message : 'Failed to add entry';
@@ -121,6 +132,16 @@
 				</select>
 				<button type="submit">Add Event</button>
 			</div>
+			<div class="form-row time-row">
+				<label class="time-label">
+					<span>Start</span>
+					<input type="time" bind:value={startTime} />
+				</label>
+				<label class="time-label">
+					<span>End</span>
+					<input type="time" bind:value={endTime} />
+				</label>
+			</div>
 		</form>
 
 		{#if entries.length === 0}
@@ -133,6 +154,9 @@
 							<span class="entry-date">{entry.eventDate}</span>
 							<span class="entry-significance">{entry.significance} ({POINTS[entry.significance]}pt)</span>
 							<span class="entry-description">{entry.description}</span>
+							{#if entry.startTime && entry.endTime}
+								<span class="entry-duration">{entry.startTime}-{entry.endTime}</span>
+							{/if}
 						</div>
 						<button class="delete-btn" onclick={() => handleDelete(entry.id)}>X</button>
 					</div>
@@ -212,6 +236,28 @@
 		white-space: nowrap;
 	}
 
+	.time-row {
+		margin-top: 0.5rem;
+	}
+
+	.time-label {
+		display: flex;
+		align-items: center;
+		gap: 0.3rem;
+		flex: 1;
+	}
+
+	.time-label span {
+		font-size: 0.8rem;
+		color: var(--color-text-muted);
+		white-space: nowrap;
+	}
+
+	.time-label input[type='time'] {
+		flex: 1;
+		margin-bottom: 0;
+	}
+
 	.entries-list {
 		display: flex;
 		flex-direction: column;
@@ -255,6 +301,12 @@
 		flex: 1;
 		overflow: hidden;
 		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	.entry-duration {
+		font-size: 0.75rem;
+		color: var(--color-text-muted);
 		white-space: nowrap;
 	}
 

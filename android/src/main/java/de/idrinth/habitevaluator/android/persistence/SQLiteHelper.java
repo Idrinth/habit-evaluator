@@ -7,7 +7,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class SQLiteHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "habit_evaluator.db";
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 2;
     private static SQLiteHelper instance;
 
     private SQLiteHelper(Context context) {
@@ -106,6 +106,8 @@ public class SQLiteHelper extends SQLiteOpenHelper {
                 + "created_at TEXT NOT NULL,"
                 + "user_id TEXT,"
                 + "user_name TEXT,"
+                + "start_time TEXT,"
+                + "end_time TEXT,"
                 + "FOREIGN KEY (diary_reference_id) REFERENCES diary_references(id)"
                 + ")");
 
@@ -153,7 +155,10 @@ public class SQLiteHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        // Future schema migrations go here
+        if (oldVersion < 2) {
+            db.execSQL("ALTER TABLE diary_entries ADD COLUMN start_time TEXT");
+            db.execSQL("ALTER TABLE diary_entries ADD COLUMN end_time TEXT");
+        }
     }
 
     @Override

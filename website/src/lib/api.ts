@@ -314,6 +314,9 @@ export interface DiaryEntry {
 	significance: 'MINOR' | 'NORMAL' | 'MAJOR';
 	eventDate: string;
 	createdAt: string;
+	startTime: string | null;
+	endTime: string | null;
+	durationMinutes: number | null;
 }
 
 export interface DiaryStats {
@@ -329,7 +332,7 @@ export const diary = {
 	list() {
 		return request<DiaryEntry[]>('/diary');
 	},
-	create(entry: { description: string; significance: string; eventDate: string }) {
+	create(entry: { description: string; significance: string; eventDate: string; startTime?: string; endTime?: string }) {
 		return request<DiaryEntry>('/diary', {
 			method: 'POST',
 			body: JSON.stringify(entry)

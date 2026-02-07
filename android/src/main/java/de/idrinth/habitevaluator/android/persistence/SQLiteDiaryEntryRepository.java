@@ -12,6 +12,7 @@ import de.idrinth.habitevaluator.shared.repository.DiaryReferenceRepository;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,6 +24,7 @@ public class SQLiteDiaryEntryRepository implements DiaryEntryRepository {
     private DiaryReferenceRepository diaryReferenceRepository;
     private static final DateTimeFormatter DT_FORMAT = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ISO_LOCAL_DATE;
+    private static final DateTimeFormatter TIME_FORMAT = DateTimeFormatter.ofPattern("HH:mm");
 
     public SQLiteDiaryEntryRepository(SQLiteHelper dbHelper) {
         this.dbHelper = dbHelper;
@@ -46,6 +48,16 @@ public class SQLiteDiaryEntryRepository implements DiaryEntryRepository {
         values.put("significance", entry.getSignificance() != null ? entry.getSignificance().name() : EventSignificance.NORMAL.name());
         values.put("event_date", entry.getEventDate() != null ? entry.getEventDate().format(DATE_FORMAT) : LocalDate.now().format(DATE_FORMAT));
         values.put("created_at", entry.getCreatedAt() != null ? entry.getCreatedAt().format(DT_FORMAT) : LocalDateTime.now().format(DT_FORMAT));
+        if (entry.getStartTime() != null) {
+            values.put("start_time", entry.getStartTime().format(TIME_FORMAT));
+        } else {
+            values.putNull("start_time");
+        }
+        if (entry.getEndTime() != null) {
+            values.put("end_time", entry.getEndTime().format(TIME_FORMAT));
+        } else {
+            values.putNull("end_time");
+        }
         if (entry.getUser() != null) {
             values.put("user_id", entry.getUser().getId());
             values.put("user_name", entry.getUser().getUsername());
@@ -153,6 +165,16 @@ public class SQLiteDiaryEntryRepository implements DiaryEntryRepository {
         String createdAt = getString(cursor, "created_at");
         if (createdAt != null) {
             entry.setCreatedAt(LocalDateTime.parse(createdAt, DT_FORMAT));
+        }
+
+        String startTime = getString(cursor, "start_time");
+        if (startTime != null) {
+            entry.setStartTime(LocalTime.parse(startTime, TIME_FORMAT));
+        }
+
+        String endTime = getString(cursor, "end_time");
+        if (endTime != null) {
+            entry.setEndTime(LocalTime.parse(endTime, TIME_FORMAT));
         }
 
         String userId = getString(cursor, "user_id");

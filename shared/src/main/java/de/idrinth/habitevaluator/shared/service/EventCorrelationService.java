@@ -85,11 +85,24 @@ public class EventCorrelationService {
                 if (diaryTs[dayIndex] == null) {
                     diaryTs[dayIndex] = new ArrayList<>();
                 }
-                // eventDate is date-only, use createdAt as fallback for time component
-                LocalDateTime timestamp = entry.getCreatedAt() != null
-                        ? entry.getCreatedAt()
-                        : entryDate.atStartOfDay();
-                diaryTs[dayIndex].add(timestamp);
+                // Use startTime/endTime for precise temporal correlation when available
+                if (entry.getStartTime() != null) {
+                    diaryTs[dayIndex].add(entryDate.atTime(entry.getStartTime()));
+                    if (entry.getEndTime() != null) {
+                        LocalDateTime endTimestamp = entryDate.atTime(entry.getEndTime());
+                        // Handle midnight crossing
+                        if (!entry.getEndTime().isAfter(entry.getStartTime())) {
+                            endTimestamp = entryDate.plusDays(1).atTime(entry.getEndTime());
+                        }
+                        diaryTs[dayIndex].add(endTimestamp);
+                    }
+                } else {
+                    // Fall back to createdAt or start of day
+                    LocalDateTime timestamp = entry.getCreatedAt() != null
+                            ? entry.getCreatedAt()
+                            : entryDate.atStartOfDay();
+                    diaryTs[dayIndex].add(timestamp);
+                }
             }
         }
         eventSignals.put("Diary Points", diarySignal);

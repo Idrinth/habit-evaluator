@@ -15,11 +15,14 @@ import de.idrinth.habitevaluator.android.R;
 import de.idrinth.habitevaluator.shared.model.DiaryEntry;
 import de.idrinth.habitevaluator.shared.model.EventSignificance;
 
+import static java.time.format.DateTimeFormatter.ofPattern;
+
 public class DiaryEntryAdapter extends RecyclerView.Adapter<DiaryEntryAdapter.ViewHolder> {
 
     private final List<DiaryEntry> entries;
     private final OnDiaryEntryDeleteListener deleteListener;
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    private static final DateTimeFormatter TIME_FORMAT = ofPattern("HH:mm");
 
     public interface OnDiaryEntryDeleteListener {
         void onDelete(DiaryEntry entry);
@@ -57,6 +60,24 @@ public class DiaryEntryAdapter extends RecyclerView.Adapter<DiaryEntryAdapter.Vi
 
         holder.points.setText(holder.itemView.getContext().getString(R.string.diary_points_value, entry.getPoints()));
 
+        if (entry.getStartTime() != null && entry.getEndTime() != null) {
+            String timeRange = entry.getStartTime().format(TIME_FORMAT) + " - " + entry.getEndTime().format(TIME_FORMAT);
+            Integer durationMinutes = entry.getDurationMinutes();
+            if (durationMinutes != null) {
+                int hours = durationMinutes / 60;
+                int mins = durationMinutes % 60;
+                String durationStr = hours > 0
+                        ? String.format("%dh %02dmin", hours, mins)
+                        : String.format("%dmin", mins);
+                holder.duration.setText(timeRange + " (" + durationStr + ")");
+            } else {
+                holder.duration.setText(timeRange);
+            }
+            holder.duration.setVisibility(View.VISIBLE);
+        } else {
+            holder.duration.setVisibility(View.GONE);
+        }
+
         holder.deleteButton.setOnClickListener(v -> {
             if (deleteListener != null) {
                 deleteListener.onDelete(entry);
@@ -72,6 +93,7 @@ public class DiaryEntryAdapter extends RecyclerView.Adapter<DiaryEntryAdapter.Vi
     static class ViewHolder extends RecyclerView.ViewHolder {
         final TextView description;
         final TextView date;
+        final TextView duration;
         final TextView significance;
         final TextView points;
         final View deleteButton;
@@ -80,6 +102,7 @@ public class DiaryEntryAdapter extends RecyclerView.Adapter<DiaryEntryAdapter.Vi
             super(itemView);
             description = itemView.findViewById(R.id.entryDescription);
             date = itemView.findViewById(R.id.entryDate);
+            duration = itemView.findViewById(R.id.entryDuration);
             significance = itemView.findViewById(R.id.entrySignificance);
             points = itemView.findViewById(R.id.entryPoints);
             deleteButton = itemView.findViewById(R.id.diaryEntryDeleteButton);

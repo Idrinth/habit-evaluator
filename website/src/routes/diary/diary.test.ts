@@ -8,14 +8,20 @@ const mockEntries = [
 		description: 'Great workout',
 		significance: 'NORMAL' as const,
 		eventDate: '2025-01-15',
-		createdAt: '2025-01-15T10:00:00'
+		createdAt: '2025-01-15T10:00:00',
+		startTime: '10:00',
+		endTime: '11:30',
+		durationMinutes: 90
 	},
 	{
 		id: '2',
 		description: 'Finished book',
 		significance: 'MAJOR' as const,
 		eventDate: '2025-01-14',
-		createdAt: '2025-01-14T09:00:00'
+		createdAt: '2025-01-14T09:00:00',
+		startTime: null,
+		endTime: null,
+		durationMinutes: null
 	}
 ];
 
@@ -125,6 +131,14 @@ describe('Diary Page', () => {
 		});
 	});
 
+	it('should display duration for entries with start and end time', async () => {
+		render(DiaryPage);
+
+		await waitFor(() => {
+			expect(screen.getByText('10:00-11:30')).toBeInTheDocument();
+		});
+	});
+
 	it('should show empty state when no entries', async () => {
 		vi.mocked(diary.list).mockResolvedValue([]);
 
@@ -141,7 +155,10 @@ describe('Diary Page', () => {
 			description: 'New event',
 			significance: 'MINOR',
 			eventDate: '2025-01-16',
-			createdAt: '2025-01-16T12:00:00'
+			createdAt: '2025-01-16T12:00:00',
+			startTime: null,
+			endTime: null,
+			durationMinutes: null
 		});
 
 		render(DiaryPage);
