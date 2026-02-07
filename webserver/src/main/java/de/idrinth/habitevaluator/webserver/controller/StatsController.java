@@ -7,11 +7,13 @@ import de.idrinth.habitevaluator.shared.model.Habit;
 import de.idrinth.habitevaluator.shared.model.HabitCategory;
 import de.idrinth.habitevaluator.shared.model.HabitEntry;
 import de.idrinth.habitevaluator.shared.model.SleepEntry;
+import de.idrinth.habitevaluator.shared.model.SportLog;
 import de.idrinth.habitevaluator.shared.repository.DiaryEntryRepository;
 import de.idrinth.habitevaluator.shared.repository.EmotionEntryRepository;
 import de.idrinth.habitevaluator.shared.repository.HabitCategoryRepository;
 import de.idrinth.habitevaluator.shared.repository.HabitRepository;
 import de.idrinth.habitevaluator.shared.repository.SleepEntryRepository;
+import de.idrinth.habitevaluator.shared.repository.SportLogRepository;
 import de.idrinth.habitevaluator.shared.service.DiaryService;
 import de.idrinth.habitevaluator.shared.service.EventCorrelationService;
 import de.idrinth.habitevaluator.shared.service.HabitScoringService;
@@ -43,6 +45,7 @@ public class StatsController {
     private final DiaryEntryRepository diaryEntryRepository;
     private final EmotionEntryRepository emotionEntryRepository;
     private final HabitCategoryRepository habitCategoryRepository;
+    private final SportLogRepository sportLogRepository;
     private final HabitScoringService scoringService;
     private final DiaryService diaryService;
     private final EventCorrelationService correlationService;
@@ -52,6 +55,7 @@ public class StatsController {
                            DiaryEntryRepository diaryEntryRepository,
                            EmotionEntryRepository emotionEntryRepository,
                            HabitCategoryRepository habitCategoryRepository,
+                           SportLogRepository sportLogRepository,
                            HabitScoringService scoringService,
                            DiaryService diaryService,
                            EventCorrelationService correlationService) {
@@ -60,6 +64,7 @@ public class StatsController {
         this.diaryEntryRepository = diaryEntryRepository;
         this.emotionEntryRepository = emotionEntryRepository;
         this.habitCategoryRepository = habitCategoryRepository;
+        this.sportLogRepository = sportLogRepository;
         this.scoringService = scoringService;
         this.diaryService = diaryService;
         this.correlationService = correlationService;
@@ -217,9 +222,10 @@ public class StatsController {
         List<DiaryEntry> diaryEntries = diaryEntryRepository.findByUserId(userId);
         List<SleepEntry> sleepEntries = sleepEntryRepository.findByUserId(userId);
         List<EmotionEntry> emotionEntries = emotionEntryRepository.findByUserId(userId);
+        List<SportLog> sportLogs = sportLogRepository.findByUserId(userId);
 
         List<EventCorrelation> correlations = correlationService.calculateCorrelations(
-                habits, diaryEntries, sleepEntries, emotionEntries);
+                habits, diaryEntries, sleepEntries, emotionEntries, sportLogs);
 
         List<Map<String, Object>> result = new ArrayList<>();
         for (EventCorrelation corr : correlations) {

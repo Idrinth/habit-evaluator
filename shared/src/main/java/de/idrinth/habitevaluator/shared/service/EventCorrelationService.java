@@ -6,6 +6,7 @@ import de.idrinth.habitevaluator.shared.model.EventCorrelation;
 import de.idrinth.habitevaluator.shared.model.Habit;
 import de.idrinth.habitevaluator.shared.model.HabitEntry;
 import de.idrinth.habitevaluator.shared.model.SleepEntry;
+import de.idrinth.habitevaluator.shared.model.SportLog;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -46,6 +47,27 @@ public class EventCorrelationService {
             List<DiaryEntry> diaryEntries,
             List<SleepEntry> sleepEntries,
             List<EmotionEntry> emotionEntries) {
+        return calculateCorrelations(habits, diaryEntries, sleepEntries, emotionEntries, new ArrayList<>());
+    }
+
+    /**
+     * Calculates the top event correlations over the past year using time-weighted
+     * Pearson correlation. Events include individual habits, diary points, sleep hours,
+     * emotion pair daily averages, and sport log data (duration and measurement per activity).
+     *
+     * @param habits         all habits with their entries
+     * @param diaryEntries   all diary entries
+     * @param sleepEntries   all sleep entries
+     * @param emotionEntries all emotion entries
+     * @param sportLogs      all sport log entries
+     * @return all correlations sorted by absolute correlation strength
+     */
+    public List<EventCorrelation> calculateCorrelations(
+            List<Habit> habits,
+            List<DiaryEntry> diaryEntries,
+            List<SleepEntry> sleepEntries,
+            List<EmotionEntry> emotionEntries,
+            List<SportLog> sportLogs) {
 
         LocalDate today = LocalDate.now();
         LocalDate startDate = today.minusDays(YEAR_DAYS - 1);
@@ -211,6 +233,78 @@ public class EventCorrelationService {
             }
             eventSignals.put(pairEntry.getKey(), signal);
             eventTimestamps.put(pairEntry.getKey(), timestamps);
+        }
+
+        // Group sport logs by activity name and create duration and measurement signals
+        Map<String, Map<Integer, List<Double>>> sportDurationByName = new LinkedHashMap<>();
+        Map<String, Map<Integer, List<Double>>> sportMeasurementByName = new LinkedHashMap<>();
+        Map<String, Map<Integer, List<LocalDateTime>>> sportTsByName = new LinkedHashMap<>();
+        for (SportLog entry : sportLogs) {
+            LocalDate entryDate = entry.getDate();
+            if (!entryDate.isBefore(startDate) && !entryDate.isAfter(today)) {
+                int dayIndex = (int) ChronoUnit.DAYS.between(startDate, entryDate);
+                String sportName = entry.getName();
+                sportDurationByName.computeIfAbsent(sportName, k -> new LinkedHashMap<>())
+                        .computeIfAbsent(dayIndex, k -> new ArrayList<>())
+                        .add(entry.getDurationHours());
+                sportMeasurementByName.computeIfAbsent(sportName, k -> new LinkedHashMap<>())
+                        .computeIfAbsent(dayIndex, k -> new ArrayList<>())
+                        .add(entry.getMeasurement());
+                sportTsByName.computeIfAbsent(sportName, k -> new LinkedHashMap<>())
+                        .computeIfAbsent(dayIndex, k -> new ArrayList<>());
+                if (entry.getStartTime() != null) {
+                    sportTsByName.get(sportName).get(dayIndex)
+                            .add(entryDate.atTime(entry.getStartTime()));
+                }
+                if (entry.getEndTime() != null) {
+                    LocalDateTime endTimestamp = entryDate.atTime(entry.getEndTime());
+                    if (entry.getStartTime() != null
+                            && !entry.getEndTime().isAfter(entry.getStartTime())) {
+                        endTimestamp = entryDate.plusDays(1).atTime(entry.getEndTime());
+                    }
+                    sportTsByName.get(sportName).get(dayIndex).add(endTimestamp);
+                }
+            }
+        }
+        for (String sportName : sportDurationByName.keySet()) {
+            double[] durationSignal = new double[totalDays];
+            double[] measurementSignal = new double[totalDays];
+            @SuppressWarnings("unchecked")
+            List<LocalDateTime>[] sportTimestamps = new ArrayList[totalDays];
+            Map<Integer, List<Double>> durationMap = sportDurationByName.get(sportName);
+            Map<Integer, List<Double>> measurementMap = sportMeasurementByName.get(sportName);
+            Map<Integer, List<LocalDateTime>> tsMap = sportTsByName.get(sportName);
+            for (Map.Entry<Integer, List<Double>> dayEntry : durationMap.entrySet()) {
+                int dayIdx = dayEntry.getKey();
+                double totalDur = 0;
+                for (double d : dayEntry.getValue()) {
+                    totalDur += d;
+                }
+                durationSignal[dayIdx] = totalDur;
+                if (tsMap != null && tsMap.containsKey(dayIdx)) {
+                    sportTimestamps[dayIdx] = new ArrayList<>(tsMap.get(dayIdx));
+                }
+            }
+            for (Map.Entry<Integer, List<Double>> dayEntry : measurementMap.entrySet()) {
+                int dayIdx = dayEntry.getKey();
+                double totalMeas = 0;
+                for (double m : dayEntry.getValue()) {
+                    totalMeas += m;
+                }
+                measurementSignal[dayIdx] = totalMeas;
+            }
+            String durationLabel = "Sport Duration: " + sportName;
+            String measurementLabel = "Sport Measurement: " + sportName;
+            eventSignals.put(durationLabel, durationSignal);
+            eventTimestamps.put(durationLabel, sportTimestamps);
+            // Reuse same timestamps for measurement signal
+            @SuppressWarnings("unchecked")
+            List<LocalDateTime>[] measurementTs = new ArrayList[totalDays];
+            for (int i = 0; i < totalDays; i++) {
+                measurementTs[i] = sportTimestamps[i];
+            }
+            eventSignals.put(measurementLabel, measurementSignal);
+            eventTimestamps.put(measurementLabel, measurementTs);
         }
 
         double[] weights = new double[totalDays];

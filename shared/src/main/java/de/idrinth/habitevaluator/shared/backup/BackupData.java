@@ -18,6 +18,7 @@ public class BackupData {
     private List<CategoryData> categories = new ArrayList<>();
     private List<DiaryEntryData> diaryEntries = new ArrayList<>();
     private List<SleepEntryData> sleepEntries = new ArrayList<>();
+    private List<SportLogData> sportLogs = new ArrayList<>();
 
     public String getBackupDate() {
         return backupDate;
@@ -73,6 +74,14 @@ public class BackupData {
 
     public void setSleepEntries(List<SleepEntryData> sleepEntries) {
         this.sleepEntries = sleepEntries;
+    }
+
+    public List<SportLogData> getSportLogs() {
+        return sportLogs;
+    }
+
+    public void setSportLogs(List<SportLogData> sportLogs) {
+        this.sportLogs = sportLogs;
     }
 
     public static class UserData {
@@ -447,6 +456,90 @@ public class BackupData {
 
         public void setUntilTime(String untilTime) {
             this.untilTime = untilTime;
+        }
+
+        public String getDate() {
+            return date;
+        }
+
+        public void setDate(String date) {
+            this.date = date;
+        }
+
+        public String getNotes() {
+            return notes;
+        }
+
+        public void setNotes(String notes) {
+            this.notes = notes;
+        }
+
+        public String getCreatedAt() {
+            return createdAt;
+        }
+
+        public void setCreatedAt(String createdAt) {
+            this.createdAt = createdAt;
+        }
+    }
+
+    public static class SportLogData {
+        private String id;
+        private String name;
+        private double measurement;
+        private String measurementUnit;
+        private String startTime;
+        private String endTime;
+        private String date;
+        private String notes;
+        private String createdAt;
+
+        public String getId() {
+            return id;
+        }
+
+        public void setId(String id) {
+            this.id = id;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public double getMeasurement() {
+            return measurement;
+        }
+
+        public void setMeasurement(double measurement) {
+            this.measurement = measurement;
+        }
+
+        public String getMeasurementUnit() {
+            return measurementUnit;
+        }
+
+        public void setMeasurementUnit(String measurementUnit) {
+            this.measurementUnit = measurementUnit;
+        }
+
+        public String getStartTime() {
+            return startTime;
+        }
+
+        public void setStartTime(String startTime) {
+            this.startTime = startTime;
+        }
+
+        public String getEndTime() {
+            return endTime;
+        }
+
+        public void setEndTime(String endTime) {
+            this.endTime = endTime;
         }
 
         public String getDate() {

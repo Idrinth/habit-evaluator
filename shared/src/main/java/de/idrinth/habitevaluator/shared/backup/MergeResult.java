@@ -11,15 +11,24 @@ public class MergeResult {
     private final int entriesAdded;
     private final int diaryEntriesAdded;
     private final int sleepEntriesAdded;
+    private final int sportLogsAdded;
 
     public MergeResult(int categoriesAdded, int habitsAdded, int habitsMerged,
                        int entriesAdded, int diaryEntriesAdded, int sleepEntriesAdded) {
+        this(categoriesAdded, habitsAdded, habitsMerged, entriesAdded,
+                diaryEntriesAdded, sleepEntriesAdded, 0);
+    }
+
+    public MergeResult(int categoriesAdded, int habitsAdded, int habitsMerged,
+                       int entriesAdded, int diaryEntriesAdded, int sleepEntriesAdded,
+                       int sportLogsAdded) {
         this.categoriesAdded = categoriesAdded;
         this.habitsAdded = habitsAdded;
         this.habitsMerged = habitsMerged;
         this.entriesAdded = entriesAdded;
         this.diaryEntriesAdded = diaryEntriesAdded;
         this.sleepEntriesAdded = sleepEntriesAdded;
+        this.sportLogsAdded = sportLogsAdded;
     }
 
     public int getCategoriesAdded() {
@@ -46,8 +55,13 @@ public class MergeResult {
         return sleepEntriesAdded;
     }
 
+    public int getSportLogsAdded() {
+        return sportLogsAdded;
+    }
+
     public int getTotalChanges() {
-        return categoriesAdded + habitsAdded + habitsMerged + diaryEntriesAdded + sleepEntriesAdded;
+        return categoriesAdded + habitsAdded + habitsMerged + diaryEntriesAdded
+                + sleepEntriesAdded + sportLogsAdded;
     }
 
     @Override
@@ -59,6 +73,7 @@ public class MergeResult {
                 + ", entries added=" + entriesAdded
                 + ", diary entries added=" + diaryEntriesAdded
                 + ", sleep entries added=" + sleepEntriesAdded
+                + ", sport logs added=" + sportLogsAdded
                 + '}';
     }
 }
