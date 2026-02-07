@@ -361,6 +361,126 @@ class EventCorrelationServiceTest {
         assertTrue(foundHabitEmotion);
     }
 
+    @Test
+    void testDiaryDurationSignalIncluded() {
+        LocalDate today = LocalDate.now();
+
+        Habit habit = new Habit("Exercise", "Test");
+        List<DiaryEntry> diaryEntries = new ArrayList<>();
+
+        for (int i = 0; i < 30; i++) {
+            LocalDate date = today.minusDays(i);
+
+            HabitEntry he = new HabitEntry();
+            he.setCompletedAt(date.atTime(10, 0));
+            habit.addEntry(he);
+
+            // Diary entry with duration (startTime and endTime set)
+            DiaryEntry de = new DiaryEntry("Workout", EventSignificance.NORMAL, date);
+            de.setStartTime(LocalTime.of(8, 0));
+            de.setEndTime(LocalTime.of(9, 30)); // 90 minutes duration
+            diaryEntries.add(de);
+        }
+
+        List<EventCorrelation> result = service.calculateCorrelations(
+                List.of(habit), diaryEntries, new ArrayList<>(), new ArrayList<>());
+
+        // Should find correlations involving "Diary Duration"
+        boolean foundDuration = result.stream()
+                .anyMatch(c -> c.getEventA().contains("Diary Duration")
+                        || c.getEventB().contains("Diary Duration"));
+        assertTrue(foundDuration, "Expected Diary Duration signal in correlations");
+    }
+
+    @Test
+    void testDiaryDurationNotIncludedWithoutTimes() {
+        LocalDate today = LocalDate.now();
+
+        Habit habit = new Habit("Reading", "Test");
+        List<DiaryEntry> diaryEntries = new ArrayList<>();
+
+        for (int i = 0; i < 30; i++) {
+            LocalDate date = today.minusDays(i);
+
+            HabitEntry he = new HabitEntry();
+            he.setCompletedAt(date.atTime(10, 0));
+            habit.addEntry(he);
+
+            // Diary entry without startTime/endTime -> no duration
+            DiaryEntry de = new DiaryEntry("Read a book", EventSignificance.MINOR, date);
+            diaryEntries.add(de);
+        }
+
+        List<EventCorrelation> result = service.calculateCorrelations(
+                List.of(habit), diaryEntries, new ArrayList<>(), new ArrayList<>());
+
+        // Should NOT find any correlations involving "Diary Duration"
+        boolean foundDuration = result.stream()
+                .anyMatch(c -> c.getEventA().contains("Diary Duration")
+                        || c.getEventB().contains("Diary Duration"));
+        assertFalse(foundDuration, "Diary Duration signal should not appear without time data");
+    }
+
+    @Test
+    void testDiaryDurationHandlesMidnightCrossing() {
+        LocalDate today = LocalDate.now();
+
+        List<DiaryEntry> diaryEntries = new ArrayList<>();
+        List<SleepEntry> sleepEntries = new ArrayList<>();
+
+        for (int i = 0; i < 30; i++) {
+            LocalDate date = today.minusDays(i);
+
+            // Diary entry crossing midnight: 23:00 to 01:00 = 2 hours
+            DiaryEntry de = new DiaryEntry("Late event", EventSignificance.NORMAL, date);
+            de.setStartTime(LocalTime.of(23, 0));
+            de.setEndTime(LocalTime.of(1, 0));
+            diaryEntries.add(de);
+
+            sleepEntries.add(new SleepEntry(LocalTime.of(1, 30), LocalTime.of(8, 0), date));
+        }
+
+        List<EventCorrelation> result = service.calculateCorrelations(
+                new ArrayList<>(), diaryEntries, sleepEntries, new ArrayList<>());
+
+        // Should find Diary Duration correlated with Sleep Hours
+        boolean foundDurationSleep = result.stream()
+                .anyMatch(c -> (c.getEventA().contains("Diary Duration") && c.getEventB().contains("Sleep"))
+                        || (c.getEventA().contains("Sleep") && c.getEventB().contains("Diary Duration")));
+        assertTrue(foundDurationSleep, "Expected Diary Duration to correlate with Sleep Hours");
+    }
+
+    @Test
+    void testDiaryDurationProximityWithEmotions() {
+        LocalDate today = LocalDate.now();
+
+        EmotionPair pair = new EmotionPair("tired", "energetic");
+        List<DiaryEntry> diaryEntries = new ArrayList<>();
+        List<EmotionEntry> emotionEntries = new ArrayList<>();
+
+        for (int i = 0; i < 30; i++) {
+            LocalDate date = today.minusDays(i);
+
+            // Diary entry with duration: 07:00 to 08:00
+            DiaryEntry de = new DiaryEntry("Morning run", EventSignificance.NORMAL, date);
+            de.setStartTime(LocalTime.of(7, 0));
+            de.setEndTime(LocalTime.of(8, 0));
+            diaryEntries.add(de);
+
+            // Emotion recorded 30 min after diary end time -> within 2h proximity
+            emotionEntries.add(new EmotionEntry(pair, 8, date.atTime(8, 30), null));
+        }
+
+        List<EventCorrelation> result = service.calculateCorrelations(
+                new ArrayList<>(), diaryEntries, new ArrayList<>(), emotionEntries);
+
+        // Should find correlation between Diary Duration and the emotion pair
+        boolean foundDurationEmotion = result.stream()
+                .anyMatch(c -> (c.getEventA().contains("Diary Duration") && c.getEventB().contains("Emotion"))
+                        || (c.getEventA().contains("Emotion") && c.getEventB().contains("Diary Duration")));
+        assertTrue(foundDurationEmotion, "Expected Diary Duration to correlate with emotions via temporal proximity");
+    }
+
     private double findCorrelation(List<EventCorrelation> correlations, String partA, String partB) {
         return correlations.stream()
                 .filter(c -> (c.getEventA().contains(partA) && c.getEventB().contains(partB))

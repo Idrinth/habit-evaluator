@@ -75,8 +75,11 @@ public class EventCorrelationService {
         }
 
         double[] diarySignal = new double[totalDays];
+        double[] diaryDurationSignal = new double[totalDays];
         @SuppressWarnings("unchecked")
         List<LocalDateTime>[] diaryTs = new ArrayList[totalDays];
+        @SuppressWarnings("unchecked")
+        List<LocalDateTime>[] diaryDurationTs = new ArrayList[totalDays];
         for (DiaryEntry entry : diaryEntries) {
             LocalDate entryDate = entry.getEventDate();
             if (!entryDate.isBefore(startDate) && !entryDate.isAfter(today)) {
@@ -103,10 +106,36 @@ public class EventCorrelationService {
                             : entryDate.atStartOfDay();
                     diaryTs[dayIndex].add(timestamp);
                 }
+                // Track duration signal for entries that have start and end times
+                Integer durationMinutes = entry.getDurationMinutes();
+                if (durationMinutes != null) {
+                    diaryDurationSignal[dayIndex] += durationMinutes / 60.0;
+                    if (diaryDurationTs[dayIndex] == null) {
+                        diaryDurationTs[dayIndex] = new ArrayList<>();
+                    }
+                    diaryDurationTs[dayIndex].add(entryDate.atTime(entry.getStartTime()));
+                    LocalDateTime endTimestamp = entryDate.atTime(entry.getEndTime());
+                    if (!entry.getEndTime().isAfter(entry.getStartTime())) {
+                        endTimestamp = entryDate.plusDays(1).atTime(entry.getEndTime());
+                    }
+                    diaryDurationTs[dayIndex].add(endTimestamp);
+                }
             }
         }
         eventSignals.put("Diary Points", diarySignal);
         eventTimestamps.put("Diary Points", diaryTs);
+        // Only add diary duration signal if any entries have duration data
+        boolean hasDurationData = false;
+        for (double v : diaryDurationSignal) {
+            if (v != 0) {
+                hasDurationData = true;
+                break;
+            }
+        }
+        if (hasDurationData) {
+            eventSignals.put("Diary Duration", diaryDurationSignal);
+            eventTimestamps.put("Diary Duration", diaryDurationTs);
+        }
 
         double[] sleepSignal = new double[totalDays];
         @SuppressWarnings("unchecked")
