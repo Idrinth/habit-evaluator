@@ -104,6 +104,8 @@
     <string name="diary_description_required">Bitte beschreiben Sie das positive Ereignis</string>
     <string name="diary_date_hint">Datum (JJJJ-MM-TT)</string>
     <string name="diary_entry_removed">Tagebucheintrag entfernt</string>
+    <string name="diary_start_time_hint">Start time (optional)</string>
+    <string name="diary_end_time_hint">End time (optional)</string>
     <string name="sleep_tracking">Schlaf</string>
     <string name="sleep_from_hint">Von (HH:MM)</string>
     <string name="sleep_until_hint">Bis (HH:MM)</string>
