@@ -188,6 +188,8 @@
     <string name="stats_emotion_scatter">Distribución diurna de emociones</string>
     <string name="stats_emotion_scatter_desc">Registros de emociones de los últimos 30 días</string>
     <string name="stats_correlations_title">Correlaciones de eventos (Anual, Ponderado)</string>
+    <string name="stats_correlations_description">Correlaciones ponderadas por tiempo entre hábitos, diario, sueño y emociones</string>
+    <string name="stats_view_correlations">Ver todas las correlaciones</string>
     <string name="stats_no_correlations">No hay suficientes datos para correlaciones</string>
     <string name="stats_correlation_disclaimer">Correlación no implica causalidad. Las correlaciones débiles (|r| &lt; 0,3) tienen baja confianza estadística y deben interpretarse con precaución.</string>
     <string name="stats_confidence_strong">Fuerte</string>

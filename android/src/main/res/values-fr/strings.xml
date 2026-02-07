@@ -188,6 +188,8 @@
     <string name="stats_emotion_scatter">Distribution journalière des émotions</string>
     <string name="stats_emotion_scatter_desc">Enregistrements d\'émotions des 30 derniers jours</string>
     <string name="stats_correlations_title">Corrélations d\'événements (Annuel, Pondéré)</string>
+    <string name="stats_correlations_description">Corrélations pondérées dans le temps entre habitudes, journal, sommeil et émotions</string>
+    <string name="stats_view_correlations">Voir toutes les corrélations</string>
     <string name="stats_no_correlations">Pas assez de données pour les corrélations</string>
     <string name="stats_correlation_disclaimer">Corrélation n\'implique pas causalité. Les corrélations faibles (|r| &lt; 0,3) ont une faible confiance statistique et doivent être interprétées avec prudence.</string>
     <string name="stats_confidence_strong">Fort</string>
