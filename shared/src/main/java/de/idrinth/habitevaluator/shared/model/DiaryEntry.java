@@ -13,6 +13,7 @@ import jakarta.persistence.Transient;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -48,6 +49,12 @@ public class DiaryEntry {
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
+
+    @Column(name = "start_time")
+    private LocalTime startTime;
+
+    @Column(name = "end_time")
+    private LocalTime endTime;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
@@ -158,6 +165,41 @@ public class DiaryEntry {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public LocalTime getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(LocalTime startTime) {
+        this.startTime = startTime;
+    }
+
+    public LocalTime getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(LocalTime endTime) {
+        this.endTime = endTime;
+    }
+
+    /**
+     * Calculates the activity duration in minutes from startTime and endTime.
+     * Returns null if either time is not set.
+     * Handles midnight crossing (e.g., 23:00 to 01:00 = 120 minutes).
+     */
+    @Transient
+    public Integer getDurationMinutes() {
+        if (startTime == null || endTime == null) {
+            return null;
+        }
+        int startMinutes = startTime.getHour() * 60 + startTime.getMinute();
+        int endMinutes = endTime.getHour() * 60 + endTime.getMinute();
+        int diff = endMinutes - startMinutes;
+        if (diff <= 0) {
+            diff += 24 * 60;
+        }
+        return diff;
     }
 
     public User getUser() {

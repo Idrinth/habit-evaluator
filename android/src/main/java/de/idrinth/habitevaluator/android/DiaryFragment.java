@@ -1,6 +1,7 @@
 package de.idrinth.habitevaluator.android;
 
 import android.app.DatePickerDialog;
+import android.app.TimePickerDialog;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,6 +15,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -29,12 +31,15 @@ import de.idrinth.habitevaluator.shared.service.DiaryService;
 public class DiaryFragment extends Fragment {
 
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    private static final DateTimeFormatter TIME_FORMAT = DateTimeFormatter.ofPattern("HH:mm");
 
     private FragmentDiaryBinding binding;
     private DiaryEntryAdapter adapter;
     private List<DiaryEntry> displayedEntries;
     private DiaryService diaryService;
     private LocalDate selectedDate;
+    private LocalTime selectedStartTime;
+    private LocalTime selectedEndTime;
 
     @Nullable
     @Override
@@ -55,6 +60,7 @@ public class DiaryFragment extends Fragment {
         setupRecyclerView();
         setupSignificanceSpinner();
         setupDatePicker();
+        setupTimePickers();
         setupAddButton();
     }
 
@@ -112,6 +118,35 @@ public class DiaryFragment extends Fragment {
         dialog.show();
     }
 
+    private void setupTimePickers() {
+        binding.startTimeInput.setOnClickListener(v -> showTimePicker(true));
+        binding.endTimeInput.setOnClickListener(v -> showTimePicker(false));
+    }
+
+    private void showTimePicker(boolean isStartTime) {
+        LocalTime current = isStartTime ? selectedStartTime : selectedEndTime;
+        int hour = current != null ? current.getHour() : LocalTime.now().getHour();
+        int minute = current != null ? current.getMinute() : 0;
+
+        TimePickerDialog dialog = new TimePickerDialog(
+                requireContext(),
+                (view, selectedHour, selectedMinute) -> {
+                    LocalTime time = LocalTime.of(selectedHour, selectedMinute);
+                    if (isStartTime) {
+                        selectedStartTime = time;
+                        binding.startTimeInput.setText(time.format(TIME_FORMAT));
+                    } else {
+                        selectedEndTime = time;
+                        binding.endTimeInput.setText(time.format(TIME_FORMAT));
+                    }
+                },
+                hour,
+                minute,
+                true
+        );
+        dialog.show();
+    }
+
     private void setupAddButton() {
         binding.addEventButton.setOnClickListener(v -> addEvent());
     }
@@ -141,6 +176,8 @@ public class DiaryFragment extends Fragment {
 
         DiaryEntry entry = new DiaryEntry(description, significance, selectedDate);
         entry.setUser(MainActivity.getSharedCurrentUser());
+        entry.setStartTime(selectedStartTime);
+        entry.setEndTime(selectedEndTime);
 
         DiaryEntryRepository repository = MainActivity.getSharedDiaryEntryRepository();
         if (repository != null) {
@@ -150,6 +187,10 @@ public class DiaryFragment extends Fragment {
         binding.eventDescriptionInput.setText("");
         selectedDate = LocalDate.now();
         binding.eventDateInput.setText(selectedDate.format(DATE_FORMAT));
+        selectedStartTime = null;
+        selectedEndTime = null;
+        binding.startTimeInput.setText("");
+        binding.endTimeInput.setText("");
         loadEntries();
         Toast.makeText(requireContext(), R.string.diary_event_added, Toast.LENGTH_SHORT).show();
     }

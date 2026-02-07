@@ -33,6 +33,14 @@
                 android:layout_height="wrap_content"
                 android:textSize="12sp"
                 android:textColor="@color/text_secondary" />
+
+            <TextView
+                android:id="@+id/entryDuration"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="11sp"
+                android:textColor="@color/text_secondary"
+                android:visibility="gone" />
         </LinearLayout>
 
         <TextView

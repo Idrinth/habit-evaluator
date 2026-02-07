@@ -20,6 +20,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -39,7 +40,7 @@ public class FileSystemDiaryEntryRepository implements DiaryEntryRepository {
             storageDir.mkdirs();
         }
         this.storageFile = new File(storageDir, "diary_entries.json");
-        this.gson = GsonSerializers.createGsonWithDateTimeAndDate();
+        this.gson = GsonSerializers.createGson();
         load();
     }
 
@@ -149,6 +150,13 @@ public class FileSystemDiaryEntryRepository implements DiaryEntryRepository {
         // Keep description for backward compatibility with old format readers
         obj.addProperty("description", entry.getDescription());
 
+        if (entry.getStartTime() != null) {
+            obj.add("startTime", gson.toJsonTree(entry.getStartTime()));
+        }
+        if (entry.getEndTime() != null) {
+            obj.add("endTime", gson.toJsonTree(entry.getEndTime()));
+        }
+
         if (entry.getUser() != null) {
             obj.add("user", serializeUser(entry.getUser()));
         }
@@ -187,6 +195,13 @@ public class FileSystemDiaryEntryRepository implements DiaryEntryRepository {
         }
         if (hasNonNull(obj, "createdAt")) {
             entry.setCreatedAt(gson.fromJson(obj.get("createdAt"), LocalDateTime.class));
+        }
+
+        if (hasNonNull(obj, "startTime")) {
+            entry.setStartTime(gson.fromJson(obj.get("startTime"), LocalTime.class));
+        }
+        if (hasNonNull(obj, "endTime")) {
+            entry.setEndTime(gson.fromJson(obj.get("endTime"), LocalTime.class));
         }
 
         if (hasNonNull(obj, "user")) {
