@@ -131,9 +131,10 @@ class StatsControllerTest {
         when(diaryEntryRepository.findByUserId(testUser.getId())).thenReturn(new ArrayList<>());
         when(sleepEntryRepository.findByUserId(testUser.getId())).thenReturn(new ArrayList<>());
         when(emotionEntryRepository.findByUserId(testUser.getId())).thenReturn(new ArrayList<>());
+        when(sportLogRepository.findByUserId(testUser.getId())).thenReturn(new ArrayList<>());
 
         EventCorrelation correlation = new EventCorrelation("Habit: Exercise", "Sleep Hours", 0.75, 30);
-        when(correlationService.calculateCorrelations(any(), any(), any(), any())).thenReturn(List.of(correlation));
+        when(correlationService.calculateCorrelations(any(), any(), any(), any(), any())).thenReturn(List.of(correlation));
 
         ResponseEntity<List<Map<String, Object>>> response = controller.getCorrelations(session);
 
