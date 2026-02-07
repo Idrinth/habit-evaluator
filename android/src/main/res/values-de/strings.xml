@@ -191,6 +191,7 @@
     <string name="restore_in_progress">Backup wird wiederhergestellt…</string>
     <string name="restore_success">Wiederhergestellt: %1$d Gewohnheiten hinzugefügt, %2$d Gewohnheiten zusammengeführt, %3$d Einträge hinzugefügt, %4$d Tagebucheinträge hinzugefügt, %5$d Schlafeinträge hinzugefügt, %6$d Kategorien hinzugefügt</string>
     <string name="restore_failed">Wiederherstellung fehlgeschlagen: %s</string>
+    <string name="restore_failed_not_initialized">Storage is not yet initialized. Please wait and try again.</string>
     <string name="download_backup_title">Download Backup</string>
     <string name="download_backup_button">Download Backup (.hez)</string>
     <string name="download_backup_in_progress">Creating backup…</string>
@@ -313,5 +314,6 @@
     <string name="food_log_entry_removed">Food log entry removed</string>
     <string name="food_log_items_required">Please enter at least one food item</string>
     <string name="food_log_kcal_required">Please enter a valid kcal value</string>
+    <string name="food_log_kcal_invalid">Please enter a valid kcal value</string>
     <string name="food_log_carbs_invalid">Please enter a valid carbohydrates value</string>
 </resources>
