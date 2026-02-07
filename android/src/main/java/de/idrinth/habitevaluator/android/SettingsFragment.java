@@ -465,7 +465,7 @@ public class SettingsFragment extends Fragment {
                         try {
                             MergeResult result = backupService.mergeBackup(
                                     selectedFile, password,
-                                    MainActivity.getSharedCurrentUser(),
+                                    MainActivity.getSharedLocalUser(),
                                     MainActivity.getSharedHabitRepository(),
                                     MainActivity.getSharedCategoryRepository(),
                                     MainActivity.getSharedDiaryEntryRepository(),
@@ -511,7 +511,7 @@ public class SettingsFragment extends Fragment {
             try {
                 byte[] hezData = hezBackupService.createHezBackup(
                         backupPassword,
-                        MainActivity.getSharedCurrentUser(),
+                        MainActivity.getSharedLocalUser(),
                         MainActivity.getSharedHabitRepository(),
                         MainActivity.getSharedCategoryRepository(),
                         MainActivity.getSharedDiaryEntryRepository(),
@@ -598,7 +598,7 @@ public class SettingsFragment extends Fragment {
                             }
                             MergeResult result = hezBackupService.mergeFromHezStream(
                                     inputStream, password,
-                                    MainActivity.getSharedCurrentUser(),
+                                    MainActivity.getSharedLocalUser(),
                                     MainActivity.getSharedHabitRepository(),
                                     MainActivity.getSharedCategoryRepository(),
                                     MainActivity.getSharedDiaryEntryRepository(),
