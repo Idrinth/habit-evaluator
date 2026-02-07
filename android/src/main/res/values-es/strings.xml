@@ -225,6 +225,8 @@
     <string name="stats_emotion_scatter">Daytime Emotion Distribution</string>
     <string name="stats_emotion_scatter_desc">Emotion recordings over the past 30 days</string>
     <string name="stats_correlations_title">Correlaciones de eventos (Anual, Ponderado)</string>
+    <string name="stats_correlations_description">Time-weighted correlations across habits, diary, sleep, and emotions</string>
+    <string name="stats_view_correlations">View all correlations</string>
     <string name="stats_no_correlations">No hay suficientes datos para correlaciones</string>
     <string name="stats_correlation_disclaimer">Correlation does not imply causation. Weak correlations (|r| &lt; 0.3) have low statistical confidence and should be interpreted with caution.</string>
     <string name="stats_confidence_strong">Strong</string>
