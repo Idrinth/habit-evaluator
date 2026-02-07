@@ -317,4 +317,18 @@
     <string name="sport_log_total_entries">Entries: %d</string>
     <string name="diary_navigation_positivity_description">Record and track positive events in your life</string>
     <string name="diary_navigation_sport_description">Log your sport activities and track measurements</string>
+    <string name="diary_navigation_food_description">Track your meals, calories, and carbohydrates</string>
+    <string name="food_log_title">Food Log</string>
+    <string name="food_log_add_entry">Add</string>
+    <string name="food_log_food_items_hint">Food items (e.g. Rice, Chicken)</string>
+    <string name="food_log_kcal_hint">Kcal</string>
+    <string name="food_log_carbs_hint">Carbs (g)</string>
+    <string name="food_log_datetime_hint">Date and time</string>
+    <string name="food_log_notes_hint">Notes (optional)</string>
+    <string name="food_log_delete">Delete</string>
+    <string name="food_log_entry_added">Food log entry added</string>
+    <string name="food_log_entry_removed">Food log entry removed</string>
+    <string name="food_log_items_required">Please enter at least one food item</string>
+    <string name="food_log_kcal_required">Please enter a valid kcal value</string>
+    <string name="food_log_carbs_invalid">Please enter a valid carbohydrates value</string>
 </resources>

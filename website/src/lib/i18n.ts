@@ -99,7 +99,8 @@ const translations: Record<Language, Record<string, string>> = {
 		'correlations.disclaimer': 'Correlation does not imply causation. Weak correlations (|r| < 0.3) have low statistical confidence and should be interpreted with caution.',
 		'correlations.backToStats': 'Back to Statistics',
 		'nav.correlations': 'Correlations',
-		'nav.settings': 'Settings'
+		'nav.settings': 'Settings',
+		'nav.foodLog': 'Food Log'
 	},
 	de: {
 		'nav.home': 'Start',
@@ -192,7 +193,8 @@ const translations: Record<Language, Record<string, string>> = {
 		'correlations.disclaimer': 'Korrelation bedeutet nicht Kausalität. Schwache Korrelationen (|r| < 0,3) haben eine niedrige statistische Konfidenz und sollten mit Vorsicht interpretiert werden.',
 		'correlations.backToStats': 'Zurück zu Statistiken',
 		'nav.correlations': 'Korrelationen',
-		'nav.settings': 'Einstellungen'
+		'nav.settings': 'Einstellungen',
+		'nav.foodLog': 'Ernährungsprotokoll'
 	},
 	es: {
 		'nav.home': 'Inicio',
@@ -285,7 +287,8 @@ const translations: Record<Language, Record<string, string>> = {
 		'correlations.disclaimer': 'Correlaci\u00f3n no implica causalidad. Las correlaciones d\u00e9biles (|r| < 0,3) tienen baja confianza estad\u00edstica y deben interpretarse con precauci\u00f3n.',
 		'correlations.backToStats': 'Volver a Estad\u00edsticas',
 		'nav.correlations': 'Correlaciones',
-		'nav.settings': 'Ajustes'
+		'nav.settings': 'Ajustes',
+		'nav.foodLog': 'Registro de comidas'
 	},
 	fr: {
 		'nav.home': 'Accueil',
@@ -378,7 +381,8 @@ const translations: Record<Language, Record<string, string>> = {
 		'correlations.disclaimer': 'Corr\u00e9lation n\'implique pas causalit\u00e9. Les corr\u00e9lations faibles (|r| < 0,3) ont une faible confiance statistique et doivent \u00eatre interpr\u00e9t\u00e9es avec prudence.',
 		'correlations.backToStats': 'Retour aux Statistiques',
 		'nav.correlations': 'Corr\u00e9lations',
-		'nav.settings': 'Param\u00e8tres'
+		'nav.settings': 'Param\u00e8tres',
+		'nav.foodLog': 'Journal alimentaire'
 	}
 };
 

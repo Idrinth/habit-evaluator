@@ -12,6 +12,7 @@ public class MergeResult {
     private final int diaryEntriesAdded;
     private final int sleepEntriesAdded;
     private final int sportLogsAdded;
+    private final int foodLogsAdded;
 
     public MergeResult(int categoriesAdded, int habitsAdded, int habitsMerged,
                        int entriesAdded, int diaryEntriesAdded, int sleepEntriesAdded) {
@@ -22,6 +23,13 @@ public class MergeResult {
     public MergeResult(int categoriesAdded, int habitsAdded, int habitsMerged,
                        int entriesAdded, int diaryEntriesAdded, int sleepEntriesAdded,
                        int sportLogsAdded) {
+        this(categoriesAdded, habitsAdded, habitsMerged, entriesAdded,
+                diaryEntriesAdded, sleepEntriesAdded, sportLogsAdded, 0);
+    }
+
+    public MergeResult(int categoriesAdded, int habitsAdded, int habitsMerged,
+                       int entriesAdded, int diaryEntriesAdded, int sleepEntriesAdded,
+                       int sportLogsAdded, int foodLogsAdded) {
         this.categoriesAdded = categoriesAdded;
         this.habitsAdded = habitsAdded;
         this.habitsMerged = habitsMerged;
@@ -29,6 +37,7 @@ public class MergeResult {
         this.diaryEntriesAdded = diaryEntriesAdded;
         this.sleepEntriesAdded = sleepEntriesAdded;
         this.sportLogsAdded = sportLogsAdded;
+        this.foodLogsAdded = foodLogsAdded;
     }
 
     public int getCategoriesAdded() {
@@ -59,9 +68,13 @@ public class MergeResult {
         return sportLogsAdded;
     }
 
+    public int getFoodLogsAdded() {
+        return foodLogsAdded;
+    }
+
     public int getTotalChanges() {
         return categoriesAdded + habitsAdded + habitsMerged + diaryEntriesAdded
-                + sleepEntriesAdded + sportLogsAdded;
+                + sleepEntriesAdded + sportLogsAdded + foodLogsAdded;
     }
 
     @Override
@@ -74,6 +87,7 @@ public class MergeResult {
                 + ", diary entries added=" + diaryEntriesAdded
                 + ", sleep entries added=" + sleepEntriesAdded
                 + ", sport logs added=" + sportLogsAdded
+                + ", food logs added=" + foodLogsAdded
                 + '}';
     }
 }

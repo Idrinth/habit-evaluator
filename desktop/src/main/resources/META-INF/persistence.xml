@@ -20,6 +20,7 @@
         <class>de.idrinth.habitevaluator.shared.model.EmotionPair</class>
         <class>de.idrinth.habitevaluator.shared.model.EmotionEntry</class>
         <class>de.idrinth.habitevaluator.shared.model.SportLog</class>
+        <class>de.idrinth.habitevaluator.shared.model.FoodLog</class>
 
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
 

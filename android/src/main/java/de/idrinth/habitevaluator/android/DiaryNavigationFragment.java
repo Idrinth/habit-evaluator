@@ -38,6 +38,12 @@ public class DiaryNavigationFragment extends Fragment {
                 ((MainActivity) getActivity()).navigateToSportLog();
             }
         });
+
+        binding.foodLogCard.setOnClickListener(v -> {
+            if (getActivity() instanceof MainActivity) {
+                ((MainActivity) getActivity()).navigateToFoodLog();
+            }
+        });
     }
 
     @Override
