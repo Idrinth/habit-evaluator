@@ -330,5 +330,6 @@
     <string name="food_log_entry_removed">Food log entry removed</string>
     <string name="food_log_items_required">Please enter at least one food item</string>
     <string name="food_log_kcal_required">Please enter a valid kcal value</string>
+    <string name="food_log_kcal_invalid">Please enter a valid kcal value</string>
     <string name="food_log_carbs_invalid">Please enter a valid carbohydrates value</string>
 </resources>

@@ -30,11 +30,11 @@ public class FoodLog {
     @Column(length = 36)
     private String id;
 
-    @Column(nullable = false)
-    private double carbohydrates;
+    @Column
+    private Double carbohydrates;
 
-    @Column(nullable = false)
-    private int kcal;
+    @Column
+    private Integer kcal;
 
     @Column(name = "date_time", nullable = false)
     private LocalDateTime dateTime;
@@ -59,7 +59,7 @@ public class FoodLog {
         this.foodItems = "";
     }
 
-    public FoodLog(double carbohydrates, int kcal, LocalDateTime dateTime, String foodItems) {
+    public FoodLog(Double carbohydrates, Integer kcal, LocalDateTime dateTime, String foodItems) {
         this();
         this.carbohydrates = carbohydrates;
         this.kcal = kcal;
@@ -75,19 +75,19 @@ public class FoodLog {
         this.id = id;
     }
 
-    public double getCarbohydrates() {
+    public Double getCarbohydrates() {
         return carbohydrates;
     }
 
-    public void setCarbohydrates(double carbohydrates) {
+    public void setCarbohydrates(Double carbohydrates) {
         this.carbohydrates = carbohydrates;
     }
 
-    public int getKcal() {
+    public Integer getKcal() {
         return kcal;
     }
 
-    public void setKcal(int kcal) {
+    public void setKcal(Integer kcal) {
         this.kcal = kcal;
     }
 

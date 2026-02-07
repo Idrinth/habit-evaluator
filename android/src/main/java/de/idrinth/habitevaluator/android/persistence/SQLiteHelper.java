@@ -7,7 +7,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class SQLiteHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "habit_evaluator.db";
-    private static final int DATABASE_VERSION = 4;
+    private static final int DATABASE_VERSION = 5;
     private static SQLiteHelper instance;
 
     private SQLiteHelper(Context context) {
@@ -169,8 +169,8 @@ public class SQLiteHelper extends SQLiteOpenHelper {
 
         db.execSQL("CREATE TABLE food_logs ("
                 + "id TEXT PRIMARY KEY,"
-                + "carbohydrates REAL NOT NULL,"
-                + "kcal INTEGER NOT NULL,"
+                + "carbohydrates REAL,"
+                + "kcal INTEGER,"
                 + "date_time TEXT NOT NULL,"
                 + "food_items TEXT NOT NULL,"
                 + "created_at TEXT NOT NULL,"
@@ -206,8 +206,8 @@ public class SQLiteHelper extends SQLiteOpenHelper {
         if (oldVersion < 4) {
             db.execSQL("CREATE TABLE IF NOT EXISTS food_logs ("
                     + "id TEXT PRIMARY KEY,"
-                    + "carbohydrates REAL NOT NULL,"
-                    + "kcal INTEGER NOT NULL,"
+                    + "carbohydrates REAL,"
+                    + "kcal INTEGER,"
                     + "date_time TEXT NOT NULL,"
                     + "food_items TEXT NOT NULL,"
                     + "created_at TEXT NOT NULL,"
@@ -215,6 +215,23 @@ public class SQLiteHelper extends SQLiteOpenHelper {
                     + "user_id TEXT,"
                     + "user_name TEXT"
                     + ")");
+            db.execSQL("CREATE INDEX IF NOT EXISTS idx_food_logs_user_id ON food_logs(user_id)");
+        }
+        if (oldVersion < 5) {
+            db.execSQL("CREATE TABLE IF NOT EXISTS food_logs_tmp ("
+                    + "id TEXT PRIMARY KEY,"
+                    + "carbohydrates REAL,"
+                    + "kcal INTEGER,"
+                    + "date_time TEXT NOT NULL,"
+                    + "food_items TEXT NOT NULL,"
+                    + "created_at TEXT NOT NULL,"
+                    + "notes TEXT,"
+                    + "user_id TEXT,"
+                    + "user_name TEXT"
+                    + ")");
+            db.execSQL("INSERT INTO food_logs_tmp SELECT * FROM food_logs");
+            db.execSQL("DROP TABLE food_logs");
+            db.execSQL("ALTER TABLE food_logs_tmp RENAME TO food_logs");
             db.execSQL("CREATE INDEX IF NOT EXISTS idx_food_logs_user_id ON food_logs(user_id)");
         }
     }

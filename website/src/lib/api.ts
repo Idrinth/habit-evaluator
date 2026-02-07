@@ -463,8 +463,8 @@ export const reminderSettings = {
 
 export interface FoodLog {
 	id: string;
-	carbohydrates: number;
-	kcal: number;
+	carbohydrates: number | null;
+	kcal: number | null;
 	dateTime: string;
 	foodItems: string;
 	createdAt: string;
@@ -476,7 +476,7 @@ export const foodLogs = {
 	list() {
 		return request<FoodLog[]>('/food-logs');
 	},
-	create(entry: { carbohydrates: number; kcal: number; dateTime: string; foodItems: string; notes?: string }) {
+	create(entry: { carbohydrates?: number; kcal?: number; dateTime: string; foodItems: string; notes?: string }) {
 		return request<FoodLog>('/food-logs', {
 			method: 'POST',
 			body: JSON.stringify(entry)

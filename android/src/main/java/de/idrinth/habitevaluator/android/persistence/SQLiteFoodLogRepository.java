@@ -28,8 +28,16 @@ public class SQLiteFoodLogRepository implements FoodLogRepository {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put("id", entry.getId());
-        values.put("carbohydrates", entry.getCarbohydrates());
-        values.put("kcal", entry.getKcal());
+        if (entry.getCarbohydrates() != null) {
+            values.put("carbohydrates", entry.getCarbohydrates());
+        } else {
+            values.putNull("carbohydrates");
+        }
+        if (entry.getKcal() != null) {
+            values.put("kcal", entry.getKcal());
+        } else {
+            values.putNull("kcal");
+        }
         values.put("date_time", entry.getDateTime() != null ? entry.getDateTime().format(DT_FORMAT) : LocalDateTime.now().format(DT_FORMAT));
         values.put("food_items", entry.getFoodItems());
         values.put("created_at", entry.getCreatedAt() != null ? entry.getCreatedAt().format(DT_FORMAT) : LocalDateTime.now().format(DT_FORMAT));

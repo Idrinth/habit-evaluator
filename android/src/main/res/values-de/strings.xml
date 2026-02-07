@@ -313,5 +313,6 @@
     <string name="food_log_entry_removed">Ernährungseintrag entfernt</string>
     <string name="food_log_items_required">Bitte geben Sie mindestens ein Lebensmittel ein</string>
     <string name="food_log_kcal_required">Bitte geben Sie einen gültigen Kcal-Wert ein</string>
+    <string name="food_log_kcal_invalid">Bitte geben Sie einen gültigen Kcal-Wert ein</string>
     <string name="food_log_carbs_invalid">Bitte geben Sie einen gültigen Kohlenhydratwert ein</string>
 </resources>
