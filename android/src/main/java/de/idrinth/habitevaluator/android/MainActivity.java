@@ -34,6 +34,7 @@ import de.idrinth.habitevaluator.android.persistence.SQLiteHabitCategoryReposito
 import de.idrinth.habitevaluator.android.persistence.SQLiteHabitRepository;
 import de.idrinth.habitevaluator.android.persistence.SQLiteHelper;
 import de.idrinth.habitevaluator.android.persistence.SQLiteSleepEntryRepository;
+import de.idrinth.habitevaluator.android.persistence.SQLiteSportLogRepository;
 import de.idrinth.habitevaluator.android.ui.ScreenPagerAdapter;
 import de.idrinth.habitevaluator.android.ui.ViewPager2SwipeSensitivityReducer;
 import de.idrinth.habitevaluator.shared.api.ApiClient;
@@ -55,6 +56,7 @@ import de.idrinth.habitevaluator.shared.repository.EmotionPairRepository;
 import de.idrinth.habitevaluator.shared.repository.HabitCategoryRepository;
 import de.idrinth.habitevaluator.shared.repository.HabitRepository;
 import de.idrinth.habitevaluator.shared.repository.SleepEntryRepository;
+import de.idrinth.habitevaluator.shared.repository.SportLogRepository;
 import de.idrinth.habitevaluator.shared.service.DefaultDataInitializer;
 
 public class MainActivity extends AppCompatActivity {
@@ -79,6 +81,7 @@ public class MainActivity extends AppCompatActivity {
     private static EmotionPairRepository sharedEmotionPairRepository;
     private static List<EmotionPair> sharedEmotionPairs = new ArrayList<>();
     private static EmotionEntryRepository sharedEmotionEntryRepository;
+    private static SportLogRepository sharedSportLogRepository;
     private static String editHabitId;
     private static String pointDevelopmentHabitId;
     private static String recordEmotionPairId;
@@ -161,6 +164,10 @@ public class MainActivity extends AppCompatActivity {
 
     public static EmotionEntryRepository getSharedEmotionEntryRepository() {
         return sharedEmotionEntryRepository;
+    }
+
+    public static SportLogRepository getSharedSportLogRepository() {
+        return sharedSportLogRepository;
     }
 
     public static void saveAllHabits() {
@@ -312,6 +319,22 @@ public class MainActivity extends AppCompatActivity {
                             binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_HOME, false);
                         }
                         break;
+                    case ScreenPagerAdapter.PAGE_POSITIVITY_DIARY:
+                        if (isProgrammaticNavigation) {
+                            isProgrammaticNavigation = false;
+                            binding.bottomNavigation.setSelectedItemId(R.id.nav_diary);
+                        } else {
+                            binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_DIARY, false);
+                        }
+                        break;
+                    case ScreenPagerAdapter.PAGE_SPORT_LOG:
+                        if (isProgrammaticNavigation) {
+                            isProgrammaticNavigation = false;
+                            binding.bottomNavigation.setSelectedItemId(R.id.nav_diary);
+                        } else {
+                            binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_DIARY, false);
+                        }
+                        break;
                     case ScreenPagerAdapter.PAGE_HOME:
                         binding.bottomNavigation.setSelectedItemId(R.id.nav_home);
                         break;
@@ -397,6 +420,16 @@ public class MainActivity extends AppCompatActivity {
         binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_IMPRINT, true);
     }
 
+    public void navigateToPositivityDiary() {
+        isProgrammaticNavigation = true;
+        binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_POSITIVITY_DIARY, true);
+    }
+
+    public void navigateToSportLog() {
+        isProgrammaticNavigation = true;
+        binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_SPORT_LOG, true);
+    }
+
     public void onSettingsChanged() {
         initializeStorage();
     }
@@ -430,6 +463,7 @@ public class MainActivity extends AppCompatActivity {
         diaryEntryRepo.setDiaryReferenceRepository(diaryRefRepo);
         SQLiteEmotionPairRepository emotionPairRepo = new SQLiteEmotionPairRepository(dbHelper);
         SQLiteEmotionEntryRepository emotionEntryRepo = new SQLiteEmotionEntryRepository(dbHelper, emotionPairRepo);
+        SQLiteSportLogRepository sportLogRepo = new SQLiteSportLogRepository(dbHelper);
 
         currentUser = getOrCreateLocalUser();
         sharedHabitRepository = habitRepository;
@@ -442,6 +476,7 @@ public class MainActivity extends AppCompatActivity {
         sharedDiaryReferenceRepository = diaryRefRepo;
         sharedEmotionPairRepository = emotionPairRepo;
         sharedEmotionEntryRepository = emotionEntryRepo;
+        sharedSportLogRepository = sportLogRepo;
 
         // Migrate legacy JSON files to SQLite if they exist
         java.io.File storageDir = new java.io.File(getFilesDir(), "habit-data");

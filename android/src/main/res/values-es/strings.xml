@@ -279,4 +279,25 @@
     <string name="imprint_no_data_sharing">\u2022 Por defecto, todos sus datos permanecen en su dispositivo y no se comparten con nadie. Opcionalmente, puede configurar almacenamiento remoto en los ajustes.</string>
     <string name="imprint_variant_disclaimer">\u2022 Los autores de este proyecto no son responsables de las modificaciones realizadas por variantes de terceros ni de las acciones de los proveedores de servicios web.</string>
     <string name="imprint_libraries">Bibliotecas de terceros</string>
+    <string name="sport_log_title">Registro deportivo</string>
+    <string name="sport_log_add_entry">Añadir</string>
+    <string name="sport_log_activity_name">Nombre de actividad (ej. Correr)</string>
+    <string name="sport_log_measurement">Medición (ej. 5,0)</string>
+    <string name="sport_log_measurement_unit">Unidad (ej. km)</string>
+    <string name="sport_log_start_time">Hora de inicio</string>
+    <string name="sport_log_end_time">Hora de fin</string>
+    <string name="sport_log_date">Fecha</string>
+    <string name="sport_log_notes">Notas (opcional)</string>
+    <string name="sport_log_delete">Eliminar</string>
+    <string name="sport_log_entry_added">Registro deportivo añadido</string>
+    <string name="sport_log_entry_removed">Registro deportivo eliminado</string>
+    <string name="sport_log_name_required">Por favor, introduzca un nombre de actividad</string>
+    <string name="sport_log_measurement_required">Por favor, introduzca una medición y unidad válidas</string>
+    <string name="sport_log_time_required">Por favor, seleccione hora de inicio y fin</string>
+    <string name="sport_log_weekly_stats">Estadísticas semanales</string>
+    <string name="sport_log_monthly_stats">Estadísticas mensuales</string>
+    <string name="sport_log_avg_duration">Prom.: %.1f h</string>
+    <string name="sport_log_total_entries">Entradas: %d</string>
+    <string name="diary_navigation_positivity_description">Registra y sigue los eventos positivos de tu vida</string>
+    <string name="diary_navigation_sport_description">Registra tus actividades deportivas y haz seguimiento de mediciones</string>
 </resources>
