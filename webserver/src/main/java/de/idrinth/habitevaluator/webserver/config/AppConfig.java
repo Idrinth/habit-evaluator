@@ -5,6 +5,7 @@ import de.idrinth.habitevaluator.shared.service.EventCorrelationService;
 import de.idrinth.habitevaluator.shared.service.HabitEvaluatorService;
 import de.idrinth.habitevaluator.shared.service.HabitScoringService;
 import de.idrinth.habitevaluator.shared.service.SleepEvaluationService;
+import de.idrinth.habitevaluator.shared.service.SportLogService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -34,5 +35,10 @@ public class AppConfig {
     @Bean
     public EventCorrelationService eventCorrelationService() {
         return new EventCorrelationService();
+    }
+
+    @Bean
+    public SportLogService sportLogService() {
+        return new SportLogService();
     }
 }

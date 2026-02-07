@@ -8,11 +8,13 @@ import de.idrinth.habitevaluator.shared.model.HabitCategory;
 import de.idrinth.habitevaluator.shared.model.HabitEntry;
 import de.idrinth.habitevaluator.shared.model.ScoringRule;
 import de.idrinth.habitevaluator.shared.model.SleepEntry;
+import de.idrinth.habitevaluator.shared.model.SportLog;
 import de.idrinth.habitevaluator.shared.model.User;
 import de.idrinth.habitevaluator.shared.repository.DiaryEntryRepository;
 import de.idrinth.habitevaluator.shared.repository.HabitCategoryRepository;
 import de.idrinth.habitevaluator.shared.repository.HabitRepository;
 import de.idrinth.habitevaluator.shared.repository.SleepEntryRepository;
+import de.idrinth.habitevaluator.shared.repository.SportLogRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -183,6 +185,16 @@ public class BackupService {
                                        HabitCategoryRepository categoryRepository,
                                        DiaryEntryRepository diaryEntryRepository,
                                        SleepEntryRepository sleepEntryRepository) throws BackupException {
+        return mergeBackupData(backupData, user, habitRepository, categoryRepository,
+                diaryEntryRepository, sleepEntryRepository, null);
+    }
+
+    public MergeResult mergeBackupData(BackupData backupData, User user,
+                                       HabitRepository habitRepository,
+                                       HabitCategoryRepository categoryRepository,
+                                       DiaryEntryRepository diaryEntryRepository,
+                                       SleepEntryRepository sleepEntryRepository,
+                                       SportLogRepository sportLogRepository) throws BackupException {
         if (user == null) {
             throw new BackupException("User must not be null for merge");
         }
@@ -374,8 +386,44 @@ public class BackupService {
             }
         }
 
+        // Merge sport logs
+        int sportLogsAdded = 0;
+        if (sportLogRepository != null) {
+            List<SportLog> existingSportLogs = sportLogRepository.findByUserId(user.getId());
+            Set<String> existingSportLogIds = new HashSet<>();
+            for (SportLog entry : existingSportLogs) {
+                existingSportLogIds.add(entry.getId());
+            }
+
+            for (BackupData.SportLogData entryData : backupData.getSportLogs()) {
+                if (!existingSportLogIds.contains(entryData.getId())) {
+                    SportLog newEntry = new SportLog();
+                    newEntry.setId(entryData.getId());
+                    newEntry.setName(entryData.getName());
+                    newEntry.setMeasurement(entryData.getMeasurement());
+                    newEntry.setMeasurementUnit(entryData.getMeasurementUnit());
+                    if (entryData.getStartTime() != null) {
+                        newEntry.setStartTime(LocalTime.parse(entryData.getStartTime()));
+                    }
+                    if (entryData.getEndTime() != null) {
+                        newEntry.setEndTime(LocalTime.parse(entryData.getEndTime()));
+                    }
+                    if (entryData.getDate() != null) {
+                        newEntry.setDate(LocalDate.parse(entryData.getDate()));
+                    }
+                    newEntry.setNotes(entryData.getNotes());
+                    if (entryData.getCreatedAt() != null) {
+                        newEntry.setCreatedAt(LocalDateTime.parse(entryData.getCreatedAt()));
+                    }
+                    newEntry.setUser(user);
+                    sportLogRepository.save(newEntry);
+                    sportLogsAdded++;
+                }
+            }
+        }
+
         MergeResult result = new MergeResult(categoriesAdded, habitsAdded, habitsMerged,
-                entriesAdded, diaryEntriesAdded, sleepEntriesAdded);
+                entriesAdded, diaryEntriesAdded, sleepEntriesAdded, sportLogsAdded);
         logger.info("Backup merged: {}", result);
         return result;
     }
@@ -414,6 +462,16 @@ public class BackupService {
                                          HabitCategoryRepository categoryRepository,
                                          DiaryEntryRepository diaryEntryRepository,
                                          SleepEntryRepository sleepEntryRepository) {
+        return collectBackupData(user, habitRepository, categoryRepository,
+                diaryEntryRepository, sleepEntryRepository, null);
+    }
+
+    BackupData collectBackupData(User user,
+                                         HabitRepository habitRepository,
+                                         HabitCategoryRepository categoryRepository,
+                                         DiaryEntryRepository diaryEntryRepository,
+                                         SleepEntryRepository sleepEntryRepository,
+                                         SportLogRepository sportLogRepository) {
         BackupData data = new BackupData();
         data.setBackupDate(LocalDateTime.now().toString());
 
@@ -483,6 +541,31 @@ public class BackupService {
                     entryData.setCreatedAt(entry.getCreatedAt().toString());
                 }
                 data.getSleepEntries().add(entryData);
+            }
+        }
+
+        if (sportLogRepository != null) {
+            List<SportLog> sportLogs = sportLogRepository.findByUserId(user.getId());
+            for (SportLog entry : sportLogs) {
+                BackupData.SportLogData entryData = new BackupData.SportLogData();
+                entryData.setId(entry.getId());
+                entryData.setName(entry.getName());
+                entryData.setMeasurement(entry.getMeasurement());
+                entryData.setMeasurementUnit(entry.getMeasurementUnit());
+                if (entry.getStartTime() != null) {
+                    entryData.setStartTime(entry.getStartTime().toString());
+                }
+                if (entry.getEndTime() != null) {
+                    entryData.setEndTime(entry.getEndTime().toString());
+                }
+                if (entry.getDate() != null) {
+                    entryData.setDate(entry.getDate().toString());
+                }
+                entryData.setNotes(entry.getNotes());
+                if (entry.getCreatedAt() != null) {
+                    entryData.setCreatedAt(entry.getCreatedAt().toString());
+                }
+                data.getSportLogs().add(entryData);
             }
         }
 
