@@ -191,6 +191,7 @@
     <string name="restore_in_progress">Restaurando respaldo…</string>
     <string name="restore_success">Restaurado: %1$d hábitos añadidos, %2$d hábitos fusionados, %3$d entradas añadidas, %4$d entradas de diario añadidas, %5$d entradas de sueño añadidas, %6$d categorías añadidas</string>
     <string name="restore_failed">Error al restaurar: %s</string>
+    <string name="restore_failed_not_initialized">Storage is not yet initialized. Please wait and try again.</string>
     <string name="download_backup_title">Download Backup</string>
     <string name="download_backup_button">Download Backup (.hez)</string>
     <string name="download_backup_in_progress">Creating backup…</string>
@@ -313,5 +314,6 @@
     <string name="food_log_entry_removed">Food log entry removed</string>
     <string name="food_log_items_required">Please enter at least one food item</string>
     <string name="food_log_kcal_required">Please enter a valid kcal value</string>
+    <string name="food_log_kcal_invalid">Please enter a valid kcal value</string>
     <string name="food_log_carbs_invalid">Please enter a valid carbohydrates value</string>
 </resources>
