@@ -121,7 +121,7 @@
     <string name="sleep_avg">Durchschn.: %.1f h</string>
     <string name="sleep_min">Min: %.1f h</string>
     <string name="sleep_max">Max: %.1f h</string>
-    <string name="sleep_entry_format">%s - %s (%.1f h)</string>
+    <string name="sleep_entry_format">%1$s - %2$s (%3$.1f h)</string>
     <string name="sleep_date_hint">Datum (JJJJ-MM-TT)</string>
     <string name="sleep_entry_overlap">Dieser Eintrag überschneidet sich mit einem bestehenden Schlafeintrag</string>
     <string name="sleep_view_analysis">Grafik</string>
@@ -228,7 +228,7 @@
     <string name="reminder_emotion_label">Zufällige Emotions-Erinnerungen</string>
     <string name="reminder_emotion_count_label">Erinnerungen pro Tag: %d</string>
     <string name="reminder_waking_hours_label">Wachstunden</string>
-    <string name="reminder_waking_hours_value">%s bis %s</string>
+    <string name="reminder_waking_hours_value">%1$s bis %2$s</string>
     <string name="reminder_sleep_notification_title">Schlaf erfassen</string>
     <string name="reminder_sleep_notification_text">Vergessen Sie nicht, die Schlafdaten von letzter Nacht zu erfassen.</string>
     <string name="reminder_diary_notification_title">Positivitätstagebuch</string>
