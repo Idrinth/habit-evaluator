@@ -188,6 +188,8 @@
     <string name="stats_emotion_scatter">Tägliche Emotionsverteilung</string>
     <string name="stats_emotion_scatter_desc">Emotionsaufzeichnungen der letzten 30 Tage</string>
     <string name="stats_correlations_title">Ereigniskorrelationen (Jährlich, Zeitgewichtet)</string>
+    <string name="stats_correlations_description">Zeitgewichtete Korrelationen zwischen Gewohnheiten, Tagebuch, Schlaf und Emotionen</string>
+    <string name="stats_view_correlations">Alle Korrelationen anzeigen</string>
     <string name="stats_no_correlations">Nicht genug Daten für Korrelationen</string>
     <string name="stats_correlation_disclaimer">Korrelation bedeutet nicht Kausalität. Schwache Korrelationen (|r| &lt; 0,3) haben eine geringe statistische Konfidenz und sollten mit Vorsicht interpretiert werden.</string>
     <string name="stats_confidence_strong">Stark</string>
