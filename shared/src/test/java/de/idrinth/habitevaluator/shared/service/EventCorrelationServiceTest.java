@@ -361,6 +361,95 @@ class EventCorrelationServiceTest {
         assertTrue(foundHabitEmotion);
     }
 
+    @Test
+    void testDiaryDurationSignalIncluded() {
+        LocalDate today = LocalDate.now();
+
+        Habit habit = new Habit("Exercise", "Test");
+        List<DiaryEntry> diaryEntries = new ArrayList<>();
+
+        for (int i = 0; i < 30; i++) {
+            LocalDate date = today.minusDays(i);
+
+            HabitEntry he = new HabitEntry();
+            he.setCompletedAt(date.atTime(10, 0));
+            habit.addEntry(he);
+
+            // Diary entry with duration (startTime and endTime set)
+            DiaryEntry de = new DiaryEntry("Workout", EventSignificance.NORMAL, date);
+            de.setStartTime(LocalTime.of(8, 0));
+            de.setEndTime(LocalTime.of(9, 30)); // 90 minutes duration
+            diaryEntries.add(de);
+        }
+
+        List<EventCorrelation> result = service.calculateCorrelations(
+                List.of(habit), diaryEntries, new ArrayList<>(), new ArrayList<>());
+
+        // Should find correlations involving "Diary Duration"
+        boolean foundDuration = result.stream()
+                .anyMatch(c -> c.getEventA().contains("Diary Duration")
+                        || c.getEventB().contains("Diary Duration"));
+        assertTrue(foundDuration, "Expected Diary Duration signal in correlations");
+    }
+
+    @Test
+    void testDiaryDurationNotIncludedWithoutTimes() {
+        LocalDate today = LocalDate.now();
+
+        Habit habit = new Habit("Reading", "Test");
+        List<DiaryEntry> diaryEntries = new ArrayList<>();
+
+        for (int i = 0; i < 30; i++) {
+            LocalDate date = today.minusDays(i);
+
+            HabitEntry he = new HabitEntry();
+            he.setCompletedAt(date.atTime(10, 0));
+            habit.addEntry(he);
+
+            // Diary entry without startTime/endTime -> no duration
+            DiaryEntry de = new DiaryEntry("Read a book", EventSignificance.MINOR, date);
+            diaryEntries.add(de);
+        }
+
+        List<EventCorrelation> result = service.calculateCorrelations(
+                List.of(habit), diaryEntries, new ArrayList<>(), new ArrayList<>());
+
+        // Should NOT find any correlations involving "Diary Duration"
+        boolean foundDuration = result.stream()
+                .anyMatch(c -> c.getEventA().contains("Diary Duration")
+                        || c.getEventB().contains("Diary Duration"));
+        assertFalse(foundDuration, "Diary Duration signal should not appear without time data");
+    }
+
+    @Test
+    void testDiaryDurationHandlesMidnightCrossing() {
+        LocalDate today = LocalDate.now();
+
+        List<DiaryEntry> diaryEntries = new ArrayList<>();
+        List<SleepEntry> sleepEntries = new ArrayList<>();
+
+        for (int i = 0; i < 30; i++) {
+            LocalDate date = today.minusDays(i);
+
+            // Diary entry crossing midnight: 23:00 to 01:00 = 2 hours
+            DiaryEntry de = new DiaryEntry("Late event", EventSignificance.NORMAL, date);
+            de.setStartTime(LocalTime.of(23, 0));
+            de.setEndTime(LocalTime.of(1, 0));
+            diaryEntries.add(de);
+
+            sleepEntries.add(new SleepEntry(LocalTime.of(1, 30), LocalTime.of(8, 0), date));
+        }
+
+        List<EventCorrelation> result = service.calculateCorrelations(
+                new ArrayList<>(), diaryEntries, sleepEntries, new ArrayList<>());
+
+        // Should find Diary Duration correlated with Sleep Hours
+        boolean foundDurationSleep = result.stream()
+                .anyMatch(c -> (c.getEventA().contains("Diary Duration") && c.getEventB().contains("Sleep"))
+                        || (c.getEventA().contains("Sleep") && c.getEventB().contains("Diary Duration")));
+        assertTrue(foundDurationSleep, "Expected Diary Duration to correlate with Sleep Hours");
+    }
+
     private double findCorrelation(List<EventCorrelation> correlations, String partA, String partB) {
         return correlations.stream()
                 .filter(c -> (c.getEventA().contains(partA) && c.getEventB().contains(partB))
