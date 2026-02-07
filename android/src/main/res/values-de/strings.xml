@@ -279,4 +279,25 @@
     <string name="imprint_no_data_sharing">\u2022 Standardmäßig bleiben alle Ihre Daten auf Ihrem Gerät und werden mit niemandem geteilt. Sie können optional einen Remote-Speicher in den Einstellungen konfigurieren.</string>
     <string name="imprint_variant_disclaimer">\u2022 Die Autoren dieses Projekts übernehmen keine Verantwortung für Änderungen durch Drittvarianten oder das Handeln von Webservice-Hostern.</string>
     <string name="imprint_libraries">Drittanbieter-Bibliotheken</string>
+    <string name="sport_log_title">Sportprotokoll</string>
+    <string name="sport_log_add_entry">Hinzufügen</string>
+    <string name="sport_log_activity_name">Aktivitätsname (z.B. Laufen)</string>
+    <string name="sport_log_measurement">Messwert (z.B. 5,0)</string>
+    <string name="sport_log_measurement_unit">Einheit (z.B. km)</string>
+    <string name="sport_log_start_time">Startzeit</string>
+    <string name="sport_log_end_time">Endzeit</string>
+    <string name="sport_log_date">Datum</string>
+    <string name="sport_log_notes">Notizen (optional)</string>
+    <string name="sport_log_delete">Löschen</string>
+    <string name="sport_log_entry_added">Sporteintrag hinzugefügt</string>
+    <string name="sport_log_entry_removed">Sporteintrag entfernt</string>
+    <string name="sport_log_name_required">Bitte geben Sie einen Aktivitätsnamen ein</string>
+    <string name="sport_log_measurement_required">Bitte geben Sie einen gültigen Messwert und eine Einheit ein</string>
+    <string name="sport_log_time_required">Bitte wählen Sie Start- und Endzeit</string>
+    <string name="sport_log_weekly_stats">Wöchentliche Statistik</string>
+    <string name="sport_log_monthly_stats">Monatliche Statistik</string>
+    <string name="sport_log_avg_duration">Durchschn.: %.1f h</string>
+    <string name="sport_log_total_entries">Einträge: %d</string>
+    <string name="diary_navigation_positivity_description">Positive Ereignisse in Ihrem Leben erfassen und verfolgen</string>
+    <string name="diary_navigation_sport_description">Sportaktivitäten protokollieren und Messwerte verfolgen</string>
 </resources>

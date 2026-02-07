@@ -8,6 +8,7 @@ import androidx.viewpager2.adapter.FragmentStateAdapter;
 import de.idrinth.habitevaluator.android.AddEmotionPairFragment;
 import de.idrinth.habitevaluator.android.AddHabitFragment;
 import de.idrinth.habitevaluator.android.DiaryFragment;
+import de.idrinth.habitevaluator.android.DiaryNavigationFragment;
 import de.idrinth.habitevaluator.android.EditHabitsFragment;
 import de.idrinth.habitevaluator.android.EmotionalStateFragment;
 import de.idrinth.habitevaluator.android.HomeFragment;
@@ -16,6 +17,7 @@ import de.idrinth.habitevaluator.android.PointDevelopmentFragment;
 import de.idrinth.habitevaluator.android.RecordEmotionEntryFragment;
 import de.idrinth.habitevaluator.android.SettingsFragment;
 import de.idrinth.habitevaluator.android.SleepTrackingFragment;
+import de.idrinth.habitevaluator.android.SportLogFragment;
 import de.idrinth.habitevaluator.android.StatsFragment;
 
 public class ScreenPagerAdapter extends FragmentStateAdapter {
@@ -32,7 +34,9 @@ public class ScreenPagerAdapter extends FragmentStateAdapter {
     public static final int PAGE_RECORD_EMOTION_ENTRY = 9;
     public static final int PAGE_SETTINGS = 10;
     public static final int PAGE_IMPRINT = 11;
-    public static final int PAGE_COUNT = 12;
+    public static final int PAGE_POSITIVITY_DIARY = 12;
+    public static final int PAGE_SPORT_LOG = 13;
+    public static final int PAGE_COUNT = 14;
 
     public ScreenPagerAdapter(@NonNull FragmentActivity fragmentActivity) {
         super(fragmentActivity);
@@ -47,7 +51,7 @@ public class ScreenPagerAdapter extends FragmentStateAdapter {
             case PAGE_HOME:
                 return new HomeFragment();
             case PAGE_DIARY:
-                return new DiaryFragment();
+                return new DiaryNavigationFragment();
             case PAGE_SLEEP:
                 return new SleepTrackingFragment();
             case PAGE_STATS:
@@ -66,6 +70,10 @@ public class ScreenPagerAdapter extends FragmentStateAdapter {
                 return new SettingsFragment();
             case PAGE_IMPRINT:
                 return new ImprintFragment();
+            case PAGE_POSITIVITY_DIARY:
+                return new DiaryFragment();
+            case PAGE_SPORT_LOG:
+                return new SportLogFragment();
             default:
                 return new HomeFragment();
         }

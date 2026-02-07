@@ -20,16 +20,18 @@ public class ScreenPagerAdapterTest {
         assertEquals(9, ScreenPagerAdapter.PAGE_RECORD_EMOTION_ENTRY);
         assertEquals(10, ScreenPagerAdapter.PAGE_SETTINGS);
         assertEquals(11, ScreenPagerAdapter.PAGE_IMPRINT);
+        assertEquals(12, ScreenPagerAdapter.PAGE_POSITIVITY_DIARY);
+        assertEquals(13, ScreenPagerAdapter.PAGE_SPORT_LOG);
     }
 
     @Test
     public void testPageCount() {
-        assertEquals(12, ScreenPagerAdapter.PAGE_COUNT);
+        assertEquals(14, ScreenPagerAdapter.PAGE_COUNT);
     }
 
     @Test
     public void testPageCountMatchesLastPagePlusOne() {
-        assertEquals(ScreenPagerAdapter.PAGE_IMPRINT + 1, ScreenPagerAdapter.PAGE_COUNT);
+        assertEquals(ScreenPagerAdapter.PAGE_SPORT_LOG + 1, ScreenPagerAdapter.PAGE_COUNT);
     }
 
     @Test
@@ -46,7 +48,9 @@ public class ScreenPagerAdapterTest {
             ScreenPagerAdapter.PAGE_ADD_EMOTION_PAIR,
             ScreenPagerAdapter.PAGE_RECORD_EMOTION_ENTRY,
             ScreenPagerAdapter.PAGE_SETTINGS,
-            ScreenPagerAdapter.PAGE_IMPRINT
+            ScreenPagerAdapter.PAGE_IMPRINT,
+            ScreenPagerAdapter.PAGE_POSITIVITY_DIARY,
+            ScreenPagerAdapter.PAGE_SPORT_LOG
         };
 
         for (int i = 0; i < pages.length; i++) {
@@ -71,7 +75,9 @@ public class ScreenPagerAdapterTest {
             ScreenPagerAdapter.PAGE_ADD_EMOTION_PAIR,
             ScreenPagerAdapter.PAGE_RECORD_EMOTION_ENTRY,
             ScreenPagerAdapter.PAGE_SETTINGS,
-            ScreenPagerAdapter.PAGE_IMPRINT
+            ScreenPagerAdapter.PAGE_IMPRINT,
+            ScreenPagerAdapter.PAGE_POSITIVITY_DIARY,
+            ScreenPagerAdapter.PAGE_SPORT_LOG
         };
 
         assertEquals(ScreenPagerAdapter.PAGE_COUNT, pages.length);
