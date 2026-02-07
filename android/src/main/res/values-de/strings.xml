@@ -279,4 +279,25 @@
     <string name="imprint_no_data_sharing">\u2022 Standardmäßig bleiben alle Ihre Daten auf Ihrem Gerät und werden mit niemandem geteilt. Sie können optional einen Remote-Speicher in den Einstellungen konfigurieren.</string>
     <string name="imprint_variant_disclaimer">\u2022 Die Autoren dieses Projekts übernehmen keine Verantwortung für Änderungen durch Drittvarianten oder das Handeln von Webservice-Hostern.</string>
     <string name="imprint_libraries">Drittanbieter-Bibliotheken</string>
+    <string name="sport_log_title">Sport Log</string>
+    <string name="sport_log_add_entry">Add</string>
+    <string name="sport_log_activity_name">Activity name (e.g. Running)</string>
+    <string name="sport_log_measurement">Measurement (e.g. 5.0)</string>
+    <string name="sport_log_measurement_unit">Unit (e.g. km)</string>
+    <string name="sport_log_start_time">Start time</string>
+    <string name="sport_log_end_time">End time</string>
+    <string name="sport_log_date">Date</string>
+    <string name="sport_log_notes">Notes (optional)</string>
+    <string name="sport_log_delete">Delete</string>
+    <string name="sport_log_entry_added">Sport log entry added</string>
+    <string name="sport_log_entry_removed">Sport log entry removed</string>
+    <string name="sport_log_name_required">Please enter an activity name</string>
+    <string name="sport_log_measurement_required">Please enter a valid measurement and unit</string>
+    <string name="sport_log_time_required">Please select both start and end times</string>
+    <string name="sport_log_weekly_stats">Weekly Stats</string>
+    <string name="sport_log_monthly_stats">Monthly Stats</string>
+    <string name="sport_log_avg_duration">Avg: %.1f h</string>
+    <string name="sport_log_total_entries">Entries: %d</string>
+    <string name="diary_navigation_positivity_description">Record and track positive events in your life</string>
+    <string name="diary_navigation_sport_description">Log your sport activities and track measurements</string>
 </resources>
