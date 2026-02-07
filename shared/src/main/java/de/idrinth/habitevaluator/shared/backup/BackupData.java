@@ -578,8 +578,8 @@ public class BackupData {
 
     public static class FoodLogData {
         private String id;
-        private double carbohydrates;
-        private int kcal;
+        private Double carbohydrates;
+        private Integer kcal;
         private String dateTime;
         private String foodItems;
         private String notes;
@@ -593,19 +593,19 @@ public class BackupData {
             this.id = id;
         }
 
-        public double getCarbohydrates() {
+        public Double getCarbohydrates() {
             return carbohydrates;
         }
 
-        public void setCarbohydrates(double carbohydrates) {
+        public void setCarbohydrates(Double carbohydrates) {
             this.carbohydrates = carbohydrates;
         }
 
-        public int getKcal() {
+        public Integer getKcal() {
             return kcal;
         }
 
-        public void setKcal(int kcal) {
+        public void setKcal(Integer kcal) {
             this.kcal = kcal;
         }
 

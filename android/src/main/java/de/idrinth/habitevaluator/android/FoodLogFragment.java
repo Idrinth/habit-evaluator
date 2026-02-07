@@ -127,20 +127,18 @@ public class FoodLogFragment extends Fragment implements FoodLogAdapter.OnFoodLo
             Toast.makeText(requireContext(), R.string.food_log_items_required, Toast.LENGTH_SHORT).show();
             return;
         }
-        if (kcalStr.isEmpty()) {
-            Toast.makeText(requireContext(), R.string.food_log_kcal_required, Toast.LENGTH_SHORT).show();
-            return;
+
+        Integer kcal = null;
+        if (!kcalStr.isEmpty()) {
+            try {
+                kcal = Integer.parseInt(kcalStr);
+            } catch (NumberFormatException e) {
+                Toast.makeText(requireContext(), R.string.food_log_kcal_invalid, Toast.LENGTH_SHORT).show();
+                return;
+            }
         }
 
-        int kcal;
-        try {
-            kcal = Integer.parseInt(kcalStr);
-        } catch (NumberFormatException e) {
-            Toast.makeText(requireContext(), R.string.food_log_kcal_required, Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        double carbs = 0;
+        Double carbs = null;
         if (!carbsStr.isEmpty()) {
             try {
                 carbs = Double.parseDouble(carbsStr);

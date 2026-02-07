@@ -313,5 +313,6 @@
     <string name="food_log_entry_removed">Entrée alimentaire supprimée</string>
     <string name="food_log_items_required">Veuillez saisir au moins un aliment</string>
     <string name="food_log_kcal_required">Veuillez saisir une valeur de kcal valide</string>
+    <string name="food_log_kcal_invalid">Veuillez saisir une valeur de kcal valide</string>
     <string name="food_log_carbs_invalid">Veuillez saisir une valeur de glucides valide</string>
 </resources>

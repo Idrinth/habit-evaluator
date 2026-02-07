@@ -38,12 +38,12 @@
 		if (!foodItems.trim()) return;
 		error = '';
 		try {
-			const createPayload: { carbohydrates: number; kcal: number; dateTime: string; foodItems: string; notes?: string } = {
-				carbohydrates: parseFloat(carbohydrates) || 0,
-				kcal: parseInt(kcal) || 0,
+			const createPayload: { carbohydrates?: number; kcal?: number; dateTime: string; foodItems: string; notes?: string } = {
 				dateTime: dateTime + ':00',
 				foodItems: foodItems.trim()
 			};
+			if (kcal.trim()) createPayload.kcal = parseInt(kcal);
+			if (carbohydrates.trim()) createPayload.carbohydrates = parseFloat(carbohydrates);
 			if (notes.trim()) createPayload.notes = notes.trim();
 			await foodLogs.create(createPayload);
 			foodItems = '';
@@ -91,12 +91,12 @@
 			</datalist>
 			<div class="form-row">
 				<div class="form-field">
-					<label for="kcal">Kcal</label>
-					<input type="number" id="kcal" bind:value={kcal} placeholder="0" min="0" />
+					<label for="kcal">Kcal (optional)</label>
+					<input type="number" id="kcal" bind:value={kcal} placeholder="" min="0" />
 				</div>
 				<div class="form-field">
-					<label for="carbs">Carbs (g)</label>
-					<input type="number" id="carbs" bind:value={carbohydrates} placeholder="0" min="0" step="0.1" />
+					<label for="carbs">Carbs in g (optional)</label>
+					<input type="number" id="carbs" bind:value={carbohydrates} placeholder="" min="0" step="0.1" />
 				</div>
 				<div class="form-field">
 					<label for="dateTime">Date & Time</label>
@@ -117,7 +117,9 @@
 					<div class="entry-card">
 						<div class="entry-main">
 							<span class="entry-food">{entry.foodItems}</span>
-							<span class="entry-nutrition">{entry.kcal} kcal, {entry.carbohydrates.toFixed(1)}g carbs</span>
+							{#if entry.kcal != null || entry.carbohydrates != null}
+								<span class="entry-nutrition">{#if entry.kcal != null}{entry.kcal} kcal{/if}{#if entry.kcal != null && entry.carbohydrates != null}, {/if}{#if entry.carbohydrates != null}{entry.carbohydrates.toFixed(1)}g carbs{/if}</span>
+							{/if}
 							<span class="entry-date">{formatDateTime(entry.dateTime)}</span>
 							{#if entry.notes}
 								<span class="entry-notes">{entry.notes}</span>

@@ -44,8 +44,23 @@ public class FoodLogAdapter extends RecyclerView.Adapter<FoodLogAdapter.ViewHold
 
         holder.dateTime.setText(entry.getDateTime() != null ? entry.getDateTime().format(DT_FORMAT) : "");
         holder.foodItems.setText(entry.getFoodItems());
-        holder.nutrition.setText(String.format(Locale.getDefault(), "%d kcal, %.1fg carbs",
-                entry.getKcal(), entry.getCarbohydrates()));
+
+        StringBuilder nutritionText = new StringBuilder();
+        if (entry.getKcal() != null) {
+            nutritionText.append(String.format(Locale.getDefault(), "%d kcal", entry.getKcal()));
+        }
+        if (entry.getCarbohydrates() != null) {
+            if (nutritionText.length() > 0) {
+                nutritionText.append(", ");
+            }
+            nutritionText.append(String.format(Locale.getDefault(), "%.1fg carbs", entry.getCarbohydrates()));
+        }
+        if (nutritionText.length() > 0) {
+            holder.nutrition.setVisibility(View.VISIBLE);
+            holder.nutrition.setText(nutritionText.toString());
+        } else {
+            holder.nutrition.setVisibility(View.GONE);
+        }
 
         if (entry.getNotes() != null && !entry.getNotes().isEmpty()) {
             holder.notes.setVisibility(View.VISIBLE);
