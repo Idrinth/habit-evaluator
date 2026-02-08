@@ -506,6 +506,12 @@ export const sportLogs = {
 	}
 };
 
+export interface FoodTag {
+	id: string;
+	name: string;
+	nameLower: string;
+}
+
 export interface FoodLog {
 	id: string;
 	carbohydrates: number | null;
@@ -515,6 +521,7 @@ export interface FoodLog {
 	createdAt: string;
 	notes: string | null;
 	foodItemList: string[];
+	tags: FoodTag[];
 }
 
 export const foodLogs = {
@@ -532,5 +539,8 @@ export const foodLogs = {
 	},
 	suggestions() {
 		return request<string[]>('/food-logs/suggestions');
+	},
+	migrateTags() {
+		return request<void>('/food-logs/migrate-tags', { method: 'POST' });
 	}
 };

@@ -116,7 +116,15 @@
 				{#each entries as entry (entry.id)}
 					<div class="entry-card">
 						<div class="entry-main">
-							<span class="entry-food">{entry.foodItems}</span>
+							<div class="entry-tags">
+								{#if entry.tags && entry.tags.length > 0}
+									{#each entry.tags as tag}
+										<span class="food-tag">{tag.name}</span>
+									{/each}
+								{:else}
+									<span class="entry-food">{entry.foodItems}</span>
+								{/if}
+							</div>
 							{#if entry.kcal != null || entry.carbohydrates != null}
 								<span class="entry-nutrition">{#if entry.kcal != null}{entry.kcal} kcal{/if}{#if entry.kcal != null && entry.carbohydrates != null}, {/if}{#if entry.carbohydrates != null}{entry.carbohydrates.toFixed(1)}g carbs{/if}</span>
 							{/if}
@@ -196,6 +204,22 @@
 		gap: 0.2rem;
 		flex: 1;
 		min-width: 0;
+	}
+
+	.entry-tags {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.3rem;
+	}
+
+	.food-tag {
+		display: inline-block;
+		background-color: var(--color-bg-hover, #f0f0f0);
+		border: 1px solid var(--color-border-light);
+		border-radius: 12px;
+		padding: 0.1rem 0.5rem;
+		font-size: 0.8rem;
+		font-weight: 500;
 	}
 
 	.entry-food {
