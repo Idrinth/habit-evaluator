@@ -4,8 +4,11 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import de.idrinth.habitevaluator.shared.model.User;
 import de.idrinth.habitevaluator.shared.repository.DiaryEntryRepository;
+import de.idrinth.habitevaluator.shared.repository.EmotionEntryRepository;
+import de.idrinth.habitevaluator.shared.repository.EmotionPairRepository;
 import de.idrinth.habitevaluator.shared.repository.HabitCategoryRepository;
 import de.idrinth.habitevaluator.shared.repository.HabitRepository;
+import de.idrinth.habitevaluator.shared.repository.ReminderSettingsRepository;
 import de.idrinth.habitevaluator.shared.repository.SleepEntryRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -72,6 +75,43 @@ public class HezBackupService {
         try {
             BackupData backupData = collectBackupData(user, habitRepository,
                     categoryRepository, diaryEntryRepository, sleepEntryRepository);
+
+            String json = gson.toJson(backupData);
+            byte[] plaintext = json.getBytes(StandardCharsets.UTF_8);
+            byte[] encrypted = encryptionService.encrypt(plaintext, password);
+
+            return createZipArchive(encrypted);
+        } catch (BackupException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new BackupException("Failed to create .hez backup", e);
+        }
+    }
+
+    /**
+     * Creates a .hez backup file containing encrypted user data, including emotion and reminder data.
+     */
+    public byte[] createHezBackup(String password, User user,
+                                   HabitRepository habitRepository,
+                                   HabitCategoryRepository categoryRepository,
+                                   DiaryEntryRepository diaryEntryRepository,
+                                   SleepEntryRepository sleepEntryRepository,
+                                   EmotionPairRepository emotionPairRepository,
+                                   EmotionEntryRepository emotionEntryRepository,
+                                   ReminderSettingsRepository reminderSettingsRepository) throws BackupException {
+        if (password == null || password.isEmpty()) {
+            throw new BackupException("Backup password must not be empty");
+        }
+        if (user == null) {
+            throw new BackupException("User must not be null for backup");
+        }
+
+        try {
+            BackupService backupService = new BackupService();
+            BackupData backupData = backupService.collectBackupData(user, habitRepository,
+                    categoryRepository, diaryEntryRepository, sleepEntryRepository,
+                    null, null, emotionPairRepository, emotionEntryRepository,
+                    reminderSettingsRepository);
 
             String json = gson.toJson(backupData);
             byte[] plaintext = json.getBytes(StandardCharsets.UTF_8);
@@ -251,6 +291,27 @@ public class HezBackupService {
     }
 
     /**
+     * Merges data from .hez bytes into the current user's existing data,
+     * including emotion and reminder data.
+     */
+    public MergeResult mergeFromHezBytes(byte[] hezData, String password, User user,
+                                         HabitRepository habitRepository,
+                                         HabitCategoryRepository categoryRepository,
+                                         DiaryEntryRepository diaryEntryRepository,
+                                         SleepEntryRepository sleepEntryRepository,
+                                         EmotionPairRepository emotionPairRepository,
+                                         EmotionEntryRepository emotionEntryRepository,
+                                         ReminderSettingsRepository reminderSettingsRepository,
+                                         RestoreOptions options) throws BackupException {
+        BackupData backupData = restoreFromHezBytes(hezData, password);
+        BackupService backupService = new BackupService();
+        return backupService.mergeBackupData(backupData, user, habitRepository,
+                categoryRepository, diaryEntryRepository, sleepEntryRepository,
+                null, null, null, emotionPairRepository, emotionEntryRepository,
+                reminderSettingsRepository, options);
+    }
+
+    /**
      * Merges data from a .hez input stream into the current user's existing data.
      *
      * @param inputStream          the input stream containing .hez data
@@ -409,6 +470,12 @@ public class HezBackupService {
                 }
                 if (entry.getCreatedAt() != null) {
                     entryData.setCreatedAt(entry.getCreatedAt().toString());
+                }
+                if (entry.getStartTime() != null) {
+                    entryData.setStartTime(entry.getStartTime().toString());
+                }
+                if (entry.getEndTime() != null) {
+                    entryData.setEndTime(entry.getEndTime().toString());
                 }
                 data.getDiaryEntries().add(entryData);
             }

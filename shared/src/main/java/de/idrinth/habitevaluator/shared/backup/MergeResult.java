@@ -13,6 +13,9 @@ public class MergeResult {
     private final int sleepEntriesAdded;
     private final int sportLogsAdded;
     private final int foodLogsAdded;
+    private final int emotionPairsAdded;
+    private final int emotionEntriesAdded;
+    private final boolean reminderSettingsRestored;
 
     public MergeResult(int categoriesAdded, int habitsAdded, int habitsMerged,
                        int entriesAdded, int diaryEntriesAdded, int sleepEntriesAdded) {
@@ -30,6 +33,16 @@ public class MergeResult {
     public MergeResult(int categoriesAdded, int habitsAdded, int habitsMerged,
                        int entriesAdded, int diaryEntriesAdded, int sleepEntriesAdded,
                        int sportLogsAdded, int foodLogsAdded) {
+        this(categoriesAdded, habitsAdded, habitsMerged, entriesAdded,
+                diaryEntriesAdded, sleepEntriesAdded, sportLogsAdded, foodLogsAdded,
+                0, 0, false);
+    }
+
+    public MergeResult(int categoriesAdded, int habitsAdded, int habitsMerged,
+                       int entriesAdded, int diaryEntriesAdded, int sleepEntriesAdded,
+                       int sportLogsAdded, int foodLogsAdded,
+                       int emotionPairsAdded, int emotionEntriesAdded,
+                       boolean reminderSettingsRestored) {
         this.categoriesAdded = categoriesAdded;
         this.habitsAdded = habitsAdded;
         this.habitsMerged = habitsMerged;
@@ -38,6 +51,9 @@ public class MergeResult {
         this.sleepEntriesAdded = sleepEntriesAdded;
         this.sportLogsAdded = sportLogsAdded;
         this.foodLogsAdded = foodLogsAdded;
+        this.emotionPairsAdded = emotionPairsAdded;
+        this.emotionEntriesAdded = emotionEntriesAdded;
+        this.reminderSettingsRestored = reminderSettingsRestored;
     }
 
     public int getCategoriesAdded() {
@@ -72,9 +88,23 @@ public class MergeResult {
         return foodLogsAdded;
     }
 
+    public int getEmotionPairsAdded() {
+        return emotionPairsAdded;
+    }
+
+    public int getEmotionEntriesAdded() {
+        return emotionEntriesAdded;
+    }
+
+    public boolean isReminderSettingsRestored() {
+        return reminderSettingsRestored;
+    }
+
     public int getTotalChanges() {
         return categoriesAdded + habitsAdded + habitsMerged + diaryEntriesAdded
-                + sleepEntriesAdded + sportLogsAdded + foodLogsAdded;
+                + sleepEntriesAdded + sportLogsAdded + foodLogsAdded
+                + emotionPairsAdded + emotionEntriesAdded
+                + (reminderSettingsRestored ? 1 : 0);
     }
 
     @Override
@@ -88,6 +118,9 @@ public class MergeResult {
                 + ", sleep entries added=" + sleepEntriesAdded
                 + ", sport logs added=" + sportLogsAdded
                 + ", food logs added=" + foodLogsAdded
+                + ", emotion pairs added=" + emotionPairsAdded
+                + ", emotion entries added=" + emotionEntriesAdded
+                + ", reminder settings restored=" + reminderSettingsRestored
                 + '}';
     }
 }

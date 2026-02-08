@@ -3,18 +3,24 @@ package de.idrinth.habitevaluator.shared.backup;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import de.idrinth.habitevaluator.shared.model.DiaryEntry;
+import de.idrinth.habitevaluator.shared.model.EmotionEntry;
+import de.idrinth.habitevaluator.shared.model.EmotionPair;
 import de.idrinth.habitevaluator.shared.model.Habit;
 import de.idrinth.habitevaluator.shared.model.HabitCategory;
 import de.idrinth.habitevaluator.shared.model.HabitEntry;
+import de.idrinth.habitevaluator.shared.model.ReminderSettings;
 import de.idrinth.habitevaluator.shared.model.ScoringRule;
 import de.idrinth.habitevaluator.shared.model.SleepEntry;
 import de.idrinth.habitevaluator.shared.model.SportLog;
 import de.idrinth.habitevaluator.shared.model.FoodLog;
 import de.idrinth.habitevaluator.shared.model.User;
 import de.idrinth.habitevaluator.shared.repository.DiaryEntryRepository;
+import de.idrinth.habitevaluator.shared.repository.EmotionEntryRepository;
+import de.idrinth.habitevaluator.shared.repository.EmotionPairRepository;
 import de.idrinth.habitevaluator.shared.repository.FoodLogRepository;
 import de.idrinth.habitevaluator.shared.repository.HabitCategoryRepository;
 import de.idrinth.habitevaluator.shared.repository.HabitRepository;
+import de.idrinth.habitevaluator.shared.repository.ReminderSettingsRepository;
 import de.idrinth.habitevaluator.shared.repository.SleepEntryRepository;
 import de.idrinth.habitevaluator.shared.repository.SportLogRepository;
 import org.slf4j.Logger;
@@ -263,6 +269,37 @@ public class BackupService {
         }
     }
 
+    public MergeResult mergeBackupData(BackupData backupData, User user,
+                                       HabitRepository habitRepository,
+                                       HabitCategoryRepository categoryRepository,
+                                       DiaryEntryRepository diaryEntryRepository,
+                                       SleepEntryRepository sleepEntryRepository,
+                                       SportLogRepository sportLogRepository,
+                                       FoodLogRepository foodLogRepository,
+                                       de.idrinth.habitevaluator.shared.repository.FoodTagRepository foodTagRepository,
+                                       EmotionPairRepository emotionPairRepository,
+                                       EmotionEntryRepository emotionEntryRepository,
+                                       ReminderSettingsRepository reminderSettingsRepository,
+                                       RestoreOptions options) throws BackupException {
+        if (user == null) {
+            throw new BackupException("User must not be null for merge");
+        }
+        if (options == null) {
+            options = RestoreOptions.all();
+        }
+
+        try {
+            return doMerge(backupData, user, habitRepository, categoryRepository,
+                    diaryEntryRepository, sleepEntryRepository, sportLogRepository,
+                    foodLogRepository, foodTagRepository, emotionPairRepository,
+                    emotionEntryRepository, reminderSettingsRepository, options);
+        } catch (BackupException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new BackupException("Failed to merge backup data", e);
+        }
+    }
+
     private MergeResult doMerge(BackupData backupData, User user,
                                 HabitRepository habitRepository,
                                 HabitCategoryRepository categoryRepository,
@@ -271,6 +308,23 @@ public class BackupService {
                                 SportLogRepository sportLogRepository,
                                 FoodLogRepository foodLogRepository,
                                 de.idrinth.habitevaluator.shared.repository.FoodTagRepository foodTagRepository,
+                                RestoreOptions options) throws BackupException {
+        return doMerge(backupData, user, habitRepository, categoryRepository,
+                diaryEntryRepository, sleepEntryRepository, sportLogRepository,
+                foodLogRepository, foodTagRepository, null, null, null, options);
+    }
+
+    private MergeResult doMerge(BackupData backupData, User user,
+                                HabitRepository habitRepository,
+                                HabitCategoryRepository categoryRepository,
+                                DiaryEntryRepository diaryEntryRepository,
+                                SleepEntryRepository sleepEntryRepository,
+                                SportLogRepository sportLogRepository,
+                                FoodLogRepository foodLogRepository,
+                                de.idrinth.habitevaluator.shared.repository.FoodTagRepository foodTagRepository,
+                                EmotionPairRepository emotionPairRepository,
+                                EmotionEntryRepository emotionEntryRepository,
+                                ReminderSettingsRepository reminderSettingsRepository,
                                 RestoreOptions options) throws BackupException {
         int categoriesAdded = 0;
         int habitsAdded = 0;
@@ -431,6 +485,12 @@ public class BackupService {
                     if (entryData.getCreatedAt() != null) {
                         newEntry.setCreatedAt(LocalDateTime.parse(entryData.getCreatedAt()));
                     }
+                    if (entryData.getStartTime() != null) {
+                        newEntry.setStartTime(LocalTime.parse(entryData.getStartTime()));
+                    }
+                    if (entryData.getEndTime() != null) {
+                        newEntry.setEndTime(LocalTime.parse(entryData.getEndTime()));
+                    }
                     newEntry.setUser(user);
                     diaryEntryRepository.save(newEntry);
                     diaryEntriesAdded++;
@@ -553,8 +613,100 @@ public class BackupService {
             }
         }
 
+        // Merge emotion pairs
+        int emotionPairsAdded = 0;
+        Map<String, String> emotionPairIdMapping = new HashMap<>();
+        if (options.isRestoreEmotionData() && emotionPairRepository != null
+                && backupData.getEmotionPairs() != null) {
+            List<EmotionPair> existingPairs = emotionPairRepository.findByUserId(user.getId());
+            Map<String, EmotionPair> existingByLabels = new HashMap<>();
+            for (EmotionPair pair : existingPairs) {
+                String key = pair.getNegativeLabel() + "|" + pair.getPositiveLabel();
+                existingByLabels.put(key, pair);
+            }
+
+            for (BackupData.EmotionPairData pairData : backupData.getEmotionPairs()) {
+                String key = pairData.getNegativeLabel() + "|" + pairData.getPositiveLabel();
+                EmotionPair existing = existingByLabels.get(key);
+                if (existing != null) {
+                    emotionPairIdMapping.put(pairData.getId(), existing.getId());
+                } else {
+                    EmotionPair newPair = new EmotionPair(pairData.getNegativeLabel(),
+                            pairData.getPositiveLabel());
+                    newPair.setUser(user);
+                    newPair = emotionPairRepository.save(newPair);
+                    emotionPairIdMapping.put(pairData.getId(), newPair.getId());
+                    emotionPairsAdded++;
+                }
+            }
+        }
+
+        // Merge emotion entries
+        int emotionEntriesAdded = 0;
+        if (options.isRestoreEmotionData() && emotionEntryRepository != null
+                && emotionPairRepository != null && backupData.getEmotionEntries() != null) {
+            List<EmotionEntry> existingEmotionEntries = emotionEntryRepository.findByUserId(user.getId());
+            Set<String> existingEmotionEntryIds = new HashSet<>();
+            for (EmotionEntry entry : existingEmotionEntries) {
+                existingEmotionEntryIds.add(entry.getId());
+            }
+
+            for (BackupData.EmotionEntryData entryData : backupData.getEmotionEntries()) {
+                if (!existingEmotionEntryIds.contains(entryData.getId())) {
+                    String mappedPairId = emotionPairIdMapping.get(entryData.getEmotionPairId());
+                    if (mappedPairId == null) {
+                        mappedPairId = entryData.getEmotionPairId();
+                    }
+                    java.util.Optional<EmotionPair> pairOpt = emotionPairRepository.findById(mappedPairId);
+                    if (pairOpt.isPresent()) {
+                        EmotionEntry newEntry = new EmotionEntry();
+                        newEntry.setId(entryData.getId());
+                        newEntry.setEmotionPair(pairOpt.get());
+                        newEntry.setStrength(entryData.getStrength());
+                        if (entryData.getRecordedAt() != null) {
+                            newEntry.setRecordedAt(LocalDateTime.parse(entryData.getRecordedAt()));
+                        }
+                        newEntry.setNotes(entryData.getNotes());
+                        newEntry.setUser(user);
+                        emotionEntryRepository.save(newEntry);
+                        emotionEntriesAdded++;
+                    }
+                }
+            }
+        }
+
+        // Merge reminder settings
+        boolean reminderSettingsRestored = false;
+        if (options.isRestoreReminderSettings() && reminderSettingsRepository != null
+                && backupData.getReminderSettings() != null) {
+            BackupData.ReminderSettingsData settingsData = backupData.getReminderSettings();
+            java.util.Optional<ReminderSettings> existingOpt =
+                    reminderSettingsRepository.findByUserId(user.getId());
+            ReminderSettings settings = existingOpt.orElseGet(ReminderSettings::new);
+            settings.setUser(user);
+            settings.setSleepReminderEnabled(settingsData.isSleepReminderEnabled());
+            if (settingsData.getSleepReminderTime() != null) {
+                settings.setSleepReminderTime(LocalTime.parse(settingsData.getSleepReminderTime()));
+            }
+            settings.setDiaryReminderEnabled(settingsData.isDiaryReminderEnabled());
+            if (settingsData.getDiaryReminderTime() != null) {
+                settings.setDiaryReminderTime(LocalTime.parse(settingsData.getDiaryReminderTime()));
+            }
+            settings.setEmotionReminderEnabled(settingsData.isEmotionReminderEnabled());
+            settings.setEmotionReminderCount(settingsData.getEmotionReminderCount());
+            if (settingsData.getWakingHoursStart() != null) {
+                settings.setWakingHoursStart(LocalTime.parse(settingsData.getWakingHoursStart()));
+            }
+            if (settingsData.getWakingHoursEnd() != null) {
+                settings.setWakingHoursEnd(LocalTime.parse(settingsData.getWakingHoursEnd()));
+            }
+            reminderSettingsRepository.save(settings);
+            reminderSettingsRestored = true;
+        }
+
         MergeResult result = new MergeResult(categoriesAdded, habitsAdded, habitsMerged,
-                entriesAdded, diaryEntriesAdded, sleepEntriesAdded, sportLogsAdded, foodLogsAdded);
+                entriesAdded, diaryEntriesAdded, sleepEntriesAdded, sportLogsAdded, foodLogsAdded,
+                emotionPairsAdded, emotionEntriesAdded, reminderSettingsRestored);
         logger.info("Backup merged: {}", result);
         return result;
     }
@@ -648,6 +800,12 @@ public class BackupService {
                 }
                 if (entry.getCreatedAt() != null) {
                     entryData.setCreatedAt(entry.getCreatedAt().toString());
+                }
+                if (entry.getStartTime() != null) {
+                    entryData.setStartTime(entry.getStartTime().toString());
+                }
+                if (entry.getEndTime() != null) {
+                    entryData.setEndTime(entry.getEndTime().toString());
                 }
                 data.getDiaryEntries().add(entryData);
             }
@@ -743,6 +901,77 @@ public class BackupService {
                     entryData.setTagNames(tagNames);
                 }
                 data.getFoodLogs().add(entryData);
+            }
+        }
+
+        return data;
+    }
+
+    BackupData collectBackupData(User user,
+                                         HabitRepository habitRepository,
+                                         HabitCategoryRepository categoryRepository,
+                                         DiaryEntryRepository diaryEntryRepository,
+                                         SleepEntryRepository sleepEntryRepository,
+                                         SportLogRepository sportLogRepository,
+                                         FoodLogRepository foodLogRepository,
+                                         EmotionPairRepository emotionPairRepository,
+                                         EmotionEntryRepository emotionEntryRepository,
+                                         ReminderSettingsRepository reminderSettingsRepository) {
+        BackupData data = collectBackupData(user, habitRepository, categoryRepository,
+                diaryEntryRepository, sleepEntryRepository, sportLogRepository, foodLogRepository);
+
+        if (emotionPairRepository != null) {
+            List<EmotionPair> emotionPairs = emotionPairRepository.findByUserId(user.getId());
+            for (EmotionPair pair : emotionPairs) {
+                BackupData.EmotionPairData pairData = new BackupData.EmotionPairData();
+                pairData.setId(pair.getId());
+                pairData.setNegativeLabel(pair.getNegativeLabel());
+                pairData.setPositiveLabel(pair.getPositiveLabel());
+                data.getEmotionPairs().add(pairData);
+            }
+        }
+
+        if (emotionEntryRepository != null) {
+            List<EmotionEntry> emotionEntries = emotionEntryRepository.findByUserId(user.getId());
+            for (EmotionEntry entry : emotionEntries) {
+                BackupData.EmotionEntryData entryData = new BackupData.EmotionEntryData();
+                entryData.setId(entry.getId());
+                if (entry.getEmotionPair() != null) {
+                    entryData.setEmotionPairId(entry.getEmotionPair().getId());
+                }
+                entryData.setStrength(entry.getStrength());
+                if (entry.getRecordedAt() != null) {
+                    entryData.setRecordedAt(entry.getRecordedAt().toString());
+                }
+                entryData.setNotes(entry.getNotes());
+                data.getEmotionEntries().add(entryData);
+            }
+        }
+
+        if (reminderSettingsRepository != null) {
+            java.util.Optional<ReminderSettings> settingsOpt =
+                    reminderSettingsRepository.findByUserId(user.getId());
+            if (settingsOpt.isPresent()) {
+                ReminderSettings settings = settingsOpt.get();
+                BackupData.ReminderSettingsData settingsData = new BackupData.ReminderSettingsData();
+                settingsData.setId(settings.getId());
+                settingsData.setSleepReminderEnabled(settings.isSleepReminderEnabled());
+                if (settings.getSleepReminderTime() != null) {
+                    settingsData.setSleepReminderTime(settings.getSleepReminderTime().toString());
+                }
+                settingsData.setDiaryReminderEnabled(settings.isDiaryReminderEnabled());
+                if (settings.getDiaryReminderTime() != null) {
+                    settingsData.setDiaryReminderTime(settings.getDiaryReminderTime().toString());
+                }
+                settingsData.setEmotionReminderEnabled(settings.isEmotionReminderEnabled());
+                settingsData.setEmotionReminderCount(settings.getEmotionReminderCount());
+                if (settings.getWakingHoursStart() != null) {
+                    settingsData.setWakingHoursStart(settings.getWakingHoursStart().toString());
+                }
+                if (settings.getWakingHoursEnd() != null) {
+                    settingsData.setWakingHoursEnd(settings.getWakingHoursEnd().toString());
+                }
+                data.setReminderSettings(settingsData);
             }
         }
 

@@ -6,8 +6,11 @@ import de.idrinth.habitevaluator.shared.backup.MergeResult;
 import de.idrinth.habitevaluator.shared.backup.RestoreOptions;
 import de.idrinth.habitevaluator.shared.model.User;
 import de.idrinth.habitevaluator.shared.repository.DiaryEntryRepository;
+import de.idrinth.habitevaluator.shared.repository.EmotionEntryRepository;
+import de.idrinth.habitevaluator.shared.repository.EmotionPairRepository;
 import de.idrinth.habitevaluator.shared.repository.HabitCategoryRepository;
 import de.idrinth.habitevaluator.shared.repository.HabitRepository;
+import de.idrinth.habitevaluator.shared.repository.ReminderSettingsRepository;
 import de.idrinth.habitevaluator.shared.repository.SleepEntryRepository;
 import de.idrinth.habitevaluator.shared.repository.UserRepository;
 import jakarta.servlet.http.HttpSession;
@@ -21,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
@@ -37,18 +41,27 @@ public class BackupController {
     private final DiaryEntryRepository diaryEntryRepository;
     private final SleepEntryRepository sleepEntryRepository;
     private final UserRepository userRepository;
+    private final EmotionPairRepository emotionPairRepository;
+    private final EmotionEntryRepository emotionEntryRepository;
+    private final ReminderSettingsRepository reminderSettingsRepository;
     private final HezBackupService hezBackupService;
 
     public BackupController(HabitRepository habitRepository,
                             HabitCategoryRepository categoryRepository,
                             DiaryEntryRepository diaryEntryRepository,
                             SleepEntryRepository sleepEntryRepository,
-                            UserRepository userRepository) {
+                            UserRepository userRepository,
+                            EmotionPairRepository emotionPairRepository,
+                            EmotionEntryRepository emotionEntryRepository,
+                            ReminderSettingsRepository reminderSettingsRepository) {
         this.habitRepository = habitRepository;
         this.categoryRepository = categoryRepository;
         this.diaryEntryRepository = diaryEntryRepository;
         this.sleepEntryRepository = sleepEntryRepository;
         this.userRepository = userRepository;
+        this.emotionPairRepository = emotionPairRepository;
+        this.emotionEntryRepository = emotionEntryRepository;
+        this.reminderSettingsRepository = reminderSettingsRepository;
         this.hezBackupService = new HezBackupService();
     }
 
@@ -71,7 +84,8 @@ public class BackupController {
 
         try {
             byte[] hezData = hezBackupService.createHezBackup(password, user,
-                    habitRepository, categoryRepository, diaryEntryRepository, sleepEntryRepository);
+                    habitRepository, categoryRepository, diaryEntryRepository, sleepEntryRepository,
+                    emotionPairRepository, emotionEntryRepository, reminderSettingsRepository);
 
             String fileName = hezBackupService.generateDefaultFilename();
 
@@ -94,6 +108,8 @@ public class BackupController {
             @RequestParam(value = "sleep", required = false, defaultValue = "true") boolean sleep,
             @RequestParam(value = "sportLogs", required = false, defaultValue = "true") boolean sportLogs,
             @RequestParam(value = "foodLogs", required = false, defaultValue = "true") boolean foodLogs,
+            @RequestParam(value = "emotions", required = false, defaultValue = "true") boolean emotions,
+            @RequestParam(value = "reminderSettings", required = false, defaultValue = "true") boolean reminderSettingsParam,
             HttpSession session) {
 
         String userId = (String) session.getAttribute("userId");
@@ -128,23 +144,29 @@ public class BackupController {
             options.setRestoreSleepEntries(sleep);
             options.setRestoreSportLogs(sportLogs);
             options.setRestoreFoodLogs(foodLogs);
+            options.setRestoreEmotionData(emotions);
+            options.setRestoreReminderSettings(reminderSettingsParam);
 
             MergeResult result = hezBackupService.mergeFromHezBytes(hezData, password, user,
                     habitRepository, categoryRepository, diaryEntryRepository, sleepEntryRepository,
+                    emotionPairRepository, emotionEntryRepository, reminderSettingsRepository,
                     options);
 
-            return ResponseEntity.ok(Map.of(
-                    "success", true,
-                    "message", "Backup restored successfully",
-                    "categoriesAdded", result.getCategoriesAdded(),
-                    "habitsAdded", result.getHabitsAdded(),
-                    "habitsMerged", result.getHabitsMerged(),
-                    "entriesAdded", result.getEntriesAdded(),
-                    "diaryEntriesAdded", result.getDiaryEntriesAdded(),
-                    "sleepEntriesAdded", result.getSleepEntriesAdded(),
-                    "sportLogsAdded", result.getSportLogsAdded(),
-                    "foodLogsAdded", result.getFoodLogsAdded()
-            ));
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("message", "Backup restored successfully");
+            response.put("categoriesAdded", result.getCategoriesAdded());
+            response.put("habitsAdded", result.getHabitsAdded());
+            response.put("habitsMerged", result.getHabitsMerged());
+            response.put("entriesAdded", result.getEntriesAdded());
+            response.put("diaryEntriesAdded", result.getDiaryEntriesAdded());
+            response.put("sleepEntriesAdded", result.getSleepEntriesAdded());
+            response.put("sportLogsAdded", result.getSportLogsAdded());
+            response.put("foodLogsAdded", result.getFoodLogsAdded());
+            response.put("emotionPairsAdded", result.getEmotionPairsAdded());
+            response.put("emotionEntriesAdded", result.getEmotionEntriesAdded());
+            response.put("reminderSettingsRestored", result.isReminderSettingsRestored());
+            return ResponseEntity.ok(response);
         } catch (BackupException e) {
             return ResponseEntity.badRequest()
                     .body(Map.of("success", false, "message",
