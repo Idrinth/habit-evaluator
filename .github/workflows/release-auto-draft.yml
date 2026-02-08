@@ -31,6 +31,14 @@ jobs:
           echo "next_version=${NEXT_VERSION}" >> "$GITHUB_OUTPUT"
           echo "tag=v${NEXT_VERSION}" >> "$GITHUB_OUTPUT"
 
+      - name: Delete old draft releases
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release list --limit 200 --json tagName,isDraft --jq '.[] | select(.isDraft) | .tagName' | while read -r TAG; do
+            gh release delete "$TAG" --yes --cleanup-tag || gh release delete "$TAG" --yes
+          done
+
       - name: Create draft release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -45,13 +53,3 @@ jobs:
             --title "v${{ steps.version.outputs.next_version }}" \
             --notes "" \
             --target the-one
-
-      - name: Delete older draft releases
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          gh release list --json tagName,isDraft --jq '.[] | select(.isDraft) | .tagName' | while read -r TAG; do
-            if [ "$TAG" != "${{ steps.version.outputs.tag }}" ]; then
-              gh release delete "$TAG" --yes --cleanup-tag || gh release delete "$TAG" --yes
-            fi
-          done
