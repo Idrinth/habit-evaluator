@@ -3,6 +3,7 @@ package de.idrinth.habitevaluator.webserver.controller;
 import de.idrinth.habitevaluator.shared.model.DiaryEntry;
 import de.idrinth.habitevaluator.shared.model.EmotionEntry;
 import de.idrinth.habitevaluator.shared.model.EventCorrelation;
+import de.idrinth.habitevaluator.shared.model.FoodLog;
 import de.idrinth.habitevaluator.shared.model.Habit;
 import de.idrinth.habitevaluator.shared.model.HabitCategory;
 import de.idrinth.habitevaluator.shared.model.HabitEntry;
@@ -10,6 +11,7 @@ import de.idrinth.habitevaluator.shared.model.SleepEntry;
 import de.idrinth.habitevaluator.shared.model.SportLog;
 import de.idrinth.habitevaluator.shared.repository.DiaryEntryRepository;
 import de.idrinth.habitevaluator.shared.repository.EmotionEntryRepository;
+import de.idrinth.habitevaluator.shared.repository.FoodLogRepository;
 import de.idrinth.habitevaluator.shared.repository.HabitCategoryRepository;
 import de.idrinth.habitevaluator.shared.repository.HabitRepository;
 import de.idrinth.habitevaluator.shared.repository.SleepEntryRepository;
@@ -46,6 +48,7 @@ public class StatsController {
     private final EmotionEntryRepository emotionEntryRepository;
     private final HabitCategoryRepository habitCategoryRepository;
     private final SportLogRepository sportLogRepository;
+    private final FoodLogRepository foodLogRepository;
     private final HabitScoringService scoringService;
     private final DiaryService diaryService;
     private final EventCorrelationService correlationService;
@@ -56,6 +59,7 @@ public class StatsController {
                            EmotionEntryRepository emotionEntryRepository,
                            HabitCategoryRepository habitCategoryRepository,
                            SportLogRepository sportLogRepository,
+                           FoodLogRepository foodLogRepository,
                            HabitScoringService scoringService,
                            DiaryService diaryService,
                            EventCorrelationService correlationService) {
@@ -65,6 +69,7 @@ public class StatsController {
         this.emotionEntryRepository = emotionEntryRepository;
         this.habitCategoryRepository = habitCategoryRepository;
         this.sportLogRepository = sportLogRepository;
+        this.foodLogRepository = foodLogRepository;
         this.scoringService = scoringService;
         this.diaryService = diaryService;
         this.correlationService = correlationService;
@@ -309,6 +314,57 @@ public class StatsController {
         Map<String, Object> result = new LinkedHashMap<>();
         result.put("labels", labels);
         result.put("pairs", pairScatters);
+
+        return ResponseEntity.ok(result);
+    }
+
+    @GetMapping("/food-distribution")
+    public ResponseEntity<Map<String, Object>> getFoodDistribution(HttpSession session) {
+        String userId = (String) session.getAttribute("userId");
+        if (userId == null) {
+            return ResponseEntity.status(401).build();
+        }
+
+        LocalDate today = LocalDate.now();
+        LocalDate startDate = today.minusDays(DAYS - 1);
+
+        List<FoodLog> allEntries = foodLogRepository.findByUserId(userId);
+
+        int[] mealCounts = new int[24];
+        double[] totalKcal = new double[24];
+        double[] totalCarbs = new double[24];
+
+        for (FoodLog entry : allEntries) {
+            LocalDate entryDate = entry.getDateTime().toLocalDate();
+            if (!entryDate.isBefore(startDate) && !entryDate.isAfter(today)) {
+                int hour = entry.getDateTime().getHour();
+                mealCounts[hour]++;
+                if (entry.getKcal() != null) {
+                    totalKcal[hour] += entry.getKcal();
+                }
+                if (entry.getCarbohydrates() != null) {
+                    totalCarbs[hour] += entry.getCarbohydrates();
+                }
+            }
+        }
+
+        List<String> labels = new ArrayList<>();
+        List<Integer> counts = new ArrayList<>();
+        List<Double> avgKcal = new ArrayList<>();
+        List<Double> avgCarbs = new ArrayList<>();
+
+        for (int h = 0; h < 24; h++) {
+            labels.add(String.format("%02d:00", h));
+            counts.add(mealCounts[h]);
+            avgKcal.add(mealCounts[h] > 0 ? Math.round(totalKcal[h] / mealCounts[h] * 10.0) / 10.0 : 0.0);
+            avgCarbs.add(mealCounts[h] > 0 ? Math.round(totalCarbs[h] / mealCounts[h] * 10.0) / 10.0 : 0.0);
+        }
+
+        Map<String, Object> result = new LinkedHashMap<>();
+        result.put("labels", labels);
+        result.put("mealCounts", counts);
+        result.put("avgKcal", avgKcal);
+        result.put("avgCarbs", avgCarbs);
 
         return ResponseEntity.ok(result);
     }

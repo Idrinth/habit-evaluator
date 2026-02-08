@@ -3,6 +3,7 @@ package de.idrinth.habitevaluator.webserver.controller;
 import de.idrinth.habitevaluator.shared.model.DiaryEntry;
 import de.idrinth.habitevaluator.shared.model.EmotionEntry;
 import de.idrinth.habitevaluator.shared.model.EventCorrelation;
+import de.idrinth.habitevaluator.shared.model.FoodLog;
 import de.idrinth.habitevaluator.shared.model.Habit;
 import de.idrinth.habitevaluator.shared.model.HabitCategory;
 import de.idrinth.habitevaluator.shared.model.HabitScore;
@@ -10,6 +11,7 @@ import de.idrinth.habitevaluator.shared.model.SleepEntry;
 import de.idrinth.habitevaluator.shared.model.User;
 import de.idrinth.habitevaluator.shared.repository.DiaryEntryRepository;
 import de.idrinth.habitevaluator.shared.repository.EmotionEntryRepository;
+import de.idrinth.habitevaluator.shared.repository.FoodLogRepository;
 import de.idrinth.habitevaluator.shared.repository.HabitCategoryRepository;
 import de.idrinth.habitevaluator.shared.repository.HabitRepository;
 import de.idrinth.habitevaluator.shared.repository.SleepEntryRepository;
@@ -23,6 +25,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockHttpSession;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -40,6 +43,7 @@ class StatsControllerTest {
     private EmotionEntryRepository emotionEntryRepository;
     private HabitCategoryRepository habitCategoryRepository;
     private SportLogRepository sportLogRepository;
+    private FoodLogRepository foodLogRepository;
     private HabitScoringService scoringService;
     private DiaryService diaryService;
     private EventCorrelationService correlationService;
@@ -55,11 +59,12 @@ class StatsControllerTest {
         emotionEntryRepository = mock(EmotionEntryRepository.class);
         habitCategoryRepository = mock(HabitCategoryRepository.class);
         sportLogRepository = mock(SportLogRepository.class);
+        foodLogRepository = mock(FoodLogRepository.class);
         scoringService = mock(HabitScoringService.class);
         diaryService = mock(DiaryService.class);
         correlationService = mock(EventCorrelationService.class);
         controller = new StatsController(habitRepository, sleepEntryRepository, diaryEntryRepository,
-                emotionEntryRepository, habitCategoryRepository, sportLogRepository, scoringService, diaryService, correlationService);
+                emotionEntryRepository, habitCategoryRepository, sportLogRepository, foodLogRepository, scoringService, diaryService, correlationService);
         session = new MockHttpSession();
         testUser = new User("testuser", "password");
         session.setAttribute("userId", testUser.getId());
@@ -145,5 +150,56 @@ class StatsControllerTest {
         assertEquals("Sleep Hours", body.get(0).get("eventB"));
         assertEquals(0.75, body.get(0).get("correlation"));
         assertEquals(30, body.get(0).get("sharedDays"));
+    }
+
+    @Test
+    void testGetFoodDistributionUnauthenticated() {
+        MockHttpSession unauthSession = new MockHttpSession();
+        ResponseEntity<Map<String, Object>> response = controller.getFoodDistribution(unauthSession);
+        assertEquals(401, response.getStatusCode().value());
+    }
+
+    @Test
+    void testGetFoodDistributionSuccess() {
+        when(foodLogRepository.findByUserId(testUser.getId())).thenReturn(new ArrayList<>());
+
+        ResponseEntity<Map<String, Object>> response = controller.getFoodDistribution(session);
+
+        assertEquals(200, response.getStatusCode().value());
+        Map<String, Object> body = response.getBody();
+        assertNotNull(body);
+        assertTrue(body.containsKey("labels"));
+        assertTrue(body.containsKey("mealCounts"));
+        assertTrue(body.containsKey("avgKcal"));
+        assertTrue(body.containsKey("avgCarbs"));
+
+        List<?> labels = (List<?>) body.get("labels");
+        assertEquals(24, labels.size());
+        assertEquals("00:00", labels.get(0));
+        assertEquals("23:00", labels.get(23));
+    }
+
+    @Test
+    void testGetFoodDistributionWithEntries() {
+        FoodLog entry1 = new FoodLog(30.0, 500, LocalDateTime.now().withHour(12).withMinute(0), "Rice, Chicken");
+        FoodLog entry2 = new FoodLog(20.0, 300, LocalDateTime.now().withHour(12).withMinute(30), "Salad");
+        FoodLog entry3 = new FoodLog(50.0, 800, LocalDateTime.now().withHour(19).withMinute(0), "Pasta");
+
+        when(foodLogRepository.findByUserId(testUser.getId())).thenReturn(List.of(entry1, entry2, entry3));
+
+        ResponseEntity<Map<String, Object>> response = controller.getFoodDistribution(session);
+
+        assertEquals(200, response.getStatusCode().value());
+        Map<String, Object> body = response.getBody();
+        assertNotNull(body);
+
+        List<Integer> counts = (List<Integer>) body.get("mealCounts");
+        assertEquals(2, counts.get(12));
+        assertEquals(1, counts.get(19));
+        assertEquals(0, counts.get(0));
+
+        List<Double> avgKcal = (List<Double>) body.get("avgKcal");
+        assertEquals(400.0, avgKcal.get(12));
+        assertEquals(800.0, avgKcal.get(19));
     }
 }
