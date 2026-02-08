@@ -320,6 +320,73 @@ The script reads the upstream proxy URL (including credentials) from the `http_p
 
 **npm / Node.js** tools (website, homepage) generally respect the environment variables automatically and need no extra configuration.
 
+## Android SDK Setup
+
+The Android SDK is **not pre-installed** in this environment. The android module requires compileSdk 35, build-tools 35.0.0, and platform-tools. Follow these steps to install the SDK from scratch.
+
+**Step 1 — Download and install Android command-line tools:**
+
+```bash
+export ANDROID_HOME=/opt/android-sdk
+mkdir -p "$ANDROID_HOME/cmdline-tools"
+cd /tmp
+curl -fsSL -o cmdline-tools.zip \
+  "https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip"
+unzip -q cmdline-tools.zip -d cmdline-tools-tmp
+mv cmdline-tools-tmp/cmdline-tools "$ANDROID_HOME/cmdline-tools/latest"
+rm -rf cmdline-tools.zip cmdline-tools-tmp
+```
+
+**Step 2 — Accept licenses:**
+
+```bash
+mkdir -p "$ANDROID_HOME/licenses"
+echo -e "\n24333f8a63b6825ea9c5514f83c2829b004d1fee" > "$ANDROID_HOME/licenses/android-sdk-license"
+echo -e "\n84831b9409646a918e30573bab4c9c91346d8abd" > "$ANDROID_HOME/licenses/android-sdk-arm-dbt-license"
+```
+
+**Step 3 — Install required SDK packages (via local proxy):**
+
+```bash
+python3 scripts/local-proxy.py &
+LOCAL_PROXY_PID=$!
+sleep 2
+$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install \
+  "platforms;android-35" "build-tools;35.0.0" "platform-tools" \
+  --proxy=http --proxy_host=127.0.0.1 --proxy_port=18080
+kill $LOCAL_PROXY_PID 2>/dev/null
+```
+
+**Step 4 — Create `local.properties`** (already gitignored):
+
+```bash
+echo "sdk.dir=/opt/android-sdk" > local.properties
+```
+
+**Step 5 — Verify the build works:**
+
+```bash
+python3 scripts/local-proxy.py &
+LOCAL_PROXY_PID=$!
+sleep 2
+export ANDROID_HOME=/opt/android-sdk
+./gradlew :android:assembleModernDebug \
+  -Dhttp.proxyHost=127.0.0.1 -Dhttp.proxyPort=18080 \
+  -Dhttps.proxyHost=127.0.0.1 -Dhttps.proxyPort=18080 \
+  -Dhttp.nonProxyHosts="localhost|127.0.0.1"
+kill $LOCAL_PROXY_PID 2>/dev/null
+```
+
+**Note:** The Gradle wrapper download (`gradle-8.14.3-bin.zip`) also needs network access. If the wrapper fails to download through the proxy, download it manually with curl (which respects `http_proxy`/`https_proxy` env vars) into the wrapper cache directory:
+
+```bash
+# Find the wrapper cache dir (created after the first failed attempt)
+WRAPPER_DIR=$(ls -d ~/.gradle/wrapper/dists/gradle-*/*/gradle-*.zip.lck 2>/dev/null | head -1 | xargs dirname)
+curl -fsSL -o "$WRAPPER_DIR/gradle-8.14.3-bin.zip" \
+  "https://services.gradle.org/distributions/gradle-8.14.3-bin.zip"
+cd "$WRAPPER_DIR" && unzip -q gradle-8.14.3-bin.zip && rm -f *.lck *.part
+```
+
 ## Testing
 
 **Java Framework:** JUnit 5 (Jupiter 5.10.2), JaCoCo 0.8.11 for coverage
