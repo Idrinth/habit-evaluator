@@ -102,6 +102,7 @@
 					<div class="chart-card">
 						<h3>Duration (hours)</h3>
 						<p class="chart-avg">Avg: {average(activity.dailyDuration).toFixed(1)}h</p>
+						{#if true}
 						{@const durTrend = calculateTrendLine(activity.dailyDuration)}
 						{@const durMax = maxValue(activity.dailyDuration)}
 						<div class="chart-wrapper">
@@ -145,11 +146,13 @@
 								{/each}
 							</div>
 						</div>
+						{/if}
 					</div>
 
 					<div class="chart-card">
 						<h3>Measurement ({activity.unit})</h3>
 						<p class="chart-avg">Avg: {average(activity.dailyMeasurement).toFixed(1)} {activity.unit}</p>
+						{#if true}
 						{@const measTrend = calculateTrendLine(activity.dailyMeasurement)}
 						{@const measMax = maxValue(activity.dailyMeasurement)}
 						<div class="chart-wrapper">
@@ -194,6 +197,7 @@
 								{/each}
 							</div>
 						</div>
+						{/if}
 					</div>
 				</div>
 			</div>
