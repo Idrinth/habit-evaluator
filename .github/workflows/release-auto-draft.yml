@@ -37,7 +37,7 @@ jobs:
         run: |
           EXISTING=$(gh release list --json tagName,isDraft --jq '.[] | select(.isDraft) | .tagName' | head -n 1)
           if [ -n "$EXISTING" ]; then
-            gh release delete "$EXISTING" --yes --cleanup-tag
+            gh release delete "$EXISTING" --yes --cleanup-tag || gh release delete "$EXISTING" --yes
           fi
 
       - name: Create draft release
