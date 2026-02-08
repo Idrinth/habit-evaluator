@@ -36,21 +36,21 @@ jobs:
         if: always()
 
       - name: Upload shared coverage report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         if: always()
         with:
           name: shared-coverage-report
           path: shared/build/reports/jacoco/
 
       - name: Upload webserver coverage report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         if: always()
         with:
           name: webserver-coverage-report
           path: webserver/build/reports/jacoco/
 
       - name: Upload desktop JAR
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         if: always()
         with:
           name: habit-evaluator-desktop
@@ -78,7 +78,7 @@ jobs:
         run: ./gradlew :desktop:jpackageDeb
 
       - name: Upload desktop .deb
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: habit-evaluator-desktop-deb
           path: desktop/build/jpackage-deb/*.deb
@@ -101,7 +101,7 @@ jobs:
         run: ./gradlew :desktop:jpackageExe
 
       - name: Upload desktop .exe
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: habit-evaluator-desktop-exe
           path: desktop/build/jpackage-exe/*.exe
@@ -155,7 +155,7 @@ jobs:
         run: ./gradlew :android:assemble${{ matrix.flavor == 'modern' && 'Modern' || 'Legacy' }}Release
 
       - name: Upload APK (${{ matrix.flavor }})
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: habit-evaluator-android-${{ matrix.flavor }}
           path: android/build/outputs/apk/${{ matrix.flavor }}Release/*.apk
@@ -192,7 +192,7 @@ jobs:
         run: ./gradlew :android:bundle${{ matrix.flavor == 'modern' && 'Modern' || 'Legacy' }}Release
 
       - name: Upload AAB (${{ matrix.flavor }})
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: habit-evaluator-android-${{ matrix.flavor }}-aab
           path: android/build/outputs/bundle/${{ matrix.flavor }}Release/*.aab
