@@ -197,6 +197,9 @@
     <string name="stats_confidence_strong">Fuerte</string>
     <string name="stats_confidence_moderate">Moderado</string>
     <string name="stats_confidence_weak">Débil</string>
+    <string name="stats_filter_source">Filtrar origen</string>
+    <string name="stats_filter_target">Filtrar destino</string>
+    <string name="stats_filter_all">Todos</string>
     <string name="backup_settings">Configuración de respaldo</string>
     <string name="backup_enabled_label">Activar respaldos diarios cifrados</string>
     <string name="backup_password_hint">Contraseña de respaldo</string>

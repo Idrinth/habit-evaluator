@@ -5,6 +5,8 @@ import android.graphics.Typeface;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -13,6 +15,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.TreeSet;
 
 import de.idrinth.habitevaluator.android.databinding.ActivityCorrelationBinding;
 import de.idrinth.habitevaluator.shared.model.DiaryEntry;
@@ -32,6 +35,7 @@ public class CorrelationActivity extends AppCompatActivity {
 
     private ActivityCorrelationBinding binding;
     private final EventCorrelationService correlationService = new EventCorrelationService();
+    private List<EventCorrelation> allCorrelations = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,10 +46,26 @@ public class CorrelationActivity extends AppCompatActivity {
         binding.toolbar.setTitle(R.string.stats_correlations_title);
         binding.toolbar.setNavigationOnClickListener(v -> finish());
 
-        updateCorrelations();
+        computeCorrelations();
+        populateFilters();
+        displayCorrelations(allCorrelations);
+
+        AdapterView.OnItemSelectedListener filterListener = new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, android.view.View view, int position, long id) {
+                applyFilters();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                // no-op
+            }
+        };
+        binding.sourceFilter.setOnItemSelectedListener(filterListener);
+        binding.targetFilter.setOnItemSelectedListener(filterListener);
     }
 
-    private void updateCorrelations() {
+    private void computeCorrelations() {
         List<Habit> habits = MainActivity.getSharedHabits();
         if (habits == null) {
             habits = new ArrayList<>();
@@ -67,9 +87,59 @@ public class CorrelationActivity extends AppCompatActivity {
             emotionEntries = MainActivity.getSharedEmotionEntryRepository().findByUserId(user.getId());
         }
 
-        List<EventCorrelation> correlations = correlationService.calculateCorrelations(
+        allCorrelations = correlationService.calculateCorrelations(
                 habits, diaryEntries, sleepEntries, emotionEntries);
+    }
 
+    private void populateFilters() {
+        TreeSet<String> eventNames = new TreeSet<>();
+        for (EventCorrelation corr : allCorrelations) {
+            eventNames.add(corr.getEventA());
+            eventNames.add(corr.getEventB());
+        }
+
+        String allLabel = getString(R.string.stats_filter_all);
+        List<String> filterOptions = new ArrayList<>();
+        filterOptions.add(allLabel);
+        filterOptions.addAll(eventNames);
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(
+                this, android.R.layout.simple_spinner_item, filterOptions);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+        binding.sourceFilter.setAdapter(adapter);
+        binding.targetFilter.setAdapter(adapter);
+    }
+
+    private void applyFilters() {
+        String allLabel = getString(R.string.stats_filter_all);
+        String sourceSelection = (String) binding.sourceFilter.getSelectedItem();
+        String targetSelection = (String) binding.targetFilter.getSelectedItem();
+
+        if (sourceSelection == null) {
+            sourceSelection = allLabel;
+        }
+        if (targetSelection == null) {
+            targetSelection = allLabel;
+        }
+
+        List<EventCorrelation> filtered = new ArrayList<>();
+        for (EventCorrelation corr : allCorrelations) {
+            boolean matchesSource = allLabel.equals(sourceSelection)
+                    || corr.getEventA().equals(sourceSelection)
+                    || corr.getEventB().equals(sourceSelection);
+            boolean matchesTarget = allLabel.equals(targetSelection)
+                    || corr.getEventA().equals(targetSelection)
+                    || corr.getEventB().equals(targetSelection);
+            if (matchesSource && matchesTarget) {
+                filtered.add(corr);
+            }
+        }
+
+        displayCorrelations(filtered);
+    }
+
+    private void displayCorrelations(List<EventCorrelation> correlations) {
         binding.correlationContainer.removeAllViews();
 
         if (correlations.isEmpty()) {

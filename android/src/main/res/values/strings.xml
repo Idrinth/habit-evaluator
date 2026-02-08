@@ -235,6 +235,9 @@
     <string name="stats_confidence_strong">Strong</string>
     <string name="stats_confidence_moderate">Moderate</string>
     <string name="stats_confidence_weak">Weak</string>
+    <string name="stats_filter_source">Filter source</string>
+    <string name="stats_filter_target">Filter target</string>
+    <string name="stats_filter_all">All</string>
     <string name="pdf_include_emotions">Emotion measurements and graph</string>
     <string name="pdf_section_emotions">Emotions</string>
     <string name="pdf_scatter_chart_title">Daytime Emotion Distribution</string>
