@@ -2,7 +2,7 @@ describe('Imprint Page', () => {
 	beforeEach(() => {
 		cy.intercept('GET', '/api/auth/me', {
 			statusCode: 200,
-			body: { userId: '1', username: 'demo' }
+			body: { userId: '1', username: 'demo', success: true }
 		});
 		cy.intercept('GET', '/api/reminder-settings', { statusCode: 200, body: {} });
 		cy.visit('/imprint');
