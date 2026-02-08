@@ -187,6 +187,7 @@
     <string name="restore_backup_button">Restaurer depuis une sauvegarde</string>
     <string name="restore_no_backups">Aucune sauvegarde trouvée</string>
     <string name="restore_select_backup">Sélectionner une sauvegarde à restaurer</string>
+    <string name="restore_select_types">Select data types to restore</string>
     <string name="restore_enter_password">Entrer le mot de passe de la sauvegarde</string>
     <string name="restore_in_progress">Restauration de la sauvegarde…</string>
     <string name="restore_success">Restauré : %1$d habitudes ajoutées, %2$d habitudes fusionnées, %3$d entrées ajoutées, %4$d entrées de journal ajoutées, %5$d entrées de sommeil ajoutées, %6$d catégories ajoutées</string>
