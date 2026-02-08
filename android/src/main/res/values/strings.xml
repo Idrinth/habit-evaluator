@@ -188,6 +188,7 @@
     <string name="restore_backup_button">Restore from Backup</string>
     <string name="restore_no_backups">No backups found</string>
     <string name="restore_select_backup">Select a backup to restore</string>
+    <string name="restore_select_types">Select data types to restore</string>
     <string name="restore_enter_password">Enter backup password</string>
     <string name="restore_in_progress">Restoring backup…</string>
     <string name="restore_success">Restored: %1$d habits added, %2$d habits merged, %3$d entries added, %4$d diary entries added, %5$d sleep entries added, %6$d categories added</string>

@@ -207,6 +207,7 @@
     <string name="restore_backup_button">Aus Backup wiederherstellen</string>
     <string name="restore_no_backups">Keine Backups gefunden</string>
     <string name="restore_select_backup">Backup zur Wiederherstellung auswählen</string>
+    <string name="restore_select_types">Datentypen zur Wiederherstellung auswählen</string>
     <string name="restore_enter_password">Backup-Passwort eingeben</string>
     <string name="restore_in_progress">Backup wird wiederhergestellt…</string>
     <string name="restore_success">Wiederhergestellt: %1$d Gewohnheiten hinzugefügt, %2$d Gewohnheiten zusammengeführt, %3$d Einträge hinzugefügt, %4$d Tagebucheinträge hinzugefügt, %5$d Schlafeinträge hinzugefügt, %6$d Kategorien hinzugefügt</string>

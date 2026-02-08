@@ -3,6 +3,7 @@ package de.idrinth.habitevaluator.webserver.controller;
 import de.idrinth.habitevaluator.shared.backup.BackupException;
 import de.idrinth.habitevaluator.shared.backup.HezBackupService;
 import de.idrinth.habitevaluator.shared.backup.MergeResult;
+import de.idrinth.habitevaluator.shared.backup.RestoreOptions;
 import de.idrinth.habitevaluator.shared.model.User;
 import de.idrinth.habitevaluator.shared.repository.DiaryEntryRepository;
 import de.idrinth.habitevaluator.shared.repository.HabitCategoryRepository;
@@ -87,6 +88,12 @@ public class BackupController {
     public ResponseEntity<Map<String, Object>> uploadBackup(
             @RequestParam("file") MultipartFile file,
             @RequestParam("password") String password,
+            @RequestParam(value = "categories", required = false, defaultValue = "true") boolean categories,
+            @RequestParam(value = "habits", required = false, defaultValue = "true") boolean habits,
+            @RequestParam(value = "diary", required = false, defaultValue = "true") boolean diary,
+            @RequestParam(value = "sleep", required = false, defaultValue = "true") boolean sleep,
+            @RequestParam(value = "sportLogs", required = false, defaultValue = "true") boolean sportLogs,
+            @RequestParam(value = "foodLogs", required = false, defaultValue = "true") boolean foodLogs,
             HttpSession session) {
 
         String userId = (String) session.getAttribute("userId");
@@ -114,8 +121,17 @@ public class BackupController {
                         .body(Map.of("success", false, "message", "Invalid .hez file"));
             }
 
+            RestoreOptions options = new RestoreOptions();
+            options.setRestoreCategories(categories);
+            options.setRestoreHabits(habits);
+            options.setRestoreDiaryEntries(diary);
+            options.setRestoreSleepEntries(sleep);
+            options.setRestoreSportLogs(sportLogs);
+            options.setRestoreFoodLogs(foodLogs);
+
             MergeResult result = hezBackupService.mergeFromHezBytes(hezData, password, user,
-                    habitRepository, categoryRepository, diaryEntryRepository, sleepEntryRepository);
+                    habitRepository, categoryRepository, diaryEntryRepository, sleepEntryRepository,
+                    options);
 
             return ResponseEntity.ok(Map.of(
                     "success", true,
@@ -125,7 +141,9 @@ public class BackupController {
                     "habitsMerged", result.getHabitsMerged(),
                     "entriesAdded", result.getEntriesAdded(),
                     "diaryEntriesAdded", result.getDiaryEntriesAdded(),
-                    "sleepEntriesAdded", result.getSleepEntriesAdded()
+                    "sleepEntriesAdded", result.getSleepEntriesAdded(),
+                    "sportLogsAdded", result.getSportLogsAdded(),
+                    "foodLogsAdded", result.getFoodLogsAdded()
             ));
         } catch (BackupException e) {
             return ResponseEntity.badRequest()

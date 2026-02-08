@@ -162,9 +162,19 @@ public class BackupService {
                                    HabitCategoryRepository categoryRepository,
                                    DiaryEntryRepository diaryEntryRepository,
                                    SleepEntryRepository sleepEntryRepository) throws BackupException {
+        return mergeBackup(backupFile, password, user, habitRepository, categoryRepository,
+                diaryEntryRepository, sleepEntryRepository, RestoreOptions.all());
+    }
+
+    public MergeResult mergeBackup(File backupFile, String password, User user,
+                                   HabitRepository habitRepository,
+                                   HabitCategoryRepository categoryRepository,
+                                   DiaryEntryRepository diaryEntryRepository,
+                                   SleepEntryRepository sleepEntryRepository,
+                                   RestoreOptions options) throws BackupException {
         BackupData backupData = restoreBackup(backupFile, password);
         return mergeBackupData(backupData, user, habitRepository, categoryRepository,
-                diaryEntryRepository, sleepEntryRepository);
+                diaryEntryRepository, sleepEntryRepository, null, null, options);
     }
 
     /**
@@ -208,13 +218,30 @@ public class BackupService {
                                        SleepEntryRepository sleepEntryRepository,
                                        SportLogRepository sportLogRepository,
                                        FoodLogRepository foodLogRepository) throws BackupException {
+        return mergeBackupData(backupData, user, habitRepository, categoryRepository,
+                diaryEntryRepository, sleepEntryRepository, sportLogRepository, foodLogRepository,
+                RestoreOptions.all());
+    }
+
+    public MergeResult mergeBackupData(BackupData backupData, User user,
+                                       HabitRepository habitRepository,
+                                       HabitCategoryRepository categoryRepository,
+                                       DiaryEntryRepository diaryEntryRepository,
+                                       SleepEntryRepository sleepEntryRepository,
+                                       SportLogRepository sportLogRepository,
+                                       FoodLogRepository foodLogRepository,
+                                       RestoreOptions options) throws BackupException {
         if (user == null) {
             throw new BackupException("User must not be null for merge");
+        }
+        if (options == null) {
+            options = RestoreOptions.all();
         }
 
         try {
             return doMerge(backupData, user, habitRepository, categoryRepository,
-                    diaryEntryRepository, sleepEntryRepository, sportLogRepository, foodLogRepository);
+                    diaryEntryRepository, sleepEntryRepository, sportLogRepository, foodLogRepository,
+                    options);
         } catch (BackupException e) {
             throw e;
         } catch (Exception e) {
@@ -228,7 +255,8 @@ public class BackupService {
                                 DiaryEntryRepository diaryEntryRepository,
                                 SleepEntryRepository sleepEntryRepository,
                                 SportLogRepository sportLogRepository,
-                                FoodLogRepository foodLogRepository) throws BackupException {
+                                FoodLogRepository foodLogRepository,
+                                RestoreOptions options) throws BackupException {
         int categoriesAdded = 0;
         int habitsAdded = 0;
         int habitsMerged = 0;
@@ -236,9 +264,11 @@ public class BackupService {
         int diaryEntriesAdded = 0;
         int sleepEntriesAdded = 0;
 
-        // Build a mapping from backup category IDs to local category IDs
+        // Build a mapping from backup category IDs to local category IDs.
+        // Categories are processed when restoring categories or habits (habits need category mapping).
         Map<String, String> categoryIdMapping = new HashMap<>();
-        if (categoryRepository != null && backupData.getCategories() != null) {
+        if ((options.isRestoreCategories() || options.isRestoreHabits())
+                && categoryRepository != null && backupData.getCategories() != null) {
             List<HabitCategory> existingCategories = categoryRepository.findByUserId(user.getId());
             Map<String, HabitCategory> existingByName = new HashMap<>();
             for (HabitCategory cat : existingCategories) {
@@ -261,7 +291,7 @@ public class BackupService {
         }
 
         // Merge habits
-        if (habitRepository != null && backupData.getHabits() != null) {
+        if (options.isRestoreHabits() && habitRepository != null && backupData.getHabits() != null) {
             List<Habit> existingHabits = habitRepository.findByUserId(user.getId());
             Map<String, Habit> existingByNameAndCategory = new HashMap<>();
             for (Habit habit : existingHabits) {
@@ -364,7 +394,7 @@ public class BackupService {
         }
 
         // Merge diary entries
-        if (diaryEntryRepository != null && backupData.getDiaryEntries() != null) {
+        if (options.isRestoreDiaryEntries() && diaryEntryRepository != null && backupData.getDiaryEntries() != null) {
             List<DiaryEntry> existingDiaryEntries = diaryEntryRepository.findByUserId(user.getId());
             Set<String> existingDiaryIds = new HashSet<>();
             for (DiaryEntry entry : existingDiaryEntries) {
@@ -394,7 +424,7 @@ public class BackupService {
         }
 
         // Merge sleep entries
-        if (sleepEntryRepository != null && backupData.getSleepEntries() != null) {
+        if (options.isRestoreSleepEntries() && sleepEntryRepository != null && backupData.getSleepEntries() != null) {
             List<SleepEntry> existingSleepEntries = sleepEntryRepository.findByUserId(user.getId());
             Set<String> existingSleepIds = new HashSet<>();
             for (SleepEntry entry : existingSleepEntries) {
@@ -427,7 +457,7 @@ public class BackupService {
 
         // Merge sport logs
         int sportLogsAdded = 0;
-        if (sportLogRepository != null && backupData.getSportLogs() != null) {
+        if (options.isRestoreSportLogs() && sportLogRepository != null && backupData.getSportLogs() != null) {
             List<SportLog> existingSportLogs = sportLogRepository.findByUserId(user.getId());
             Set<String> existingSportLogIds = new HashSet<>();
             for (SportLog entry : existingSportLogs) {
@@ -463,7 +493,7 @@ public class BackupService {
 
         // Merge food logs
         int foodLogsAdded = 0;
-        if (foodLogRepository != null && backupData.getFoodLogs() != null) {
+        if (options.isRestoreFoodLogs() && foodLogRepository != null && backupData.getFoodLogs() != null) {
             List<FoodLog> existingFoodLogs = foodLogRepository.findByUserId(user.getId());
             Set<String> existingFoodLogIds = new HashSet<>();
             for (FoodLog entry : existingFoodLogs) {
