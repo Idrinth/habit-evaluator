@@ -1,5 +1,6 @@
 package de.idrinth.habitevaluator.webserver.controller;
 
+import de.idrinth.habitevaluator.webserver.config.RequestIdFilter;
 import de.idrinth.habitevaluator.webserver.config.SecurityConfig;
 import org.junit.jupiter.api.Test;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -9,9 +10,10 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class SecurityConfigTest {
 
+    private final SecurityConfig config = new SecurityConfig(new RequestIdFilter());
+
     @Test
     void testPasswordEncoderIsBCrypt() {
-        SecurityConfig config = new SecurityConfig();
         PasswordEncoder encoder = config.passwordEncoder();
         assertNotNull(encoder);
         assertTrue(encoder instanceof BCryptPasswordEncoder);
@@ -19,7 +21,6 @@ class SecurityConfigTest {
 
     @Test
     void testPasswordEncoderEncodesAndMatches() {
-        SecurityConfig config = new SecurityConfig();
         PasswordEncoder encoder = config.passwordEncoder();
 
         String rawPassword = "testPassword123";
