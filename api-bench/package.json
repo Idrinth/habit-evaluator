@@ -1,0 +1,15 @@
+{
+  "name": "@idrinth-api-bench/habit-evaluator",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "iab bench"
+  },
+  "dependencies": {
+    "@idrinth-api-bench/framework": "*"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "engineStrict": true
+}
