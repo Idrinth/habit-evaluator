@@ -1,5 +1,5 @@
 plugins {
-    id 'com.android.application' version '8.2.1'
+    id 'com.android.application' version '8.9.0'
     id 'jacoco'
 }
 
@@ -130,21 +130,18 @@ tasks.register('jacocoTestReport', JacocoReport) {
     ]
 
     def modernDebugTree = fileTree(
-        dir: "${buildDir}/intermediates/javac/modernDebug/classes",
+        dir: layout.buildDirectory.dir("intermediates/javac/modernDebug/classes"),
         excludes: fileFilter
     )
     def legacyDebugTree = fileTree(
-        dir: "${buildDir}/intermediates/javac/legacyDebug/classes",
+        dir: layout.buildDirectory.dir("intermediates/javac/legacyDebug/classes"),
         excludes: fileFilter
     )
 
     classDirectories.setFrom(modernDebugTree + legacyDebugTree)
     sourceDirectories.setFrom(files('src/main/java'))
-    executionData.setFrom(fileTree(
-        dir: buildDir,
-        includes: [
-            'jacoco/testModernDebugUnitTest.exec',
-            'jacoco/testLegacyDebugUnitTest.exec'
-        ]
+    executionData.setFrom(layout.buildDirectory.files(
+        'jacoco/testModernDebugUnitTest.exec',
+        'jacoco/testLegacyDebugUnitTest.exec'
     ))
 }
