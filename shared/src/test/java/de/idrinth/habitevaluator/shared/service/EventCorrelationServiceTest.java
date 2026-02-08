@@ -481,6 +481,51 @@ class EventCorrelationServiceTest {
         assertTrue(foundDurationEmotion, "Expected Diary Duration to correlate with emotions via temporal proximity");
     }
 
+    @Test
+    void testConfidenceScalesWithSharedDays() {
+        LocalDate today = LocalDate.now();
+
+        // Create a habit and diary entries that share only 1 day
+        Habit singleDayHabit = new Habit("SingleDay", "Test");
+        HabitEntry singleEntry = new HabitEntry();
+        singleEntry.setCompletedAt(today.atTime(10, 0));
+        singleDayHabit.addEntry(singleEntry);
+
+        List<DiaryEntry> singleDayDiary = new ArrayList<>();
+        singleDayDiary.add(new DiaryEntry("Event", EventSignificance.NORMAL, today));
+
+        List<EventCorrelation> singleResult = service.calculateCorrelations(
+                List.of(singleDayHabit), singleDayDiary, new ArrayList<>(), new ArrayList<>());
+
+        // Create a habit and diary entries that share 30 days
+        Habit manyDayHabit = new Habit("ManyDay", "Test");
+        List<DiaryEntry> manyDayDiary = new ArrayList<>();
+        for (int i = 0; i < 30; i++) {
+            HabitEntry he = new HabitEntry();
+            he.setCompletedAt(today.minusDays(i).atTime(10, 0));
+            manyDayHabit.addEntry(he);
+            manyDayDiary.add(new DiaryEntry("Event", EventSignificance.NORMAL, today.minusDays(i)));
+        }
+
+        List<EventCorrelation> manyResult = service.calculateCorrelations(
+                List.of(manyDayHabit), manyDayDiary, new ArrayList<>(), new ArrayList<>());
+
+        // Single-day correlation must be far from ±1 due to confidence scaling
+        if (!singleResult.isEmpty()) {
+            double singleCorr = findCorrelation(singleResult, "SingleDay", "Diary");
+            assertTrue(Math.abs(singleCorr) < 0.5,
+                    "Single shared day correlation should be heavily dampened, was: " + singleCorr);
+        }
+
+        // Many-day correlation should be stronger (closer to raw) than single-day
+        if (!singleResult.isEmpty() && !manyResult.isEmpty()) {
+            double singleCorr = Math.abs(findCorrelation(singleResult, "SingleDay", "Diary"));
+            double manyCorr = Math.abs(findCorrelation(manyResult, "ManyDay", "Diary"));
+            assertTrue(manyCorr > singleCorr,
+                    "30-day correlation should be stronger than 1-day correlation");
+        }
+    }
+
     private double findCorrelation(List<EventCorrelation> correlations, String partA, String partB) {
         return correlations.stream()
                 .filter(c -> (c.getEventA().contains(partA) && c.getEventB().contains(partB))
