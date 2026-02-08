@@ -100,7 +100,8 @@ const translations: Record<Language, Record<string, string>> = {
 		'correlations.backToStats': 'Back to Statistics',
 		'nav.correlations': 'Correlations',
 		'nav.settings': 'Settings',
-		'nav.foodLog': 'Food Log'
+		'nav.foodLog': 'Food Log',
+		'nav.sportGraph': 'Sport Graph'
 	},
 	de: {
 		'nav.home': 'Start',
@@ -194,7 +195,8 @@ const translations: Record<Language, Record<string, string>> = {
 		'correlations.backToStats': 'Zurück zu Statistiken',
 		'nav.correlations': 'Korrelationen',
 		'nav.settings': 'Einstellungen',
-		'nav.foodLog': 'Ernährungsprotokoll'
+		'nav.foodLog': 'Ernährungsprotokoll',
+		'nav.sportGraph': 'Sportdiagramm'
 	},
 	es: {
 		'nav.home': 'Inicio',
@@ -288,7 +290,8 @@ const translations: Record<Language, Record<string, string>> = {
 		'correlations.backToStats': 'Volver a Estad\u00edsticas',
 		'nav.correlations': 'Correlaciones',
 		'nav.settings': 'Ajustes',
-		'nav.foodLog': 'Registro de comidas'
+		'nav.foodLog': 'Registro de comidas',
+		'nav.sportGraph': 'Gr\u00e1fico deportivo'
 	},
 	fr: {
 		'nav.home': 'Accueil',
@@ -382,7 +385,8 @@ const translations: Record<Language, Record<string, string>> = {
 		'correlations.backToStats': 'Retour aux Statistiques',
 		'nav.correlations': 'Corr\u00e9lations',
 		'nav.settings': 'Param\u00e8tres',
-		'nav.foodLog': 'Journal alimentaire'
+		'nav.foodLog': 'Journal alimentaire',
+		'nav.sportGraph': 'Graphique sportif'
 	}
 };
 

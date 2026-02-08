@@ -461,6 +461,26 @@ export const reminderSettings = {
 	}
 };
 
+export interface SportLogActivityGraph {
+	name: string;
+	unit: string;
+	color: string;
+	dailyDuration: number[];
+	dailyMeasurement: number[];
+	dailyEntries: number[];
+}
+
+export interface SportLogGraphData {
+	labels: string[];
+	activities: SportLogActivityGraph[];
+}
+
+export const sportLogs = {
+	graph() {
+		return request<SportLogGraphData>('/sport-logs/graph');
+	}
+};
+
 export interface FoodLog {
 	id: string;
 	carbohydrates: number | null;
