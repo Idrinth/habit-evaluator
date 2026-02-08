@@ -28,7 +28,7 @@ jobs:
             context: homepage
             dockerfile: homepage/Dockerfile
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Lowercase repository
         id: repo
