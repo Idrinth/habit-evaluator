@@ -286,6 +286,40 @@ cd homepage && npm install && npm run dev
 cd homepage && npm run check
 ```
 
+## Outbound Proxy Configuration
+
+This environment routes outbound traffic through an HTTP proxy. The `http_proxy` / `https_proxy` / `HTTP_PROXY` / `HTTPS_PROXY` environment variables are set automatically, but **Gradle's JVM does not pick them up** — and even when proxy host/port/credentials are passed as JVM system properties, **Gradle's Apache HttpClient negotiates NTLM instead of Basic auth**, which the proxy rejects.
+
+**Solution: local forwarding proxy.** A Python script at `scripts/local-proxy.py` runs a local unauthenticated proxy on `127.0.0.1:18080` that forwards requests to the upstream proxy with the correct `Proxy-Authorization: Basic ...` header. Gradle connects to the local proxy without credentials, avoiding the NTLM issue entirely.
+
+**Step 1 — Start the local proxy (in background):**
+
+```bash
+python3 scripts/local-proxy.py &
+LOCAL_PROXY_PID=$!
+# Wait briefly for it to start listening
+sleep 1
+```
+
+**Step 2 — Run Gradle through the local proxy:**
+
+```bash
+./gradlew build \
+  -Dhttp.proxyHost=127.0.0.1 -Dhttp.proxyPort=18080 \
+  -Dhttps.proxyHost=127.0.0.1 -Dhttps.proxyPort=18080 \
+  -Dhttp.nonProxyHosts="localhost|127.0.0.1"
+```
+
+**Step 3 — Stop the local proxy when done:**
+
+```bash
+kill $LOCAL_PROXY_PID 2>/dev/null
+```
+
+The script reads the upstream proxy URL (including credentials) from the `http_proxy` / `HTTP_PROXY` environment variable automatically. It defaults to port 18080 but accepts an optional port argument: `python3 scripts/local-proxy.py 9999`.
+
+**npm / Node.js** tools (website, homepage) generally respect the environment variables automatically and need no extra configuration.
+
 ## Testing
 
 **Java Framework:** JUnit 5 (Jupiter 5.10.2), JaCoCo 0.8.11 for coverage
