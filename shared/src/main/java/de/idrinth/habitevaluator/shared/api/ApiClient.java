@@ -22,6 +22,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * HTTP client for communicating with the habit evaluator webserver API.
@@ -202,6 +203,9 @@ public class ApiClient {
         }
     }
 
+    private static final java.util.Set<String> STATE_CHANGING_METHODS =
+            java.util.Set.of("POST", "PUT", "DELETE", "PATCH");
+
     private HttpURLConnection createConnection(String path, String method) throws IOException {
         URL url = new URL(baseUrl + path);
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -210,6 +214,9 @@ public class ApiClient {
         conn.setReadTimeout(READ_TIMEOUT);
         conn.setRequestProperty("Content-Type", "application/json");
         conn.setRequestProperty("Accept", "application/json");
+        if (STATE_CHANGING_METHODS.contains(method)) {
+            conn.setRequestProperty("X-Request-ID", UUID.randomUUID().toString());
+        }
         if (sessionCookie != null) {
             conn.setRequestProperty("Cookie", sessionCookie);
         }

@@ -1,6 +1,7 @@
 import { getApiBaseUrl } from './config';
 
 const CIRCUIT_BREAKER_COOLDOWN_MS = 5 * 60 * 1000; // 5 minutes
+const STATE_CHANGING_METHODS = new Set(['POST', 'PUT', 'DELETE', 'PATCH']);
 
 let lastFailureTime: number | null = null;
 
@@ -9,6 +10,13 @@ function isCircuitOpen(): boolean {
 		return false;
 	}
 	return Date.now() - lastFailureTime < CIRCUIT_BREAKER_COOLDOWN_MS;
+}
+
+function requestIdHeaders(method?: string): Record<string, string> {
+	if (method && STATE_CHANGING_METHODS.has(method)) {
+		return { 'X-Request-ID': crypto.randomUUID() };
+	}
+	return {};
 }
 
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
@@ -20,6 +28,7 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
 		const response = await fetch(`${getApiBaseUrl()}${path}`, {
 			headers: {
 				'Content-Type': 'application/json',
+				...requestIdHeaders(options.method),
 				...options.headers
 			},
 			...options
@@ -323,6 +332,7 @@ export const backup = {
 		}
 		const response = await fetch(`${getApiBaseUrl()}/backup`, {
 			method: 'POST',
+			headers: { 'X-Request-ID': crypto.randomUUID() },
 			body: formData
 		});
 		if (!response.ok) {
