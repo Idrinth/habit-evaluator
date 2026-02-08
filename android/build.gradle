@@ -86,7 +86,7 @@ dependencies {
     compileOnly 'jakarta.persistence:jakarta.persistence-api:3.1.0'
 
     // SLF4J no-op implementation to prevent service lookup failures on Android
-    implementation 'org.slf4j:slf4j-nop:2.0.11'
+    implementation 'org.slf4j:slf4j-nop:2.0.17'
 
     // AndroidX
     implementation 'androidx.appcompat:appcompat:1.6.1'
