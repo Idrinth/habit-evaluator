@@ -60,6 +60,7 @@ public class SportLogFragment extends Fragment implements SportLogAdapter.OnSpor
         setupDatePicker();
         setupTimePickers();
         binding.addSportLogButton.setOnClickListener(v -> addSportLog());
+        loadEntries();
     }
 
     @Override

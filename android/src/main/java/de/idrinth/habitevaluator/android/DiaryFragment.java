@@ -62,6 +62,7 @@ public class DiaryFragment extends Fragment {
         setupDatePicker();
         setupTimePickers();
         setupAddButton();
+        loadEntries();
     }
 
     @Override
