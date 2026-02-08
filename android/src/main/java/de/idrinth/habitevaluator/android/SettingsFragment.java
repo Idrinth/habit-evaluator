@@ -35,6 +35,7 @@ import de.idrinth.habitevaluator.shared.backup.BackupException;
 import de.idrinth.habitevaluator.shared.backup.BackupService;
 import de.idrinth.habitevaluator.shared.backup.HezBackupService;
 import de.idrinth.habitevaluator.shared.backup.MergeResult;
+import de.idrinth.habitevaluator.shared.backup.RestoreOptions;
 
 public class SettingsFragment extends Fragment {
 
@@ -443,6 +444,31 @@ public class SettingsFragment extends Fragment {
                 .show();
     }
 
+    private interface RestoreOptionsCallback {
+        void onOptionsSelected(RestoreOptions options);
+    }
+
+    private void showRestoreOptionsDialog(RestoreOptionsCallback callback) {
+        String[] items = {"Categories", "Habits", "Diary entries", "Sleep entries", "Sport logs", "Food logs"};
+        boolean[] checked = {true, true, true, true, true, true};
+
+        new AlertDialog.Builder(requireContext())
+                .setTitle(R.string.restore_select_types)
+                .setMultiChoiceItems(items, checked, (dialog, which, isChecked) -> checked[which] = isChecked)
+                .setPositiveButton(android.R.string.ok, (dialog, which) -> {
+                    RestoreOptions options = new RestoreOptions();
+                    options.setRestoreCategories(checked[0]);
+                    options.setRestoreHabits(checked[1]);
+                    options.setRestoreDiaryEntries(checked[2]);
+                    options.setRestoreSleepEntries(checked[3]);
+                    options.setRestoreSportLogs(checked[4]);
+                    options.setRestoreFoodLogs(checked[5]);
+                    callback.onOptionsSelected(options);
+                })
+                .setNegativeButton(android.R.string.cancel, null)
+                .show();
+    }
+
     private void showPasswordDialogAndRestore(BackupService backupService, File selectedFile) {
         EditText passwordInput = new EditText(requireContext());
         passwordInput.setHint(R.string.backup_password_hint);
@@ -463,39 +489,42 @@ public class SettingsFragment extends Fragment {
                         binding.restoreStatusText.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_red_dark));
                         return;
                     }
-                    binding.restoreStatusText.setText(R.string.restore_in_progress);
-                    binding.restoreStatusText.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_secondary));
+                    showRestoreOptionsDialog(options -> {
+                        binding.restoreStatusText.setText(R.string.restore_in_progress);
+                        binding.restoreStatusText.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_secondary));
 
-                    new Thread(() -> {
-                        try {
-                            MergeResult result = backupService.mergeBackup(
-                                    selectedFile, password,
-                                    MainActivity.getSharedLocalUser(),
-                                    MainActivity.getSharedHabitRepository(),
-                                    MainActivity.getSharedCategoryRepository(),
-                                    MainActivity.getSharedDiaryEntryRepository(),
-                                    MainActivity.getSharedSleepEntryRepository());
-                            if (isAdded()) {
-                                requireActivity().runOnUiThread(() -> {
-                                    binding.restoreStatusText.setText(getString(R.string.restore_success,
-                                            result.getHabitsAdded(), result.getHabitsMerged(),
-                                            result.getEntriesAdded(), result.getDiaryEntriesAdded(),
-                                            result.getSleepEntriesAdded(), result.getCategoriesAdded()));
-                                    binding.restoreStatusText.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_green_dark));
-                                    if (getActivity() instanceof MainActivity) {
-                                        ((MainActivity) getActivity()).onSettingsChanged();
-                                    }
-                                });
+                        new Thread(() -> {
+                            try {
+                                MergeResult result = backupService.mergeBackup(
+                                        selectedFile, password,
+                                        MainActivity.getSharedLocalUser(),
+                                        MainActivity.getSharedHabitRepository(),
+                                        MainActivity.getSharedCategoryRepository(),
+                                        MainActivity.getSharedDiaryEntryRepository(),
+                                        MainActivity.getSharedSleepEntryRepository(),
+                                        options);
+                                if (isAdded()) {
+                                    requireActivity().runOnUiThread(() -> {
+                                        binding.restoreStatusText.setText(getString(R.string.restore_success,
+                                                result.getHabitsAdded(), result.getHabitsMerged(),
+                                                result.getEntriesAdded(), result.getDiaryEntriesAdded(),
+                                                result.getSleepEntriesAdded(), result.getCategoriesAdded()));
+                                        binding.restoreStatusText.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_green_dark));
+                                        if (getActivity() instanceof MainActivity) {
+                                            ((MainActivity) getActivity()).onSettingsChanged();
+                                        }
+                                    });
+                                }
+                            } catch (Exception e) {
+                                if (isAdded()) {
+                                    requireActivity().runOnUiThread(() -> {
+                                        binding.restoreStatusText.setText(getString(R.string.restore_failed, e.getMessage()));
+                                        binding.restoreStatusText.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_red_dark));
+                                    });
+                                }
                             }
-                        } catch (Exception e) {
-                            if (isAdded()) {
-                                requireActivity().runOnUiThread(() -> {
-                                    binding.restoreStatusText.setText(getString(R.string.restore_failed, e.getMessage()));
-                                    binding.restoreStatusText.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_red_dark));
-                                });
-                            }
-                        }
-                    }).start();
+                        }).start();
+                    });
                 })
                 .setNegativeButton(android.R.string.cancel, null)
                 .show();
@@ -603,45 +632,48 @@ public class SettingsFragment extends Fragment {
                         binding.restoreFromFileStatusText.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_red_dark));
                         return;
                     }
-                    binding.restoreFromFileStatusText.setText(R.string.restore_in_progress);
-                    binding.restoreFromFileStatusText.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_secondary));
+                    showRestoreOptionsDialog(options -> {
+                        binding.restoreFromFileStatusText.setText(R.string.restore_in_progress);
+                        binding.restoreFromFileStatusText.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_secondary));
 
-                    new Thread(() -> {
-                        try {
-                            InputStream inputStream = requireContext().getContentResolver().openInputStream(uri);
-                            if (inputStream == null) {
-                                throw new BackupException("Could not open file");
-                            }
-                            MergeResult result = hezBackupService.mergeFromHezStream(
-                                    inputStream, password,
-                                    MainActivity.getSharedLocalUser(),
-                                    MainActivity.getSharedHabitRepository(),
-                                    MainActivity.getSharedCategoryRepository(),
-                                    MainActivity.getSharedDiaryEntryRepository(),
-                                    MainActivity.getSharedSleepEntryRepository());
-                            inputStream.close();
+                        new Thread(() -> {
+                            try {
+                                InputStream inputStream = requireContext().getContentResolver().openInputStream(uri);
+                                if (inputStream == null) {
+                                    throw new BackupException("Could not open file");
+                                }
+                                MergeResult result = hezBackupService.mergeFromHezStream(
+                                        inputStream, password,
+                                        MainActivity.getSharedLocalUser(),
+                                        MainActivity.getSharedHabitRepository(),
+                                        MainActivity.getSharedCategoryRepository(),
+                                        MainActivity.getSharedDiaryEntryRepository(),
+                                        MainActivity.getSharedSleepEntryRepository(),
+                                        options);
+                                inputStream.close();
 
-                            if (isAdded()) {
-                                requireActivity().runOnUiThread(() -> {
-                                    binding.restoreFromFileStatusText.setText(getString(R.string.restore_success,
-                                            result.getHabitsAdded(), result.getHabitsMerged(),
-                                            result.getEntriesAdded(), result.getDiaryEntriesAdded(),
-                                            result.getSleepEntriesAdded(), result.getCategoriesAdded()));
-                                    binding.restoreFromFileStatusText.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_green_dark));
-                                    if (getActivity() instanceof MainActivity) {
-                                        ((MainActivity) getActivity()).onSettingsChanged();
-                                    }
-                                });
+                                if (isAdded()) {
+                                    requireActivity().runOnUiThread(() -> {
+                                        binding.restoreFromFileStatusText.setText(getString(R.string.restore_success,
+                                                result.getHabitsAdded(), result.getHabitsMerged(),
+                                                result.getEntriesAdded(), result.getDiaryEntriesAdded(),
+                                                result.getSleepEntriesAdded(), result.getCategoriesAdded()));
+                                        binding.restoreFromFileStatusText.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_green_dark));
+                                        if (getActivity() instanceof MainActivity) {
+                                            ((MainActivity) getActivity()).onSettingsChanged();
+                                        }
+                                    });
+                                }
+                            } catch (Exception e) {
+                                if (isAdded()) {
+                                    requireActivity().runOnUiThread(() -> {
+                                        binding.restoreFromFileStatusText.setText(getString(R.string.restore_failed, e.getMessage()));
+                                        binding.restoreFromFileStatusText.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_red_dark));
+                                    });
+                                }
                             }
-                        } catch (Exception e) {
-                            if (isAdded()) {
-                                requireActivity().runOnUiThread(() -> {
-                                    binding.restoreFromFileStatusText.setText(getString(R.string.restore_failed, e.getMessage()));
-                                    binding.restoreFromFileStatusText.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_red_dark));
-                                });
-                            }
-                        }
-                    }).start();
+                        }).start();
+                    });
                 })
                 .setNegativeButton(android.R.string.cancel, null)
                 .show();

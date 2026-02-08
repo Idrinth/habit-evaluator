@@ -302,10 +302,25 @@ export const backup = {
 		}
 		return response.blob();
 	},
-	async upload(file: File, password: string) {
+	async upload(file: File, password: string, options?: {
+		categories?: boolean;
+		habits?: boolean;
+		diary?: boolean;
+		sleep?: boolean;
+		sportLogs?: boolean;
+		foodLogs?: boolean;
+	}) {
 		const formData = new FormData();
 		formData.append('file', file);
 		formData.append('password', password);
+		if (options) {
+			if (options.categories !== undefined) formData.append('categories', String(options.categories));
+			if (options.habits !== undefined) formData.append('habits', String(options.habits));
+			if (options.diary !== undefined) formData.append('diary', String(options.diary));
+			if (options.sleep !== undefined) formData.append('sleep', String(options.sleep));
+			if (options.sportLogs !== undefined) formData.append('sportLogs', String(options.sportLogs));
+			if (options.foodLogs !== undefined) formData.append('foodLogs', String(options.foodLogs));
+		}
 		const response = await fetch(`${getApiBaseUrl()}/backup`, {
 			method: 'POST',
 			body: formData

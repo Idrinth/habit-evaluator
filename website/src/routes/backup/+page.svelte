@@ -8,6 +8,13 @@
 	let messageType = $state<'success' | 'error' | ''>('');
 	let fileInput: HTMLInputElement;
 
+	let restoreCategories = $state(true);
+	let restoreHabits = $state(true);
+	let restoreDiary = $state(true);
+	let restoreSleep = $state(true);
+	let restoreSportLogs = $state(true);
+	let restoreFoodLogs = $state(true);
+
 	async function handleDownload() {
 		if (!password) {
 			message = 'Please enter a password.';
@@ -61,7 +68,14 @@
 		messageType = '';
 
 		try {
-			const result = await backup.upload(files[0], password);
+			const result = await backup.upload(files[0], password, {
+				categories: restoreCategories,
+				habits: restoreHabits,
+				diary: restoreDiary,
+				sleep: restoreSleep,
+				sportLogs: restoreSportLogs,
+				foodLogs: restoreFoodLogs
+			});
 
 			if (result.success) {
 				const parts = [];
@@ -71,6 +85,8 @@
 				if (result.entriesAdded > 0) parts.push(`${result.entriesAdded} entries added`);
 				if (result.diaryEntriesAdded > 0) parts.push(`${result.diaryEntriesAdded} diary entries added`);
 				if (result.sleepEntriesAdded > 0) parts.push(`${result.sleepEntriesAdded} sleep entries added`);
+				if (result.sportLogsAdded > 0) parts.push(`${result.sportLogsAdded} sport logs added`);
+				if (result.foodLogsAdded > 0) parts.push(`${result.foodLogsAdded} food logs added`);
 				message = 'Backup restored successfully.' + (parts.length > 0 ? ' ' + parts.join(', ') + '.' : '');
 				messageType = 'success';
 			} else {
@@ -107,6 +123,33 @@
 		<h3>Restore Backup</h3>
 		<p class="help-text">Upload a .hez file to merge its data into your account. Existing data will not be overwritten.</p>
 		<input type="file" accept=".hez" bind:this={fileInput} class="file-input" />
+		<div class="restore-options">
+			<p class="help-text">Select which data types to restore:</p>
+			<label class="checkbox-label">
+				<input type="checkbox" bind:checked={restoreCategories} />
+				Categories
+			</label>
+			<label class="checkbox-label">
+				<input type="checkbox" bind:checked={restoreHabits} />
+				Habits
+			</label>
+			<label class="checkbox-label">
+				<input type="checkbox" bind:checked={restoreDiary} />
+				Diary entries
+			</label>
+			<label class="checkbox-label">
+				<input type="checkbox" bind:checked={restoreSleep} />
+				Sleep entries
+			</label>
+			<label class="checkbox-label">
+				<input type="checkbox" bind:checked={restoreSportLogs} />
+				Sport logs
+			</label>
+			<label class="checkbox-label">
+				<input type="checkbox" bind:checked={restoreFoodLogs} />
+				Food logs
+			</label>
+		</div>
 		<button class="action-button" onclick={handleUpload} disabled={uploading}>
 			{uploading ? 'Restoring...' : 'Restore Backup'}
 		</button>
@@ -175,6 +218,21 @@
 	.action-button:disabled {
 		opacity: 0.6;
 		cursor: not-allowed;
+	}
+
+	.restore-options {
+		margin-bottom: 0.75rem;
+	}
+
+	.checkbox-label {
+		display: block;
+		margin-bottom: 0.25rem;
+		font-size: 0.9rem;
+		cursor: pointer;
+	}
+
+	.checkbox-label input[type='checkbox'] {
+		margin-right: 0.4rem;
 	}
 
 	.message {

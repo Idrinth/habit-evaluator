@@ -6,6 +6,7 @@ import de.idrinth.habitevaluator.shared.backup.BackupException;
 import de.idrinth.habitevaluator.shared.backup.BackupService;
 import de.idrinth.habitevaluator.shared.backup.HezBackupService;
 import de.idrinth.habitevaluator.shared.backup.MergeResult;
+import de.idrinth.habitevaluator.shared.backup.RestoreOptions;
 import de.idrinth.habitevaluator.shared.model.User;
 import de.idrinth.habitevaluator.shared.repository.DiaryEntryRepository;
 import de.idrinth.habitevaluator.shared.repository.HabitCategoryRepository;
@@ -388,6 +389,42 @@ public class SettingsDialogController {
         this.sleepEntryRepository = sleepEntryRepository;
     }
 
+    private Optional<RestoreOptions> showRestoreOptionsDialog() {
+        Alert dialog = new Alert(Alert.AlertType.CONFIRMATION);
+        dialog.setTitle("Restore Options");
+        dialog.setHeaderText("Select which data types to restore");
+
+        CheckBox categoriesBox = new CheckBox("Categories");
+        categoriesBox.setSelected(true);
+        CheckBox habitsBox = new CheckBox("Habits");
+        habitsBox.setSelected(true);
+        CheckBox diaryBox = new CheckBox("Diary entries");
+        diaryBox.setSelected(true);
+        CheckBox sleepBox = new CheckBox("Sleep entries");
+        sleepBox.setSelected(true);
+        CheckBox sportBox = new CheckBox("Sport logs");
+        sportBox.setSelected(true);
+        CheckBox foodBox = new CheckBox("Food logs");
+        foodBox.setSelected(true);
+
+        VBox content = new VBox(8, categoriesBox, habitsBox, diaryBox, sleepBox, sportBox, foodBox);
+        dialog.getDialogPane().setContent(content);
+
+        Optional<javafx.scene.control.ButtonType> result = dialog.showAndWait();
+        if (result.isEmpty() || result.get() != javafx.scene.control.ButtonType.OK) {
+            return Optional.empty();
+        }
+
+        RestoreOptions options = new RestoreOptions();
+        options.setRestoreCategories(categoriesBox.isSelected());
+        options.setRestoreHabits(habitsBox.isSelected());
+        options.setRestoreDiaryEntries(diaryBox.isSelected());
+        options.setRestoreSleepEntries(sleepBox.isSelected());
+        options.setRestoreSportLogs(sportBox.isSelected());
+        options.setRestoreFoodLogs(foodBox.isSelected());
+        return Optional.of(options);
+    }
+
     @FXML
     private void handleRestoreBackup() {
         FileChooser fileChooser = new FileChooser();
@@ -418,7 +455,15 @@ public class SettingsDialogController {
             return;
         }
 
+        Optional<RestoreOptions> optionsResult = showRestoreOptionsDialog();
+        if (optionsResult.isEmpty()) {
+            restoreStatusLabel.setText("Restore cancelled.");
+            restoreStatusLabel.setStyle("-fx-text-fill: grey;");
+            return;
+        }
+
         String password = passwordResult.get();
+        RestoreOptions options = optionsResult.get();
         restoreStatusLabel.setText("Restoring backup...");
         restoreStatusLabel.setStyle("-fx-text-fill: grey;");
 
@@ -426,7 +471,7 @@ public class SettingsDialogController {
             try {
                 MergeResult result = backupService.mergeBackup(selectedFile, password,
                         currentUser, habitRepository, categoryRepository,
-                        diaryEntryRepository, sleepEntryRepository);
+                        diaryEntryRepository, sleepEntryRepository, options);
                 Platform.runLater(() -> {
                     restoreStatusLabel.setText(
                             "Restore complete: " + result.getHabitsAdded() + " habits added, "
@@ -513,7 +558,15 @@ public class SettingsDialogController {
             return;
         }
 
+        Optional<RestoreOptions> optionsResult = showRestoreOptionsDialog();
+        if (optionsResult.isEmpty()) {
+            restoreFromFileStatusLabel.setText("Restore cancelled.");
+            restoreFromFileStatusLabel.setStyle("-fx-text-fill: grey;");
+            return;
+        }
+
         String password = passwordResult.get();
+        RestoreOptions options = optionsResult.get();
         restoreFromFileStatusLabel.setText("Restoring from file...");
         restoreFromFileStatusLabel.setStyle("-fx-text-fill: grey;");
 
@@ -521,7 +574,7 @@ public class SettingsDialogController {
             try {
                 MergeResult result = hezBackupService.mergeFromHezFile(selectedFile, password,
                         currentUser, habitRepository, categoryRepository,
-                        diaryEntryRepository, sleepEntryRepository);
+                        diaryEntryRepository, sleepEntryRepository, options);
                 Platform.runLater(() -> {
                     restoreFromFileStatusLabel.setText(
                             "Restore complete: " + result.getHabitsAdded() + " habits added, "

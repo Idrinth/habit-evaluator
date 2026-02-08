@@ -212,6 +212,173 @@ class BackupServiceTest {
         assertEquals(1, result.getHabitsAdded());
     }
 
+    @Test
+    void testPartialMergeHabitsOnly() throws BackupException {
+        Habit habit = new Habit("Exercise", "Test");
+        habit.setUser(user);
+        habitRepository.save(habit);
+
+        DiaryEntry diary = new DiaryEntry("Test event", EventSignificance.NORMAL, LocalDate.of(2026, 1, 15));
+        diary.setUser(user);
+        diaryEntryRepository.save(diary);
+
+        SleepEntry sleep = new SleepEntry(LocalTime.of(22, 0), LocalTime.of(6, 0), LocalDate.of(2026, 1, 15));
+        sleep.setUser(user);
+        sleepEntryRepository.save(sleep);
+
+        backupService.createBackup(tempDir, "password", user, habitRepository,
+                categoryRepository, diaryEntryRepository, sleepEntryRepository);
+
+        // Clear local data
+        habitRepository.deleteById(habit.getId());
+        diaryEntryRepository.deleteById(diary.getId());
+        sleepEntryRepository.deleteById(sleep.getId());
+
+        // Restore only habits
+        RestoreOptions options = RestoreOptions.none();
+        options.setRestoreHabits(true);
+
+        File[] backups = backupService.listBackups(tempDir);
+        MergeResult result = backupService.mergeBackup(backups[0], "password", user,
+                habitRepository, categoryRepository, diaryEntryRepository, sleepEntryRepository,
+                options);
+
+        assertEquals(1, result.getHabitsAdded());
+        assertEquals(0, result.getDiaryEntriesAdded());
+        assertEquals(0, result.getSleepEntriesAdded());
+        assertTrue(diaryEntryRepository.findByUserId(user.getId()).isEmpty());
+        assertTrue(sleepEntryRepository.findByUserId(user.getId()).isEmpty());
+    }
+
+    @Test
+    void testPartialMergeDiaryOnly() throws BackupException {
+        Habit habit = new Habit("Exercise", "Test");
+        habit.setUser(user);
+        habitRepository.save(habit);
+
+        DiaryEntry diary = new DiaryEntry("Test event", EventSignificance.NORMAL, LocalDate.of(2026, 1, 15));
+        diary.setUser(user);
+        diaryEntryRepository.save(diary);
+
+        backupService.createBackup(tempDir, "password", user, habitRepository,
+                categoryRepository, diaryEntryRepository, sleepEntryRepository);
+
+        habitRepository.deleteById(habit.getId());
+        diaryEntryRepository.deleteById(diary.getId());
+
+        RestoreOptions options = RestoreOptions.none();
+        options.setRestoreDiaryEntries(true);
+
+        File[] backups = backupService.listBackups(tempDir);
+        MergeResult result = backupService.mergeBackup(backups[0], "password", user,
+                habitRepository, categoryRepository, diaryEntryRepository, sleepEntryRepository,
+                options);
+
+        assertEquals(0, result.getHabitsAdded());
+        assertEquals(1, result.getDiaryEntriesAdded());
+        assertTrue(habitRepository.findByUserId(user.getId()).isEmpty());
+    }
+
+    @Test
+    void testPartialMergeSleepOnly() throws BackupException {
+        SleepEntry sleep = new SleepEntry(LocalTime.of(22, 0), LocalTime.of(6, 0), LocalDate.of(2026, 1, 15));
+        sleep.setUser(user);
+        sleepEntryRepository.save(sleep);
+
+        Habit habit = new Habit("Exercise", "Test");
+        habit.setUser(user);
+        habitRepository.save(habit);
+
+        backupService.createBackup(tempDir, "password", user, habitRepository,
+                categoryRepository, diaryEntryRepository, sleepEntryRepository);
+
+        sleepEntryRepository.deleteById(sleep.getId());
+        habitRepository.deleteById(habit.getId());
+
+        RestoreOptions options = RestoreOptions.none();
+        options.setRestoreSleepEntries(true);
+
+        File[] backups = backupService.listBackups(tempDir);
+        MergeResult result = backupService.mergeBackup(backups[0], "password", user,
+                habitRepository, categoryRepository, diaryEntryRepository, sleepEntryRepository,
+                options);
+
+        assertEquals(0, result.getHabitsAdded());
+        assertEquals(1, result.getSleepEntriesAdded());
+        assertTrue(habitRepository.findByUserId(user.getId()).isEmpty());
+    }
+
+    @Test
+    void testPartialMergeNoneRestoresNothing() throws BackupException {
+        Habit habit = new Habit("Exercise", "Test");
+        habit.setUser(user);
+        habitRepository.save(habit);
+
+        DiaryEntry diary = new DiaryEntry("Test event", EventSignificance.NORMAL, LocalDate.of(2026, 1, 15));
+        diary.setUser(user);
+        diaryEntryRepository.save(diary);
+
+        SleepEntry sleep = new SleepEntry(LocalTime.of(22, 0), LocalTime.of(6, 0), LocalDate.of(2026, 1, 15));
+        sleep.setUser(user);
+        sleepEntryRepository.save(sleep);
+
+        HabitCategory category = new HabitCategory("Health", "Stuff", "#FF0000");
+        category.setUser(user);
+        categoryRepository.save(category);
+
+        backupService.createBackup(tempDir, "password", user, habitRepository,
+                categoryRepository, diaryEntryRepository, sleepEntryRepository);
+
+        habitRepository.deleteById(habit.getId());
+        diaryEntryRepository.deleteById(diary.getId());
+        sleepEntryRepository.deleteById(sleep.getId());
+        categoryRepository.deleteById(category.getId());
+
+        RestoreOptions options = RestoreOptions.none();
+
+        File[] backups = backupService.listBackups(tempDir);
+        MergeResult result = backupService.mergeBackup(backups[0], "password", user,
+                habitRepository, categoryRepository, diaryEntryRepository, sleepEntryRepository,
+                options);
+
+        assertEquals(0, result.getTotalChanges());
+        assertTrue(habitRepository.findByUserId(user.getId()).isEmpty());
+        assertTrue(diaryEntryRepository.findByUserId(user.getId()).isEmpty());
+        assertTrue(sleepEntryRepository.findByUserId(user.getId()).isEmpty());
+        assertTrue(categoryRepository.findByUserId(user.getId()).isEmpty());
+    }
+
+    @Test
+    void testPartialMergeHabitsAutoIncludesCategories() throws BackupException {
+        HabitCategory category = new HabitCategory("Health", "Healthy stuff", "#00FF00");
+        category.setUser(user);
+        categoryRepository.save(category);
+
+        Habit habit = new Habit("Exercise", "Test");
+        habit.setUser(user);
+        habit.setCategoryId(category.getId());
+        habitRepository.save(habit);
+
+        backupService.createBackup(tempDir, "password", user, habitRepository,
+                categoryRepository, diaryEntryRepository, sleepEntryRepository);
+
+        habitRepository.deleteById(habit.getId());
+        categoryRepository.deleteById(category.getId());
+
+        // Restore only habits (not categories explicitly)
+        RestoreOptions options = RestoreOptions.none();
+        options.setRestoreHabits(true);
+
+        File[] backups = backupService.listBackups(tempDir);
+        MergeResult result = backupService.mergeBackup(backups[0], "password", user,
+                habitRepository, categoryRepository, diaryEntryRepository, sleepEntryRepository,
+                options);
+
+        assertEquals(1, result.getHabitsAdded());
+        assertEquals(1, result.getCategoriesAdded());
+        assertFalse(categoryRepository.findByUserId(user.getId()).isEmpty());
+    }
+
     // Simple in-memory repositories for testing
 
     private static class InMemoryHabitRepository implements HabitRepository {

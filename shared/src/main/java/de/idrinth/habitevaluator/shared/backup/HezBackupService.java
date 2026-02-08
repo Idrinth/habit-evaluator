@@ -198,10 +198,21 @@ public class HezBackupService {
                                         HabitCategoryRepository categoryRepository,
                                         DiaryEntryRepository diaryEntryRepository,
                                         SleepEntryRepository sleepEntryRepository) throws BackupException {
+        return mergeFromHezFile(hezFile, password, user, habitRepository,
+                categoryRepository, diaryEntryRepository, sleepEntryRepository, RestoreOptions.all());
+    }
+
+    public MergeResult mergeFromHezFile(File hezFile, String password, User user,
+                                        HabitRepository habitRepository,
+                                        HabitCategoryRepository categoryRepository,
+                                        DiaryEntryRepository diaryEntryRepository,
+                                        SleepEntryRepository sleepEntryRepository,
+                                        RestoreOptions options) throws BackupException {
         BackupData backupData = restoreFromHezFile(hezFile, password);
         BackupService backupService = new BackupService();
         return backupService.mergeBackupData(backupData, user, habitRepository,
-                categoryRepository, diaryEntryRepository, sleepEntryRepository);
+                categoryRepository, diaryEntryRepository, sleepEntryRepository,
+                null, null, options);
     }
 
     /**
@@ -222,10 +233,21 @@ public class HezBackupService {
                                          HabitCategoryRepository categoryRepository,
                                          DiaryEntryRepository diaryEntryRepository,
                                          SleepEntryRepository sleepEntryRepository) throws BackupException {
+        return mergeFromHezBytes(hezData, password, user, habitRepository,
+                categoryRepository, diaryEntryRepository, sleepEntryRepository, RestoreOptions.all());
+    }
+
+    public MergeResult mergeFromHezBytes(byte[] hezData, String password, User user,
+                                         HabitRepository habitRepository,
+                                         HabitCategoryRepository categoryRepository,
+                                         DiaryEntryRepository diaryEntryRepository,
+                                         SleepEntryRepository sleepEntryRepository,
+                                         RestoreOptions options) throws BackupException {
         BackupData backupData = restoreFromHezBytes(hezData, password);
         BackupService backupService = new BackupService();
         return backupService.mergeBackupData(backupData, user, habitRepository,
-                categoryRepository, diaryEntryRepository, sleepEntryRepository);
+                categoryRepository, diaryEntryRepository, sleepEntryRepository,
+                null, null, options);
     }
 
     /**
@@ -246,10 +268,21 @@ public class HezBackupService {
                                           HabitCategoryRepository categoryRepository,
                                           DiaryEntryRepository diaryEntryRepository,
                                           SleepEntryRepository sleepEntryRepository) throws BackupException {
+        return mergeFromHezStream(inputStream, password, user, habitRepository,
+                categoryRepository, diaryEntryRepository, sleepEntryRepository, RestoreOptions.all());
+    }
+
+    public MergeResult mergeFromHezStream(InputStream inputStream, String password, User user,
+                                          HabitRepository habitRepository,
+                                          HabitCategoryRepository categoryRepository,
+                                          DiaryEntryRepository diaryEntryRepository,
+                                          SleepEntryRepository sleepEntryRepository,
+                                          RestoreOptions options) throws BackupException {
         BackupData backupData = restoreFromHezStream(inputStream, password);
         BackupService backupService = new BackupService();
         return backupService.mergeBackupData(backupData, user, habitRepository,
-                categoryRepository, diaryEntryRepository, sleepEntryRepository);
+                categoryRepository, diaryEntryRepository, sleepEntryRepository,
+                null, null, options);
     }
 
     /**
