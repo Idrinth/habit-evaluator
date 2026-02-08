@@ -286,6 +286,29 @@ cd homepage && npm install && npm run dev
 cd homepage && npm run check
 ```
 
+## Outbound Proxy Configuration
+
+This environment routes outbound traffic through an HTTP proxy. The `http_proxy` / `https_proxy` / `HTTP_PROXY` / `HTTPS_PROXY` environment variables are set automatically, but **Gradle's JVM does not pick them up**. You must pass proxy settings as JVM system properties when running any Gradle command that needs network access (dependency resolution, etc.).
+
+**Extract the proxy host and port from the environment and pass them to Gradle:**
+
+```bash
+# Parse proxy URL from environment
+PROXY_URL="${http_proxy:-$HTTP_PROXY}"
+PROXY_HOST="$(echo "$PROXY_URL" | sed -E 's|https?://([^@]*@)?([^:]+):([0-9]+).*|\2|')"
+PROXY_PORT="$(echo "$PROXY_URL" | sed -E 's|https?://([^@]*@)?([^:]+):([0-9]+).*|\3|')"
+
+# Run Gradle with proxy system properties
+./gradlew build \
+  -Dhttp.proxyHost="$PROXY_HOST" -Dhttp.proxyPort="$PROXY_PORT" \
+  -Dhttps.proxyHost="$PROXY_HOST" -Dhttps.proxyPort="$PROXY_PORT" \
+  -Dhttp.nonProxyHosts="localhost|127.0.0.1"
+```
+
+If the proxy URL contains credentials (user:password@host:port format), also set `-Dhttp.proxyUser` / `-Dhttp.proxyPassword` and their `https.*` equivalents.
+
+**npm / Node.js** tools (website, homepage) generally respect the environment variables automatically and need no extra configuration.
+
 ## Testing
 
 **Java Framework:** JUnit 5 (Jupiter 5.10.2), JaCoCo 0.8.11 for coverage
