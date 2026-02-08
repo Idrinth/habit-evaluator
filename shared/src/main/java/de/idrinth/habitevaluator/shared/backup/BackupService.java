@@ -10,6 +10,7 @@ import de.idrinth.habitevaluator.shared.model.HabitCategory;
 import de.idrinth.habitevaluator.shared.model.HabitEntry;
 import de.idrinth.habitevaluator.shared.model.ReminderSettings;
 import de.idrinth.habitevaluator.shared.model.ScoringRule;
+import de.idrinth.habitevaluator.shared.model.MeetingEntry;
 import de.idrinth.habitevaluator.shared.model.SleepEntry;
 import de.idrinth.habitevaluator.shared.model.SportLog;
 import de.idrinth.habitevaluator.shared.model.FoodLog;
@@ -20,6 +21,7 @@ import de.idrinth.habitevaluator.shared.repository.EmotionPairRepository;
 import de.idrinth.habitevaluator.shared.repository.FoodLogRepository;
 import de.idrinth.habitevaluator.shared.repository.HabitCategoryRepository;
 import de.idrinth.habitevaluator.shared.repository.HabitRepository;
+import de.idrinth.habitevaluator.shared.repository.MeetingEntryRepository;
 import de.idrinth.habitevaluator.shared.repository.ReminderSettingsRepository;
 import de.idrinth.habitevaluator.shared.repository.SleepEntryRepository;
 import de.idrinth.habitevaluator.shared.repository.SportLogRepository;
@@ -311,7 +313,7 @@ public class BackupService {
                                 RestoreOptions options) throws BackupException {
         return doMerge(backupData, user, habitRepository, categoryRepository,
                 diaryEntryRepository, sleepEntryRepository, sportLogRepository,
-                foodLogRepository, foodTagRepository, null, null, null, options);
+                foodLogRepository, foodTagRepository, null, null, null, null, options);
     }
 
     private MergeResult doMerge(BackupData backupData, User user,
@@ -324,6 +326,25 @@ public class BackupService {
                                 de.idrinth.habitevaluator.shared.repository.FoodTagRepository foodTagRepository,
                                 EmotionPairRepository emotionPairRepository,
                                 EmotionEntryRepository emotionEntryRepository,
+                                ReminderSettingsRepository reminderSettingsRepository,
+                                RestoreOptions options) throws BackupException {
+        return doMerge(backupData, user, habitRepository, categoryRepository,
+                diaryEntryRepository, sleepEntryRepository, sportLogRepository,
+                foodLogRepository, foodTagRepository, emotionPairRepository,
+                emotionEntryRepository, null, reminderSettingsRepository, options);
+    }
+
+    private MergeResult doMerge(BackupData backupData, User user,
+                                HabitRepository habitRepository,
+                                HabitCategoryRepository categoryRepository,
+                                DiaryEntryRepository diaryEntryRepository,
+                                SleepEntryRepository sleepEntryRepository,
+                                SportLogRepository sportLogRepository,
+                                FoodLogRepository foodLogRepository,
+                                de.idrinth.habitevaluator.shared.repository.FoodTagRepository foodTagRepository,
+                                EmotionPairRepository emotionPairRepository,
+                                EmotionEntryRepository emotionEntryRepository,
+                                MeetingEntryRepository meetingEntryRepository,
                                 ReminderSettingsRepository reminderSettingsRepository,
                                 RestoreOptions options) throws BackupException {
         int categoriesAdded = 0;
@@ -675,6 +696,41 @@ public class BackupService {
             }
         }
 
+        // Merge meeting entries
+        int meetingEntriesAdded = 0;
+        if (options.isRestoreMeetingEntries() && meetingEntryRepository != null
+                && backupData.getMeetingEntries() != null) {
+            List<MeetingEntry> existingMeetingEntries = meetingEntryRepository.findByUserId(user.getId());
+            Set<String> existingMeetingIds = new HashSet<>();
+            for (MeetingEntry entry : existingMeetingEntries) {
+                existingMeetingIds.add(entry.getId());
+            }
+
+            for (BackupData.MeetingEntryData entryData : backupData.getMeetingEntries()) {
+                if (!existingMeetingIds.contains(entryData.getId())) {
+                    MeetingEntry newEntry = new MeetingEntry();
+                    newEntry.setId(entryData.getId());
+                    newEntry.setPlace(entryData.getPlace());
+                    newEntry.setAttendants(entryData.getAttendants());
+                    if (entryData.getStartTime() != null) {
+                        newEntry.setStartTime(LocalTime.parse(entryData.getStartTime()));
+                    }
+                    if (entryData.getEndTime() != null) {
+                        newEntry.setEndTime(LocalTime.parse(entryData.getEndTime()));
+                    }
+                    if (entryData.getDate() != null) {
+                        newEntry.setDate(LocalDate.parse(entryData.getDate()));
+                    }
+                    if (entryData.getCreatedAt() != null) {
+                        newEntry.setCreatedAt(LocalDateTime.parse(entryData.getCreatedAt()));
+                    }
+                    newEntry.setUser(user);
+                    meetingEntryRepository.save(newEntry);
+                    meetingEntriesAdded++;
+                }
+            }
+        }
+
         // Merge reminder settings
         boolean reminderSettingsRestored = false;
         if (options.isRestoreReminderSettings() && reminderSettingsRepository != null
@@ -706,7 +762,8 @@ public class BackupService {
 
         MergeResult result = new MergeResult(categoriesAdded, habitsAdded, habitsMerged,
                 entriesAdded, diaryEntriesAdded, sleepEntriesAdded, sportLogsAdded, foodLogsAdded,
-                emotionPairsAdded, emotionEntriesAdded, reminderSettingsRestored);
+                emotionPairsAdded, emotionEntriesAdded, meetingEntriesAdded,
+                reminderSettingsRestored);
         logger.info("Backup merged: {}", result);
         return result;
     }
@@ -972,6 +1029,47 @@ public class BackupService {
                     settingsData.setWakingHoursEnd(settings.getWakingHoursEnd().toString());
                 }
                 data.setReminderSettings(settingsData);
+            }
+        }
+
+        return data;
+    }
+
+    BackupData collectBackupData(User user,
+                                         HabitRepository habitRepository,
+                                         HabitCategoryRepository categoryRepository,
+                                         DiaryEntryRepository diaryEntryRepository,
+                                         SleepEntryRepository sleepEntryRepository,
+                                         SportLogRepository sportLogRepository,
+                                         FoodLogRepository foodLogRepository,
+                                         EmotionPairRepository emotionPairRepository,
+                                         EmotionEntryRepository emotionEntryRepository,
+                                         MeetingEntryRepository meetingEntryRepository,
+                                         ReminderSettingsRepository reminderSettingsRepository) {
+        BackupData data = collectBackupData(user, habitRepository, categoryRepository,
+                diaryEntryRepository, sleepEntryRepository, sportLogRepository, foodLogRepository,
+                emotionPairRepository, emotionEntryRepository, reminderSettingsRepository);
+
+        if (meetingEntryRepository != null) {
+            List<MeetingEntry> meetingEntries = meetingEntryRepository.findByUserId(user.getId());
+            for (MeetingEntry entry : meetingEntries) {
+                BackupData.MeetingEntryData entryData = new BackupData.MeetingEntryData();
+                entryData.setId(entry.getId());
+                entryData.setPlace(entry.getPlace());
+                entryData.setAttendants(entry.getAttendants());
+                if (entry.getStartTime() != null) {
+                    entryData.setStartTime(entry.getStartTime().toString());
+                }
+                if (entry.getEndTime() != null) {
+                    entryData.setEndTime(entry.getEndTime().toString());
+                }
+                if (entry.getDate() != null) {
+                    entryData.setDate(entry.getDate().toString());
+                }
+                if (entry.getCreatedAt() != null) {
+                    entryData.setCreatedAt(entry.getCreatedAt().toString());
+                }
+                data.getMeetingEntries().add(entryData);
             }
         }
 

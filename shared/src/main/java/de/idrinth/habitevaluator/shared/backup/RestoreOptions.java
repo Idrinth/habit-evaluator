@@ -14,6 +14,7 @@ public class RestoreOptions {
     private boolean restoreSportLogs;
     private boolean restoreFoodLogs;
     private boolean restoreEmotionData;
+    private boolean restoreMeetingEntries;
     private boolean restoreReminderSettings;
 
     public RestoreOptions() {
@@ -24,6 +25,7 @@ public class RestoreOptions {
         this.restoreSportLogs = true;
         this.restoreFoodLogs = true;
         this.restoreEmotionData = true;
+        this.restoreMeetingEntries = true;
         this.restoreReminderSettings = true;
     }
 
@@ -46,6 +48,7 @@ public class RestoreOptions {
         options.restoreSportLogs = false;
         options.restoreFoodLogs = false;
         options.restoreEmotionData = false;
+        options.restoreMeetingEntries = false;
         options.restoreReminderSettings = false;
         return options;
     }
@@ -104,6 +107,14 @@ public class RestoreOptions {
 
     public void setRestoreEmotionData(boolean restoreEmotionData) {
         this.restoreEmotionData = restoreEmotionData;
+    }
+
+    public boolean isRestoreMeetingEntries() {
+        return restoreMeetingEntries;
+    }
+
+    public void setRestoreMeetingEntries(boolean restoreMeetingEntries) {
+        this.restoreMeetingEntries = restoreMeetingEntries;
     }
 
     public boolean isRestoreReminderSettings() {
