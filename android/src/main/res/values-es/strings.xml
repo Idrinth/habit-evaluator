@@ -187,6 +187,7 @@
     <string name="restore_backup_button">Restaurar desde respaldo</string>
     <string name="restore_no_backups">No se encontraron respaldos</string>
     <string name="restore_select_backup">Seleccionar un respaldo para restaurar</string>
+    <string name="restore_select_types">Select data types to restore</string>
     <string name="restore_enter_password">Introducir contraseña del respaldo</string>
     <string name="restore_in_progress">Restaurando respaldo…</string>
     <string name="restore_success">Restaurado: %1$d hábitos añadidos, %2$d hábitos fusionados, %3$d entradas añadidas, %4$d entradas de diario añadidas, %5$d entradas de sueño añadidas, %6$d categorías añadidas</string>
