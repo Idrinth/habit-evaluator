@@ -22,12 +22,17 @@ import java.util.Map;
  * Newer entries receive higher weight than older ones using linear decay.
  * Events that occur within 2 hours of each other receive additional weight
  * to strengthen temporal proximity correlations.
+ * <p>
+ * Correlations are scaled by a confidence factor based on shared days
+ * (Bayesian shrinkage: {@code correlation * sharedDays / (sharedDays + CONFIDENCE_SCALE)}).
+ * This prevents a single co-occurrence from producing a perfect ±1 correlation.
  */
 public class EventCorrelationService {
 
     private static final int YEAR_DAYS = 365;
     private static final int PROXIMITY_HOURS = 2;
     private static final double PROXIMITY_BOOST = 2.0;
+    private static final int CONFIDENCE_SCALE = 7;
 
     /**
      * Calculates the top event correlations over the past year using time-weighted
@@ -341,7 +346,10 @@ public class EventCorrelationService {
 
                 double corr = weightedPearson(signalA, signalB, pairWeights);
                 if (!Double.isNaN(corr)) {
-                    correlations.add(new EventCorrelation(nameA, nameB, corr, sharedDays));
+                    // Apply Bayesian shrinkage: scale correlation toward zero when
+                    // shared days are few, so a single co-occurrence cannot produce ±1.
+                    double adjusted = corr * sharedDays / (sharedDays + CONFIDENCE_SCALE);
+                    correlations.add(new EventCorrelation(nameA, nameB, adjusted, sharedDays));
                 }
             }
         }
