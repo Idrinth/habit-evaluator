@@ -101,7 +101,18 @@ const translations: Record<Language, Record<string, string>> = {
 		'nav.correlations': 'Correlations',
 		'nav.settings': 'Settings',
 		'nav.foodLog': 'Food Log',
-		'nav.sportGraph': 'Sport Graph'
+		'nav.sportGraph': 'Sport Graph',
+		'nav.foodDistribution': 'Food Graph',
+		'foodDistribution.title': 'Daily Food Distribution',
+		'foodDistribution.description': 'Meal frequency and nutritional averages by hour of day over the last 30 days.',
+		'foodDistribution.loading': 'Loading food distribution data...',
+		'foodDistribution.noData': 'No food log entries in the last 30 days.',
+		'foodDistribution.mealsPerHour': 'Meals per Hour',
+		'foodDistribution.avgKcalPerHour': 'Average Kcal per Hour',
+		'foodDistribution.avgCarbsPerHour': 'Average Carbs (g) per Hour',
+		'foodDistribution.meals': 'meals',
+		'foodDistribution.totalMeals': 'Total meals (30 days)',
+		'foodDistribution.backToFoodLog': 'Back to Food Log'
 	},
 	de: {
 		'nav.home': 'Start',
@@ -196,7 +207,18 @@ const translations: Record<Language, Record<string, string>> = {
 		'nav.correlations': 'Korrelationen',
 		'nav.settings': 'Einstellungen',
 		'nav.foodLog': 'Ernährungsprotokoll',
-		'nav.sportGraph': 'Sportdiagramm'
+		'nav.sportGraph': 'Sportdiagramm',
+		'nav.foodDistribution': 'Ernährungsgrafik',
+		'foodDistribution.title': 'Tägliche Essensverteilung',
+		'foodDistribution.description': 'Mahlzeitenhäufigkeit und durchschnittliche Nährwerte nach Tageszeit der letzten 30 Tage.',
+		'foodDistribution.loading': 'Essensverteilung wird geladen...',
+		'foodDistribution.noData': 'Keine Ernährungseinträge in den letzten 30 Tagen.',
+		'foodDistribution.mealsPerHour': 'Mahlzeiten pro Stunde',
+		'foodDistribution.avgKcalPerHour': 'Durchschn. Kcal pro Stunde',
+		'foodDistribution.avgCarbsPerHour': 'Durchschn. Kohlenhydrate (g) pro Stunde',
+		'foodDistribution.meals': 'Mahlzeiten',
+		'foodDistribution.totalMeals': 'Mahlzeiten gesamt (30 Tage)',
+		'foodDistribution.backToFoodLog': 'Zurück zum Ernährungsprotokoll'
 	},
 	es: {
 		'nav.home': 'Inicio',
@@ -291,7 +313,18 @@ const translations: Record<Language, Record<string, string>> = {
 		'nav.correlations': 'Correlaciones',
 		'nav.settings': 'Ajustes',
 		'nav.foodLog': 'Registro de comidas',
-		'nav.sportGraph': 'Gr\u00e1fico deportivo'
+		'nav.sportGraph': 'Gr\u00e1fico deportivo',
+		'nav.foodDistribution': 'Gráfico de comidas',
+		'foodDistribution.title': 'Distribución diaria de comidas',
+		'foodDistribution.description': 'Frecuencia de comidas y promedios nutricionales por hora del día en los últimos 30 días.',
+		'foodDistribution.loading': 'Cargando distribución de comidas...',
+		'foodDistribution.noData': 'No hay entradas de comida en los últimos 30 días.',
+		'foodDistribution.mealsPerHour': 'Comidas por hora',
+		'foodDistribution.avgKcalPerHour': 'Kcal promedio por hora',
+		'foodDistribution.avgCarbsPerHour': 'Carbohidratos promedio (g) por hora',
+		'foodDistribution.meals': 'comidas',
+		'foodDistribution.totalMeals': 'Total de comidas (30 días)',
+		'foodDistribution.backToFoodLog': 'Volver al registro de comidas'
 	},
 	fr: {
 		'nav.home': 'Accueil',
@@ -386,7 +419,18 @@ const translations: Record<Language, Record<string, string>> = {
 		'nav.correlations': 'Corr\u00e9lations',
 		'nav.settings': 'Param\u00e8tres',
 		'nav.foodLog': 'Journal alimentaire',
-		'nav.sportGraph': 'Graphique sportif'
+		'nav.sportGraph': 'Graphique sportif',
+		'nav.foodDistribution': 'Graphique alimentaire',
+		'foodDistribution.title': 'Distribution alimentaire quotidienne',
+		'foodDistribution.description': 'Fréquence des repas et moyennes nutritionnelles par heure sur les 30 derniers jours.',
+		'foodDistribution.loading': 'Chargement de la distribution alimentaire...',
+		'foodDistribution.noData': 'Aucune entrée alimentaire au cours des 30 derniers jours.',
+		'foodDistribution.mealsPerHour': 'Repas par heure',
+		'foodDistribution.avgKcalPerHour': 'Kcal moyen par heure',
+		'foodDistribution.avgCarbsPerHour': 'Glucides moyens (g) par heure',
+		'foodDistribution.meals': 'repas',
+		'foodDistribution.totalMeals': 'Total des repas (30 jours)',
+		'foodDistribution.backToFoodLog': 'Retour au journal alimentaire'
 	}
 };
 

@@ -75,6 +75,7 @@
 		<a href="/sleep">{t('nav.sleep', lang)}</a>
 		<a href="/food-log">{t('nav.foodLog', lang)}</a>
 		<a href="/sport-graph">{t('nav.sportGraph', lang)}</a>
+		<a href="/food-log/distribution">{t('nav.foodDistribution', lang)}</a>
 		<a href="/emotions/graph">{t('nav.emotions', lang)}</a>
 		<a href="/stats">{t('nav.stats', lang)}</a>
 		<a href="/export/pdf">{t('nav.exportPdf', lang)}</a>

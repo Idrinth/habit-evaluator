@@ -251,6 +251,13 @@ export interface EmotionScatterData {
 	pairs: EmotionScatterPair[];
 }
 
+export interface FoodDistributionData {
+	labels: string[];
+	mealCounts: number[];
+	avgKcal: number[];
+	avgCarbs: number[];
+}
+
 export const stats = {
 	dashboard() {
 		return request<DashboardData>('/stats/dashboard');
@@ -263,6 +270,9 @@ export const stats = {
 	},
 	emotionScatter() {
 		return request<EmotionScatterData>('/stats/emotion-scatter');
+	},
+	foodDistribution() {
+		return request<FoodDistributionData>('/stats/food-distribution');
 	}
 };
 
