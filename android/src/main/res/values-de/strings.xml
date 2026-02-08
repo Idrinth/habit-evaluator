@@ -197,6 +197,9 @@
     <string name="stats_confidence_strong">Stark</string>
     <string name="stats_confidence_moderate">Moderat</string>
     <string name="stats_confidence_weak">Schwach</string>
+    <string name="stats_filter_source">Quelle filtern</string>
+    <string name="stats_filter_target">Ziel filtern</string>
+    <string name="stats_filter_all">Alle</string>
     <string name="backup_settings">Backup-Einstellungen</string>
     <string name="backup_enabled_label">Tägliche verschlüsselte Backups aktivieren</string>
     <string name="backup_password_hint">Backup-Passwort</string>
