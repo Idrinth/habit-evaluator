@@ -12,6 +12,9 @@
     "cy:run": "cypress run",
     "test:e2e": "npm run build && npx start-server-and-test preview http://localhost:4173 cy:run"
   },
+  "overrides": {
+    "cookie": "^0.7.0"
+  },
   "devDependencies": {
     "@sveltejs/adapter-static": "^3.0.10",
     "@sveltejs/kit": "^2.50.2",
