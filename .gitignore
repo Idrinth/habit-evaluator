@@ -21,6 +21,9 @@ Thumbs.db
 local.properties
 gradle-local.properties
 
+# Runtime data
+data/
+
 # Compiled files
 *.class
 *.jar
