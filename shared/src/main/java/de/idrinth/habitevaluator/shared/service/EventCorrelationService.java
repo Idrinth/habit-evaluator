@@ -26,7 +26,6 @@ import java.util.Map;
 public class EventCorrelationService {
 
     private static final int YEAR_DAYS = 365;
-    private static final int MIN_SHARED_DAYS = 7;
     private static final int PROXIMITY_HOURS = 2;
     private static final double PROXIMITY_BOOST = 2.0;
 
@@ -329,10 +328,6 @@ public class EventCorrelationService {
                     if (signalA[i] != 0 && signalB[i] != 0) {
                         sharedDays++;
                     }
-                }
-
-                if (sharedDays < MIN_SHARED_DAYS) {
-                    continue;
                 }
 
                 // Create pair-specific weights with proximity boost

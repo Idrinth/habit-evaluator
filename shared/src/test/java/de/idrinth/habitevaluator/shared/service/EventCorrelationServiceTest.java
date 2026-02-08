@@ -36,8 +36,8 @@ class EventCorrelationServiceTest {
     }
 
     @Test
-    void testInsufficientSharedDaysReturnsEmpty() {
-        // Create a habit with only 3 days of entries (below MIN_SHARED_DAYS=7)
+    void testFewSharedDaysStillReturnsResults() {
+        // Create a habit with only 3 days of entries — low confidence but still returned
         Habit habit = new Habit("Exercise", "Test");
         LocalDate today = LocalDate.now();
         for (int i = 0; i < 3; i++) {
@@ -54,7 +54,7 @@ class EventCorrelationServiceTest {
 
         List<EventCorrelation> result = service.calculateCorrelations(
                 List.of(habit), diaryEntries, new ArrayList<>(), new ArrayList<>());
-        assertTrue(result.isEmpty());
+        assertFalse(result.isEmpty());
     }
 
     @Test
@@ -79,7 +79,7 @@ class EventCorrelationServiceTest {
 
         assertFalse(result.isEmpty());
         EventCorrelation first = result.get(0);
-        assertTrue(first.getSharedDays() >= 7);
+        assertTrue(first.getSharedDays() > 0);
     }
 
     @Test
