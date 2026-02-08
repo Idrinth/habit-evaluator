@@ -20,6 +20,7 @@ public class BackupData {
     private List<SleepEntryData> sleepEntries = new ArrayList<>();
     private List<SportLogData> sportLogs = new ArrayList<>();
     private List<FoodLogData> foodLogs = new ArrayList<>();
+    private List<FoodTagData> foodTags = new ArrayList<>();
 
     public String getBackupDate() {
         return backupDate;
@@ -91,6 +92,14 @@ public class BackupData {
 
     public void setFoodLogs(List<FoodLogData> foodLogs) {
         this.foodLogs = foodLogs;
+    }
+
+    public List<FoodTagData> getFoodTags() {
+        return foodTags;
+    }
+
+    public void setFoodTags(List<FoodTagData> foodTags) {
+        this.foodTags = foodTags;
     }
 
     public static class UserData {
@@ -584,6 +593,7 @@ public class BackupData {
         private String foodItems;
         private String notes;
         private String createdAt;
+        private List<String> tagNames = new ArrayList<>();
 
         public String getId() {
             return id;
@@ -639,6 +649,35 @@ public class BackupData {
 
         public void setCreatedAt(String createdAt) {
             this.createdAt = createdAt;
+        }
+
+        public List<String> getTagNames() {
+            return tagNames;
+        }
+
+        public void setTagNames(List<String> tagNames) {
+            this.tagNames = tagNames;
+        }
+    }
+
+    public static class FoodTagData {
+        private String id;
+        private String name;
+
+        public String getId() {
+            return id;
+        }
+
+        public void setId(String id) {
+            this.id = id;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
         }
     }
 }

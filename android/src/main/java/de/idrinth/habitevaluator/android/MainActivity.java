@@ -83,6 +83,7 @@ public class MainActivity extends AppCompatActivity {
     private static EmotionEntryRepository sharedEmotionEntryRepository;
     private static SportLogRepository sharedSportLogRepository;
     private static de.idrinth.habitevaluator.shared.repository.FoodLogRepository sharedFoodLogRepository;
+    private static de.idrinth.habitevaluator.android.persistence.SQLiteFoodTagRepository sharedFoodTagRepository;
     private static User sharedLocalUser;
     private static String editHabitId;
     private static String pointDevelopmentHabitId;
@@ -184,6 +185,10 @@ public class MainActivity extends AppCompatActivity {
 
     public static de.idrinth.habitevaluator.shared.repository.FoodLogRepository getSharedFoodLogRepository() {
         return sharedFoodLogRepository;
+    }
+
+    public static de.idrinth.habitevaluator.android.persistence.SQLiteFoodTagRepository getSharedFoodTagRepository() {
+        return sharedFoodTagRepository;
     }
 
     public static void saveAllHabits() {
@@ -494,6 +499,7 @@ public class MainActivity extends AppCompatActivity {
         SQLiteEmotionEntryRepository emotionEntryRepo = new SQLiteEmotionEntryRepository(dbHelper, emotionPairRepo);
         SQLiteSportLogRepository sportLogRepo = new SQLiteSportLogRepository(dbHelper);
         de.idrinth.habitevaluator.android.persistence.SQLiteFoodLogRepository foodLogRepo = new de.idrinth.habitevaluator.android.persistence.SQLiteFoodLogRepository(dbHelper);
+        de.idrinth.habitevaluator.android.persistence.SQLiteFoodTagRepository foodTagRepo = new de.idrinth.habitevaluator.android.persistence.SQLiteFoodTagRepository(dbHelper);
 
         currentUser = getOrCreateLocalUser();
         sharedHabitRepository = habitRepository;
@@ -509,6 +515,7 @@ public class MainActivity extends AppCompatActivity {
         sharedEmotionEntryRepository = emotionEntryRepo;
         sharedSportLogRepository = sportLogRepo;
         sharedFoodLogRepository = foodLogRepo;
+        sharedFoodTagRepository = foodTagRepo;
 
         // Migrate legacy JSON files to SQLite if they exist
         java.io.File storageDir = new java.io.File(getFilesDir(), "habit-data");
@@ -559,6 +566,7 @@ public class MainActivity extends AppCompatActivity {
         SQLiteEmotionEntryRepository emotionEntryRepo = new SQLiteEmotionEntryRepository(dbHelper, emotionPairRepo);
         SQLiteSportLogRepository sportLogRepo = new SQLiteSportLogRepository(dbHelper);
         de.idrinth.habitevaluator.android.persistence.SQLiteFoodLogRepository foodLogRepo = new de.idrinth.habitevaluator.android.persistence.SQLiteFoodLogRepository(dbHelper);
+        de.idrinth.habitevaluator.android.persistence.SQLiteFoodTagRepository foodTagRepo = new de.idrinth.habitevaluator.android.persistence.SQLiteFoodTagRepository(dbHelper);
         sharedSleepEntryRepository = sleepEntryRepository;
         sharedDiaryEntryRepository = diaryEntryRepo;
         sharedDiaryReferenceRepository = diaryRefRepo;
@@ -566,6 +574,7 @@ public class MainActivity extends AppCompatActivity {
         sharedEmotionEntryRepository = emotionEntryRepo;
         sharedSportLogRepository = sportLogRepo;
         sharedFoodLogRepository = foodLogRepo;
+        sharedFoodTagRepository = foodTagRepo;
 
         // Set local user for local-only data access (diary, sleep, emotions, sport, food)
         sharedLocalUser = getOrCreateLocalUser();

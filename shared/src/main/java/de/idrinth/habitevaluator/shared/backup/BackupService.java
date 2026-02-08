@@ -220,7 +220,7 @@ public class BackupService {
                                        FoodLogRepository foodLogRepository) throws BackupException {
         return mergeBackupData(backupData, user, habitRepository, categoryRepository,
                 diaryEntryRepository, sleepEntryRepository, sportLogRepository, foodLogRepository,
-                RestoreOptions.all());
+                null, RestoreOptions.all());
     }
 
     public MergeResult mergeBackupData(BackupData backupData, User user,
@@ -231,6 +231,20 @@ public class BackupService {
                                        SportLogRepository sportLogRepository,
                                        FoodLogRepository foodLogRepository,
                                        RestoreOptions options) throws BackupException {
+        return mergeBackupData(backupData, user, habitRepository, categoryRepository,
+                diaryEntryRepository, sleepEntryRepository, sportLogRepository, foodLogRepository,
+                null, options);
+    }
+
+    public MergeResult mergeBackupData(BackupData backupData, User user,
+                                       HabitRepository habitRepository,
+                                       HabitCategoryRepository categoryRepository,
+                                       DiaryEntryRepository diaryEntryRepository,
+                                       SleepEntryRepository sleepEntryRepository,
+                                       SportLogRepository sportLogRepository,
+                                       FoodLogRepository foodLogRepository,
+                                       de.idrinth.habitevaluator.shared.repository.FoodTagRepository foodTagRepository,
+                                       RestoreOptions options) throws BackupException {
         if (user == null) {
             throw new BackupException("User must not be null for merge");
         }
@@ -240,8 +254,8 @@ public class BackupService {
 
         try {
             return doMerge(backupData, user, habitRepository, categoryRepository,
-                    diaryEntryRepository, sleepEntryRepository, sportLogRepository, foodLogRepository,
-                    options);
+                    diaryEntryRepository, sleepEntryRepository, sportLogRepository,
+                    foodLogRepository, foodTagRepository, options);
         } catch (BackupException e) {
             throw e;
         } catch (Exception e) {
@@ -256,6 +270,7 @@ public class BackupService {
                                 SleepEntryRepository sleepEntryRepository,
                                 SportLogRepository sportLogRepository,
                                 FoodLogRepository foodLogRepository,
+                                de.idrinth.habitevaluator.shared.repository.FoodTagRepository foodTagRepository,
                                 RestoreOptions options) throws BackupException {
         int categoriesAdded = 0;
         int habitsAdded = 0;
@@ -515,6 +530,23 @@ public class BackupService {
                         newEntry.setCreatedAt(LocalDateTime.parse(entryData.getCreatedAt()));
                     }
                     newEntry.setUser(user);
+                    if (foodTagRepository != null && entryData.getTagNames() != null) {
+                        Set<de.idrinth.habitevaluator.shared.model.FoodTag> tags = new HashSet<>();
+                        for (String tagName : entryData.getTagNames()) {
+                            String nameLower = tagName.toLowerCase();
+                            java.util.Optional<de.idrinth.habitevaluator.shared.model.FoodTag> existing =
+                                    foodTagRepository.findByNameLowerAndUserId(nameLower, user.getId());
+                            if (existing.isPresent()) {
+                                tags.add(existing.get());
+                            } else {
+                                de.idrinth.habitevaluator.shared.model.FoodTag newTag =
+                                        new de.idrinth.habitevaluator.shared.model.FoodTag(tagName);
+                                newTag.setUser(user);
+                                tags.add(foodTagRepository.save(newTag));
+                            }
+                        }
+                        newEntry.setTags(tags);
+                    }
                     foodLogRepository.save(newEntry);
                     foodLogsAdded++;
                 }
@@ -683,6 +715,7 @@ public class BackupService {
 
         if (foodLogRepository != null) {
             List<FoodLog> foodLogs = foodLogRepository.findByUserId(user.getId());
+            Set<String> exportedTagIds = new HashSet<>();
             for (FoodLog entry : foodLogs) {
                 BackupData.FoodLogData entryData = new BackupData.FoodLogData();
                 entryData.setId(entry.getId());
@@ -695,6 +728,19 @@ public class BackupService {
                 entryData.setNotes(entry.getNotes());
                 if (entry.getCreatedAt() != null) {
                     entryData.setCreatedAt(entry.getCreatedAt().toString());
+                }
+                if (entry.getTags() != null) {
+                    List<String> tagNames = new java.util.ArrayList<>();
+                    for (de.idrinth.habitevaluator.shared.model.FoodTag tag : entry.getTags()) {
+                        tagNames.add(tag.getName());
+                        if (exportedTagIds.add(tag.getId())) {
+                            BackupData.FoodTagData tagData = new BackupData.FoodTagData();
+                            tagData.setId(tag.getId());
+                            tagData.setName(tag.getName());
+                            data.getFoodTags().add(tagData);
+                        }
+                    }
+                    entryData.setTagNames(tagNames);
                 }
                 data.getFoodLogs().add(entryData);
             }

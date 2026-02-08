@@ -5,6 +5,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
@@ -12,15 +14,18 @@ import jakarta.persistence.Transient;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
  * Represents a food log entry tracking nutritional intake.
  * Each entry records carbohydrates, calories, a timestamp, and a list of foodstuff consumed.
- * The food items are stored as a comma-separated string for simplicity across all platforms.
+ * Food items are stored both as a comma-separated string (legacy) and as normalized FoodTag
+ * entities via an n:m join table for case-insensitive correlation analysis.
  */
 @Entity
 @Table(name = "food_logs")
@@ -51,6 +56,14 @@ public class FoodLog {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "food_log_tags",
+            joinColumns = @JoinColumn(name = "food_log_id"),
+            inverseJoinColumns = @JoinColumn(name = "food_tag_id")
+    )
+    private Set<FoodTag> tags = new HashSet<>();
 
     public FoodLog() {
         this.id = UUID.randomUUID().toString();
@@ -157,6 +170,14 @@ public class FoodLog {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public Set<FoodTag> getTags() {
+        return tags;
+    }
+
+    public void setTags(Set<FoodTag> tags) {
+        this.tags = tags;
     }
 
     @Override

@@ -1,16 +1,19 @@
 package de.idrinth.habitevaluator.webserver.controller;
 
 import de.idrinth.habitevaluator.shared.model.FoodLog;
+import de.idrinth.habitevaluator.shared.model.FoodTag;
 import de.idrinth.habitevaluator.shared.model.User;
 import de.idrinth.habitevaluator.shared.repository.FoodLogRepository;
+import de.idrinth.habitevaluator.shared.repository.FoodTagRepository;
 import de.idrinth.habitevaluator.shared.repository.UserRepository;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @RestController
@@ -18,11 +21,14 @@ import java.util.stream.Collectors;
 public class FoodLogController {
 
     private final FoodLogRepository foodLogRepository;
+    private final FoodTagRepository foodTagRepository;
     private final UserRepository userRepository;
 
     public FoodLogController(FoodLogRepository foodLogRepository,
+                             FoodTagRepository foodTagRepository,
                              UserRepository userRepository) {
         this.foodLogRepository = foodLogRepository;
+        this.foodTagRepository = foodTagRepository;
         this.userRepository = userRepository;
     }
 
@@ -45,7 +51,9 @@ public class FoodLogController {
         if (userOpt.isEmpty()) {
             return ResponseEntity.status(401).build();
         }
-        entry.setUser(userOpt.get());
+        User user = userOpt.get();
+        entry.setUser(user);
+        entry.setTags(resolveTagsFromFoodItems(entry, user));
         return ResponseEntity.ok(foodLogRepository.save(entry));
     }
 
@@ -73,14 +81,48 @@ public class FoodLogController {
         if (userId == null) {
             return ResponseEntity.status(401).build();
         }
-        List<FoodLog> entries = foodLogRepository.findByUserId(userId);
-        List<String> suggestions = entries.stream()
-                .flatMap(e -> e.getFoodItemList().stream())
-                .map(String::trim)
-                .filter(s -> !s.isEmpty())
-                .distinct()
+        List<FoodTag> tags = foodTagRepository.findByUserId(userId);
+        List<String> suggestions = tags.stream()
+                .map(FoodTag::getName)
                 .sorted()
                 .collect(Collectors.toList());
         return ResponseEntity.ok(suggestions);
+    }
+
+    @PostMapping("/migrate-tags")
+    public ResponseEntity<Void> migrateTags(HttpSession session) {
+        String userId = (String) session.getAttribute("userId");
+        if (userId == null) {
+            return ResponseEntity.status(401).build();
+        }
+        Optional<User> userOpt = userRepository.findById(userId);
+        if (userOpt.isEmpty()) {
+            return ResponseEntity.status(401).build();
+        }
+        User user = userOpt.get();
+        List<FoodLog> entries = foodLogRepository.findByUserId(userId);
+        for (FoodLog entry : entries) {
+            if (entry.getTags() == null || entry.getTags().isEmpty()) {
+                entry.setTags(resolveTagsFromFoodItems(entry, user));
+                foodLogRepository.save(entry);
+            }
+        }
+        return ResponseEntity.noContent().build();
+    }
+
+    private Set<FoodTag> resolveTagsFromFoodItems(FoodLog entry, User user) {
+        Set<FoodTag> tags = new HashSet<>();
+        for (String item : entry.getFoodItemList()) {
+            String nameLower = item.toLowerCase();
+            Optional<FoodTag> existing = foodTagRepository.findByNameLowerAndUserId(nameLower, user.getId());
+            if (existing.isPresent()) {
+                tags.add(existing.get());
+            } else {
+                FoodTag newTag = new FoodTag(item.trim());
+                newTag.setUser(user);
+                tags.add(foodTagRepository.save(newTag));
+            }
+        }
+        return tags;
     }
 }

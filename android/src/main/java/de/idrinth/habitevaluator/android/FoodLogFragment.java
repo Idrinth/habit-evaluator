@@ -21,11 +21,15 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import de.idrinth.habitevaluator.android.databinding.FragmentFoodLogBinding;
+import de.idrinth.habitevaluator.android.persistence.SQLiteFoodTagRepository;
 import de.idrinth.habitevaluator.android.ui.FoodLogAdapter;
 import de.idrinth.habitevaluator.shared.model.FoodLog;
+import de.idrinth.habitevaluator.shared.model.FoodTag;
+import de.idrinth.habitevaluator.shared.model.User;
 import de.idrinth.habitevaluator.shared.repository.FoodLogRepository;
 
 public class FoodLogFragment extends Fragment implements FoodLogAdapter.OnFoodLogDeleteListener {
@@ -151,7 +155,8 @@ public class FoodLogFragment extends Fragment implements FoodLogAdapter.OnFoodLo
 
         LocalDateTime dateTime = LocalDateTime.of(selectedDate, selectedTime);
         FoodLog entry = new FoodLog(carbs, kcal, dateTime, foodItems);
-        entry.setUser(MainActivity.getSharedLocalUser());
+        User user = MainActivity.getSharedLocalUser();
+        entry.setUser(user);
 
         String notes = binding.foodNotesInput.getText() != null
                 ? binding.foodNotesInput.getText().toString().trim() : "";
@@ -163,6 +168,8 @@ public class FoodLogFragment extends Fragment implements FoodLogAdapter.OnFoodLo
         if (repository != null) {
             repository.save(entry);
         }
+
+        resolveAndLinkTags(entry, user);
 
         binding.foodItemsInput.setText("");
         binding.kcalInput.setText("");
@@ -176,8 +183,32 @@ public class FoodLogFragment extends Fragment implements FoodLogAdapter.OnFoodLo
         loadEntries();
     }
 
+    private void resolveAndLinkTags(FoodLog entry, User user) {
+        SQLiteFoodTagRepository tagRepo = MainActivity.getSharedFoodTagRepository();
+        if (tagRepo == null || user == null) {
+            return;
+        }
+        for (String item : entry.getFoodItemList()) {
+            String nameLower = item.toLowerCase();
+            Optional<FoodTag> existing = tagRepo.findByNameLowerAndUserId(nameLower, user.getId());
+            FoodTag tag;
+            if (existing.isPresent()) {
+                tag = existing.get();
+            } else {
+                tag = new FoodTag(item.trim());
+                tag.setUser(user);
+                tagRepo.save(tag);
+            }
+            tagRepo.linkTagToFoodLog(entry.getId(), tag.getId());
+        }
+    }
+
     @Override
     public void onDelete(FoodLog entry) {
+        SQLiteFoodTagRepository tagRepo = MainActivity.getSharedFoodTagRepository();
+        if (tagRepo != null) {
+            tagRepo.unlinkAllTagsFromFoodLog(entry.getId());
+        }
         FoodLogRepository repository = MainActivity.getSharedFoodLogRepository();
         if (repository != null) {
             repository.deleteById(entry.getId());
@@ -202,14 +233,11 @@ public class FoodLogFragment extends Fragment implements FoodLogAdapter.OnFoodLo
     }
 
     private void updateSuggestions() {
-        FoodLogRepository repository = MainActivity.getSharedFoodLogRepository();
-        if (repository != null && MainActivity.getSharedLocalUser() != null) {
-            List<FoodLog> allEntries = repository.findByUserId(MainActivity.getSharedLocalUser().getId());
-            List<String> suggestions = allEntries.stream()
-                    .flatMap(e -> e.getFoodItemList().stream())
-                    .map(String::trim)
-                    .filter(s -> !s.isEmpty())
-                    .distinct()
+        SQLiteFoodTagRepository tagRepo = MainActivity.getSharedFoodTagRepository();
+        if (tagRepo != null && MainActivity.getSharedLocalUser() != null) {
+            List<FoodTag> tags = tagRepo.findByUserId(MainActivity.getSharedLocalUser().getId());
+            List<String> suggestions = tags.stream()
+                    .map(FoodTag::getName)
                     .sorted()
                     .collect(Collectors.toList());
             ArrayAdapter<String> suggestionsAdapter = new ArrayAdapter<>(requireContext(),

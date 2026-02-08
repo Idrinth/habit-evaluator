@@ -7,7 +7,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class SQLiteHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "habit_evaluator.db";
-    private static final int DATABASE_VERSION = 5;
+    private static final int DATABASE_VERSION = 6;
     private static SQLiteHelper instance;
 
     private SQLiteHelper(Context context) {
@@ -179,6 +179,25 @@ public class SQLiteHelper extends SQLiteOpenHelper {
                 + "user_name TEXT"
                 + ")");
         db.execSQL("CREATE INDEX idx_food_logs_user_id ON food_logs(user_id)");
+
+        db.execSQL("CREATE TABLE food_tags ("
+                + "id TEXT PRIMARY KEY,"
+                + "name TEXT NOT NULL,"
+                + "name_lower TEXT NOT NULL,"
+                + "user_id TEXT,"
+                + "user_name TEXT,"
+                + "UNIQUE(name_lower, user_id)"
+                + ")");
+        db.execSQL("CREATE INDEX idx_food_tags_user_id ON food_tags(user_id)");
+        db.execSQL("CREATE INDEX idx_food_tags_name_lower ON food_tags(name_lower)");
+
+        db.execSQL("CREATE TABLE food_log_tags ("
+                + "food_log_id TEXT NOT NULL,"
+                + "food_tag_id TEXT NOT NULL,"
+                + "PRIMARY KEY (food_log_id, food_tag_id),"
+                + "FOREIGN KEY (food_log_id) REFERENCES food_logs(id) ON DELETE CASCADE,"
+                + "FOREIGN KEY (food_tag_id) REFERENCES food_tags(id) ON DELETE CASCADE"
+                + ")");
     }
 
     @Override
@@ -233,6 +252,25 @@ public class SQLiteHelper extends SQLiteOpenHelper {
             db.execSQL("DROP TABLE food_logs");
             db.execSQL("ALTER TABLE food_logs_tmp RENAME TO food_logs");
             db.execSQL("CREATE INDEX IF NOT EXISTS idx_food_logs_user_id ON food_logs(user_id)");
+        }
+        if (oldVersion < 6) {
+            db.execSQL("CREATE TABLE IF NOT EXISTS food_tags ("
+                    + "id TEXT PRIMARY KEY,"
+                    + "name TEXT NOT NULL,"
+                    + "name_lower TEXT NOT NULL,"
+                    + "user_id TEXT,"
+                    + "user_name TEXT,"
+                    + "UNIQUE(name_lower, user_id)"
+                    + ")");
+            db.execSQL("CREATE INDEX IF NOT EXISTS idx_food_tags_user_id ON food_tags(user_id)");
+            db.execSQL("CREATE INDEX IF NOT EXISTS idx_food_tags_name_lower ON food_tags(name_lower)");
+            db.execSQL("CREATE TABLE IF NOT EXISTS food_log_tags ("
+                    + "food_log_id TEXT NOT NULL,"
+                    + "food_tag_id TEXT NOT NULL,"
+                    + "PRIMARY KEY (food_log_id, food_tag_id),"
+                    + "FOREIGN KEY (food_log_id) REFERENCES food_logs(id) ON DELETE CASCADE,"
+                    + "FOREIGN KEY (food_tag_id) REFERENCES food_tags(id) ON DELETE CASCADE"
+                    + ")");
         }
     }
 
