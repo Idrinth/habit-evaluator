@@ -27,22 +27,24 @@
 	}
 </script>
 
-<nav>
-	<div class="nav-inner">
-		<a href="/" class="logo"><img src="/logo.svg" alt="Habit Evaluator" class="logo-icon" />Habit Evaluator</a>
-		<div class="nav-links">
-			<a href="/features">Features</a>
-			<a href="/docs">Setup Guide</a>
-			<a href="/docs/api">API Reference</a>
-			<select class="theme-select" value={themeMode} onchange={handleThemeChange}>
-				<option value="system">System</option>
-				<option value="light">Light</option>
-				<option value="dark">Dark</option>
-			</select>
-			<a href="/imprint" class="imprint-link" title="Project legal">i</a>
+<header>
+	<nav>
+		<div class="nav-inner">
+			<a href="/" class="logo"><img src="/logo.svg" alt="Habit Evaluator" class="logo-icon" />Habit Evaluator</a>
+			<div class="nav-links">
+				<a href="/features">Features</a>
+				<a href="/docs">Setup Guide</a>
+				<a href="/docs/api">API Reference</a>
+				<select class="theme-select" value={themeMode} onchange={handleThemeChange}>
+					<option value="system">System</option>
+					<option value="light">Light</option>
+					<option value="dark">Dark</option>
+				</select>
+				<a href="/imprint" class="imprint-link" title="Project legal">i</a>
+			</div>
 		</div>
-	</div>
-</nav>
+	</nav>
+</header>
 
 <main>
 	{@render children()}
@@ -55,7 +57,7 @@
 </footer>
 
 <style>
-	nav {
+	header {
 		border-bottom: 1px solid var(--color-border);
 		padding: 0.75rem 1.5rem;
 		position: sticky;
