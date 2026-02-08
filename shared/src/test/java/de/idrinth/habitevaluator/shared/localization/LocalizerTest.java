@@ -3,6 +3,8 @@ package de.idrinth.habitevaluator.shared.localization;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.InputStream;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class LocalizerTest {
@@ -11,12 +13,18 @@ class LocalizerTest {
 
     @BeforeEach
     void setUp() {
-        localizer = new Localizer() {
+        ResourceStreamProvider testProvider = new ResourceStreamProvider() {
             @Override
-            java.io.InputStream getResourceStream(String path) {
-                return super.getResourceStream(path.replace("localization/", "test-localization/"));
+            public InputStream getResourceStream(String path) {
+                String testPath = path.replace("localization/", "test-localization/");
+                ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+                if (classLoader == null) {
+                    classLoader = getClass().getClassLoader();
+                }
+                return classLoader.getResourceAsStream(testPath);
             }
         };
+        localizer = new Localizer(testProvider);
     }
 
     @Test

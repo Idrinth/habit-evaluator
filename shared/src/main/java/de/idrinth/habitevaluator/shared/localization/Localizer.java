@@ -36,8 +36,14 @@ public class Localizer {
     private static final String GENERAL_MODULE = "general";
 
     private final ConcurrentHashMap<String, Map<String, Map<String, String>>> languages = new ConcurrentHashMap<>();
+    private final ResourceStreamProvider resourceStreamProvider;
 
     public Localizer() {
+        this(new ResourceStreamProvider());
+    }
+
+    public Localizer(ResourceStreamProvider resourceStreamProvider) {
+        this.resourceStreamProvider = resourceStreamProvider;
         load(DEFAULT_LANGUAGE);
     }
 
@@ -110,7 +116,7 @@ public class Localizer {
             return;
         }
         String path = "localization/" + language + ".yml";
-        try (InputStream stream = getResourceStream(path)) {
+        try (InputStream stream = resourceStreamProvider.getResourceStream(path)) {
             if (stream == null) {
                 LOG.debug("No localization file found for language: {}", language);
                 languages.put(language, Map.of());
@@ -141,17 +147,4 @@ public class Localizer {
         }
     }
 
-    /**
-     * Returns an input stream for the given classpath resource. Extracted for testability.
-     */
-    InputStream getResourceStream(String path) {
-        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-        if (classLoader == null) {
-            classLoader = Localizer.class.getClassLoader();
-        }
-        if (classLoader == null) {
-            classLoader = ClassLoader.getSystemClassLoader();
-        }
-        return classLoader.getResourceAsStream(path);
-    }
 }
