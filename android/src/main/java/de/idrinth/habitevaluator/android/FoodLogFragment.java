@@ -59,6 +59,7 @@ public class FoodLogFragment extends Fragment implements FoodLogAdapter.OnFoodLo
         setupRecyclerView();
         setupDateTimePicker();
         binding.addFoodLogButton.setOnClickListener(v -> addFoodLog());
+        loadEntries();
     }
 
     @Override
