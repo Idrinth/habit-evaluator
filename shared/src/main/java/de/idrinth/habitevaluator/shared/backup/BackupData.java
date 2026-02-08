@@ -21,6 +21,9 @@ public class BackupData {
     private List<SportLogData> sportLogs = new ArrayList<>();
     private List<FoodLogData> foodLogs = new ArrayList<>();
     private List<FoodTagData> foodTags = new ArrayList<>();
+    private List<EmotionPairData> emotionPairs = new ArrayList<>();
+    private List<EmotionEntryData> emotionEntries = new ArrayList<>();
+    private ReminderSettingsData reminderSettings;
 
     public String getBackupDate() {
         return backupDate;
@@ -100,6 +103,30 @@ public class BackupData {
 
     public void setFoodTags(List<FoodTagData> foodTags) {
         this.foodTags = foodTags;
+    }
+
+    public List<EmotionPairData> getEmotionPairs() {
+        return emotionPairs;
+    }
+
+    public void setEmotionPairs(List<EmotionPairData> emotionPairs) {
+        this.emotionPairs = emotionPairs;
+    }
+
+    public List<EmotionEntryData> getEmotionEntries() {
+        return emotionEntries;
+    }
+
+    public void setEmotionEntries(List<EmotionEntryData> emotionEntries) {
+        this.emotionEntries = emotionEntries;
+    }
+
+    public ReminderSettingsData getReminderSettings() {
+        return reminderSettings;
+    }
+
+    public void setReminderSettings(ReminderSettingsData reminderSettings) {
+        this.reminderSettings = reminderSettings;
     }
 
     public static class UserData {
@@ -402,6 +429,8 @@ public class BackupData {
         private String significance;
         private String eventDate;
         private String createdAt;
+        private String startTime;
+        private String endTime;
 
         public String getId() {
             return id;
@@ -441,6 +470,22 @@ public class BackupData {
 
         public void setCreatedAt(String createdAt) {
             this.createdAt = createdAt;
+        }
+
+        public String getStartTime() {
+            return startTime;
+        }
+
+        public void setStartTime(String startTime) {
+            this.startTime = startTime;
+        }
+
+        public String getEndTime() {
+            return endTime;
+        }
+
+        public void setEndTime(String endTime) {
+            this.endTime = endTime;
         }
     }
 
@@ -678,6 +723,168 @@ public class BackupData {
 
         public void setName(String name) {
             this.name = name;
+        }
+    }
+
+    public static class EmotionPairData {
+        private String id;
+        private String negativeLabel;
+        private String positiveLabel;
+
+        public String getId() {
+            return id;
+        }
+
+        public void setId(String id) {
+            this.id = id;
+        }
+
+        public String getNegativeLabel() {
+            return negativeLabel;
+        }
+
+        public void setNegativeLabel(String negativeLabel) {
+            this.negativeLabel = negativeLabel;
+        }
+
+        public String getPositiveLabel() {
+            return positiveLabel;
+        }
+
+        public void setPositiveLabel(String positiveLabel) {
+            this.positiveLabel = positiveLabel;
+        }
+    }
+
+    public static class EmotionEntryData {
+        private String id;
+        private String emotionPairId;
+        private int strength;
+        private String recordedAt;
+        private String notes;
+
+        public String getId() {
+            return id;
+        }
+
+        public void setId(String id) {
+            this.id = id;
+        }
+
+        public String getEmotionPairId() {
+            return emotionPairId;
+        }
+
+        public void setEmotionPairId(String emotionPairId) {
+            this.emotionPairId = emotionPairId;
+        }
+
+        public int getStrength() {
+            return strength;
+        }
+
+        public void setStrength(int strength) {
+            this.strength = strength;
+        }
+
+        public String getRecordedAt() {
+            return recordedAt;
+        }
+
+        public void setRecordedAt(String recordedAt) {
+            this.recordedAt = recordedAt;
+        }
+
+        public String getNotes() {
+            return notes;
+        }
+
+        public void setNotes(String notes) {
+            this.notes = notes;
+        }
+    }
+
+    public static class ReminderSettingsData {
+        private String id;
+        private boolean sleepReminderEnabled;
+        private String sleepReminderTime;
+        private boolean diaryReminderEnabled;
+        private String diaryReminderTime;
+        private boolean emotionReminderEnabled;
+        private int emotionReminderCount;
+        private String wakingHoursStart;
+        private String wakingHoursEnd;
+
+        public String getId() {
+            return id;
+        }
+
+        public void setId(String id) {
+            this.id = id;
+        }
+
+        public boolean isSleepReminderEnabled() {
+            return sleepReminderEnabled;
+        }
+
+        public void setSleepReminderEnabled(boolean sleepReminderEnabled) {
+            this.sleepReminderEnabled = sleepReminderEnabled;
+        }
+
+        public String getSleepReminderTime() {
+            return sleepReminderTime;
+        }
+
+        public void setSleepReminderTime(String sleepReminderTime) {
+            this.sleepReminderTime = sleepReminderTime;
+        }
+
+        public boolean isDiaryReminderEnabled() {
+            return diaryReminderEnabled;
+        }
+
+        public void setDiaryReminderEnabled(boolean diaryReminderEnabled) {
+            this.diaryReminderEnabled = diaryReminderEnabled;
+        }
+
+        public String getDiaryReminderTime() {
+            return diaryReminderTime;
+        }
+
+        public void setDiaryReminderTime(String diaryReminderTime) {
+            this.diaryReminderTime = diaryReminderTime;
+        }
+
+        public boolean isEmotionReminderEnabled() {
+            return emotionReminderEnabled;
+        }
+
+        public void setEmotionReminderEnabled(boolean emotionReminderEnabled) {
+            this.emotionReminderEnabled = emotionReminderEnabled;
+        }
+
+        public int getEmotionReminderCount() {
+            return emotionReminderCount;
+        }
+
+        public void setEmotionReminderCount(int emotionReminderCount) {
+            this.emotionReminderCount = emotionReminderCount;
+        }
+
+        public String getWakingHoursStart() {
+            return wakingHoursStart;
+        }
+
+        public void setWakingHoursStart(String wakingHoursStart) {
+            this.wakingHoursStart = wakingHoursStart;
+        }
+
+        public String getWakingHoursEnd() {
+            return wakingHoursEnd;
+        }
+
+        public void setWakingHoursEnd(String wakingHoursEnd) {
+            this.wakingHoursEnd = wakingHoursEnd;
         }
     }
 }

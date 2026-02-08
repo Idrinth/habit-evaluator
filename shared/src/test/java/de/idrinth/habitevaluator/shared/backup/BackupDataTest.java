@@ -25,6 +25,11 @@ class BackupDataTest {
         assertTrue(data.getDiaryEntries().isEmpty());
         assertNotNull(data.getSleepEntries());
         assertTrue(data.getSleepEntries().isEmpty());
+        assertNotNull(data.getEmotionPairs());
+        assertTrue(data.getEmotionPairs().isEmpty());
+        assertNotNull(data.getEmotionEntries());
+        assertTrue(data.getEmotionEntries().isEmpty());
+        assertNull(data.getReminderSettings());
     }
 
     @Test
@@ -180,12 +185,16 @@ class BackupDataTest {
         entry.setSignificance("MAJOR");
         entry.setEventDate("2026-02-01");
         entry.setCreatedAt("2026-02-01T10:00:00");
+        entry.setStartTime("09:00");
+        entry.setEndTime("10:30");
 
         assertEquals("d1", entry.getId());
         assertEquals("Good day", entry.getDescription());
         assertEquals("MAJOR", entry.getSignificance());
         assertEquals("2026-02-01", entry.getEventDate());
         assertEquals("2026-02-01T10:00:00", entry.getCreatedAt());
+        assertEquals("09:00", entry.getStartTime());
+        assertEquals("10:30", entry.getEndTime());
     }
 
     @Test
@@ -222,5 +231,92 @@ class BackupDataTest {
         entries.add(new BackupData.SleepEntryData());
         data.setSleepEntries(entries);
         assertEquals(1, data.getSleepEntries().size());
+    }
+
+    @Test
+    void testEmotionPairData() {
+        BackupData.EmotionPairData pair = new BackupData.EmotionPairData();
+        pair.setId("ep1");
+        pair.setNegativeLabel("Sad");
+        pair.setPositiveLabel("Happy");
+
+        assertEquals("ep1", pair.getId());
+        assertEquals("Sad", pair.getNegativeLabel());
+        assertEquals("Happy", pair.getPositiveLabel());
+    }
+
+    @Test
+    void testSetEmotionPairs() {
+        BackupData data = new BackupData();
+        List<BackupData.EmotionPairData> pairs = new ArrayList<>();
+        BackupData.EmotionPairData pair = new BackupData.EmotionPairData();
+        pair.setNegativeLabel("Anxious");
+        pair.setPositiveLabel("Calm");
+        pairs.add(pair);
+        data.setEmotionPairs(pairs);
+        assertEquals(1, data.getEmotionPairs().size());
+        assertEquals("Anxious", data.getEmotionPairs().get(0).getNegativeLabel());
+    }
+
+    @Test
+    void testEmotionEntryData() {
+        BackupData.EmotionEntryData entry = new BackupData.EmotionEntryData();
+        entry.setId("ee1");
+        entry.setEmotionPairId("ep1");
+        entry.setStrength(7);
+        entry.setRecordedAt("2026-02-01T14:30:00");
+        entry.setNotes("Feeling good");
+
+        assertEquals("ee1", entry.getId());
+        assertEquals("ep1", entry.getEmotionPairId());
+        assertEquals(7, entry.getStrength());
+        assertEquals("2026-02-01T14:30:00", entry.getRecordedAt());
+        assertEquals("Feeling good", entry.getNotes());
+    }
+
+    @Test
+    void testSetEmotionEntries() {
+        BackupData data = new BackupData();
+        List<BackupData.EmotionEntryData> entries = new ArrayList<>();
+        entries.add(new BackupData.EmotionEntryData());
+        data.setEmotionEntries(entries);
+        assertEquals(1, data.getEmotionEntries().size());
+    }
+
+    @Test
+    void testReminderSettingsData() {
+        BackupData.ReminderSettingsData settings = new BackupData.ReminderSettingsData();
+        settings.setId("rs1");
+        settings.setSleepReminderEnabled(true);
+        settings.setSleepReminderTime("08:00");
+        settings.setDiaryReminderEnabled(true);
+        settings.setDiaryReminderTime("20:00");
+        settings.setEmotionReminderEnabled(true);
+        settings.setEmotionReminderCount(5);
+        settings.setWakingHoursStart("07:00");
+        settings.setWakingHoursEnd("22:00");
+
+        assertEquals("rs1", settings.getId());
+        assertTrue(settings.isSleepReminderEnabled());
+        assertEquals("08:00", settings.getSleepReminderTime());
+        assertTrue(settings.isDiaryReminderEnabled());
+        assertEquals("20:00", settings.getDiaryReminderTime());
+        assertTrue(settings.isEmotionReminderEnabled());
+        assertEquals(5, settings.getEmotionReminderCount());
+        assertEquals("07:00", settings.getWakingHoursStart());
+        assertEquals("22:00", settings.getWakingHoursEnd());
+    }
+
+    @Test
+    void testSetReminderSettings() {
+        BackupData data = new BackupData();
+        assertNull(data.getReminderSettings());
+
+        BackupData.ReminderSettingsData settings = new BackupData.ReminderSettingsData();
+        settings.setSleepReminderEnabled(true);
+        data.setReminderSettings(settings);
+
+        assertNotNull(data.getReminderSettings());
+        assertTrue(data.getReminderSettings().isSleepReminderEnabled());
     }
 }
