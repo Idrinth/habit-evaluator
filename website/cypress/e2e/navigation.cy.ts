@@ -9,7 +9,11 @@ describe('Navigation', () => {
 		cy.intercept('GET', '/api/habits/predict', { statusCode: 200, body: [] });
 		cy.intercept('GET', '/api/reminder-settings', { statusCode: 200, body: {} });
 
-		cy.visit('/habits/home');
+		cy.visit('/habits/home', {
+			onBeforeLoad(win) {
+				win.localStorage.setItem('firstStartCompleted', 'true');
+			}
+		});
 	});
 
 	it('shows the navigation bar when logged in', () => {
