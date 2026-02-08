@@ -2,7 +2,7 @@ describe('Navigation', () => {
 	beforeEach(() => {
 		cy.intercept('GET', '/api/auth/me', {
 			statusCode: 200,
-			body: { userId: '1', username: 'demo' }
+			body: { userId: '1', username: 'demo', success: true }
 		});
 		cy.intercept('GET', '/api/habits', { statusCode: 200, body: [] });
 		cy.intercept('GET', '/api/categories', { statusCode: 200, body: [] });
