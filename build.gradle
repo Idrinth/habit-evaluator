@@ -15,47 +15,70 @@ subprojects {
         google()
     }
 
-    afterEvaluate {
-        if (plugins.hasPlugin('java') || plugins.hasPlugin('java-library')) {
-            apply plugin: 'jacoco'
+    pluginManager.withPlugin('java') {
+        apply plugin: 'jacoco'
 
-            java {
-                sourceCompatibility = JavaVersion.VERSION_17
-                targetCompatibility = JavaVersion.VERSION_17
+        java {
+            sourceCompatibility = JavaVersion.VERSION_17
+            targetCompatibility = JavaVersion.VERSION_17
+        }
+
+        test {
+            useJUnitPlatform()
+            finalizedBy jacocoTestReport
+        }
+
+        jacoco {
+            toolVersion = '0.8.11'
+        }
+
+        jacocoTestReport {
+            dependsOn test
+            reports {
+                xml.required = true
+                html.required = true
+                csv.required = false
             }
+        }
 
-            test {
-                useJUnitPlatform()
-                finalizedBy jacocoTestReport
-            }
-
-            jacoco {
-                toolVersion = '0.8.11'
-            }
-
-            jacocoTestReport {
-                dependsOn test
-                reports {
-                    xml.required = true
-                    html.required = true
-                    csv.required = false
-                }
-            }
-
-            jacocoTestCoverageVerification {
-                violationRules {
-                    rule {
-                        limit {
-                            minimum = 0.0
-                        }
+        jacocoTestCoverageVerification {
+            violationRules {
+                rule {
+                    limit {
+                        minimum = 0.0
                     }
                 }
             }
-
-            dependencies {
-                testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
-                testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-            }
         }
+
+        dependencies {
+            testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
+            testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+        }
+    }
+}
+
+def javaModules = [':shared', ':webserver', ':desktop']
+
+tasks.register('jacocoAggregateReport', JacocoReport) {
+    description = 'Generates an aggregate JaCoCo coverage report for all Java modules.'
+    group = 'verification'
+
+    dependsOn javaModules.collect { "${it}:test" }
+
+    additionalClassDirs(files(javaModules.collect { modulePath ->
+        project(modulePath).sourceSets.main.output
+    }))
+    additionalSourceDirs(files(javaModules.collect { modulePath ->
+        project(modulePath).sourceSets.main.allSource.srcDirs
+    }))
+    executionData(files(javaModules.collect { modulePath ->
+        project(modulePath).tasks.named('test').map { it.jacoco.destinationFile }
+    }))
+
+    reports {
+        xml.required = true
+        html.required = true
+        csv.required = false
     }
 }
