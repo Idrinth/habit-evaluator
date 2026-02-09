@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.MultiAutoCompleteTextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -243,6 +244,7 @@ public class FoodLogFragment extends Fragment implements FoodLogAdapter.OnFoodLo
             ArrayAdapter<String> suggestionsAdapter = new ArrayAdapter<>(requireContext(),
                     android.R.layout.simple_dropdown_item_1line, suggestions);
             binding.foodItemsInput.setAdapter(suggestionsAdapter);
+            binding.foodItemsInput.setTokenizer(new MultiAutoCompleteTextView.CommaTokenizer());
         }
     }
 
