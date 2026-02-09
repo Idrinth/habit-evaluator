@@ -88,6 +88,7 @@
     <string name="diary_positive_events">Eventos positivos</string>
     <string name="diary_event_hint">¿Qué cosa positiva sucedió?</string>
     <string name="diary_add_event">Añadir evento</string>
+    <string name="diary_toggle_form">Toggle add entry form</string>
     <string name="diary_minor">Menor</string>
     <string name="diary_normal">Normal</string>
     <string name="diary_major">Mayor</string>
@@ -286,6 +287,7 @@
     <string name="imprint_libraries">Bibliotecas de terceros</string>
     <string name="sport_log_title">Sport Log</string>
     <string name="sport_log_add_entry">Add</string>
+    <string name="sport_log_toggle_form">Toggle add entry form</string>
     <string name="sport_log_activity_name">Activity name (e.g. Running)</string>
     <string name="sport_log_measurement">Measurement (e.g. 5.0)</string>
     <string name="sport_log_measurement_unit">Unit (e.g. km)</string>
@@ -308,6 +310,7 @@
     <string name="diary_navigation_food_description">Track your meals, calories, and carbohydrates</string>
     <string name="food_log_title">Food Log</string>
     <string name="food_log_add_entry">Add</string>
+    <string name="food_log_toggle_form">Toggle add entry form</string>
     <string name="food_log_food_items_hint">Food items (e.g. Rice, Chicken)</string>
     <string name="food_log_kcal_hint">Kcal</string>
     <string name="food_log_carbs_hint">Carbs (g)</string>
@@ -334,6 +337,7 @@
     <string name="medication_notes_hint">Notes (optional)</string>
     <string name="medication_log_recent">Recent Entries</string>
     <string name="medication_log_delete">Delete</string>
+    <string name="medication_log_toggle_form">Toggle add entry form</string>
     <string name="medication_added">Medication added</string>
     <string name="medication_name_required">Please enter a medication name</string>
     <string name="medication_log_entry_added">Medication log entry added</string>
