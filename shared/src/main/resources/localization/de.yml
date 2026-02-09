@@ -329,6 +329,10 @@ medication_log:
   no_entries: "Noch keine Medikamenteneinträge."
   no_medications: "Noch keine Medikamente definiert. Fügen Sie zuerst eines hinzu."
   delete: "Löschen"
+  edit_link: "Wikipedia-Link bearbeiten"
+  edit_link_save: "Speichern"
+  edit_link_cancel: "Abbrechen"
+  link_updated: "Wikipedia-Link aktualisiert"
 
 food_log:
   title: "Ernährungsprotokoll"

@@ -329,6 +329,10 @@ medication_log:
   no_entries: "Aucune entrée de médicament pour l'instant."
   no_medications: "Aucun médicament défini. Ajoutez-en un d'abord."
   delete: "Supprimer"
+  edit_link: "Modifier le lien Wikipédia"
+  edit_link_save: "Enregistrer"
+  edit_link_cancel: "Annuler"
+  link_updated: "Lien Wikipédia mis à jour"
 
 food_log:
   title: "Journal alimentaire"

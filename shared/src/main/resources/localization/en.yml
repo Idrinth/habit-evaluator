@@ -329,6 +329,10 @@ medication_log:
   no_entries: "No medication log entries yet."
   no_medications: "No medications defined yet. Add one first."
   delete: "Delete"
+  edit_link: "Edit Wikipedia Link"
+  edit_link_save: "Save"
+  edit_link_cancel: "Cancel"
+  link_updated: "Wikipedia link updated"
 
 food_log:
   title: "Food Log"

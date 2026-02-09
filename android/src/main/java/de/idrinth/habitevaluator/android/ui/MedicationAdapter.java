@@ -19,14 +19,21 @@ public class MedicationAdapter extends RecyclerView.Adapter<MedicationAdapter.Vi
 
     private final List<Medication> medications;
     private final OnDeleteListener deleteListener;
+    private final OnEditLinkListener editLinkListener;
 
     public interface OnDeleteListener {
         void onDeleteMedication(Medication medication);
     }
 
-    public MedicationAdapter(List<Medication> medications, OnDeleteListener deleteListener) {
+    public interface OnEditLinkListener {
+        void onEditMedicationLink(Medication medication);
+    }
+
+    public MedicationAdapter(List<Medication> medications, OnDeleteListener deleteListener,
+                             OnEditLinkListener editLinkListener) {
         this.medications = medications;
         this.deleteListener = deleteListener;
+        this.editLinkListener = editLinkListener;
     }
 
     @NonNull
@@ -42,6 +49,11 @@ public class MedicationAdapter extends RecyclerView.Adapter<MedicationAdapter.Vi
         Medication medication = medications.get(position);
         holder.nameText.setText(medication.getName());
         holder.provisionTypeText.setText(getProvisionTypeLabel(holder.itemView, medication.getProvisionType()));
+        holder.editButton.setOnClickListener(v -> {
+            if (editLinkListener != null) {
+                editLinkListener.onEditMedicationLink(medication);
+            }
+        });
         holder.deleteButton.setOnClickListener(v -> {
             if (deleteListener != null) {
                 deleteListener.onDeleteMedication(medication);
@@ -73,12 +85,14 @@ public class MedicationAdapter extends RecyclerView.Adapter<MedicationAdapter.Vi
     static class ViewHolder extends RecyclerView.ViewHolder {
         final TextView nameText;
         final TextView provisionTypeText;
+        final ImageButton editButton;
         final ImageButton deleteButton;
 
         ViewHolder(@NonNull View itemView) {
             super(itemView);
             nameText = itemView.findViewById(R.id.medicationName);
             provisionTypeText = itemView.findViewById(R.id.medicationProvisionType);
+            editButton = itemView.findViewById(R.id.editMedicationButton);
             deleteButton = itemView.findViewById(R.id.deleteMedicationButton);
         }
     }

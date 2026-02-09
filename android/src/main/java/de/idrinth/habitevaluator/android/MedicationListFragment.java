@@ -5,10 +5,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
@@ -22,7 +24,7 @@ import de.idrinth.habitevaluator.shared.model.MedicationProvisionType;
 import de.idrinth.habitevaluator.shared.model.User;
 import de.idrinth.habitevaluator.shared.repository.MedicationRepository;
 
-public class MedicationListFragment extends Fragment implements MedicationAdapter.OnDeleteListener {
+public class MedicationListFragment extends Fragment implements MedicationAdapter.OnDeleteListener, MedicationAdapter.OnEditLinkListener {
 
     private FragmentMedicationListBinding binding;
     private MedicationAdapter medicationAdapter;
@@ -55,7 +57,7 @@ public class MedicationListFragment extends Fragment implements MedicationAdapte
     }
 
     private void setupMedicationListRecyclerView() {
-        medicationAdapter = new MedicationAdapter(medications, this);
+        medicationAdapter = new MedicationAdapter(medications, this, this);
         binding.medicationListRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
         binding.medicationListRecyclerView.setAdapter(medicationAdapter);
     }
@@ -125,6 +127,31 @@ public class MedicationListFragment extends Fragment implements MedicationAdapte
         }
         Toast.makeText(requireContext(), R.string.medication_deleted, Toast.LENGTH_SHORT).show();
         loadMedications();
+    }
+
+    @Override
+    public void onEditMedicationLink(Medication medication) {
+        EditText input = new EditText(requireContext());
+        input.setInputType(android.text.InputType.TYPE_TEXT_VARIATION_URI);
+        input.setHint(R.string.medication_wikipedia_hint);
+        if (medication.getWikipediaLink() != null) {
+            input.setText(medication.getWikipediaLink());
+        }
+        new AlertDialog.Builder(requireContext())
+                .setTitle(R.string.medication_edit_link)
+                .setView(input)
+                .setPositiveButton(R.string.medication_edit_link_save, (dialog, which) -> {
+                    String link = input.getText().toString().trim();
+                    medication.setWikipediaLink(link.isEmpty() ? null : link);
+                    MedicationRepository repository = MainActivity.getSharedMedicationRepository();
+                    if (repository != null) {
+                        repository.save(medication);
+                    }
+                    Toast.makeText(requireContext(), R.string.medication_link_updated, Toast.LENGTH_SHORT).show();
+                    loadMedications();
+                })
+                .setNegativeButton(R.string.medication_edit_link_cancel, null)
+                .show();
     }
 
     private void loadMedications() {
