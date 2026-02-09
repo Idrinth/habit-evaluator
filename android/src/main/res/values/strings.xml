@@ -356,6 +356,10 @@
     <string name="medication_log_entry_removed">Medication log entry removed</string>
     <string name="medication_select_required">Please select a medication</string>
     <string name="medication_amount_required">Please enter a valid amount</string>
+    <string name="medication_log_no_medications">No medications available. Please add a medication first.</string>
+    <string name="medication_log_select_medication">Please select a medication</string>
+    <string name="medication_log_amount_required">Please enter a valid amount</string>
+    <string name="medication_provision_type_required">Please select a provision type</string>
     <string name="medication_deleted">Medication deleted</string>
     <string name="diary_navigation_medication_description">Track your medications, dosages, and timing</string>
 </resources>
