@@ -310,6 +310,26 @@ meeting_log:
   no_entries: "Aucune entrée de réunion pour l'instant."
   delete: "Supprimer"
 
+medication_log:
+  title: "Journal des médicaments"
+  add_medication: "Ajouter un médicament"
+  medication_name: "Nom du médicament"
+  medication_name_hint: "p. ex. Ibuprofène, Aspirine"
+  wikipedia_link: "Lien Wikipedia"
+  wikipedia_link_hint: "p. ex. https://fr.wikipedia.org/wiki/Ibuprofène"
+  provision_type: "Type d'administration"
+  provision_pill: "Comprimé (mg)"
+  provision_liquid_drops: "Liquide (gouttes)"
+  provision_liquid_ml: "Liquide (ml)"
+  add_entry: "Ajouter une entrée"
+  amount: "Quantité"
+  amount_hint: "p. ex. 400"
+  date_time: "Date et heure"
+  notes: "Notes"
+  no_entries: "Aucune entrée de médicament pour l'instant."
+  no_medications: "Aucun médicament défini. Ajoutez-en un d'abord."
+  delete: "Supprimer"
+
 food_log:
   title: "Journal alimentaire"
   add_entry: "Ajouter une entrée alimentaire"

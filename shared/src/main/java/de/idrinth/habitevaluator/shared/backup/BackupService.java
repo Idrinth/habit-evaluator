@@ -8,6 +8,9 @@ import de.idrinth.habitevaluator.shared.model.EmotionPair;
 import de.idrinth.habitevaluator.shared.model.Habit;
 import de.idrinth.habitevaluator.shared.model.HabitCategory;
 import de.idrinth.habitevaluator.shared.model.HabitEntry;
+import de.idrinth.habitevaluator.shared.model.Medication;
+import de.idrinth.habitevaluator.shared.model.MedicationLog;
+import de.idrinth.habitevaluator.shared.model.MedicationProvisionType;
 import de.idrinth.habitevaluator.shared.model.ReminderSettings;
 import de.idrinth.habitevaluator.shared.model.ScoringRule;
 import de.idrinth.habitevaluator.shared.model.MeetingEntry;
@@ -21,6 +24,8 @@ import de.idrinth.habitevaluator.shared.repository.EmotionPairRepository;
 import de.idrinth.habitevaluator.shared.repository.FoodLogRepository;
 import de.idrinth.habitevaluator.shared.repository.HabitCategoryRepository;
 import de.idrinth.habitevaluator.shared.repository.HabitRepository;
+import de.idrinth.habitevaluator.shared.repository.MedicationLogRepository;
+import de.idrinth.habitevaluator.shared.repository.MedicationRepository;
 import de.idrinth.habitevaluator.shared.repository.MeetingEntryRepository;
 import de.idrinth.habitevaluator.shared.repository.ReminderSettingsRepository;
 import de.idrinth.habitevaluator.shared.repository.SleepEntryRepository;
@@ -302,6 +307,40 @@ public class BackupService {
         }
     }
 
+    public MergeResult mergeBackupData(BackupData backupData, User user,
+                                       HabitRepository habitRepository,
+                                       HabitCategoryRepository categoryRepository,
+                                       DiaryEntryRepository diaryEntryRepository,
+                                       SleepEntryRepository sleepEntryRepository,
+                                       SportLogRepository sportLogRepository,
+                                       FoodLogRepository foodLogRepository,
+                                       de.idrinth.habitevaluator.shared.repository.FoodTagRepository foodTagRepository,
+                                       EmotionPairRepository emotionPairRepository,
+                                       EmotionEntryRepository emotionEntryRepository,
+                                       ReminderSettingsRepository reminderSettingsRepository,
+                                       MedicationRepository medicationRepository,
+                                       MedicationLogRepository medicationLogRepository,
+                                       RestoreOptions options) throws BackupException {
+        if (user == null) {
+            throw new BackupException("User must not be null for merge");
+        }
+        if (options == null) {
+            options = RestoreOptions.all();
+        }
+
+        try {
+            return doMerge(backupData, user, habitRepository, categoryRepository,
+                    diaryEntryRepository, sleepEntryRepository, sportLogRepository,
+                    foodLogRepository, foodTagRepository, emotionPairRepository,
+                    emotionEntryRepository, null, reminderSettingsRepository,
+                    medicationRepository, medicationLogRepository, options);
+        } catch (BackupException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new BackupException("Failed to merge backup data", e);
+        }
+    }
+
     private MergeResult doMerge(BackupData backupData, User user,
                                 HabitRepository habitRepository,
                                 HabitCategoryRepository categoryRepository,
@@ -313,7 +352,7 @@ public class BackupService {
                                 RestoreOptions options) throws BackupException {
         return doMerge(backupData, user, habitRepository, categoryRepository,
                 diaryEntryRepository, sleepEntryRepository, sportLogRepository,
-                foodLogRepository, foodTagRepository, null, null, null, null, options);
+                foodLogRepository, foodTagRepository, null, null, null, options);
     }
 
     private MergeResult doMerge(BackupData backupData, User user,
@@ -331,7 +370,7 @@ public class BackupService {
         return doMerge(backupData, user, habitRepository, categoryRepository,
                 diaryEntryRepository, sleepEntryRepository, sportLogRepository,
                 foodLogRepository, foodTagRepository, emotionPairRepository,
-                emotionEntryRepository, null, reminderSettingsRepository, options);
+                emotionEntryRepository, null, reminderSettingsRepository, null, null, options);
     }
 
     private MergeResult doMerge(BackupData backupData, User user,
@@ -346,6 +385,8 @@ public class BackupService {
                                 EmotionEntryRepository emotionEntryRepository,
                                 MeetingEntryRepository meetingEntryRepository,
                                 ReminderSettingsRepository reminderSettingsRepository,
+                                MedicationRepository medicationRepository,
+                                MedicationLogRepository medicationLogRepository,
                                 RestoreOptions options) throws BackupException {
         int categoriesAdded = 0;
         int habitsAdded = 0;
@@ -731,6 +772,75 @@ public class BackupService {
             }
         }
 
+        // Merge medications
+        int medicationsAdded = 0;
+        Map<String, String> medicationIdMapping = new HashMap<>();
+        if (options.isRestoreMedicationData() && medicationRepository != null
+                && backupData.getMedications() != null) {
+            List<Medication> existingMedications = medicationRepository.findByUserId(user.getId());
+            Map<String, Medication> existingByNameAndType = new HashMap<>();
+            for (Medication med : existingMedications) {
+                String key = med.getName() + "|" + (med.getProvisionType() != null ? med.getProvisionType().name() : "");
+                existingByNameAndType.put(key, med);
+            }
+
+            for (BackupData.MedicationData medData : backupData.getMedications()) {
+                String key = medData.getName() + "|" + (medData.getProvisionType() != null ? medData.getProvisionType() : "");
+                Medication existing = existingByNameAndType.get(key);
+                if (existing != null) {
+                    medicationIdMapping.put(medData.getId(), existing.getId());
+                } else {
+                    MedicationProvisionType provisionType = null;
+                    if (medData.getProvisionType() != null) {
+                        provisionType = MedicationProvisionType.valueOf(medData.getProvisionType());
+                    }
+                    Medication newMed = new Medication(medData.getName(), provisionType);
+                    newMed.setWikipediaLink(medData.getWikipediaLink());
+                    newMed.setUser(user);
+                    newMed = medicationRepository.save(newMed);
+                    medicationIdMapping.put(medData.getId(), newMed.getId());
+                    medicationsAdded++;
+                }
+            }
+        }
+
+        // Merge medication logs
+        int medicationLogsAdded = 0;
+        if (options.isRestoreMedicationData() && medicationLogRepository != null
+                && medicationRepository != null && backupData.getMedicationLogs() != null) {
+            List<MedicationLog> existingMedicationLogs = medicationLogRepository.findByUserId(user.getId());
+            Set<String> existingMedicationLogIds = new HashSet<>();
+            for (MedicationLog entry : existingMedicationLogs) {
+                existingMedicationLogIds.add(entry.getId());
+            }
+
+            for (BackupData.MedicationLogData logData : backupData.getMedicationLogs()) {
+                if (!existingMedicationLogIds.contains(logData.getId())) {
+                    String mappedMedId = medicationIdMapping.get(logData.getMedicationId());
+                    if (mappedMedId == null) {
+                        mappedMedId = logData.getMedicationId();
+                    }
+                    java.util.Optional<Medication> medOpt = medicationRepository.findById(mappedMedId);
+                    if (medOpt.isPresent()) {
+                        MedicationLog newLog = new MedicationLog();
+                        newLog.setId(logData.getId());
+                        newLog.setMedication(medOpt.get());
+                        newLog.setAmount(logData.getAmount());
+                        if (logData.getTakenAt() != null) {
+                            newLog.setTakenAt(LocalDateTime.parse(logData.getTakenAt()));
+                        }
+                        newLog.setNotes(logData.getNotes());
+                        if (logData.getCreatedAt() != null) {
+                            newLog.setCreatedAt(LocalDateTime.parse(logData.getCreatedAt()));
+                        }
+                        newLog.setUser(user);
+                        medicationLogRepository.save(newLog);
+                        medicationLogsAdded++;
+                    }
+                }
+            }
+        }
+
         // Merge reminder settings
         boolean reminderSettingsRestored = false;
         if (options.isRestoreReminderSettings() && reminderSettingsRepository != null
@@ -762,7 +872,7 @@ public class BackupService {
 
         MergeResult result = new MergeResult(categoriesAdded, habitsAdded, habitsMerged,
                 entriesAdded, diaryEntriesAdded, sleepEntriesAdded, sportLogsAdded, foodLogsAdded,
-                emotionPairsAdded, emotionEntriesAdded, meetingEntriesAdded,
+                emotionPairsAdded, emotionEntriesAdded, meetingEntriesAdded, medicationsAdded, medicationLogsAdded,
                 reminderSettingsRestored);
         logger.info("Backup merged: {}", result);
         return result;
@@ -1045,7 +1155,9 @@ public class BackupService {
                                          EmotionPairRepository emotionPairRepository,
                                          EmotionEntryRepository emotionEntryRepository,
                                          MeetingEntryRepository meetingEntryRepository,
-                                         ReminderSettingsRepository reminderSettingsRepository) {
+                                         ReminderSettingsRepository reminderSettingsRepository,
+                                         MedicationRepository medicationRepository,
+                                         MedicationLogRepository medicationLogRepository) {
         BackupData data = collectBackupData(user, habitRepository, categoryRepository,
                 diaryEntryRepository, sleepEntryRepository, sportLogRepository, foodLogRepository,
                 emotionPairRepository, emotionEntryRepository, reminderSettingsRepository);
@@ -1070,6 +1182,40 @@ public class BackupService {
                     entryData.setCreatedAt(entry.getCreatedAt().toString());
                 }
                 data.getMeetingEntries().add(entryData);
+            }
+        }
+
+        if (medicationRepository != null) {
+            List<Medication> medications = medicationRepository.findByUserId(user.getId());
+            for (Medication medication : medications) {
+                BackupData.MedicationData medData = new BackupData.MedicationData();
+                medData.setId(medication.getId());
+                medData.setName(medication.getName());
+                medData.setWikipediaLink(medication.getWikipediaLink());
+                if (medication.getProvisionType() != null) {
+                    medData.setProvisionType(medication.getProvisionType().name());
+                }
+                data.getMedications().add(medData);
+            }
+        }
+
+        if (medicationLogRepository != null) {
+            List<MedicationLog> medicationLogs = medicationLogRepository.findByUserId(user.getId());
+            for (MedicationLog log : medicationLogs) {
+                BackupData.MedicationLogData logData = new BackupData.MedicationLogData();
+                logData.setId(log.getId());
+                if (log.getMedication() != null) {
+                    logData.setMedicationId(log.getMedication().getId());
+                }
+                logData.setAmount(log.getAmount());
+                if (log.getTakenAt() != null) {
+                    logData.setTakenAt(log.getTakenAt().toString());
+                }
+                logData.setNotes(log.getNotes());
+                if (log.getCreatedAt() != null) {
+                    logData.setCreatedAt(log.getCreatedAt().toString());
+                }
+                data.getMedicationLogs().add(logData);
             }
         }
 

@@ -337,4 +337,25 @@
     <string name="food_log_kcal_required">Please enter a valid kcal value</string>
     <string name="food_log_kcal_invalid">Please enter a valid kcal value</string>
     <string name="food_log_carbs_invalid">Please enter a valid carbohydrates value</string>
+    <string name="medication_log_title">Medication Log</string>
+    <string name="medication_add_medication">Add Medication</string>
+    <string name="medication_name_hint">Medication name</string>
+    <string name="medication_wikipedia_hint">Wikipedia link (optional)</string>
+    <string name="medication_provision_pill">Pill (mg)</string>
+    <string name="medication_provision_liquid_drops">Liquid (drops)</string>
+    <string name="medication_provision_liquid_ml">Liquid (ml)</string>
+    <string name="medication_log_add_entry">Add Log Entry</string>
+    <string name="medication_amount_hint">Amount</string>
+    <string name="medication_datetime_hint">Date and time</string>
+    <string name="medication_notes_hint">Notes (optional)</string>
+    <string name="medication_log_recent">Recent Entries</string>
+    <string name="medication_log_delete">Delete</string>
+    <string name="medication_added">Medication added</string>
+    <string name="medication_name_required">Please enter a medication name</string>
+    <string name="medication_log_entry_added">Medication log entry added</string>
+    <string name="medication_log_entry_removed">Medication log entry removed</string>
+    <string name="medication_select_required">Please select a medication</string>
+    <string name="medication_amount_required">Please enter a valid amount</string>
+    <string name="medication_deleted">Medication deleted</string>
+    <string name="diary_navigation_medication_description">Track your medications, dosages, and timing</string>
 </resources>

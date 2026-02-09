@@ -16,6 +16,8 @@ public class MergeResult {
     private final int emotionPairsAdded;
     private final int emotionEntriesAdded;
     private final int meetingEntriesAdded;
+    private final int medicationsAdded;
+    private final int medicationLogsAdded;
     private final boolean reminderSettingsRestored;
 
     public MergeResult(int categoriesAdded, int habitsAdded, int habitsMerged,
@@ -46,7 +48,7 @@ public class MergeResult {
                        boolean reminderSettingsRestored) {
         this(categoriesAdded, habitsAdded, habitsMerged, entriesAdded,
                 diaryEntriesAdded, sleepEntriesAdded, sportLogsAdded, foodLogsAdded,
-                emotionPairsAdded, emotionEntriesAdded, 0, reminderSettingsRestored);
+                emotionPairsAdded, emotionEntriesAdded, 0, 0, 0, reminderSettingsRestored);
     }
 
     public MergeResult(int categoriesAdded, int habitsAdded, int habitsMerged,
@@ -54,6 +56,7 @@ public class MergeResult {
                        int sportLogsAdded, int foodLogsAdded,
                        int emotionPairsAdded, int emotionEntriesAdded,
                        int meetingEntriesAdded,
+                       int medicationsAdded, int medicationLogsAdded,
                        boolean reminderSettingsRestored) {
         this.categoriesAdded = categoriesAdded;
         this.habitsAdded = habitsAdded;
@@ -66,6 +69,8 @@ public class MergeResult {
         this.emotionPairsAdded = emotionPairsAdded;
         this.emotionEntriesAdded = emotionEntriesAdded;
         this.meetingEntriesAdded = meetingEntriesAdded;
+        this.medicationsAdded = medicationsAdded;
+        this.medicationLogsAdded = medicationLogsAdded;
         this.reminderSettingsRestored = reminderSettingsRestored;
     }
 
@@ -113,6 +118,14 @@ public class MergeResult {
         return meetingEntriesAdded;
     }
 
+    public int getMedicationsAdded() {
+        return medicationsAdded;
+    }
+
+    public int getMedicationLogsAdded() {
+        return medicationLogsAdded;
+    }
+
     public boolean isReminderSettingsRestored() {
         return reminderSettingsRestored;
     }
@@ -121,6 +134,7 @@ public class MergeResult {
         return categoriesAdded + habitsAdded + habitsMerged + diaryEntriesAdded
                 + sleepEntriesAdded + sportLogsAdded + foodLogsAdded
                 + emotionPairsAdded + emotionEntriesAdded + meetingEntriesAdded
+                + medicationsAdded + medicationLogsAdded
                 + (reminderSettingsRestored ? 1 : 0);
     }
 
@@ -138,6 +152,8 @@ public class MergeResult {
                 + ", emotion pairs added=" + emotionPairsAdded
                 + ", emotion entries added=" + emotionEntriesAdded
                 + ", meeting entries added=" + meetingEntriesAdded
+                + ", medications added=" + medicationsAdded
+                + ", medication logs added=" + medicationLogsAdded
                 + ", reminder settings restored=" + reminderSettingsRestored
                 + '}';
     }
