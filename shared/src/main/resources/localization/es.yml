@@ -310,6 +310,26 @@ meeting_log:
   no_entries: "Aún no hay entradas de reuniones."
   delete: "Eliminar"
 
+medication_log:
+  title: "Registro de medicación"
+  add_medication: "Añadir medicamento"
+  medication_name: "Nombre del medicamento"
+  medication_name_hint: "p. ej. Ibuprofeno, Aspirina"
+  wikipedia_link: "Enlace de Wikipedia"
+  wikipedia_link_hint: "p. ej. https://es.wikipedia.org/wiki/Ibuprofeno"
+  provision_type: "Tipo de administración"
+  provision_pill: "Pastilla (mg)"
+  provision_liquid_drops: "Líquido (gotas)"
+  provision_liquid_ml: "Líquido (ml)"
+  add_entry: "Añadir entrada"
+  amount: "Cantidad"
+  amount_hint: "p. ej. 400"
+  date_time: "Fecha y hora"
+  notes: "Notas"
+  no_entries: "Aún no hay entradas de medicación."
+  no_medications: "Aún no hay medicamentos definidos. Añada uno primero."
+  delete: "Eliminar"
+
 food_log:
   title: "Registro de alimentación"
   add_entry: "Añadir entrada de alimentación"

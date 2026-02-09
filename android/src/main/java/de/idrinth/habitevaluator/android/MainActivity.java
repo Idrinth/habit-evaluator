@@ -84,6 +84,9 @@ public class MainActivity extends AppCompatActivity {
     private static SportLogRepository sharedSportLogRepository;
     private static de.idrinth.habitevaluator.shared.repository.FoodLogRepository sharedFoodLogRepository;
     private static de.idrinth.habitevaluator.android.persistence.SQLiteFoodTagRepository sharedFoodTagRepository;
+    private static de.idrinth.habitevaluator.shared.repository.MedicationRepository sharedMedicationRepository;
+    private static de.idrinth.habitevaluator.shared.repository.MedicationLogRepository sharedMedicationLogRepository;
+    private static List<de.idrinth.habitevaluator.shared.model.Medication> sharedMedications = new ArrayList<>();
     private static User sharedLocalUser;
     private static String editHabitId;
     private static String pointDevelopmentHabitId;
@@ -189,6 +192,18 @@ public class MainActivity extends AppCompatActivity {
 
     public static de.idrinth.habitevaluator.android.persistence.SQLiteFoodTagRepository getSharedFoodTagRepository() {
         return sharedFoodTagRepository;
+    }
+
+    public static de.idrinth.habitevaluator.shared.repository.MedicationRepository getSharedMedicationRepository() {
+        return sharedMedicationRepository;
+    }
+
+    public static de.idrinth.habitevaluator.shared.repository.MedicationLogRepository getSharedMedicationLogRepository() {
+        return sharedMedicationLogRepository;
+    }
+
+    public static List<de.idrinth.habitevaluator.shared.model.Medication> getSharedMedications() {
+        return sharedMedications;
     }
 
     public static void saveAllHabits() {
@@ -364,6 +379,14 @@ public class MainActivity extends AppCompatActivity {
                             binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_DIARY, false);
                         }
                         break;
+                    case ScreenPagerAdapter.PAGE_MEDICATION_LOG:
+                        if (isProgrammaticNavigation) {
+                            isProgrammaticNavigation = false;
+                            binding.bottomNavigation.setSelectedItemId(R.id.nav_diary);
+                        } else {
+                            binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_DIARY, false);
+                        }
+                        break;
                     case ScreenPagerAdapter.PAGE_HOME:
                         binding.bottomNavigation.setSelectedItemId(R.id.nav_home);
                         break;
@@ -464,6 +487,11 @@ public class MainActivity extends AppCompatActivity {
         binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_FOOD_LOG, true);
     }
 
+    public void navigateToMedicationLog() {
+        isProgrammaticNavigation = true;
+        binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_MEDICATION_LOG, true);
+    }
+
     public void onSettingsChanged() {
         initializeStorage();
     }
@@ -500,6 +528,8 @@ public class MainActivity extends AppCompatActivity {
         SQLiteSportLogRepository sportLogRepo = new SQLiteSportLogRepository(dbHelper);
         de.idrinth.habitevaluator.android.persistence.SQLiteFoodLogRepository foodLogRepo = new de.idrinth.habitevaluator.android.persistence.SQLiteFoodLogRepository(dbHelper);
         de.idrinth.habitevaluator.android.persistence.SQLiteFoodTagRepository foodTagRepo = new de.idrinth.habitevaluator.android.persistence.SQLiteFoodTagRepository(dbHelper);
+        de.idrinth.habitevaluator.android.persistence.SQLiteMedicationRepository medicationRepo = new de.idrinth.habitevaluator.android.persistence.SQLiteMedicationRepository(dbHelper);
+        de.idrinth.habitevaluator.android.persistence.SQLiteMedicationLogRepository medicationLogRepo = new de.idrinth.habitevaluator.android.persistence.SQLiteMedicationLogRepository(dbHelper, medicationRepo);
 
         currentUser = getOrCreateLocalUser();
         sharedHabitRepository = habitRepository;
@@ -516,6 +546,8 @@ public class MainActivity extends AppCompatActivity {
         sharedSportLogRepository = sportLogRepo;
         sharedFoodLogRepository = foodLogRepo;
         sharedFoodTagRepository = foodTagRepo;
+        sharedMedicationRepository = medicationRepo;
+        sharedMedicationLogRepository = medicationLogRepo;
 
         // Migrate legacy JSON files to SQLite if they exist
         java.io.File storageDir = new java.io.File(getFilesDir(), "habit-data");
@@ -535,6 +567,14 @@ public class MainActivity extends AppCompatActivity {
 
         loadSleepEntries();
         loadEmotionPairs();
+        loadMedications();
+    }
+
+    private void loadMedications() {
+        sharedMedications.clear();
+        if (sharedMedicationRepository != null && sharedLocalUser != null) {
+            sharedMedications.addAll(sharedMedicationRepository.findByUserId(sharedLocalUser.getId()));
+        }
     }
 
     private User getOrCreateLocalUser() {
@@ -567,6 +607,8 @@ public class MainActivity extends AppCompatActivity {
         SQLiteSportLogRepository sportLogRepo = new SQLiteSportLogRepository(dbHelper);
         de.idrinth.habitevaluator.android.persistence.SQLiteFoodLogRepository foodLogRepo = new de.idrinth.habitevaluator.android.persistence.SQLiteFoodLogRepository(dbHelper);
         de.idrinth.habitevaluator.android.persistence.SQLiteFoodTagRepository foodTagRepo = new de.idrinth.habitevaluator.android.persistence.SQLiteFoodTagRepository(dbHelper);
+        de.idrinth.habitevaluator.android.persistence.SQLiteMedicationRepository medicationRepo = new de.idrinth.habitevaluator.android.persistence.SQLiteMedicationRepository(dbHelper);
+        de.idrinth.habitevaluator.android.persistence.SQLiteMedicationLogRepository medicationLogRepo = new de.idrinth.habitevaluator.android.persistence.SQLiteMedicationLogRepository(dbHelper, medicationRepo);
         sharedSleepEntryRepository = sleepEntryRepository;
         sharedDiaryEntryRepository = diaryEntryRepo;
         sharedDiaryReferenceRepository = diaryRefRepo;
@@ -575,8 +617,10 @@ public class MainActivity extends AppCompatActivity {
         sharedSportLogRepository = sportLogRepo;
         sharedFoodLogRepository = foodLogRepo;
         sharedFoodTagRepository = foodTagRepo;
+        sharedMedicationRepository = medicationRepo;
+        sharedMedicationLogRepository = medicationLogRepo;
 
-        // Set local user for local-only data access (diary, sleep, emotions, sport, food)
+        // Set local user for local-only data access (diary, sleep, emotions, sport, food, medication)
         sharedLocalUser = getOrCreateLocalUser();
 
         // Migrate legacy JSON files to SQLite if they exist
@@ -625,6 +669,7 @@ public class MainActivity extends AppCompatActivity {
                         loadHabits();
                         loadSleepEntries();
                         loadEmotionPairs();
+                        loadMedications();
                     });
                     return;
                 }

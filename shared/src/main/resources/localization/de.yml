@@ -310,6 +310,26 @@ meeting_log:
   no_entries: "Noch keine Besprechungseinträge."
   delete: "Löschen"
 
+medication_log:
+  title: "Medikamentenprotokoll"
+  add_medication: "Medikament hinzufügen"
+  medication_name: "Medikamentenname"
+  medication_name_hint: "z.B. Ibuprofen, Aspirin"
+  wikipedia_link: "Wikipedia-Link"
+  wikipedia_link_hint: "z.B. https://de.wikipedia.org/wiki/Ibuprofen"
+  provision_type: "Darreichungsform"
+  provision_pill: "Tablette (mg)"
+  provision_liquid_drops: "Flüssigkeit (Tropfen)"
+  provision_liquid_ml: "Flüssigkeit (ml)"
+  add_entry: "Eintrag hinzufügen"
+  amount: "Menge"
+  amount_hint: "z.B. 400"
+  date_time: "Datum & Uhrzeit"
+  notes: "Notizen"
+  no_entries: "Noch keine Medikamenteneinträge."
+  no_medications: "Noch keine Medikamente definiert. Fügen Sie zuerst eines hinzu."
+  delete: "Löschen"
+
 food_log:
   title: "Ernährungsprotokoll"
   add_entry: "Ernährungseintrag hinzufügen"

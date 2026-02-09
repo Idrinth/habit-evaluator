@@ -24,6 +24,8 @@ public class BackupData {
     private List<EmotionPairData> emotionPairs = new ArrayList<>();
     private List<EmotionEntryData> emotionEntries = new ArrayList<>();
     private List<MeetingEntryData> meetingEntries = new ArrayList<>();
+    private List<MedicationData> medications = new ArrayList<>();
+    private List<MedicationLogData> medicationLogs = new ArrayList<>();
     private ReminderSettingsData reminderSettings;
 
     public String getBackupDate() {
@@ -128,6 +130,22 @@ public class BackupData {
 
     public void setMeetingEntries(List<MeetingEntryData> meetingEntries) {
         this.meetingEntries = meetingEntries;
+    }
+
+    public List<MedicationData> getMedications() {
+        return medications;
+    }
+
+    public void setMedications(List<MedicationData> medications) {
+        this.medications = medications;
+    }
+
+    public List<MedicationLogData> getMedicationLogs() {
+        return medicationLogs;
+    }
+
+    public void setMedicationLogs(List<MedicationLogData> medicationLogs) {
+        this.medicationLogs = medicationLogs;
     }
 
     public ReminderSettingsData getReminderSettings() {
@@ -961,5 +979,43 @@ public class BackupData {
         public void setWakingHoursEnd(String wakingHoursEnd) {
             this.wakingHoursEnd = wakingHoursEnd;
         }
+    }
+
+    public static class MedicationData {
+        private String id;
+        private String name;
+        private String wikipediaLink;
+        private String provisionType;
+
+        public String getId() { return id; }
+        public void setId(String id) { this.id = id; }
+        public String getName() { return name; }
+        public void setName(String name) { this.name = name; }
+        public String getWikipediaLink() { return wikipediaLink; }
+        public void setWikipediaLink(String wikipediaLink) { this.wikipediaLink = wikipediaLink; }
+        public String getProvisionType() { return provisionType; }
+        public void setProvisionType(String provisionType) { this.provisionType = provisionType; }
+    }
+
+    public static class MedicationLogData {
+        private String id;
+        private String medicationId;
+        private double amount;
+        private String takenAt;
+        private String notes;
+        private String createdAt;
+
+        public String getId() { return id; }
+        public void setId(String id) { this.id = id; }
+        public String getMedicationId() { return medicationId; }
+        public void setMedicationId(String medicationId) { this.medicationId = medicationId; }
+        public double getAmount() { return amount; }
+        public void setAmount(double amount) { this.amount = amount; }
+        public String getTakenAt() { return takenAt; }
+        public void setTakenAt(String takenAt) { this.takenAt = takenAt; }
+        public String getNotes() { return notes; }
+        public void setNotes(String notes) { this.notes = notes; }
+        public String getCreatedAt() { return createdAt; }
+        public void setCreatedAt(String createdAt) { this.createdAt = createdAt; }
     }
 }

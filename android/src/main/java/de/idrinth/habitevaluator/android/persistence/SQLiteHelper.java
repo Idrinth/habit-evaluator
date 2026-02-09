@@ -7,7 +7,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class SQLiteHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "habit_evaluator.db";
-    private static final int DATABASE_VERSION = 6;
+    private static final int DATABASE_VERSION = 7;
     private static SQLiteHelper instance;
 
     private SQLiteHelper(Context context) {
@@ -198,6 +198,30 @@ public class SQLiteHelper extends SQLiteOpenHelper {
                 + "FOREIGN KEY (food_log_id) REFERENCES food_logs(id) ON DELETE CASCADE,"
                 + "FOREIGN KEY (food_tag_id) REFERENCES food_tags(id) ON DELETE CASCADE"
                 + ")");
+
+        db.execSQL("CREATE TABLE medications ("
+                + "id TEXT PRIMARY KEY,"
+                + "name TEXT NOT NULL,"
+                + "wikipedia_link TEXT,"
+                + "provision_type TEXT NOT NULL,"
+                + "user_id TEXT,"
+                + "user_name TEXT"
+                + ")");
+        db.execSQL("CREATE INDEX idx_medications_user_id ON medications(user_id)");
+
+        db.execSQL("CREATE TABLE medication_logs ("
+                + "id TEXT PRIMARY KEY,"
+                + "medication_id TEXT NOT NULL,"
+                + "amount REAL NOT NULL,"
+                + "taken_at TEXT NOT NULL,"
+                + "created_at TEXT NOT NULL,"
+                + "notes TEXT,"
+                + "user_id TEXT,"
+                + "user_name TEXT,"
+                + "FOREIGN KEY (medication_id) REFERENCES medications(id)"
+                + ")");
+        db.execSQL("CREATE INDEX idx_medication_logs_user_id ON medication_logs(user_id)");
+        db.execSQL("CREATE INDEX idx_medication_logs_medication_id ON medication_logs(medication_id)");
     }
 
     @Override
@@ -271,6 +295,30 @@ public class SQLiteHelper extends SQLiteOpenHelper {
                     + "FOREIGN KEY (food_log_id) REFERENCES food_logs(id) ON DELETE CASCADE,"
                     + "FOREIGN KEY (food_tag_id) REFERENCES food_tags(id) ON DELETE CASCADE"
                     + ")");
+        }
+        if (oldVersion < 7) {
+            db.execSQL("CREATE TABLE IF NOT EXISTS medications ("
+                    + "id TEXT PRIMARY KEY,"
+                    + "name TEXT NOT NULL,"
+                    + "wikipedia_link TEXT,"
+                    + "provision_type TEXT NOT NULL,"
+                    + "user_id TEXT,"
+                    + "user_name TEXT"
+                    + ")");
+            db.execSQL("CREATE INDEX IF NOT EXISTS idx_medications_user_id ON medications(user_id)");
+            db.execSQL("CREATE TABLE IF NOT EXISTS medication_logs ("
+                    + "id TEXT PRIMARY KEY,"
+                    + "medication_id TEXT NOT NULL,"
+                    + "amount REAL NOT NULL,"
+                    + "taken_at TEXT NOT NULL,"
+                    + "created_at TEXT NOT NULL,"
+                    + "notes TEXT,"
+                    + "user_id TEXT,"
+                    + "user_name TEXT,"
+                    + "FOREIGN KEY (medication_id) REFERENCES medications(id)"
+                    + ")");
+            db.execSQL("CREATE INDEX IF NOT EXISTS idx_medication_logs_user_id ON medication_logs(user_id)");
+            db.execSQL("CREATE INDEX IF NOT EXISTS idx_medication_logs_medication_id ON medication_logs(medication_id)");
         }
     }
 
