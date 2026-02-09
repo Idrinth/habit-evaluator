@@ -7,11 +7,22 @@
 	let error = $state('');
 	let loading = $state(true);
 
-	let foodItems = $state('');
+	let selectedFoodItems: string[] = $state([]);
+	let currentFoodItem = $state('');
+	let showSuggestions = $state(false);
 	let kcal = $state('');
 	let carbohydrates = $state('');
 	let dateTime = $state(new Date().toISOString().slice(0, 16));
 	let notes = $state('');
+
+	let filteredSuggestions = $derived(
+		currentFoodItem.trim()
+			? suggestions.filter(s =>
+				s.toLowerCase().includes(currentFoodItem.trim().toLowerCase()) &&
+				!selectedFoodItems.some(sel => sel.toLowerCase() === s.toLowerCase())
+			)
+			: []
+	);
 
 	onMount(async () => {
 		await loadData();
@@ -33,20 +44,51 @@
 		}
 	}
 
+	function addFoodItem(item: string) {
+		const trimmed = item.trim();
+		if (trimmed && !selectedFoodItems.some(s => s.toLowerCase() === trimmed.toLowerCase())) {
+			selectedFoodItems = [...selectedFoodItems, trimmed];
+		}
+		currentFoodItem = '';
+		showSuggestions = false;
+	}
+
+	function removeFoodItem(index: number) {
+		selectedFoodItems = selectedFoodItems.filter((_, i) => i !== index);
+	}
+
+	function handleFoodKeydown(e: KeyboardEvent) {
+		if (e.key === ',' || e.key === 'Enter') {
+			if (currentFoodItem.trim()) {
+				e.preventDefault();
+				addFoodItem(currentFoodItem);
+			} else if (e.key === ',') {
+				e.preventDefault();
+			}
+		}
+		if (e.key === 'Backspace' && !currentFoodItem && selectedFoodItems.length > 0) {
+			selectedFoodItems = selectedFoodItems.slice(0, -1);
+		}
+	}
+
 	async function handleAdd(e: Event) {
 		e.preventDefault();
-		if (!foodItems.trim()) return;
+		if (currentFoodItem.trim()) {
+			addFoodItem(currentFoodItem);
+		}
+		if (selectedFoodItems.length === 0) return;
 		error = '';
 		try {
 			const createPayload: { carbohydrates?: number; kcal?: number; dateTime: string; foodItems: string; notes?: string } = {
 				dateTime: dateTime + ':00',
-				foodItems: foodItems.trim()
+				foodItems: selectedFoodItems.join(', ')
 			};
 			if (kcal.trim()) createPayload.kcal = parseInt(kcal);
 			if (carbohydrates.trim()) createPayload.carbohydrates = parseFloat(carbohydrates);
 			if (notes.trim()) createPayload.notes = notes.trim();
 			await foodLogs.create(createPayload);
-			foodItems = '';
+			selectedFoodItems = [];
+			currentFoodItem = '';
 			kcal = '';
 			carbohydrates = '';
 			dateTime = new Date().toISOString().slice(0, 16);
@@ -83,12 +125,31 @@
 		<p style="text-align: center; color: var(--color-text-placeholder);">Loading...</p>
 	{:else}
 		<form class="add-form" onsubmit={handleAdd}>
-			<input type="text" bind:value={foodItems} placeholder="Food items (e.g. Rice, Chicken, Salad)" required list="food-suggestions" autocomplete="off" />
-			<datalist id="food-suggestions">
-				{#each suggestions as suggestion}
-					<option value={suggestion}></option>
+			<div class="food-items-input" role="combobox" aria-controls="food-suggestions-list" aria-expanded={showSuggestions && filteredSuggestions.length > 0}>
+				{#each selectedFoodItems as item, i}
+					<span class="food-chip-input">
+						{item}
+						<button type="button" class="chip-remove" onclick={() => removeFoodItem(i)}>&times;</button>
+					</span>
 				{/each}
-			</datalist>
+				<input
+					type="text"
+					class="food-item-text"
+					bind:value={currentFoodItem}
+					placeholder={selectedFoodItems.length === 0 ? 'Food items (e.g. Rice, Chicken, Salad)' : 'Add more...'}
+					autocomplete="off"
+					onkeydown={handleFoodKeydown}
+					onfocus={() => showSuggestions = true}
+					onblur={() => setTimeout(() => showSuggestions = false, 200)}
+				/>
+				{#if showSuggestions && filteredSuggestions.length > 0}
+					<ul id="food-suggestions-list" class="suggestions-dropdown" role="listbox">
+						{#each filteredSuggestions as suggestion}
+							<li><button type="button" onmousedown={() => addFoodItem(suggestion)}>{suggestion}</button></li>
+						{/each}
+					</ul>
+				{/if}
+			</div>
 			<div class="form-row">
 				<div class="form-field">
 					<label for="kcal">Kcal (optional)</label>
@@ -150,9 +211,89 @@
 		margin-bottom: 1.5rem;
 	}
 
-	.add-form input[type='text']:first-child {
-		width: 100%;
+	.food-items-input {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 0.3rem;
+		border: 1px solid var(--color-border-light);
+		border-radius: 4px;
+		padding: 0.3rem 0.5rem;
 		margin-bottom: 0.5rem;
+		position: relative;
+		cursor: text;
+		background: var(--color-bg, #fff);
+	}
+
+	.food-items-input:focus-within {
+		border-color: var(--color-primary, #4a90d9);
+		outline: none;
+	}
+
+	.food-chip-input {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.2rem;
+		background-color: var(--color-bg-hover, #f0f0f0);
+		border: 1px solid var(--color-border-light);
+		border-radius: 12px;
+		padding: 0.1rem 0.4rem;
+		font-size: 0.85rem;
+	}
+
+	.chip-remove {
+		background: none;
+		border: none;
+		cursor: pointer;
+		font-size: 0.9rem;
+		line-height: 1;
+		padding: 0 0.1rem;
+		color: var(--color-text-muted);
+	}
+
+	.chip-remove:hover {
+		color: var(--color-error);
+	}
+
+	.food-item-text {
+		flex: 1;
+		min-width: 120px;
+		border: none;
+		outline: none;
+		padding: 0.25rem 0;
+		font-size: inherit;
+		background: transparent;
+	}
+
+	.suggestions-dropdown {
+		position: absolute;
+		top: 100%;
+		left: 0;
+		right: 0;
+		background: var(--color-bg, #fff);
+		border: 1px solid var(--color-border-light);
+		border-radius: 4px;
+		margin-top: 2px;
+		max-height: 200px;
+		overflow-y: auto;
+		list-style: none;
+		padding: 0;
+		z-index: 10;
+	}
+
+	.suggestions-dropdown li button {
+		display: block;
+		width: 100%;
+		padding: 0.4rem 0.6rem;
+		border: none;
+		background: none;
+		text-align: left;
+		cursor: pointer;
+		font-size: 0.9rem;
+	}
+
+	.suggestions-dropdown li button:hover {
+		background-color: var(--color-bg-hover, #f0f0f0);
 	}
 
 	.form-row {
