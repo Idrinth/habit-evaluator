@@ -297,6 +297,19 @@ sport_log:
   max_measurement: "Medición máxima"
   total_entries: "Total de entradas"
 
+meeting_log:
+  title: "Registro de reuniones"
+  add_entry: "Añadir reunión"
+  place: "Lugar"
+  place_hint: "p. ej. Oficina, Cafetería, En línea"
+  attendants: "Asistentes"
+  attendants_hint: "p. ej. Alice, Bob, Charlie"
+  start_time: "Hora de inicio"
+  end_time: "Hora de fin"
+  date: "Fecha"
+  no_entries: "Aún no hay entradas de reuniones."
+  delete: "Eliminar"
+
 food_log:
   title: "Registro de alimentación"
   add_entry: "Añadir entrada de alimentación"

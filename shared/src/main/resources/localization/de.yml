@@ -297,6 +297,19 @@ sport_log:
   max_measurement: "Maximaler Messwert"
   total_entries: "Gesamteinträge"
 
+meeting_log:
+  title: "Besprechungsprotokoll"
+  add_entry: "Besprechung hinzufügen"
+  place: "Ort"
+  place_hint: "z.B. Büro, Café, Online"
+  attendants: "Teilnehmer"
+  attendants_hint: "z.B. Alice, Bob, Charlie"
+  start_time: "Startzeit"
+  end_time: "Endzeit"
+  date: "Datum"
+  no_entries: "Noch keine Besprechungseinträge."
+  delete: "Löschen"
+
 food_log:
   title: "Ernährungsprotokoll"
   add_entry: "Ernährungseintrag hinzufügen"

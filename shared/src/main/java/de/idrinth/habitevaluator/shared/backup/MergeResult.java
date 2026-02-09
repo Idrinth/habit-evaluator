@@ -15,6 +15,7 @@ public class MergeResult {
     private final int foodLogsAdded;
     private final int emotionPairsAdded;
     private final int emotionEntriesAdded;
+    private final int meetingEntriesAdded;
     private final boolean reminderSettingsRestored;
 
     public MergeResult(int categoriesAdded, int habitsAdded, int habitsMerged,
@@ -43,6 +44,17 @@ public class MergeResult {
                        int sportLogsAdded, int foodLogsAdded,
                        int emotionPairsAdded, int emotionEntriesAdded,
                        boolean reminderSettingsRestored) {
+        this(categoriesAdded, habitsAdded, habitsMerged, entriesAdded,
+                diaryEntriesAdded, sleepEntriesAdded, sportLogsAdded, foodLogsAdded,
+                emotionPairsAdded, emotionEntriesAdded, 0, reminderSettingsRestored);
+    }
+
+    public MergeResult(int categoriesAdded, int habitsAdded, int habitsMerged,
+                       int entriesAdded, int diaryEntriesAdded, int sleepEntriesAdded,
+                       int sportLogsAdded, int foodLogsAdded,
+                       int emotionPairsAdded, int emotionEntriesAdded,
+                       int meetingEntriesAdded,
+                       boolean reminderSettingsRestored) {
         this.categoriesAdded = categoriesAdded;
         this.habitsAdded = habitsAdded;
         this.habitsMerged = habitsMerged;
@@ -53,6 +65,7 @@ public class MergeResult {
         this.foodLogsAdded = foodLogsAdded;
         this.emotionPairsAdded = emotionPairsAdded;
         this.emotionEntriesAdded = emotionEntriesAdded;
+        this.meetingEntriesAdded = meetingEntriesAdded;
         this.reminderSettingsRestored = reminderSettingsRestored;
     }
 
@@ -96,6 +109,10 @@ public class MergeResult {
         return emotionEntriesAdded;
     }
 
+    public int getMeetingEntriesAdded() {
+        return meetingEntriesAdded;
+    }
+
     public boolean isReminderSettingsRestored() {
         return reminderSettingsRestored;
     }
@@ -103,7 +120,7 @@ public class MergeResult {
     public int getTotalChanges() {
         return categoriesAdded + habitsAdded + habitsMerged + diaryEntriesAdded
                 + sleepEntriesAdded + sportLogsAdded + foodLogsAdded
-                + emotionPairsAdded + emotionEntriesAdded
+                + emotionPairsAdded + emotionEntriesAdded + meetingEntriesAdded
                 + (reminderSettingsRestored ? 1 : 0);
     }
 
@@ -120,6 +137,7 @@ public class MergeResult {
                 + ", food logs added=" + foodLogsAdded
                 + ", emotion pairs added=" + emotionPairsAdded
                 + ", emotion entries added=" + emotionEntriesAdded
+                + ", meeting entries added=" + meetingEntriesAdded
                 + ", reminder settings restored=" + reminderSettingsRestored
                 + '}';
     }

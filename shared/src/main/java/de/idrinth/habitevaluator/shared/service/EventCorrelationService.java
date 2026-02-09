@@ -5,6 +5,7 @@ import de.idrinth.habitevaluator.shared.model.EmotionEntry;
 import de.idrinth.habitevaluator.shared.model.EventCorrelation;
 import de.idrinth.habitevaluator.shared.model.Habit;
 import de.idrinth.habitevaluator.shared.model.HabitEntry;
+import de.idrinth.habitevaluator.shared.model.MeetingEntry;
 import de.idrinth.habitevaluator.shared.model.SleepEntry;
 import de.idrinth.habitevaluator.shared.model.SportLog;
 
@@ -72,6 +73,30 @@ public class EventCorrelationService {
             List<SleepEntry> sleepEntries,
             List<EmotionEntry> emotionEntries,
             List<SportLog> sportLogs) {
+        return calculateCorrelations(habits, diaryEntries, sleepEntries, emotionEntries,
+                sportLogs, new ArrayList<>());
+    }
+
+    /**
+     * Calculates the top event correlations over the past year using time-weighted
+     * Pearson correlation. Events include individual habits, diary points, sleep hours,
+     * emotion pair daily averages, sport log data, and meeting duration.
+     *
+     * @param habits          all habits with their entries
+     * @param diaryEntries    all diary entries
+     * @param sleepEntries    all sleep entries
+     * @param emotionEntries  all emotion entries
+     * @param sportLogs       all sport log entries
+     * @param meetingEntries  all meeting entries
+     * @return all correlations sorted by absolute correlation strength
+     */
+    public List<EventCorrelation> calculateCorrelations(
+            List<Habit> habits,
+            List<DiaryEntry> diaryEntries,
+            List<SleepEntry> sleepEntries,
+            List<EmotionEntry> emotionEntries,
+            List<SportLog> sportLogs,
+            List<MeetingEntry> meetingEntries) {
 
         LocalDate today = LocalDate.now();
         LocalDate startDate = today.minusDays(YEAR_DAYS - 1);
@@ -309,6 +334,55 @@ public class EventCorrelationService {
             }
             eventSignals.put(measurementLabel, measurementSignal);
             eventTimestamps.put(measurementLabel, measurementTs);
+        }
+
+        // Process meeting entries: track meeting count and duration per day
+        double[] meetingCountSignal = new double[totalDays];
+        double[] meetingDurationSignal = new double[totalDays];
+        @SuppressWarnings("unchecked")
+        List<LocalDateTime>[] meetingTs = new ArrayList[totalDays];
+        for (MeetingEntry entry : meetingEntries) {
+            LocalDate entryDate = entry.getDate();
+            if (!entryDate.isBefore(startDate) && !entryDate.isAfter(today)) {
+                int dayIndex = (int) ChronoUnit.DAYS.between(startDate, entryDate);
+                meetingCountSignal[dayIndex] += 1;
+                Integer durationMinutes = entry.getDurationMinutes();
+                if (durationMinutes != null) {
+                    meetingDurationSignal[dayIndex] += durationMinutes / 60.0;
+                }
+                if (meetingTs[dayIndex] == null) {
+                    meetingTs[dayIndex] = new ArrayList<>();
+                }
+                if (entry.getStartTime() != null) {
+                    meetingTs[dayIndex].add(entryDate.atTime(entry.getStartTime()));
+                }
+                if (entry.getEndTime() != null) {
+                    LocalDateTime endTimestamp = entryDate.atTime(entry.getEndTime());
+                    if (entry.getStartTime() != null
+                            && !entry.getEndTime().isAfter(entry.getStartTime())) {
+                        endTimestamp = entryDate.plusDays(1).atTime(entry.getEndTime());
+                    }
+                    meetingTs[dayIndex].add(endTimestamp);
+                }
+            }
+        }
+        boolean hasMeetingData = false;
+        for (double v : meetingCountSignal) {
+            if (v != 0) {
+                hasMeetingData = true;
+                break;
+            }
+        }
+        if (hasMeetingData) {
+            eventSignals.put("Meeting Count", meetingCountSignal);
+            eventTimestamps.put("Meeting Count", meetingTs);
+            eventSignals.put("Meeting Duration", meetingDurationSignal);
+            @SuppressWarnings("unchecked")
+            List<LocalDateTime>[] meetingDurationTs = new ArrayList[totalDays];
+            for (int i = 0; i < totalDays; i++) {
+                meetingDurationTs[i] = meetingTs[i];
+            }
+            eventTimestamps.put("Meeting Duration", meetingDurationTs);
         }
 
         double[] weights = new double[totalDays];

@@ -297,6 +297,19 @@ sport_log:
   max_measurement: "Max Measurement"
   total_entries: "Total Entries"
 
+meeting_log:
+  title: "Meeting Log"
+  add_entry: "Add Meeting"
+  place: "Place"
+  place_hint: "e.g. Office, Coffee shop, Online"
+  attendants: "Attendants"
+  attendants_hint: "e.g. Alice, Bob, Charlie"
+  start_time: "Start Time"
+  end_time: "End Time"
+  date: "Date"
+  no_entries: "No meeting entries yet."
+  delete: "Delete"
+
 food_log:
   title: "Food Log"
   add_entry: "Add Food Log Entry"

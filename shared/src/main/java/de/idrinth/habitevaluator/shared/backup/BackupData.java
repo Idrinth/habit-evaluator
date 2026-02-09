@@ -23,6 +23,7 @@ public class BackupData {
     private List<FoodTagData> foodTags = new ArrayList<>();
     private List<EmotionPairData> emotionPairs = new ArrayList<>();
     private List<EmotionEntryData> emotionEntries = new ArrayList<>();
+    private List<MeetingEntryData> meetingEntries = new ArrayList<>();
     private ReminderSettingsData reminderSettings;
 
     public String getBackupDate() {
@@ -119,6 +120,14 @@ public class BackupData {
 
     public void setEmotionEntries(List<EmotionEntryData> emotionEntries) {
         this.emotionEntries = emotionEntries;
+    }
+
+    public List<MeetingEntryData> getMeetingEntries() {
+        return meetingEntries;
+    }
+
+    public void setMeetingEntries(List<MeetingEntryData> meetingEntries) {
+        this.meetingEntries = meetingEntries;
     }
 
     public ReminderSettingsData getReminderSettings() {
@@ -801,6 +810,72 @@ public class BackupData {
 
         public void setNotes(String notes) {
             this.notes = notes;
+        }
+    }
+
+    public static class MeetingEntryData {
+        private String id;
+        private String place;
+        private String attendants;
+        private String startTime;
+        private String endTime;
+        private String date;
+        private String createdAt;
+
+        public String getId() {
+            return id;
+        }
+
+        public void setId(String id) {
+            this.id = id;
+        }
+
+        public String getPlace() {
+            return place;
+        }
+
+        public void setPlace(String place) {
+            this.place = place;
+        }
+
+        public String getAttendants() {
+            return attendants;
+        }
+
+        public void setAttendants(String attendants) {
+            this.attendants = attendants;
+        }
+
+        public String getStartTime() {
+            return startTime;
+        }
+
+        public void setStartTime(String startTime) {
+            this.startTime = startTime;
+        }
+
+        public String getEndTime() {
+            return endTime;
+        }
+
+        public void setEndTime(String endTime) {
+            this.endTime = endTime;
+        }
+
+        public String getDate() {
+            return date;
+        }
+
+        public void setDate(String date) {
+            this.date = date;
+        }
+
+        public String getCreatedAt() {
+            return createdAt;
+        }
+
+        public void setCreatedAt(String createdAt) {
+            this.createdAt = createdAt;
         }
     }
 
