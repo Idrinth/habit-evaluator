@@ -151,6 +151,16 @@ class MagicLinkControllerTest {
     }
 
     @Test
+    void testGetSharedDataNullUser() {
+        MagicLink link = new MagicLink();
+        // Deliberately do not set a user on the link
+        when(magicLinkRepository.findByToken(link.getToken())).thenReturn(Optional.of(link));
+
+        ResponseEntity<Map<String, Object>> response = controller.getSharedData(link.getToken());
+        assertEquals(404, response.getStatusCode().value());
+    }
+
+    @Test
     void testGetSharedDataFiltersByCategory() {
         MagicLink link = new MagicLink();
         link.setUser(testUser);

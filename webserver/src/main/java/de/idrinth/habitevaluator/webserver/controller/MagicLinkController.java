@@ -106,6 +106,9 @@ public class MagicLinkController {
         if (link.isExpired()) {
             return ResponseEntity.status(410).build();
         }
+        if (link.getUser() == null) {
+            return ResponseEntity.notFound().build();
+        }
 
         String userId = link.getUser().getId();
         List<Habit> habits = habitRepository.findByUserId(userId);
