@@ -88,6 +88,7 @@
     <string name="diary_positive_events">Eventos positivos</string>
     <string name="diary_event_hint">¿Qué cosa positiva sucedió?</string>
     <string name="diary_add_event">Añadir evento</string>
+    <string name="diary_toggle_form">Alternar formulario de entrada</string>
     <string name="diary_minor">Menor</string>
     <string name="diary_normal">Normal</string>
     <string name="diary_major">Mayor</string>
@@ -286,6 +287,7 @@
     <string name="imprint_libraries">Bibliotecas de terceros</string>
     <string name="sport_log_title">Registro deportivo</string>
     <string name="sport_log_add_entry">Añadir</string>
+    <string name="sport_log_toggle_form">Alternar formulario de entrada</string>
     <string name="sport_log_activity_name">Nombre de actividad (ej. Correr)</string>
     <string name="sport_log_measurement">Medición (ej. 5,0)</string>
     <string name="sport_log_measurement_unit">Unidad (ej. km)</string>
@@ -322,6 +324,7 @@
     <string name="medication_notes_hint">Notas (opcional)</string>
     <string name="medication_log_recent">Entradas recientes</string>
     <string name="medication_log_delete">Eliminar</string>
+    <string name="medication_log_toggle_form">Alternar formulario de entrada</string>
     <string name="medication_added">Medicamento añadido</string>
     <string name="medication_name_required">Por favor, introduzca un nombre de medicamento</string>
     <string name="medication_log_entry_added">Entrada de medicamento añadida</string>
@@ -339,6 +342,7 @@
     <string name="medication_link_updated">Enlace de Wikipedia actualizado</string>
     <string name="food_log_title">Registro de alimentación</string>
     <string name="food_log_add_entry">Añadir</string>
+    <string name="food_log_toggle_form">Alternar formulario de entrada</string>
     <string name="food_log_food_items_hint">Alimentos (ej. Arroz, Pollo)</string>
     <string name="food_log_kcal_hint">Kcal</string>
     <string name="food_log_carbs_hint">Carbohidratos (g)</string>

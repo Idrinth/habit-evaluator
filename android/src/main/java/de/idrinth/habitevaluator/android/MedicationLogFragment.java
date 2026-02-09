@@ -60,6 +60,7 @@ public class MedicationLogFragment extends Fragment implements MedicationLogAdap
         setupRecyclerView();
         setupDateTimePicker();
         setupMedicationSpinner();
+        setupFormToggle();
         binding.addMedicationLogButton.setOnClickListener(v -> addMedicationLog());
         loadMedications();
         loadEntries();
@@ -118,6 +119,19 @@ public class MedicationLogFragment extends Fragment implements MedicationLogAdap
                 true
         );
         dialog.show();
+    }
+
+    private void setupFormToggle() {
+        binding.addEntryHeader.setOnClickListener(v -> toggleForm());
+        binding.toggleFormButton.setOnClickListener(v -> toggleForm());
+    }
+
+    private void toggleForm() {
+        boolean isVisible = binding.addEntryFormContainer.getVisibility() == View.VISIBLE;
+        binding.addEntryFormContainer.setVisibility(isVisible ? View.GONE : View.VISIBLE);
+        binding.toggleFormButton.setImageResource(isVisible
+                ? android.R.drawable.arrow_down_float
+                : android.R.drawable.arrow_up_float);
     }
 
     private void setupMedicationSpinner() {
@@ -184,6 +198,9 @@ public class MedicationLogFragment extends Fragment implements MedicationLogAdap
         selectedDate = LocalDate.now();
         selectedTime = LocalTime.now().withSecond(0).withNano(0);
         updateDateTimeDisplay();
+
+        binding.addEntryFormContainer.setVisibility(View.GONE);
+        binding.toggleFormButton.setImageResource(android.R.drawable.arrow_down_float);
 
         Toast.makeText(requireContext(), R.string.medication_log_entry_added, Toast.LENGTH_SHORT).show();
         loadEntries();

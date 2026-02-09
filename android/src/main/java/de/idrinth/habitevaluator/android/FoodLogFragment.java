@@ -63,6 +63,7 @@ public class FoodLogFragment extends Fragment implements FoodLogAdapter.OnFoodLo
 
         setupRecyclerView();
         setupDateTimePicker();
+        setupFormToggle();
         binding.addFoodLogButton.setOnClickListener(v -> addFoodLog());
         loadEntries();
     }
@@ -77,6 +78,19 @@ public class FoodLogFragment extends Fragment implements FoodLogAdapter.OnFoodLo
         adapter = new FoodLogAdapter(displayedEntries, this);
         binding.foodLogRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
         binding.foodLogRecyclerView.setAdapter(adapter);
+    }
+
+    private void setupFormToggle() {
+        binding.addEntryHeader.setOnClickListener(v -> toggleForm());
+        binding.toggleFormButton.setOnClickListener(v -> toggleForm());
+    }
+
+    private void toggleForm() {
+        boolean isVisible = binding.addEntryFormContainer.getVisibility() == View.VISIBLE;
+        binding.addEntryFormContainer.setVisibility(isVisible ? View.GONE : View.VISIBLE);
+        binding.toggleFormButton.setImageResource(isVisible
+                ? android.R.drawable.arrow_down_float
+                : android.R.drawable.arrow_up_float);
     }
 
     private void setupDateTimePicker() {
@@ -179,6 +193,9 @@ public class FoodLogFragment extends Fragment implements FoodLogAdapter.OnFoodLo
         selectedDate = LocalDate.now();
         selectedTime = LocalTime.now().withSecond(0).withNano(0);
         updateDateTimeDisplay();
+
+        binding.addEntryFormContainer.setVisibility(View.GONE);
+        binding.toggleFormButton.setImageResource(android.R.drawable.arrow_down_float);
 
         Toast.makeText(requireContext(), R.string.food_log_entry_added, Toast.LENGTH_SHORT).show();
         loadEntries();
