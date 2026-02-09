@@ -321,6 +321,7 @@
     <string name="food_log_kcal_invalid">Please enter a valid kcal value</string>
     <string name="food_log_carbs_invalid">Please enter a valid carbohydrates value</string>
     <string name="medication_log_title">Medication Log</string>
+    <string name="medication_list_title">Your Medications</string>
     <string name="medication_add_medication">Add Medication</string>
     <string name="medication_name_hint">Medication name</string>
     <string name="medication_wikipedia_hint">Wikipedia link (optional)</string>
