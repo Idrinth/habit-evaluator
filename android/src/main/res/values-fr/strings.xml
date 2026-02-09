@@ -88,6 +88,7 @@
     <string name="diary_positive_events">Événements positifs</string>
     <string name="diary_event_hint">Quel événement positif s\'est produit ?</string>
     <string name="diary_add_event">Ajouter un événement</string>
+    <string name="diary_toggle_form">Basculer le formulaire d\'ajout</string>
     <string name="diary_minor">Mineur</string>
     <string name="diary_normal">Normal</string>
     <string name="diary_major">Majeur</string>
@@ -286,6 +287,7 @@
     <string name="imprint_libraries">Bibliothèques tierces</string>
     <string name="sport_log_title">Journal sportif</string>
     <string name="sport_log_add_entry">Ajouter</string>
+    <string name="sport_log_toggle_form">Basculer le formulaire d\'ajout</string>
     <string name="sport_log_activity_name">Nom de l\'activité (ex. Course)</string>
     <string name="sport_log_measurement">Mesure (ex. 5,0)</string>
     <string name="sport_log_measurement_unit">Unité (ex. km)</string>
@@ -322,6 +324,7 @@
     <string name="medication_notes_hint">Notes (facultatif)</string>
     <string name="medication_log_recent">Entrées récentes</string>
     <string name="medication_log_delete">Supprimer</string>
+    <string name="medication_log_toggle_form">Basculer le formulaire d\'ajout</string>
     <string name="medication_added">Médicament ajouté</string>
     <string name="medication_name_required">Veuillez saisir un nom de médicament</string>
     <string name="medication_log_entry_added">Entrée de médicament ajoutée</string>
@@ -339,6 +342,7 @@
     <string name="medication_link_updated">Lien Wikipédia mis à jour</string>
     <string name="food_log_title">Journal alimentaire</string>
     <string name="food_log_add_entry">Ajouter</string>
+    <string name="food_log_toggle_form">Basculer le formulaire d\'ajout</string>
     <string name="food_log_food_items_hint">Aliments (ex. Riz, Poulet)</string>
     <string name="food_log_kcal_hint">Kcal</string>
     <string name="food_log_carbs_hint">Glucides (g)</string>

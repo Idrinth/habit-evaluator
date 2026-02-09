@@ -59,6 +59,7 @@ public class SportLogFragment extends Fragment implements SportLogAdapter.OnSpor
         setupRecyclerView();
         setupDatePicker();
         setupTimePickers();
+        setupFormToggle();
         binding.addSportLogButton.setOnClickListener(v -> addSportLog());
         loadEntries();
     }
@@ -73,6 +74,19 @@ public class SportLogFragment extends Fragment implements SportLogAdapter.OnSpor
         adapter = new SportLogAdapter(displayedEntries, this);
         binding.sportLogRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
         binding.sportLogRecyclerView.setAdapter(adapter);
+    }
+
+    private void setupFormToggle() {
+        binding.addEntryHeader.setOnClickListener(v -> toggleForm());
+        binding.toggleFormButton.setOnClickListener(v -> toggleForm());
+    }
+
+    private void toggleForm() {
+        boolean isVisible = binding.addEntryFormContainer.getVisibility() == View.VISIBLE;
+        binding.addEntryFormContainer.setVisibility(isVisible ? View.GONE : View.VISIBLE);
+        binding.toggleFormButton.setImageResource(isVisible
+                ? android.R.drawable.arrow_down_float
+                : android.R.drawable.arrow_up_float);
     }
 
     private void setupDatePicker() {
@@ -178,6 +192,9 @@ public class SportLogFragment extends Fragment implements SportLogAdapter.OnSpor
         binding.sportEndTimeInput.setText("");
         selectedDate = LocalDate.now();
         binding.sportDateInput.setText(selectedDate.format(DATE_FORMAT));
+
+        binding.addEntryFormContainer.setVisibility(View.GONE);
+        binding.toggleFormButton.setImageResource(android.R.drawable.arrow_down_float);
 
         Toast.makeText(requireContext(), R.string.sport_log_entry_added, Toast.LENGTH_SHORT).show();
         loadEntries();

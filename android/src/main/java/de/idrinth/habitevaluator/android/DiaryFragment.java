@@ -62,6 +62,7 @@ public class DiaryFragment extends Fragment {
         setupDatePicker();
         setupTimePickers();
         setupAddButton();
+        setupFormToggle();
         loadEntries();
     }
 
@@ -152,6 +153,19 @@ public class DiaryFragment extends Fragment {
         binding.addEventButton.setOnClickListener(v -> addEvent());
     }
 
+    private void setupFormToggle() {
+        binding.addEntryHeader.setOnClickListener(v -> toggleForm());
+        binding.toggleFormButton.setOnClickListener(v -> toggleForm());
+    }
+
+    private void toggleForm() {
+        boolean isVisible = binding.addEntryFormContainer.getVisibility() == View.VISIBLE;
+        binding.addEntryFormContainer.setVisibility(isVisible ? View.GONE : View.VISIBLE);
+        binding.toggleFormButton.setImageResource(isVisible
+                ? android.R.drawable.arrow_down_float
+                : android.R.drawable.arrow_up_float);
+    }
+
     private void addEvent() {
         String description = binding.eventDescriptionInput.getText() != null
                 ? binding.eventDescriptionInput.getText().toString().trim() : "";
@@ -192,6 +206,8 @@ public class DiaryFragment extends Fragment {
         selectedEndTime = null;
         binding.startTimeInput.setText("");
         binding.endTimeInput.setText("");
+        binding.addEntryFormContainer.setVisibility(View.GONE);
+        binding.toggleFormButton.setImageResource(android.R.drawable.arrow_down_float);
         loadEntries();
         Toast.makeText(requireContext(), R.string.diary_event_added, Toast.LENGTH_SHORT).show();
     }
