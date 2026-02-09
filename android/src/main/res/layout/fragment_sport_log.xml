@@ -135,7 +135,7 @@
                     android:id="@+id/toggleFormButton"
                     android:layout_width="36dp"
                     android:layout_height="36dp"
-                    android:src="@android:drawable/arrow_down_float"
+                    android:src="@drawable/ic_expand_more"
                     android:background="?attr/selectableItemBackgroundBorderless"
                     android:contentDescription="@string/sport_log_toggle_form" />
             </LinearLayout>
