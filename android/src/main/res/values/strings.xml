@@ -362,6 +362,10 @@
     <string name="medication_log_amount_required">Please enter a valid amount</string>
     <string name="medication_provision_type_required">Please select a provision type</string>
     <string name="medication_deleted">Medication deleted</string>
+    <string name="medication_edit_link">Edit Wikipedia Link</string>
+    <string name="medication_edit_link_save">Save</string>
+    <string name="medication_edit_link_cancel">Cancel</string>
+    <string name="medication_link_updated">Wikipedia link updated</string>
     <string name="diary_navigation_medication_description">Track your medications, dosages, and timing</string>
     <string name="diary_navigation_medication_list_description">Add, view, and remove your medications</string>
 </resources>

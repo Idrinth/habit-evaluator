@@ -52,6 +52,24 @@ public class MedicationController {
         return ResponseEntity.ok(medicationRepository.save(medication));
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateMedication(@PathVariable String id, @RequestBody Medication medication, HttpSession session) {
+        String userId = (String) session.getAttribute("userId");
+        if (userId == null) {
+            return ResponseEntity.status(401).build();
+        }
+        Optional<Medication> existingOpt = medicationRepository.findById(id);
+        if (existingOpt.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        Medication existing = existingOpt.get();
+        if (existing.getUser() == null || !userId.equals(existing.getUser().getId())) {
+            return ResponseEntity.notFound().build();
+        }
+        existing.setWikipediaLink(medication.getWikipediaLink());
+        return ResponseEntity.ok(medicationRepository.save(existing));
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteMedication(@PathVariable String id, HttpSession session) {
         String userId = (String) session.getAttribute("userId");

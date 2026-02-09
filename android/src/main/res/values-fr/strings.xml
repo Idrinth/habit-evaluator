@@ -333,6 +333,10 @@
     <string name="medication_log_amount_required">Veuillez saisir une quantité valide</string>
     <string name="medication_provision_type_required">Veuillez sélectionner un type d\'administration</string>
     <string name="medication_deleted">Médicament supprimé</string>
+    <string name="medication_edit_link">Modifier le lien Wikipédia</string>
+    <string name="medication_edit_link_save">Enregistrer</string>
+    <string name="medication_edit_link_cancel">Annuler</string>
+    <string name="medication_link_updated">Lien Wikipédia mis à jour</string>
     <string name="food_log_title">Journal alimentaire</string>
     <string name="food_log_add_entry">Ajouter</string>
     <string name="food_log_food_items_hint">Aliments (ex. Riz, Poulet)</string>
