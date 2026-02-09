@@ -206,6 +206,13 @@ public class MainActivity extends AppCompatActivity {
         return sharedMedications;
     }
 
+    public static void refreshSharedMedications() {
+        sharedMedications.clear();
+        if (sharedMedicationRepository != null && sharedLocalUser != null) {
+            sharedMedications.addAll(sharedMedicationRepository.findByUserId(sharedLocalUser.getId()));
+        }
+    }
+
     public static void saveAllHabits() {
         if (sharedHabitRepository == null || sharedHabits == null) {
             return;
@@ -387,6 +394,14 @@ public class MainActivity extends AppCompatActivity {
                             binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_DIARY, false);
                         }
                         break;
+                    case ScreenPagerAdapter.PAGE_MEDICATION_LIST:
+                        if (isProgrammaticNavigation) {
+                            isProgrammaticNavigation = false;
+                            binding.bottomNavigation.setSelectedItemId(R.id.nav_diary);
+                        } else {
+                            binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_DIARY, false);
+                        }
+                        break;
                     case ScreenPagerAdapter.PAGE_HOME:
                         binding.bottomNavigation.setSelectedItemId(R.id.nav_home);
                         break;
@@ -490,6 +505,11 @@ public class MainActivity extends AppCompatActivity {
     public void navigateToMedicationLog() {
         isProgrammaticNavigation = true;
         binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_MEDICATION_LOG, true);
+    }
+
+    public void navigateToMedicationList() {
+        isProgrammaticNavigation = true;
+        binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_MEDICATION_LIST, true);
     }
 
     public void onSettingsChanged() {

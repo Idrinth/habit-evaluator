@@ -19,6 +19,7 @@ import de.idrinth.habitevaluator.android.SettingsFragment;
 import de.idrinth.habitevaluator.android.SleepTrackingFragment;
 import de.idrinth.habitevaluator.android.SportLogFragment;
 import de.idrinth.habitevaluator.android.FoodLogFragment;
+import de.idrinth.habitevaluator.android.MedicationListFragment;
 import de.idrinth.habitevaluator.android.MedicationLogFragment;
 import de.idrinth.habitevaluator.android.StatsFragment;
 
@@ -40,7 +41,8 @@ public class ScreenPagerAdapter extends FragmentStateAdapter {
     public static final int PAGE_SPORT_LOG = 13;
     public static final int PAGE_FOOD_LOG = 14;
     public static final int PAGE_MEDICATION_LOG = 15;
-    public static final int PAGE_COUNT = 16;
+    public static final int PAGE_MEDICATION_LIST = 16;
+    public static final int PAGE_COUNT = 17;
 
     public ScreenPagerAdapter(@NonNull FragmentActivity fragmentActivity) {
         super(fragmentActivity);
@@ -82,6 +84,8 @@ public class ScreenPagerAdapter extends FragmentStateAdapter {
                 return new FoodLogFragment();
             case PAGE_MEDICATION_LOG:
                 return new MedicationLogFragment();
+            case PAGE_MEDICATION_LIST:
+                return new MedicationListFragment();
             default:
                 return new HomeFragment();
         }
