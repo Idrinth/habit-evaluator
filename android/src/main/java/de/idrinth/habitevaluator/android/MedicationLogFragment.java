@@ -23,6 +23,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import de.idrinth.habitevaluator.android.databinding.FragmentMedicationLogBinding;
+import de.idrinth.habitevaluator.android.ui.MedicationAdapter;
 import de.idrinth.habitevaluator.android.ui.MedicationLogAdapter;
 import de.idrinth.habitevaluator.shared.model.Medication;
 import de.idrinth.habitevaluator.shared.model.MedicationLog;
@@ -31,7 +32,7 @@ import de.idrinth.habitevaluator.shared.model.User;
 import de.idrinth.habitevaluator.shared.repository.MedicationLogRepository;
 import de.idrinth.habitevaluator.shared.repository.MedicationRepository;
 
-public class MedicationLogFragment extends Fragment implements MedicationLogAdapter.OnMedicationLogDeleteListener {
+public class MedicationLogFragment extends Fragment implements MedicationLogAdapter.OnMedicationLogDeleteListener, MedicationAdapter.OnDeleteListener {
 
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     private static final DateTimeFormatter TIME_FORMAT = DateTimeFormatter.ofPattern("HH:mm");
@@ -39,6 +40,7 @@ public class MedicationLogFragment extends Fragment implements MedicationLogAdap
 
     private FragmentMedicationLogBinding binding;
     private MedicationLogAdapter adapter;
+    private MedicationAdapter medicationAdapter;
     private List<MedicationLog> displayedEntries;
     private List<Medication> medications;
     private LocalDate selectedDate;
@@ -62,6 +64,7 @@ public class MedicationLogFragment extends Fragment implements MedicationLogAdap
         selectedTime = LocalTime.now().withSecond(0).withNano(0);
 
         setupRecyclerView();
+        setupMedicationListRecyclerView();
         setupDateTimePicker();
         setupMedicationSpinner();
         setupProvisionTypeSpinner();
@@ -82,6 +85,12 @@ public class MedicationLogFragment extends Fragment implements MedicationLogAdap
         adapter = new MedicationLogAdapter(displayedEntries, this);
         binding.medicationLogRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
         binding.medicationLogRecyclerView.setAdapter(adapter);
+    }
+
+    private void setupMedicationListRecyclerView() {
+        medicationAdapter = new MedicationAdapter(medications, this);
+        binding.medicationListRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
+        binding.medicationListRecyclerView.setAdapter(medicationAdapter);
     }
 
     private void setupDateTimePicker() {
@@ -143,11 +152,24 @@ public class MedicationLogFragment extends Fragment implements MedicationLogAdap
     }
 
     private void setupProvisionTypeSpinner() {
-        MedicationProvisionType[] types = MedicationProvisionType.values();
-        ArrayAdapter<MedicationProvisionType> provisionAdapter = new ArrayAdapter<>(requireContext(),
-                android.R.layout.simple_spinner_item, types);
+        String[] provisionTypeLabels = new String[]{
+                getString(R.string.medication_provision_pill),
+                getString(R.string.medication_provision_liquid_drops),
+                getString(R.string.medication_provision_liquid_ml)
+        };
+        ArrayAdapter<String> provisionAdapter = new ArrayAdapter<>(requireContext(),
+                android.R.layout.simple_spinner_item, provisionTypeLabels);
         provisionAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         binding.provisionTypeSpinner.setAdapter(provisionAdapter);
+    }
+
+    private MedicationProvisionType getSelectedProvisionType() {
+        int position = binding.provisionTypeSpinner.getSelectedItemPosition();
+        MedicationProvisionType[] types = MedicationProvisionType.values();
+        if (position >= 0 && position < types.length) {
+            return types[position];
+        }
+        return null;
     }
 
     private void addMedicationLog() {
@@ -211,7 +233,7 @@ public class MedicationLogFragment extends Fragment implements MedicationLogAdap
             return;
         }
 
-        MedicationProvisionType provisionType = (MedicationProvisionType) binding.provisionTypeSpinner.getSelectedItem();
+        MedicationProvisionType provisionType = getSelectedProvisionType();
         if (provisionType == null) {
             Toast.makeText(requireContext(), R.string.medication_provision_type_required, Toast.LENGTH_SHORT).show();
             return;
@@ -249,6 +271,17 @@ public class MedicationLogFragment extends Fragment implements MedicationLogAdap
         loadEntries();
     }
 
+    @Override
+    public void onDeleteMedication(Medication medication) {
+        MedicationRepository repository = MainActivity.getSharedMedicationRepository();
+        if (repository != null) {
+            repository.deleteById(medication.getId());
+        }
+        Toast.makeText(requireContext(), R.string.medication_deleted, Toast.LENGTH_SHORT).show();
+        loadMedications();
+        loadEntries();
+    }
+
     private void loadMedications() {
         medications.clear();
         List<Medication> meds = MainActivity.getSharedMedications();
@@ -261,6 +294,9 @@ public class MedicationLogFragment extends Fragment implements MedicationLogAdap
             }
         }
         updateMedicationSpinner();
+        if (medicationAdapter != null) {
+            medicationAdapter.notifyDataSetChanged();
+        }
     }
 
     private void loadEntries() {

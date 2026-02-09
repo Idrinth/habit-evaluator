@@ -308,6 +308,7 @@
     <string name="diary_navigation_food_description">Suivez vos repas, calories et glucides</string>
     <string name="diary_navigation_medication_description">Suivez vos médicaments, dosages et horaires</string>
     <string name="medication_log_title">Journal des médicaments</string>
+    <string name="medication_list_title">Vos médicaments</string>
     <string name="medication_add_medication">Ajouter un médicament</string>
     <string name="medication_name_hint">Nom du médicament</string>
     <string name="medication_wikipedia_hint">Lien Wikipédia (facultatif)</string>
