@@ -38,6 +38,7 @@
 
                 <MultiAutoCompleteTextView
                     android:id="@+id/foodItemsInput"
+                    style="@style/Widget.MaterialComponents.TextInputEditText.FilledBox"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="@string/food_log_food_items_hint"
