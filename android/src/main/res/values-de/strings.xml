@@ -307,6 +307,7 @@
     <string name="diary_navigation_sport_description">Sportaktivitäten protokollieren und Messwerte verfolgen</string>
     <string name="diary_navigation_food_description">Mahlzeiten, Kalorien und Kohlenhydrate erfassen</string>
     <string name="diary_navigation_medication_description">Medikamente, Dosierungen und Einnahmezeiten erfassen</string>
+    <string name="diary_navigation_medication_list_description">Medikamente hinzufügen, anzeigen und entfernen</string>
     <string name="medication_log_title">Medikamentenprotokoll</string>
     <string name="medication_list_title">Ihre Medikamente</string>
     <string name="medication_add_medication">Medikament hinzufügen</string>

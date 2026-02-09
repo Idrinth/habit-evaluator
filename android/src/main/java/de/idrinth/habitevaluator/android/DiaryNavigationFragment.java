@@ -50,6 +50,12 @@ public class DiaryNavigationFragment extends Fragment {
                 ((MainActivity) getActivity()).navigateToMedicationLog();
             }
         });
+
+        binding.medicationListCard.setOnClickListener(v -> {
+            if (getActivity() instanceof MainActivity) {
+                ((MainActivity) getActivity()).navigateToMedicationList();
+            }
+        });
     }
 
     @Override

@@ -307,6 +307,7 @@
     <string name="diary_navigation_sport_description">Registra tus actividades deportivas y haz seguimiento de mediciones</string>
     <string name="diary_navigation_food_description">Registra tus comidas, calorías y carbohidratos</string>
     <string name="diary_navigation_medication_description">Registra tus medicamentos, dosis y horarios</string>
+    <string name="diary_navigation_medication_list_description">Añade, consulta y elimina tus medicamentos</string>
     <string name="medication_log_title">Registro de medicamentos</string>
     <string name="medication_list_title">Sus medicamentos</string>
     <string name="medication_add_medication">Añadir medicamento</string>
