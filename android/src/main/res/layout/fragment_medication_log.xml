@@ -41,7 +41,7 @@
                     android:layout_marginBottom="8dp" />
 
                 <EditText
-                    android:id="@+id/medicationNameInput"
+                    android:id="@+id/newMedicationNameInput"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="@string/medication_name_hint"
@@ -49,7 +49,7 @@
                     android:layout_marginBottom="8dp" />
 
                 <EditText
-                    android:id="@+id/medicationWikipediaInput"
+                    android:id="@+id/newMedicationWikipediaInput"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="@string/medication_wikipedia_hint"
@@ -57,7 +57,7 @@
                     android:layout_marginBottom="8dp" />
 
                 <Spinner
-                    android:id="@+id/medicationProvisionTypeSpinner"
+                    android:id="@+id/provisionTypeSpinner"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="8dp" />
@@ -95,7 +95,7 @@
                     android:layout_marginBottom="8dp" />
 
                 <Spinner
-                    android:id="@+id/medicationSelectSpinner"
+                    android:id="@+id/medicationSpinner"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="8dp" />
