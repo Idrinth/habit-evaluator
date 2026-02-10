@@ -99,7 +99,7 @@ public class SQLiteDiaryEntryRepository implements DiaryEntryRepository {
     public List<DiaryEntry> findByUserId(String userId) {
         List<DiaryEntry> result = new ArrayList<>();
         SQLiteDatabase db = dbHelper.getReadableDatabase();
-        try (Cursor cursor = db.rawQuery("SELECT * FROM diary_entries WHERE user_id = ?", new String[]{userId})) {
+        try (Cursor cursor = db.rawQuery("SELECT * FROM diary_entries WHERE user_id = ? ORDER BY event_date DESC, start_time DESC", new String[]{userId})) {
             while (cursor.moveToNext()) {
                 result.add(readFromCursor(cursor));
             }

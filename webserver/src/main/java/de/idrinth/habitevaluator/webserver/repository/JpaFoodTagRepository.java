@@ -12,7 +12,7 @@ import java.util.Optional;
 @Repository
 public interface JpaFoodTagRepository extends JpaRepository<FoodTag, String> {
 
-    @Query("SELECT t FROM FoodTag t WHERE t.user.id = :userId")
+    @Query("SELECT t FROM FoodTag t WHERE t.user.id = :userId ORDER BY LOWER(t.name)")
     List<FoodTag> findByUserId(@Param("userId") String userId);
 
     @Query("SELECT t FROM FoodTag t WHERE t.nameLower = :nameLower AND t.user.id = :userId")

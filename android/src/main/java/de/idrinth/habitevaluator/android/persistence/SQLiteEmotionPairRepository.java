@@ -68,7 +68,7 @@ public class SQLiteEmotionPairRepository implements EmotionPairRepository {
     public List<EmotionPair> findByUserId(String userId) {
         List<EmotionPair> result = new ArrayList<>();
         SQLiteDatabase db = dbHelper.getReadableDatabase();
-        try (Cursor cursor = db.rawQuery("SELECT * FROM emotion_pairs WHERE user_id = ?", new String[]{userId})) {
+        try (Cursor cursor = db.rawQuery("SELECT * FROM emotion_pairs WHERE user_id = ? ORDER BY negative_label COLLATE NOCASE", new String[]{userId})) {
             while (cursor.moveToNext()) {
                 result.add(readFromCursor(cursor));
             }

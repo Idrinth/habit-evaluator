@@ -12,7 +12,7 @@ import java.util.List;
 @Repository
 public interface JpaMedicationLogRepository extends JpaRepository<MedicationLog, String> {
 
-    @Query("SELECT m FROM MedicationLog m WHERE m.user.id = :userId")
+    @Query("SELECT m FROM MedicationLog m WHERE m.user.id = :userId ORDER BY m.takenAt DESC, m.createdAt DESC")
     List<MedicationLog> findByUserId(@Param("userId") String userId);
 
     @Query("SELECT m FROM MedicationLog m WHERE m.user.id = :userId ORDER BY m.takenAt DESC, m.createdAt DESC")

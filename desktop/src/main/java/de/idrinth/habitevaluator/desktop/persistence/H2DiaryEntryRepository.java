@@ -32,7 +32,7 @@ public class H2DiaryEntryRepository implements DiaryEntryRepository {
     public List<DiaryEntry> findByUserId(String userId) {
         return JpaTransactionHelper.findByParameter(
                 DiaryEntry.class,
-                "SELECT d FROM DiaryEntry d WHERE d.user.id = :userId",
+                "SELECT d FROM DiaryEntry d WHERE d.user.id = :userId ORDER BY d.eventDate DESC, d.startTime DESC",
                 "userId",
                 userId);
     }

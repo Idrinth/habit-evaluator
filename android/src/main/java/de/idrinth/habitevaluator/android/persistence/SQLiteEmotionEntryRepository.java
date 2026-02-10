@@ -84,7 +84,7 @@ public class SQLiteEmotionEntryRepository implements EmotionEntryRepository {
     public List<EmotionEntry> findByUserId(String userId) {
         List<EmotionEntry> result = new ArrayList<>();
         SQLiteDatabase db = dbHelper.getReadableDatabase();
-        try (Cursor cursor = db.rawQuery("SELECT * FROM emotion_entries WHERE user_id = ?", new String[]{userId})) {
+        try (Cursor cursor = db.rawQuery("SELECT * FROM emotion_entries WHERE user_id = ? ORDER BY recorded_at DESC", new String[]{userId})) {
             while (cursor.moveToNext()) {
                 EmotionEntry entry = readFromCursor(cursor);
                 if (entry != null) {

@@ -37,7 +37,7 @@ public class H2SleepEntryRepository implements SleepEntryRepository {
     public List<SleepEntry> findByUserId(String userId) {
         return JpaTransactionHelper.findByParameter(
                 SleepEntry.class,
-                "SELECT s FROM SleepEntry s WHERE s.user.id = :userId",
+                "SELECT s FROM SleepEntry s WHERE s.user.id = :userId ORDER BY s.date DESC, s.fromTime DESC",
                 "userId",
                 userId);
     }

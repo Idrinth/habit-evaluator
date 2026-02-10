@@ -11,6 +11,6 @@ import java.util.List;
 @Repository
 public interface JpaMeetingEntryRepository extends JpaRepository<MeetingEntry, String> {
 
-    @Query("SELECT m FROM MeetingEntry m WHERE m.user.id = :userId")
+    @Query("SELECT m FROM MeetingEntry m WHERE m.user.id = :userId ORDER BY m.date DESC, m.startTime DESC")
     List<MeetingEntry> findByUserId(@Param("userId") String userId);
 }

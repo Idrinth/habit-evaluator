@@ -37,7 +37,7 @@ public class H2SportLogRepository implements SportLogRepository {
     public List<SportLog> findByUserId(String userId) {
         return JpaTransactionHelper.findByParameter(
                 SportLog.class,
-                "SELECT s FROM SportLog s WHERE s.user.id = :userId",
+                "SELECT s FROM SportLog s WHERE s.user.id = :userId ORDER BY s.date DESC, s.startTime DESC",
                 "userId",
                 userId);
     }

@@ -41,7 +41,7 @@ public class H2HabitCategoryRepository implements HabitCategoryRepository {
     public List<HabitCategory> findByUserId(String userId) {
         return JpaTransactionHelper.findByParameter(
                 HabitCategory.class,
-                "SELECT c FROM HabitCategory c WHERE c.user.id = :userId",
+                "SELECT c FROM HabitCategory c WHERE c.user.id = :userId ORDER BY LOWER(c.name)",
                 "userId",
                 userId);
     }

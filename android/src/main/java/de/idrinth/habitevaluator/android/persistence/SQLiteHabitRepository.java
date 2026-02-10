@@ -149,7 +149,7 @@ public class SQLiteHabitRepository implements HabitRepository {
     public List<Habit> findByUserId(String userId) {
         List<Habit> result = new ArrayList<>();
         SQLiteDatabase db = dbHelper.getReadableDatabase();
-        try (Cursor cursor = db.rawQuery("SELECT * FROM habits WHERE user_id = ?", new String[]{userId})) {
+        try (Cursor cursor = db.rawQuery("SELECT * FROM habits WHERE user_id = ? ORDER BY name COLLATE NOCASE", new String[]{userId})) {
             while (cursor.moveToNext()) {
                 result.add(readHabitFromCursor(cursor, db));
             }
@@ -197,7 +197,7 @@ public class SQLiteHabitRepository implements HabitRepository {
 
         // Load entries
         List<HabitEntry> entries = new ArrayList<>();
-        try (Cursor ec = db.rawQuery("SELECT * FROM habit_entries WHERE habit_id = ?", new String[]{habit.getId()})) {
+        try (Cursor ec = db.rawQuery("SELECT * FROM habit_entries WHERE habit_id = ? ORDER BY completed_at DESC", new String[]{habit.getId()})) {
             while (ec.moveToNext()) {
                 HabitEntry entry = new HabitEntry();
                 entry.setId(getString(ec, "id"));

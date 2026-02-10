@@ -50,7 +50,7 @@ public class SQLiteFoodTagRepository implements FoodTagRepository {
     public List<FoodTag> findByUserId(String userId) {
         List<FoodTag> result = new ArrayList<>();
         SQLiteDatabase db = dbHelper.getReadableDatabase();
-        try (Cursor cursor = db.rawQuery("SELECT * FROM food_tags WHERE user_id = ?", new String[]{userId})) {
+        try (Cursor cursor = db.rawQuery("SELECT * FROM food_tags WHERE user_id = ? ORDER BY name COLLATE NOCASE", new String[]{userId})) {
             while (cursor.moveToNext()) {
                 result.add(readFromCursor(cursor));
             }

@@ -32,7 +32,7 @@ public class H2EmotionPairRepository implements EmotionPairRepository {
     public List<EmotionPair> findByUserId(String userId) {
         return JpaTransactionHelper.findByParameter(
                 EmotionPair.class,
-                "SELECT e FROM EmotionPair e WHERE e.user.id = :userId",
+                "SELECT e FROM EmotionPair e WHERE e.user.id = :userId ORDER BY LOWER(e.negativeLabel)",
                 "userId",
                 userId);
     }

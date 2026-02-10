@@ -11,6 +11,6 @@ import java.util.List;
 @Repository
 public interface JpaSleepEntryRepository extends JpaRepository<SleepEntry, String> {
 
-    @Query("SELECT s FROM SleepEntry s WHERE s.user.id = :userId")
+    @Query("SELECT s FROM SleepEntry s WHERE s.user.id = :userId ORDER BY s.date DESC, s.fromTime DESC")
     List<SleepEntry> findByUserId(@Param("userId") String userId);
 }

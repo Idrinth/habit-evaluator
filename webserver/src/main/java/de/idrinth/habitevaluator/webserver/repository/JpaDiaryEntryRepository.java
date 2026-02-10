@@ -11,7 +11,7 @@ import java.util.List;
 @Repository
 public interface JpaDiaryEntryRepository extends JpaRepository<DiaryEntry, String> {
 
-    @Query("SELECT d FROM DiaryEntry d WHERE d.user.id = :userId")
+    @Query("SELECT d FROM DiaryEntry d WHERE d.user.id = :userId ORDER BY d.eventDate DESC, d.startTime DESC")
     List<DiaryEntry> findByUserId(@Param("userId") String userId);
 
     @Query("SELECT DISTINCT COALESCE(r.description, d.legacyDescription) FROM DiaryEntry d LEFT JOIN d.diaryReference r WHERE d.user.id = :userId AND (d.diaryReference IS NOT NULL OR d.legacyDescription IS NOT NULL) ORDER BY COALESCE(r.description, d.legacyDescription)")

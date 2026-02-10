@@ -115,7 +115,7 @@ public class SQLiteHabitCategoryRepository implements HabitCategoryRepository {
     public List<HabitCategory> findByUserId(String userId) {
         List<HabitCategory> result = new ArrayList<>();
         SQLiteDatabase db = dbHelper.getReadableDatabase();
-        try (Cursor cursor = db.rawQuery("SELECT * FROM habit_categories WHERE user_id = ?", new String[]{userId})) {
+        try (Cursor cursor = db.rawQuery("SELECT * FROM habit_categories WHERE user_id = ? ORDER BY name COLLATE NOCASE", new String[]{userId})) {
             while (cursor.moveToNext()) {
                 result.add(readCategoryFromCursor(cursor, db));
             }

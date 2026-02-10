@@ -77,7 +77,7 @@ public class SQLiteMedicationLogRepository implements MedicationLogRepository {
     public List<MedicationLog> findByUserId(String userId) {
         List<MedicationLog> result = new ArrayList<>();
         SQLiteDatabase db = dbHelper.getReadableDatabase();
-        try (Cursor cursor = db.rawQuery("SELECT * FROM medication_logs WHERE user_id = ?", new String[]{userId})) {
+        try (Cursor cursor = db.rawQuery("SELECT * FROM medication_logs WHERE user_id = ? ORDER BY taken_at DESC, created_at DESC", new String[]{userId})) {
             while (cursor.moveToNext()) {
                 result.add(readFromCursor(cursor));
             }

@@ -91,7 +91,7 @@ public class SQLiteFoodLogRepository implements FoodLogRepository {
     public List<FoodLog> findByUserId(String userId) {
         List<FoodLog> result = new ArrayList<>();
         SQLiteDatabase db = dbHelper.getReadableDatabase();
-        try (Cursor cursor = db.rawQuery("SELECT * FROM food_logs WHERE user_id = ?", new String[]{userId})) {
+        try (Cursor cursor = db.rawQuery("SELECT * FROM food_logs WHERE user_id = ? ORDER BY date_time DESC", new String[]{userId})) {
             while (cursor.moveToNext()) {
                 result.add(readFromCursor(cursor));
             }

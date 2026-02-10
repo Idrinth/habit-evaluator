@@ -86,7 +86,7 @@ public class SQLiteSleepEntryRepository implements SleepEntryRepository {
     public List<SleepEntry> findByUserId(String userId) {
         List<SleepEntry> result = new ArrayList<>();
         SQLiteDatabase db = dbHelper.getReadableDatabase();
-        try (Cursor cursor = db.rawQuery("SELECT * FROM sleep_entries WHERE user_id = ?", new String[]{userId})) {
+        try (Cursor cursor = db.rawQuery("SELECT * FROM sleep_entries WHERE user_id = ? ORDER BY date DESC, from_time DESC", new String[]{userId})) {
             while (cursor.moveToNext()) {
                 result.add(readFromCursor(cursor));
             }

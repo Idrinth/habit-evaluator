@@ -11,6 +11,6 @@ import java.util.List;
 @Repository
 public interface JpaFoodLogRepository extends JpaRepository<FoodLog, String> {
 
-    @Query("SELECT f FROM FoodLog f WHERE f.user.id = :userId")
+    @Query("SELECT f FROM FoodLog f WHERE f.user.id = :userId ORDER BY f.dateTime DESC")
     List<FoodLog> findByUserId(@Param("userId") String userId);
 }
