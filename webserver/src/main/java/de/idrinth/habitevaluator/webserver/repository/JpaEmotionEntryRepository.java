@@ -11,6 +11,6 @@ import java.util.List;
 @Repository
 public interface JpaEmotionEntryRepository extends JpaRepository<EmotionEntry, String> {
 
-    @Query("SELECT e FROM EmotionEntry e WHERE e.user.id = :userId")
+    @Query("SELECT e FROM EmotionEntry e WHERE e.user.id = :userId ORDER BY e.recordedAt DESC")
     List<EmotionEntry> findByUserId(@Param("userId") String userId);
 }

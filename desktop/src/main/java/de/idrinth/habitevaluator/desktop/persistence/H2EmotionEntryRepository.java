@@ -32,7 +32,7 @@ public class H2EmotionEntryRepository implements EmotionEntryRepository {
     public List<EmotionEntry> findByUserId(String userId) {
         return JpaTransactionHelper.findByParameter(
                 EmotionEntry.class,
-                "SELECT e FROM EmotionEntry e WHERE e.user.id = :userId",
+                "SELECT e FROM EmotionEntry e WHERE e.user.id = :userId ORDER BY e.recordedAt DESC",
                 "userId",
                 userId);
     }

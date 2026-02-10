@@ -89,7 +89,7 @@ public class SQLiteSportLogRepository implements SportLogRepository {
     public List<SportLog> findByUserId(String userId) {
         List<SportLog> result = new ArrayList<>();
         SQLiteDatabase db = dbHelper.getReadableDatabase();
-        try (Cursor cursor = db.rawQuery("SELECT * FROM sport_logs WHERE user_id = ?", new String[]{userId})) {
+        try (Cursor cursor = db.rawQuery("SELECT * FROM sport_logs WHERE user_id = ? ORDER BY date DESC, start_time DESC", new String[]{userId})) {
             while (cursor.moveToNext()) {
                 result.add(readFromCursor(cursor));
             }

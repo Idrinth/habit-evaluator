@@ -22,7 +22,7 @@ public class H2FoodTagRepository implements FoodTagRepository {
     public List<FoodTag> findByUserId(String userId) {
         return JpaTransactionHelper.findByParameter(
                 FoodTag.class,
-                "SELECT t FROM FoodTag t WHERE t.user.id = :userId",
+                "SELECT t FROM FoodTag t WHERE t.user.id = :userId ORDER BY LOWER(t.name)",
                 "userId",
                 userId);
     }

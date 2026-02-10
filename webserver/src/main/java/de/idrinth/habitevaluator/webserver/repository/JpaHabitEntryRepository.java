@@ -20,6 +20,6 @@ public interface JpaHabitEntryRepository extends JpaRepository<HabitEntry, Strin
      * @param habitId the habit ID
      * @return list of entries for the habit
      */
-    @Query("SELECT e FROM HabitEntry e WHERE e.habit.id = :habitId")
+    @Query("SELECT e FROM HabitEntry e WHERE e.habit.id = :habitId ORDER BY e.completedAt DESC")
     List<HabitEntry> findByHabitId(@Param("habitId") String habitId);
 }

@@ -70,7 +70,7 @@ public class SQLiteMedicationRepository implements MedicationRepository {
     public List<Medication> findByUserId(String userId) {
         List<Medication> result = new ArrayList<>();
         SQLiteDatabase db = dbHelper.getReadableDatabase();
-        try (Cursor cursor = db.rawQuery("SELECT * FROM medications WHERE user_id = ?", new String[]{userId})) {
+        try (Cursor cursor = db.rawQuery("SELECT * FROM medications WHERE user_id = ? ORDER BY name COLLATE NOCASE", new String[]{userId})) {
             while (cursor.moveToNext()) {
                 result.add(readFromCursor(cursor));
             }

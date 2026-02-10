@@ -37,7 +37,7 @@ public class H2FoodLogRepository implements FoodLogRepository {
     public List<FoodLog> findByUserId(String userId) {
         return JpaTransactionHelper.findByParameter(
                 FoodLog.class,
-                "SELECT f FROM FoodLog f WHERE f.user.id = :userId",
+                "SELECT f FROM FoodLog f WHERE f.user.id = :userId ORDER BY f.dateTime DESC",
                 "userId",
                 userId);
     }
