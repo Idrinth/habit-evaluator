@@ -28,6 +28,13 @@ dependencies {
 
     // Testing
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
+    // OpenAPI specification generation (test-time only)
+    testImplementation 'org.springdoc:springdoc-openapi-starter-webmvc-api:2.8.4'
+}
+
+test {
+    systemProperty 'openapi.output.dir', projectDir.toString()
 }
 
 bootJar {
