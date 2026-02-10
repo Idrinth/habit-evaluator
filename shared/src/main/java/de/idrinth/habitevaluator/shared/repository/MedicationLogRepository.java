@@ -19,4 +19,8 @@ public interface MedicationLogRepository {
     void deleteById(String id);
 
     List<MedicationLog> findByUserId(String userId);
+
+    List<MedicationLog> findByUserIdPaged(String userId, int limit, int offset);
+
+    int countByUserId(String userId);
 }

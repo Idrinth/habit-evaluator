@@ -325,6 +325,7 @@
     <string name="medication_log_recent">Entrées récentes</string>
     <string name="medication_log_delete">Supprimer</string>
     <string name="medication_log_toggle_form">Basculer le formulaire d\'ajout</string>
+    <string name="medication_log_load_more">Charger plus</string>
     <string name="medication_added">Médicament ajouté</string>
     <string name="medication_name_required">Veuillez saisir un nom de médicament</string>
     <string name="medication_log_entry_added">Entrée de médicament ajoutée</string>

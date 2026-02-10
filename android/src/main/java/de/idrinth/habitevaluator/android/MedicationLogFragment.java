@@ -19,7 +19,6 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 
 import de.idrinth.habitevaluator.android.databinding.FragmentMedicationLogBinding;
@@ -32,6 +31,7 @@ import de.idrinth.habitevaluator.shared.repository.MedicationLogRepository;
 public class MedicationLogFragment extends Fragment implements MedicationLogAdapter.OnMedicationLogDeleteListener {
 
     private static final DateTimeFormatter DT_DISPLAY_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+    private static final int PAGE_SIZE = 20;
 
     private FragmentMedicationLogBinding binding;
     private MedicationLogAdapter adapter;
@@ -39,6 +39,8 @@ public class MedicationLogFragment extends Fragment implements MedicationLogAdap
     private List<Medication> medications;
     private LocalDate selectedDate;
     private LocalTime selectedTime;
+    private int currentOffset;
+    private int totalCount;
 
     @Nullable
     @Override
@@ -56,12 +58,15 @@ public class MedicationLogFragment extends Fragment implements MedicationLogAdap
         medications = new ArrayList<>();
         selectedDate = LocalDate.now();
         selectedTime = LocalTime.now().withSecond(0).withNano(0);
+        currentOffset = 0;
+        totalCount = 0;
 
         setupRecyclerView();
         setupDateTimePicker();
         setupMedicationSpinner();
         setupFormToggle();
         binding.addMedicationLogButton.setOnClickListener(v -> addMedicationLog());
+        binding.loadMoreButton.setOnClickListener(v -> loadMoreEntries());
         loadMedications();
         loadEntries();
     }
@@ -227,16 +232,39 @@ public class MedicationLogFragment extends Fragment implements MedicationLogAdap
 
     private void loadEntries() {
         displayedEntries.clear();
+        currentOffset = 0;
 
         MedicationLogRepository repository = MainActivity.getSharedMedicationLogRepository();
         if (repository != null && MainActivity.getSharedLocalUser() != null) {
-            List<MedicationLog> allEntries = repository.findByUserId(MainActivity.getSharedLocalUser().getId());
-            allEntries.sort(Comparator.comparing(MedicationLog::getTakenAt).reversed()
-                    .thenComparing(Comparator.comparing(MedicationLog::getCreatedAt).reversed()));
-            displayedEntries.addAll(allEntries);
+            String userId = MainActivity.getSharedLocalUser().getId();
+            totalCount = repository.countByUserId(userId);
+            List<MedicationLog> page = repository.findByUserIdPaged(userId, PAGE_SIZE, 0);
+            displayedEntries.addAll(page);
+            currentOffset = page.size();
         }
 
         adapter.notifyDataSetChanged();
+        updateLoadMoreVisibility();
+    }
+
+    private void loadMoreEntries() {
+        MedicationLogRepository repository = MainActivity.getSharedMedicationLogRepository();
+        if (repository != null && MainActivity.getSharedLocalUser() != null) {
+            String userId = MainActivity.getSharedLocalUser().getId();
+            List<MedicationLog> page = repository.findByUserIdPaged(userId, PAGE_SIZE, currentOffset);
+            int insertStart = displayedEntries.size();
+            displayedEntries.addAll(page);
+            currentOffset += page.size();
+            adapter.notifyItemRangeInserted(insertStart, page.size());
+        }
+
+        updateLoadMoreVisibility();
+    }
+
+    private void updateLoadMoreVisibility() {
+        if (binding != null) {
+            binding.loadMoreButton.setVisibility(currentOffset < totalCount ? View.VISIBLE : View.GONE);
+        }
     }
 
     @Override

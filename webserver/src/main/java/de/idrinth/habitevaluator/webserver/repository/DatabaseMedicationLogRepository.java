@@ -2,6 +2,7 @@ package de.idrinth.habitevaluator.webserver.repository;
 
 import de.idrinth.habitevaluator.shared.model.MedicationLog;
 import de.idrinth.habitevaluator.shared.repository.MedicationLogRepository;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -39,5 +40,16 @@ public class DatabaseMedicationLogRepository implements MedicationLogRepository 
     @Override
     public List<MedicationLog> findByUserId(String userId) {
         return jpaRepository.findByUserId(userId);
+    }
+
+    @Override
+    public List<MedicationLog> findByUserIdPaged(String userId, int limit, int offset) {
+        int page = offset / Math.max(limit, 1);
+        return jpaRepository.findByUserIdPaged(userId, PageRequest.of(page, limit));
+    }
+
+    @Override
+    public int countByUserId(String userId) {
+        return jpaRepository.countByUserId(userId);
     }
 }
