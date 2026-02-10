@@ -123,20 +123,23 @@ public class CorrelationActivity extends AppCompatActivity {
             targetSelection = allLabel;
         }
 
+        displayCorrelations(filterCorrelations(allCorrelations, allLabel, sourceSelection, targetSelection));
+    }
+
+    static List<EventCorrelation> filterCorrelations(
+            List<EventCorrelation> correlations, String allLabel,
+            String sourceSelection, String targetSelection) {
         List<EventCorrelation> filtered = new ArrayList<>();
-        for (EventCorrelation corr : allCorrelations) {
+        for (EventCorrelation corr : correlations) {
             boolean matchesSource = allLabel.equals(sourceSelection)
-                    || corr.getEventA().equals(sourceSelection)
-                    || corr.getEventB().equals(sourceSelection);
+                    || corr.getEventA().equals(sourceSelection);
             boolean matchesTarget = allLabel.equals(targetSelection)
-                    || corr.getEventA().equals(targetSelection)
                     || corr.getEventB().equals(targetSelection);
             if (matchesSource && matchesTarget) {
                 filtered.add(corr);
             }
         }
-
-        displayCorrelations(filtered);
+        return filtered;
     }
 
     private void displayCorrelations(List<EventCorrelation> correlations) {
