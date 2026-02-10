@@ -126,10 +126,8 @@ public class CorrelationActivity extends AppCompatActivity {
         List<EventCorrelation> filtered = new ArrayList<>();
         for (EventCorrelation corr : allCorrelations) {
             boolean matchesSource = allLabel.equals(sourceSelection)
-                    || corr.getEventA().equals(sourceSelection)
-                    || corr.getEventB().equals(sourceSelection);
+                    || corr.getEventA().equals(sourceSelection);
             boolean matchesTarget = allLabel.equals(targetSelection)
-                    || corr.getEventA().equals(targetSelection)
                     || corr.getEventB().equals(targetSelection);
             if (matchesSource && matchesTarget) {
                 filtered.add(corr);
