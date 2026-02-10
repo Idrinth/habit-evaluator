@@ -1,0 +1,1697 @@
+openapi: 3.1.0
+info:
+  title: OpenAPI definition
+  version: v0
+servers:
+- url: http://localhost
+  description: Generated server url
+paths:
+  /api/reminder-settings:
+    get:
+      tags:
+      - reminder-settings-controller
+      operationId: getSettings
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ReminderSettings"
+    put:
+      tags:
+      - reminder-settings-controller
+      operationId: updateSettings
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ReminderSettings"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ReminderSettings"
+  /api/medications/{id}:
+    put:
+      tags:
+      - medication-controller
+      operationId: updateMedication
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Medication"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
+    delete:
+      tags:
+      - medication-controller
+      operationId: deleteMedication
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+  /api/habits/{id}:
+    get:
+      tags:
+      - habit-controller
+      operationId: getHabit
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/Habit"
+    put:
+      tags:
+      - habit-controller
+      operationId: updateHabit
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Habit"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/Habit"
+    delete:
+      tags:
+      - habit-controller
+      operationId: deleteHabit
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+  /api/sync:
+    post:
+      tags:
+      - sync-controller
+      operationId: sync
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SyncData"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/SyncData"
+  /api/sport-logs:
+    get:
+      tags:
+      - sport-log-controller
+      operationId: getAllEntries
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SportLog"
+    post:
+      tags:
+      - sport-log-controller
+      operationId: createEntry
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SportLog"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
+  /api/sleep-entries:
+    get:
+      tags:
+      - sleep-entry-controller
+      operationId: getAllEntries_1
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SleepEntry"
+    post:
+      tags:
+      - sleep-entry-controller
+      operationId: createEntry_1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SleepEntry"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
+  /api/score-rules:
+    post:
+      tags:
+      - scoring-rule-controller
+      operationId: createScoringRule
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateScoringRuleRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
+  /api/meetings:
+    get:
+      tags:
+      - meeting-controller
+      operationId: getAllEntries_2
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/MeetingEntry"
+    post:
+      tags:
+      - meeting-controller
+      operationId: createEntry_2
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MeetingEntry"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
+  /api/medications:
+    get:
+      tags:
+      - medication-controller
+      operationId: getAllMedications
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Medication"
+    post:
+      tags:
+      - medication-controller
+      operationId: createMedication
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Medication"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
+  /api/medications/logs:
+    get:
+      tags:
+      - medication-controller
+      operationId: getAllLogs
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/MedicationLog"
+    post:
+      tags:
+      - medication-controller
+      operationId: createLog
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MedicationLog"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
+  /api/magic-links:
+    get:
+      tags:
+      - magic-link-controller
+      operationId: listMagicLinks
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/MagicLink"
+    post:
+      tags:
+      - magic-link-controller
+      operationId: createMagicLink
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MagicLinkRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/MagicLink"
+  /api/init-defaults:
+    post:
+      tags:
+      - default-data-controller
+      operationId: initializeDefaults
+      parameters:
+      - name: language
+        in: query
+        required: false
+        schema:
+          type: string
+          default: en
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+  /api/habits:
+    get:
+      tags:
+      - habit-controller
+      operationId: getAllHabits
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Habit"
+    post:
+      tags:
+      - habit-controller
+      operationId: createHabit
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Habit"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/Habit"
+  /api/habits/{id}/entries:
+    post:
+      tags:
+      - habit-controller
+      operationId: addEntry
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/HabitEntry"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/HabitEntry"
+  /api/food-logs:
+    get:
+      tags:
+      - food-log-controller
+      operationId: getAllEntries_3
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/FoodLog"
+    post:
+      tags:
+      - food-log-controller
+      operationId: createEntry_3
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FoodLog"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
+  /api/food-logs/migrate-tags:
+    post:
+      tags:
+      - food-log-controller
+      operationId: migrateTags
+      responses:
+        "200":
+          description: OK
+  /api/diary:
+    get:
+      tags:
+      - diary-controller
+      operationId: getAllEntries_4
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/DiaryEntry"
+    post:
+      tags:
+      - diary-controller
+      operationId: createEntry_4
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DiaryEntry"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/DiaryEntry"
+  /api/categories:
+    get:
+      tags:
+      - category-controller
+      operationId: listCategories
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/HabitCategory"
+    post:
+      tags:
+      - category-controller
+      operationId: createCategory
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateCategoryRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/HabitCategory"
+  /api/backup:
+    get:
+      tags:
+      - backup-controller
+      operationId: downloadBackup
+      parameters:
+      - name: password
+        in: query
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: string
+                format: byte
+    post:
+      tags:
+      - backup-controller
+      operationId: uploadBackup
+      parameters:
+      - name: password
+        in: query
+        required: true
+        schema:
+          type: string
+      - name: categories
+        in: query
+        required: false
+        schema:
+          type: boolean
+          default: true
+      - name: habits
+        in: query
+        required: false
+        schema:
+          type: boolean
+          default: true
+      - name: diary
+        in: query
+        required: false
+        schema:
+          type: boolean
+          default: true
+      - name: sleep
+        in: query
+        required: false
+        schema:
+          type: boolean
+          default: true
+      - name: sportLogs
+        in: query
+        required: false
+        schema:
+          type: boolean
+          default: true
+      - name: foodLogs
+        in: query
+        required: false
+        schema:
+          type: boolean
+          default: true
+      - name: emotions
+        in: query
+        required: false
+        schema:
+          type: boolean
+          default: true
+      - name: reminderSettings
+        in: query
+        required: false
+        schema:
+          type: boolean
+          default: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+              required:
+              - file
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+  /api/auth/logout:
+    post:
+      tags:
+      - auth-controller
+      operationId: logout
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/LoginResponse"
+  /api/auth/login:
+    post:
+      tags:
+      - auth-controller
+      operationId: login
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/LoginResponse"
+  /api/stats/food-distribution:
+    get:
+      tags:
+      - stats-controller
+      operationId: getFoodDistribution
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+  /api/stats/emotion-scatter:
+    get:
+      tags:
+      - stats-controller
+      operationId: getEmotionScatter
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+  /api/stats/dashboard:
+    get:
+      tags:
+      - stats-controller
+      operationId: getDashboard
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+  /api/stats/daily-timeline:
+    get:
+      tags:
+      - stats-controller
+      operationId: getDailyTimeline
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+  /api/stats/correlations:
+    get:
+      tags:
+      - stats-controller
+      operationId: getCorrelations
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  type: object
+                  additionalProperties:
+                    type: object
+  /api/sport-logs/stats:
+    get:
+      tags:
+      - sport-log-controller
+      operationId: getStats
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  $ref: "#/components/schemas/SportLogStats"
+  /api/sport-logs/graph:
+    get:
+      tags:
+      - sport-log-controller
+      operationId: getGraph
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+  /api/sleep-entries/stats:
+    get:
+      tags:
+      - sleep-entry-controller
+      operationId: getStats_1
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  $ref: "#/components/schemas/SleepStats"
+  /api/shared/{token}:
+    get:
+      tags:
+      - magic-link-controller
+      operationId: getSharedData
+      parameters:
+      - name: token
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+  /api/habits/{id}/point-development:
+    get:
+      tags:
+      - habit-controller
+      operationId: getPointDevelopment
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: period
+        in: query
+        required: false
+        schema:
+          type: string
+          default: week
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+  /api/habits/{id}/evaluate:
+    get:
+      tags:
+      - habit-controller
+      operationId: evaluateHabit
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: start
+        in: query
+        required: false
+        schema:
+          type: string
+          format: date
+      - name: end
+        in: query
+        required: false
+        schema:
+          type: string
+          format: date
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/Evaluation"
+  /api/habits/predict:
+    get:
+      tags:
+      - habit-controller
+      operationId: predictWeeklyScore
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/PredictedWeeklyScore"
+  /api/food-logs/suggestions:
+    get:
+      tags:
+      - food-log-controller
+      operationId: getSuggestions
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  type: string
+  /api/export/pdf:
+    get:
+      tags:
+      - pdf-export-controller
+      operationId: exportPdf
+      parameters:
+      - name: from
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: to
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: habits
+        in: query
+        required: false
+        schema:
+          type: boolean
+          default: true
+      - name: sleep
+        in: query
+        required: false
+        schema:
+          type: boolean
+          default: true
+      - name: diary
+        in: query
+        required: false
+        schema:
+          type: boolean
+          default: true
+      - name: emotions
+        in: query
+        required: false
+        schema:
+          type: boolean
+          default: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: string
+                format: byte
+  /api/emotions/pairs:
+    get:
+      tags:
+      - emotion-pair-controller
+      operationId: getPairs
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  type: object
+                  additionalProperties:
+                    type: object
+  /api/emotions/graph:
+    get:
+      tags:
+      - emotion-pair-controller
+      operationId: getGraphData
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+  /api/diary/suggestions:
+    get:
+      tags:
+      - diary-controller
+      operationId: getSuggestions_1
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  type: string
+  /api/diary/stats:
+    get:
+      tags:
+      - diary-controller
+      operationId: getStats_2
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+  /api/auth/me:
+    get:
+      tags:
+      - auth-controller
+      operationId: getCurrentUser
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/LoginResponse"
+  /api/sport-logs/{id}:
+    delete:
+      tags:
+      - sport-log-controller
+      operationId: deleteEntry
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+  /api/sleep-entries/{id}:
+    delete:
+      tags:
+      - sleep-entry-controller
+      operationId: deleteEntry_1
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+  /api/meetings/{id}:
+    delete:
+      tags:
+      - meeting-controller
+      operationId: deleteEntry_2
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+  /api/medications/logs/{id}:
+    delete:
+      tags:
+      - medication-controller
+      operationId: deleteLog
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+  /api/magic-links/{id}:
+    delete:
+      tags:
+      - magic-link-controller
+      operationId: deleteMagicLink
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+  /api/habits/{id}/entries/last:
+    delete:
+      tags:
+      - habit-controller
+      operationId: removeLastEntry
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: date
+        in: query
+        required: true
+        schema:
+          type: string
+          format: date
+      responses:
+        "200":
+          description: OK
+  /api/food-logs/{id}:
+    delete:
+      tags:
+      - food-log-controller
+      operationId: deleteEntry_3
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+  /api/diary/{id}:
+    delete:
+      tags:
+      - diary-controller
+      operationId: deleteEntry_4
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+components:
+  schemas:
+    LocalTime:
+      type: object
+      properties:
+        hour:
+          type: integer
+          format: int32
+        minute:
+          type: integer
+          format: int32
+        second:
+          type: integer
+          format: int32
+        nano:
+          type: integer
+          format: int32
+    ReminderSettings:
+      type: object
+      properties:
+        id:
+          type: string
+        user:
+          $ref: "#/components/schemas/User"
+        sleepReminderEnabled:
+          type: boolean
+        sleepReminderTime:
+          $ref: "#/components/schemas/LocalTime"
+        diaryReminderEnabled:
+          type: boolean
+        diaryReminderTime:
+          $ref: "#/components/schemas/LocalTime"
+        emotionReminderEnabled:
+          type: boolean
+        emotionReminderCount:
+          type: integer
+          format: int32
+        wakingHoursStart:
+          $ref: "#/components/schemas/LocalTime"
+        wakingHoursEnd:
+          $ref: "#/components/schemas/LocalTime"
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+        username:
+          type: string
+        email:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+    Medication:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        wikipediaLink:
+          type: string
+        provisionType:
+          type: string
+          enum:
+          - PILL
+          - LIQUID_DROPS
+          - LIQUID_ML
+        user:
+          $ref: "#/components/schemas/User"
+        unit:
+          type: string
+    Habit:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        categoryId:
+          type: string
+        frequencyType:
+          type: string
+          enum:
+          - DAILY
+          - WEEKLY
+          - MONTHLY
+        targetFrequency:
+          type: integer
+          format: int32
+        maxEntriesPerDay:
+          type: integer
+          format: int32
+        createdAt:
+          type: string
+          format: date-time
+        entries:
+          type: array
+          items:
+            $ref: "#/components/schemas/HabitEntry"
+        positiveScoring:
+          type: boolean
+        scoringRule:
+          $ref: "#/components/schemas/ScoringRule"
+        user:
+          $ref: "#/components/schemas/User"
+        nameTranslations:
+          type: object
+          additionalProperties:
+            type: string
+        descriptionTranslations:
+          type: object
+          additionalProperties:
+            type: string
+    HabitEntry:
+      type: object
+      properties:
+        id:
+          type: string
+        habit:
+          $ref: "#/components/schemas/Habit"
+        completedAt:
+          type: string
+          format: date-time
+        notes:
+          type: string
+        value:
+          type: integer
+          format: int32
+        habitId:
+          type: string
+    ScoringRule:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        thresholdFor1Point:
+          type: integer
+          format: int32
+        thresholdFor2Points:
+          type: integer
+          format: int32
+        thresholdFor4Points:
+          type: integer
+          format: int32
+        thresholdFor8Points:
+          type: integer
+          format: int32
+        user:
+          $ref: "#/components/schemas/User"
+    SyncData:
+      type: object
+      properties:
+        habits:
+          type: array
+          items:
+            $ref: "#/components/schemas/Habit"
+    SportLog:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        measurement:
+          type: number
+          format: double
+        measurementUnit:
+          type: string
+        startTime:
+          $ref: "#/components/schemas/LocalTime"
+        endTime:
+          $ref: "#/components/schemas/LocalTime"
+        date:
+          type: string
+          format: date
+        createdAt:
+          type: string
+          format: date-time
+        notes:
+          type: string
+        user:
+          $ref: "#/components/schemas/User"
+        durationHours:
+          type: number
+          format: double
+    SleepEntry:
+      type: object
+      properties:
+        id:
+          type: string
+        fromTime:
+          $ref: "#/components/schemas/LocalTime"
+        untilTime:
+          $ref: "#/components/schemas/LocalTime"
+        date:
+          type: string
+          format: date
+        createdAt:
+          type: string
+          format: date-time
+        notes:
+          type: string
+        user:
+          $ref: "#/components/schemas/User"
+        hours:
+          type: number
+          format: double
+    CreateScoringRuleRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        thresholdFor1Point:
+          type: integer
+          format: int32
+        thresholdFor2Points:
+          type: integer
+          format: int32
+        thresholdFor4Points:
+          type: integer
+          format: int32
+        thresholdFor8Points:
+          type: integer
+          format: int32
+    MeetingEntry:
+      type: object
+      properties:
+        id:
+          type: string
+        place:
+          type: string
+        attendants:
+          type: string
+        startTime:
+          $ref: "#/components/schemas/LocalTime"
+        endTime:
+          $ref: "#/components/schemas/LocalTime"
+        date:
+          type: string
+          format: date
+        createdAt:
+          type: string
+          format: date-time
+        user:
+          $ref: "#/components/schemas/User"
+        durationMinutes:
+          type: integer
+          format: int32
+    MedicationLog:
+      type: object
+      properties:
+        id:
+          type: string
+        medication:
+          $ref: "#/components/schemas/Medication"
+        amount:
+          type: number
+          format: double
+        takenAt:
+          type: string
+          format: date-time
+        notes:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        user:
+          $ref: "#/components/schemas/User"
+    MagicLinkRequest:
+      type: object
+      properties:
+        categoryId:
+          type: string
+        filterStart:
+          type: string
+          format: date
+        filterEnd:
+          type: string
+          format: date
+        expiresAt:
+          type: string
+          format: date-time
+    MagicLink:
+      type: object
+      properties:
+        id:
+          type: string
+        token:
+          type: string
+        user:
+          $ref: "#/components/schemas/User"
+        categoryId:
+          type: string
+        filterStart:
+          type: string
+          format: date
+        filterEnd:
+          type: string
+          format: date
+        createdAt:
+          type: string
+          format: date-time
+        expiresAt:
+          type: string
+          format: date-time
+        expired:
+          type: boolean
+    FoodLog:
+      type: object
+      properties:
+        id:
+          type: string
+        carbohydrates:
+          type: number
+          format: double
+        kcal:
+          type: integer
+          format: int32
+        dateTime:
+          type: string
+          format: date-time
+        foodItems:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        notes:
+          type: string
+        user:
+          $ref: "#/components/schemas/User"
+        tags:
+          type: array
+          items:
+            $ref: "#/components/schemas/FoodTag"
+          uniqueItems: true
+        foodItemList:
+          type: array
+          items:
+            type: string
+    FoodTag:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        nameLower:
+          type: string
+    DiaryEntry:
+      type: object
+      properties:
+        id:
+          type: string
+        legacyDescription:
+          type: string
+        diaryReference:
+          $ref: "#/components/schemas/DiaryReference"
+        significance:
+          type: string
+          enum:
+          - MINOR
+          - NORMAL
+          - MAJOR
+        eventDate:
+          type: string
+          format: date
+        createdAt:
+          type: string
+          format: date-time
+        startTime:
+          $ref: "#/components/schemas/LocalTime"
+        endTime:
+          $ref: "#/components/schemas/LocalTime"
+        user:
+          $ref: "#/components/schemas/User"
+        description:
+          type: string
+        points:
+          type: integer
+          format: int32
+        durationMinutes:
+          type: integer
+          format: int32
+    DiaryReference:
+      type: object
+      properties:
+        id:
+          type: string
+        description:
+          type: string
+        descriptionLower:
+          type: string
+        user:
+          $ref: "#/components/schemas/User"
+    CreateCategoryRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        color:
+          type: string
+    HabitCategory:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        color:
+          type: string
+        user:
+          $ref: "#/components/schemas/User"
+        nameTranslations:
+          type: object
+          additionalProperties:
+            type: string
+        descriptionTranslations:
+          type: object
+          additionalProperties:
+            type: string
+    LoginResponse:
+      type: object
+      properties:
+        userId:
+          type: string
+        username:
+          type: string
+        message:
+          type: string
+        success:
+          type: boolean
+    LoginRequest:
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+      required:
+      - password
+      - username
+    SportLogStats:
+      type: object
+      properties:
+        periodStart:
+          type: string
+          format: date
+        periodEnd:
+          type: string
+          format: date
+        averageDurationHours:
+          type: number
+          format: double
+        minDurationHours:
+          type: number
+          format: double
+        maxDurationHours:
+          type: number
+          format: double
+        averageMeasurement:
+          type: number
+          format: double
+        minMeasurement:
+          type: number
+          format: double
+        maxMeasurement:
+          type: number
+          format: double
+        totalEntries:
+          type: integer
+          format: int32
+    SleepStats:
+      type: object
+      properties:
+        periodStart:
+          type: string
+          format: date
+        periodEnd:
+          type: string
+          format: date
+        averageHours:
+          type: number
+          format: double
+        minHours:
+          type: number
+          format: double
+        maxHours:
+          type: number
+          format: double
+        totalEntries:
+          type: integer
+          format: int32
+    Evaluation:
+      type: object
+      properties:
+        habitId:
+          type: string
+        habitName:
+          type: string
+        periodStart:
+          type: string
+          format: date
+        periodEnd:
+          type: string
+          format: date
+        totalEntries:
+          type: integer
+          format: int32
+        targetEntries:
+          type: integer
+          format: int32
+        completionRate:
+          type: number
+          format: double
+        currentStreak:
+          type: integer
+          format: int32
+        longestStreak:
+          type: integer
+          format: int32
+        positiveScoring:
+          type: boolean
+        onTrack:
+          type: boolean
+    PredictedHabitScore:
+      type: object
+      properties:
+        habitId:
+          type: string
+        habitName:
+          type: string
+        categoryId:
+          type: string
+        currentCompletionCount:
+          type: integer
+          format: int32
+        currentScore:
+          type: integer
+          format: int32
+        predictedCompletionCount:
+          type: integer
+          format: int32
+        predictedScore:
+          type: integer
+          format: int32
+        dailyRate:
+          type: number
+          format: double
+    PredictedWeeklyScore:
+      type: object
+      properties:
+        weekStart:
+          type: string
+          format: date
+        weekEnd:
+          type: string
+          format: date
+        weekNumber:
+          type: integer
+          format: int32
+        year:
+          type: integer
+          format: int32
+        calculatedAt:
+          type: string
+          format: date-time
+        daysElapsed:
+          type: integer
+          format: int32
+        daysRemaining:
+          type: integer
+          format: int32
+        currentTotalScore:
+          type: integer
+          format: int32
+        predictedTotalScore:
+          type: integer
+          format: int32
+        habitPredictions:
+          type: array
+          items:
+            $ref: "#/components/schemas/PredictedHabitScore"
