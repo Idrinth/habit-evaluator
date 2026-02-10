@@ -119,5 +119,14 @@
             android:layout_height="wrap_content"
             android:nestedScrollingEnabled="false" />
 
+        <Button
+            android:id="@+id/loadMoreButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/medication_log_load_more"
+            android:visibility="gone"
+            style="?android:attr/borderlessButtonStyle" />
+
     </LinearLayout>
 </ScrollView>

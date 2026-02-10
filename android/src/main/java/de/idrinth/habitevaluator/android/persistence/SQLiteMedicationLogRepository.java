@@ -85,6 +85,31 @@ public class SQLiteMedicationLogRepository implements MedicationLogRepository {
         return result;
     }
 
+    @Override
+    public List<MedicationLog> findByUserIdPaged(String userId, int limit, int offset) {
+        List<MedicationLog> result = new ArrayList<>();
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        try (Cursor cursor = db.rawQuery(
+                "SELECT * FROM medication_logs WHERE user_id = ? ORDER BY taken_at DESC, created_at DESC LIMIT ? OFFSET ?",
+                new String[]{userId, String.valueOf(limit), String.valueOf(offset)})) {
+            while (cursor.moveToNext()) {
+                result.add(readFromCursor(cursor));
+            }
+        }
+        return result;
+    }
+
+    @Override
+    public int countByUserId(String userId) {
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        try (Cursor cursor = db.rawQuery("SELECT COUNT(*) FROM medication_logs WHERE user_id = ?", new String[]{userId})) {
+            if (cursor.moveToFirst()) {
+                return cursor.getInt(0);
+            }
+        }
+        return 0;
+    }
+
     private MedicationLog readFromCursor(Cursor cursor) {
         MedicationLog entry = new MedicationLog();
         entry.setId(getString(cursor, "id"));
