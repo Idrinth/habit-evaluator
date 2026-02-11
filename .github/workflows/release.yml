@@ -37,6 +37,12 @@ jobs:
       - name: Build desktop .deb
         run: ./gradlew :desktop:jpackageDeb "-PreleaseVersion=${{ steps.version.outputs.VERSION }}"
 
+      - name: Upload webserver JAR artifact
+        uses: actions/upload-artifact@v6
+        with:
+          name: webserver-jar
+          path: webserver/build/libs/habit-evaluator-web.jar
+
       - name: Upload release assets
         uses: softprops/action-gh-release@v2
         with:
@@ -152,7 +158,38 @@ jobs:
           tag_name: v${{ steps.version.outputs.VERSION }}
           files: android/build/outputs/bundle/${{ matrix.flavor }}Release/*.aab
 
+  frontend-build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        project: [website, homepage]
+    defaults:
+      run:
+        working-directory: ${{ matrix.project }}
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: ${{ matrix.project }}/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Upload build output
+        uses: actions/upload-artifact@v6
+        with:
+          name: ${{ matrix.project }}-build
+          path: ${{ matrix.project }}/build/
+
   docker:
+    needs: [artifacts, frontend-build]
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -160,14 +197,26 @@ jobs:
           - image: webserver
             context: .
             dockerfile: webserver/Dockerfile
+            artifact: webserver-jar
+            artifact-path: webserver/build/libs/
           - image: website
             context: website
             dockerfile: website/Dockerfile
+            artifact: website-build
+            artifact-path: website/build/
           - image: homepage
             context: homepage
             dockerfile: homepage/Dockerfile
+            artifact: homepage-build
+            artifact-path: homepage/build/
     steps:
       - uses: actions/checkout@v6
+
+      - name: Download pre-built artifact
+        uses: actions/download-artifact@v6
+        with:
+          name: ${{ matrix.artifact }}
+          path: ${{ matrix.artifact-path }}
 
       - name: Lowercase repository
         id: repo
@@ -196,6 +245,7 @@ jobs:
         with:
           context: ${{ matrix.context }}
           file: ${{ matrix.dockerfile }}
+          target: prebuilt
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
