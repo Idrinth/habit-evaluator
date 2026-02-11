@@ -80,7 +80,7 @@ jobs:
           tag_name: v${{ steps.version.outputs.VERSION }}
           files: desktop/build/jpackage-exe/*.exe
 
-  artifacts-apk:
+  artifacts-android:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -104,55 +104,26 @@ jobs:
       - name: Decode keystore
         run: echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 -d > /tmp/keystore.jks
 
-      - name: Build signed APK (${{ matrix.flavor }})
+      - name: Build signed APK and AAB (${{ matrix.flavor }})
         env:
           ANDROID_KEYSTORE_FILE: /tmp/keystore.jks
           ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
           ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
           ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
           ANDROID_VERSION_CODE: ${{ github.run_number }}
-        run: ./gradlew :android:assemble${{ matrix.flavor == 'modern' && 'Modern' || 'Legacy' }}Release "-PreleaseVersion=${{ steps.version.outputs.VERSION }}"
+        run: >
+          ./gradlew
+          :android:assemble${{ matrix.flavor == 'modern' && 'Modern' || 'Legacy' }}Release
+          :android:bundle${{ matrix.flavor == 'modern' && 'Modern' || 'Legacy' }}Release
+          "-PreleaseVersion=${{ steps.version.outputs.VERSION }}"
 
-      - name: Upload release assets (${{ matrix.flavor }})
+      - name: Upload APK release assets (${{ matrix.flavor }})
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ steps.version.outputs.VERSION }}
           files: android/build/outputs/apk/${{ matrix.flavor }}Release/*.apk
 
-  artifacts-aab:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        flavor: [modern, legacy]
-    steps:
-      - uses: actions/checkout@v6
-
-      - name: Set up JDK 17
-        uses: actions/setup-java@v5
-        with:
-          java-version: '17'
-          distribution: 'temurin'
-
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v5
-
-      - name: Extract version from tag
-        id: version
-        run: echo "VERSION=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
-
-      - name: Decode keystore
-        run: echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 -d > /tmp/keystore.jks
-
-      - name: Build signed AAB (${{ matrix.flavor }})
-        env:
-          ANDROID_KEYSTORE_FILE: /tmp/keystore.jks
-          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
-          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
-          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
-          ANDROID_VERSION_CODE: ${{ github.run_number }}
-        run: ./gradlew :android:bundle${{ matrix.flavor == 'modern' && 'Modern' || 'Legacy' }}Release "-PreleaseVersion=${{ steps.version.outputs.VERSION }}"
-
-      - name: Upload release assets (${{ matrix.flavor }})
+      - name: Upload AAB release assets (${{ matrix.flavor }})
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ steps.version.outputs.VERSION }}
