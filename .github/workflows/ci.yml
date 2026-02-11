@@ -32,7 +32,7 @@ jobs:
         run: ./gradlew :shared:build :webserver:build :desktop:build
 
       - name: Generate coverage reports
-        run: ./gradlew jacocoTestReport
+        run: ./gradlew :shared:jacocoTestReport :webserver:jacocoTestReport :desktop:jacocoTestReport
         if: always()
 
       - name: Generate aggregate coverage report
