@@ -28,6 +28,7 @@ public class ImprintFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        binding.versionLabel.setText("Version " + BuildConfig.VERSION_NAME);
         binding.emailLink.setOnClickListener(v -> {
             Intent intent = new Intent(Intent.ACTION_SENDTO);
             intent.setData(Uri.parse("mailto:self@idrinth.de"));
