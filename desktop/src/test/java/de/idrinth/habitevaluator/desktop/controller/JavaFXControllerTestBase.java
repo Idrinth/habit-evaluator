@@ -19,6 +19,9 @@ public abstract class JavaFXControllerTestBase {
     @BeforeAll
     static void initToolkit() throws Exception {
         if (!toolkitInitialized) {
+            System.setProperty("glass.platform", "Monocle");
+            System.setProperty("monocle.platform", "Headless");
+            System.setProperty("prism.order", "sw");
             CountDownLatch latch = new CountDownLatch(1);
             try {
                 Platform.startup(latch::countDown);
