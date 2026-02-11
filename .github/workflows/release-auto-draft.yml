@@ -18,6 +18,8 @@ jobs:
 
       - name: Determine next version
         id: version
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           LATEST_TAG=$(git tag -l 'v*' --sort=-v:refname | head -n 1)
           if [ -z "$LATEST_TAG" ]; then
@@ -25,7 +27,21 @@ jobs:
           else
             VERSION="${LATEST_TAG#v}"
             IFS='.' read -r MAJOR MINOR PATCH <<< "$VERSION"
-            PATCH=$((PATCH + 1))
+
+            TAG_DATE=$(git log -1 --format=%aI "$LATEST_TAG" | cut -dT -f1)
+            LABELS=$(gh pr list --state merged --search "merged:>=${TAG_DATE}" --limit 200 --json labels --jq '.[].labels[].name' 2>/dev/null || echo "")
+
+            if echo "$LABELS" | grep -q '^semver:major$'; then
+              MAJOR=$((MAJOR + 1))
+              MINOR=0
+              PATCH=0
+            elif echo "$LABELS" | grep -q '^semver:minor$'; then
+              MINOR=$((MINOR + 1))
+              PATCH=0
+            else
+              PATCH=$((PATCH + 1))
+            fi
+
             NEXT_VERSION="${MAJOR}.${MINOR}.${PATCH}"
           fi
           echo "next_version=${NEXT_VERSION}" >> "$GITHUB_OUTPUT"
