@@ -356,4 +356,16 @@
     <string name="food_log_kcal_required">Por favor, introduzca un valor de kcal válido</string>
     <string name="food_log_kcal_invalid">Por favor, introduzca un valor de kcal válido</string>
     <string name="food_log_carbs_invalid">Por favor, introduzca un valor de carbohidratos válido</string>
+    <string name="module_visibility_settings">Visibilidad de módulos</string>
+    <string name="module_visibility_hint">Oculte los módulos que no usa para simplificar la navegación.</string>
+    <string name="module_diary">Diario</string>
+    <string name="module_sleep">Seguimiento del sueño</string>
+    <string name="module_emotions">Emociones</string>
+    <string name="module_points">Gráficos de puntos</string>
+    <string name="module_statistics">Estadísticas</string>
+    <string name="module_food_log">Registro de alimentación</string>
+    <string name="module_sport_log">Registro deportivo</string>
+    <string name="module_medication">Medicamentos</string>
+    <string name="module_backup">Respaldo</string>
+    <string name="module_pdf_export">Exportar PDF</string>
 </resources>
