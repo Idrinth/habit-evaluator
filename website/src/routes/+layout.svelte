@@ -44,7 +44,8 @@
 		const savedVisibility = localStorage.getItem('moduleVisibility');
 		if (savedVisibility) {
 			try {
-				mv = JSON.parse(savedVisibility);
+				const parsed = JSON.parse(savedVisibility);
+				mv = { ...mv, ...parsed };
 			} catch {
 				// ignore
 			}
@@ -52,8 +53,8 @@
 
 		if (data.loggedIn) {
 			moduleVisibilityApi.get().then((settings) => {
-				mv = settings;
-				localStorage.setItem('moduleVisibility', JSON.stringify(settings));
+				mv = { ...mv, ...settings };
+				localStorage.setItem('moduleVisibility', JSON.stringify(mv));
 			}).catch(() => {
 				// use cached or defaults
 			});
@@ -131,6 +132,9 @@
 		{/if}
 		{#if mv.foodLogVisible}
 			<a href="/food-log/distribution">{t('nav.foodDistribution', lang)}</a>
+		{/if}
+		{#if mv.medicationVisible}
+			<a href="/medication">{t('nav.medication', lang)}</a>
 		{/if}
 		{#if mv.emotionsVisible}
 			<a href="/emotions/graph">{t('nav.emotions', lang)}</a>
