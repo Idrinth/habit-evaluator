@@ -6,9 +6,17 @@ import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Build;
 
 import androidx.core.app.NotificationCompat;
+
+import de.idrinth.habitevaluator.android.persistence.SQLiteHelper;
+
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 /**
  * Receives scheduled alarm broadcasts and shows reminder notifications.
@@ -47,19 +55,25 @@ public class ReminderReceiver extends BroadcastReceiver {
 
         switch (type) {
             case TYPE_SLEEP:
-                showNotification(context, NOTIFICATION_SLEEP,
-                        context.getString(R.string.reminder_sleep_notification_title),
-                        context.getString(R.string.reminder_sleep_notification_text));
+                if (!hasSleepEntryForToday(context)) {
+                    showNotification(context, NOTIFICATION_SLEEP,
+                            context.getString(R.string.reminder_sleep_notification_title),
+                            context.getString(R.string.reminder_sleep_notification_text));
+                }
                 break;
             case TYPE_DIARY:
-                showNotification(context, NOTIFICATION_DIARY,
-                        context.getString(R.string.reminder_diary_notification_title),
-                        context.getString(R.string.reminder_diary_notification_text));
+                if (!hasDiaryEntryForToday(context)) {
+                    showNotification(context, NOTIFICATION_DIARY,
+                            context.getString(R.string.reminder_diary_notification_title),
+                            context.getString(R.string.reminder_diary_notification_text));
+                }
                 break;
             case TYPE_EMOTION:
-                showNotification(context, NOTIFICATION_EMOTION,
-                        context.getString(R.string.reminder_emotion_notification_title),
-                        context.getString(R.string.reminder_emotion_notification_text));
+                if (!hasEnoughEmotionEntriesForToday(context)) {
+                    showNotification(context, NOTIFICATION_EMOTION,
+                            context.getString(R.string.reminder_emotion_notification_title),
+                            context.getString(R.string.reminder_emotion_notification_text));
+                }
                 break;
         }
     }
@@ -75,6 +89,58 @@ public class ReminderReceiver extends BroadcastReceiver {
             if (manager != null) {
                 manager.createNotificationChannel(channel);
             }
+        }
+    }
+
+    private boolean hasSleepEntryForToday(Context context) {
+        try {
+            SQLiteHelper dbHelper = SQLiteHelper.getInstance(context);
+            SQLiteDatabase db = dbHelper.getReadableDatabase();
+            String today = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE);
+            try (Cursor cursor = db.rawQuery(
+                    "SELECT 1 FROM sleep_entries WHERE date = ? LIMIT 1",
+                    new String[]{today})) {
+                return cursor.moveToFirst();
+            }
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    private boolean hasDiaryEntryForToday(Context context) {
+        try {
+            SQLiteHelper dbHelper = SQLiteHelper.getInstance(context);
+            SQLiteDatabase db = dbHelper.getReadableDatabase();
+            String today = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE);
+            try (Cursor cursor = db.rawQuery(
+                    "SELECT 1 FROM diary_entries WHERE event_date = ? LIMIT 1",
+                    new String[]{today})) {
+                return cursor.moveToFirst();
+            }
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    private boolean hasEnoughEmotionEntriesForToday(Context context) {
+        try {
+            SharedPreferences prefs = context.getSharedPreferences(
+                    SettingsActivity.PREFS_NAME, Context.MODE_PRIVATE);
+            int requiredCount = prefs.getInt(SettingsActivity.KEY_EMOTION_REMINDER_COUNT,
+                    SettingsActivity.DEFAULT_EMOTION_REMINDER_COUNT);
+            SQLiteHelper dbHelper = SQLiteHelper.getInstance(context);
+            SQLiteDatabase db = dbHelper.getReadableDatabase();
+            String today = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE);
+            try (Cursor cursor = db.rawQuery(
+                    "SELECT COUNT(*) FROM emotion_entries WHERE recorded_at LIKE ?",
+                    new String[]{today + "%"})) {
+                if (cursor.moveToFirst()) {
+                    return cursor.getInt(0) >= requiredCount;
+                }
+            }
+            return false;
+        } catch (Exception e) {
+            return false;
         }
     }
 
