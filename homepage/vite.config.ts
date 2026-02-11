@@ -13,6 +13,9 @@ export default defineConfig({
 				inline: [/svelte/]
 			}
 		},
+		alias: {
+			'$app/navigation': new URL('./src/tests/mocks/app-navigation.ts', import.meta.url).pathname
+		},
 		coverage: {
 			provider: 'v8',
 			reporter: ['text', 'json', 'html'],
