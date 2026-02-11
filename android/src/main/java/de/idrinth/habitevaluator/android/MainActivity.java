@@ -41,6 +41,7 @@ import de.idrinth.habitevaluator.shared.api.ApiClient;
 import de.idrinth.habitevaluator.shared.api.RemoteHabitRepository;
 import de.idrinth.habitevaluator.shared.api.RemoteUserRepository;
 import de.idrinth.habitevaluator.shared.api.SyncService;
+import de.idrinth.habitevaluator.shared.api.VersionMismatchException;
 import de.idrinth.habitevaluator.shared.backup.BackupException;
 import de.idrinth.habitevaluator.shared.backup.BackupService;
 import de.idrinth.habitevaluator.shared.model.EmotionPair;
@@ -713,7 +714,13 @@ public class MainActivity extends AppCompatActivity {
         }
         try {
             SyncService syncService = new SyncService(localBackupRepository);
-            syncService.sync(url, username, password, localBackupUser);
+            syncService.sync(url, username, password, localBackupUser, BuildConfig.VERSION_NAME);
+        } catch (VersionMismatchException e) {
+            runOnUiThread(() -> Toast.makeText(this,
+                    "Version mismatch: your version (" + e.getClientVersion()
+                            + ") does not match server (" + e.getServerVersion()
+                            + "). Please update before syncing.",
+                    Toast.LENGTH_LONG).show());
         } catch (IOException e) {
             // Sync failure on start is non-fatal; remote data will still be used
         }
@@ -812,7 +819,11 @@ public class MainActivity extends AppCompatActivity {
                 String password = prefs.getString(SettingsActivity.KEY_API_PASSWORD, "");
                 try {
                     SyncService syncService = new SyncService(localBackupRepository);
-                    syncService.sync(url, username, password, localBackupUser);
+                    syncService.sync(url, username, password, localBackupUser, BuildConfig.VERSION_NAME);
+                } catch (VersionMismatchException e) {
+                    runOnUiThread(() -> Toast.makeText(MainActivity.this,
+                            "Sync skipped: version mismatch with server.",
+                            Toast.LENGTH_SHORT).show());
                 } catch (IOException e) {
                     // Best effort sync on stop; local backup is already saved
                 }

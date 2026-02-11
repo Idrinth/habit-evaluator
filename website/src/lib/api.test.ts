@@ -432,4 +432,50 @@ describe('api', () => {
 			expect(result).toBeNull();
 		});
 	});
+
+	describe('maskBugfixVersion', () => {
+		it('should mask three-part version', () => {
+			expect(apiModule.maskBugfixVersion('1.2.3')).toBe('1.2.x');
+		});
+
+		it('should mask snapshot version', () => {
+			expect(apiModule.maskBugfixVersion('0.1.0-SNAPSHOT')).toBe('0.1.x');
+		});
+
+		it('should return two-part version as-is', () => {
+			expect(apiModule.maskBugfixVersion('1.2')).toBe('1.2');
+		});
+
+		it('should return single-part version as-is', () => {
+			expect(apiModule.maskBugfixVersion('1')).toBe('1');
+		});
+
+		it('should mask four-part version', () => {
+			expect(apiModule.maskBugfixVersion('1.2.3.4')).toBe('1.2.x');
+		});
+	});
+
+	describe('apiVersion', () => {
+		it('should fetch server version', async () => {
+			(globalThis.fetch as Mock).mockReturnValue(mockFetchResponse({ version: '0.1.x' }));
+
+			const version = await apiModule.apiVersion.fetch();
+
+			expect(globalThis.fetch).toHaveBeenCalledWith('/api/version', expect.any(Object));
+			expect(version).toBe('0.1.x');
+		});
+
+		it('should throw VersionMismatchError on version mismatch', async () => {
+			(globalThis.fetch as Mock).mockReturnValue(mockFetchResponse({ version: '9.9.x' }));
+
+			await expect(apiModule.apiVersion.check()).rejects.toThrow(apiModule.VersionMismatchError);
+		});
+
+		it('should not throw when versions match', async () => {
+			const clientMasked = apiModule.maskBugfixVersion('0.1.0');
+			(globalThis.fetch as Mock).mockReturnValue(mockFetchResponse({ version: clientMasked }));
+
+			await expect(apiModule.apiVersion.check()).resolves.toBeUndefined();
+		});
+	});
 });

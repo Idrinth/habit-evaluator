@@ -12,6 +12,7 @@ import de.idrinth.habitevaluator.shared.api.RemoteHabitRepository;
 import de.idrinth.habitevaluator.shared.api.RemoteUserRepository;
 import de.idrinth.habitevaluator.shared.api.StorageConfig;
 import de.idrinth.habitevaluator.shared.api.SyncService;
+import de.idrinth.habitevaluator.shared.api.VersionMismatchException;
 import de.idrinth.habitevaluator.shared.backup.BackupException;
 import de.idrinth.habitevaluator.shared.backup.BackupService;
 import de.idrinth.habitevaluator.shared.backup.HezBackupService;
@@ -435,8 +436,14 @@ public class MainController {
                     storageConfig.getApiBaseUrl(),
                     storageConfig.getApiUsername(),
                     storageConfig.getApiPassword(),
-                    localBackupUser
+                    localBackupUser,
+                    getClientVersion()
             );
+        } catch (VersionMismatchException e) {
+            showAlert("Version Mismatch",
+                    "Your version (" + e.getClientVersion()
+                    + ") does not match the server (" + e.getServerVersion()
+                    + "). Please update before syncing.");
         } catch (IOException e) {
             // Sync failure on start is non-fatal; remote data will still be used
         }
@@ -464,7 +471,8 @@ public class MainController {
                     storageConfig.getApiBaseUrl(),
                     storageConfig.getApiUsername(),
                     storageConfig.getApiPassword(),
-                    localBackupUser
+                    localBackupUser,
+                    getClientVersion()
             );
         } catch (IOException e) {
             // Best effort sync on shutdown; local backup is already saved
@@ -1447,5 +1455,18 @@ public class MainController {
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();
+    }
+
+    private String getClientVersion() {
+        try (java.io.InputStream is = getClass().getResourceAsStream("/version.properties")) {
+            if (is != null) {
+                java.util.Properties props = new java.util.Properties();
+                props.load(is);
+                return props.getProperty("version", "unknown");
+            }
+        } catch (Exception e) {
+            // fall through
+        }
+        return "unknown";
     }
 }

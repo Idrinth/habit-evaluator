@@ -1,6 +1,7 @@
 package de.idrinth.habitevaluator.desktop.controller;
 
 import de.idrinth.habitevaluator.shared.api.SyncService;
+import de.idrinth.habitevaluator.shared.api.VersionMismatchException;
 import de.idrinth.habitevaluator.shared.model.User;
 import de.idrinth.habitevaluator.shared.repository.HabitRepository;
 import javafx.application.Platform;
@@ -12,6 +13,8 @@ import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
 
 /**
  * Controller for the sync dialog.
@@ -65,7 +68,7 @@ public class SyncDialogController {
         new Thread(() -> {
             try {
                 SyncService syncService = new SyncService(habitRepository);
-                SyncService.SyncResult result = syncService.sync(url, username, password, currentUser);
+                SyncService.SyncResult result = syncService.sync(url, username, password, currentUser, getClientVersion());
 
                 Platform.runLater(() -> {
                     statusLabel.setText(String.format(
@@ -75,6 +78,14 @@ public class SyncDialogController {
                     syncButton.setDisable(false);
                     synced = true;
                 });
+            } catch (VersionMismatchException e) {
+                Platform.runLater(() -> {
+                    statusLabel.setText("Version mismatch: your version ("
+                            + e.getClientVersion() + ") does not match server ("
+                            + e.getServerVersion() + "). Please update before syncing.");
+                    statusLabel.setStyle("-fx-text-fill: red;");
+                    syncButton.setDisable(false);
+                });
             } catch (IOException e) {
                 Platform.runLater(() -> {
                     statusLabel.setText("Sync failed: " + e.getMessage());
@@ -83,6 +94,19 @@ public class SyncDialogController {
                 });
             }
         }).start();
+    }
+
+    private String getClientVersion() {
+        try (InputStream is = getClass().getResourceAsStream("/version.properties")) {
+            if (is != null) {
+                Properties props = new Properties();
+                props.load(is);
+                return props.getProperty("version", "unknown");
+            }
+        } catch (Exception e) {
+            // fall through
+        }
+        return "unknown";
     }
 
     @FXML

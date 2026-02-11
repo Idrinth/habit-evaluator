@@ -254,6 +254,57 @@ public class ApiClient {
         }
     }
 
+    /**
+     * Fetches the server API version from the public version endpoint.
+     * Does not require authentication.
+     *
+     * @return the masked server version string (e.g. "0.1.x")
+     * @throws IOException if the request fails or the response is invalid
+     */
+    public String fetchVersion() throws IOException {
+        circuitBreaker.checkState();
+        try {
+            HttpURLConnection conn = createConnection("/api/version", "GET");
+            int responseCode = conn.getResponseCode();
+            if (responseCode == 200) {
+                String body = readResponse(conn);
+                conn.disconnect();
+                circuitBreaker.recordSuccess();
+                Map<String, String> response = gson.fromJson(body, new TypeToken<Map<String, String>>() {}.getType());
+                return response != null ? response.get("version") : null;
+            }
+            conn.disconnect();
+            circuitBreaker.recordFailure();
+            throw new IOException("GET /api/version failed with status " + responseCode);
+        } catch (IOException e) {
+            circuitBreaker.recordFailure();
+            throw e;
+        }
+    }
+
+    /**
+     * Masks the bugfix portion of a version string, keeping only major and minor parts.
+     * For example, "1.2.3" becomes "1.2.x" and "0.1.0-SNAPSHOT" becomes "0.1.x".
+     * Versions with fewer than two dots are returned as-is.
+     *
+     * @param fullVersion the full version string
+     * @return the masked version with bugfix replaced by "x"
+     */
+    public static String maskBugfixVersion(String fullVersion) {
+        if (fullVersion == null) {
+            return null;
+        }
+        int firstDot = fullVersion.indexOf('.');
+        if (firstDot < 0) {
+            return fullVersion;
+        }
+        int secondDot = fullVersion.indexOf('.', firstDot + 1);
+        if (secondDot < 0) {
+            return fullVersion;
+        }
+        return fullVersion.substring(0, secondDot) + ".x";
+    }
+
     public Gson getGson() {
         return gson;
     }

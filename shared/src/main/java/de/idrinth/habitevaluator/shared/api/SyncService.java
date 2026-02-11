@@ -36,16 +36,27 @@ public class SyncService {
 
     /**
      * Performs a bidirectional sync with the remote server.
+     * Validates that the client and server API versions match (major and minor)
+     * before syncing. Throws {@link VersionMismatchException} on mismatch.
      *
-     * @param serverUrl the remote server URL
-     * @param username  the remote username
-     * @param password  the remote password
-     * @param localUser the local user whose habits to sync
+     * @param serverUrl     the remote server URL
+     * @param username      the remote username
+     * @param password      the remote password
+     * @param localUser     the local user whose habits to sync
+     * @param clientVersion the local application version (e.g. "0.1.0-SNAPSHOT")
      * @return a result describing what happened
-     * @throws IOException if the connection or sync fails
+     * @throws VersionMismatchException if client and server versions do not match
+     * @throws IOException              if the connection or sync fails
      */
-    public SyncResult sync(String serverUrl, String username, String password, User localUser) throws IOException {
+    public SyncResult sync(String serverUrl, String username, String password, User localUser, String clientVersion) throws IOException {
         ApiClient apiClient = new ApiClient(serverUrl);
+
+        String serverVersion = apiClient.fetchVersion();
+        String maskedClientVersion = ApiClient.maskBugfixVersion(clientVersion);
+        if (serverVersion == null || !serverVersion.equals(maskedClientVersion)) {
+            logger.warn("Version mismatch: client {} (masked: {}) vs server {}", clientVersion, maskedClientVersion, serverVersion);
+            throw new VersionMismatchException(maskedClientVersion, serverVersion);
+        }
 
         boolean loggedIn = apiClient.login(username, password);
         if (!loggedIn) {
