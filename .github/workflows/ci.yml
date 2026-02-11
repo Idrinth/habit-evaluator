@@ -80,6 +80,13 @@ jobs:
           name: aggregate-coverage-report
           path: build/reports/jacoco/
 
+      - name: Upload webserver JAR
+        uses: actions/upload-artifact@v6
+        if: always()
+        with:
+          name: webserver-jar
+          path: webserver/build/libs/habit-evaluator-web.jar
+
       - name: Upload desktop JAR
         uses: actions/upload-artifact@v6
         if: always()
@@ -204,6 +211,12 @@ jobs:
 
       - name: Run Cypress E2E tests
         run: npx start-server-and-test 'npm run preview' http://localhost:4173 'npx cypress run'
+
+      - name: Upload build output
+        uses: actions/upload-artifact@v6
+        with:
+          name: ${{ matrix.project }}-build
+          path: ${{ matrix.project }}/build/
 
   coveralls-finish:
     needs: [java, website-test]
@@ -359,6 +372,7 @@ jobs:
 
   docker:
     if: github.event_name == 'push'
+    needs: [java, e2e]
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -366,14 +380,26 @@ jobs:
           - image: webserver
             context: .
             dockerfile: webserver/Dockerfile
+            artifact: webserver-jar
+            artifact-path: webserver/build/libs/
           - image: website
             context: website
             dockerfile: website/Dockerfile
+            artifact: website-build
+            artifact-path: website/build/
           - image: homepage
             context: homepage
             dockerfile: homepage/Dockerfile
+            artifact: homepage-build
+            artifact-path: homepage/build/
     steps:
       - uses: actions/checkout@v6
+
+      - name: Download pre-built artifact
+        uses: actions/download-artifact@v6
+        with:
+          name: ${{ matrix.artifact }}
+          path: ${{ matrix.artifact-path }}
 
       - name: Lowercase repository
         id: repo
@@ -391,5 +417,6 @@ jobs:
         with:
           context: ${{ matrix.context }}
           file: ${{ matrix.dockerfile }}
+          target: prebuilt
           push: true
           tags: ghcr.io/${{ steps.repo.outputs.repo_lc }}/${{ matrix.image }}:latest
