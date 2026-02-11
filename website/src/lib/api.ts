@@ -1,5 +1,7 @@
 import { getApiBaseUrl } from './config';
 
+declare const __APP_VERSION__: string;
+
 const CIRCUIT_BREAKER_COOLDOWN_MS = 5 * 60 * 1000; // 5 minutes
 const STATE_CHANGING_METHODS = new Set(['POST', 'PUT', 'DELETE', 'PATCH']);
 
@@ -552,5 +554,47 @@ export const foodLogs = {
 	},
 	migrateTags() {
 		return request<void>('/food-logs/migrate-tags', { method: 'POST' });
+	}
+};
+
+/**
+ * Masks the bugfix portion of a version string, keeping only major and minor parts.
+ * For example, "1.2.3" becomes "1.2.x" and "0.1.0-SNAPSHOT" becomes "0.1.x".
+ */
+export function maskBugfixVersion(fullVersion: string): string {
+	const firstDot = fullVersion.indexOf('.');
+	if (firstDot < 0) return fullVersion;
+	const secondDot = fullVersion.indexOf('.', firstDot + 1);
+	if (secondDot < 0) return fullVersion;
+	return fullVersion.substring(0, secondDot) + '.x';
+}
+
+export class VersionMismatchError extends Error {
+	public readonly clientVersion: string;
+	public readonly serverVersion: string;
+
+	constructor(clientVersion: string, serverVersion: string) {
+		super(
+			`Version mismatch: client ${clientVersion} does not match server ${serverVersion}`
+		);
+		this.name = 'VersionMismatchError';
+		this.clientVersion = clientVersion;
+		this.serverVersion = serverVersion;
+	}
+}
+
+export const apiVersion = {
+	async fetch(): Promise<string> {
+		const data = await request<{ version: string }>('/version');
+		return data.version;
+	},
+	async check(): Promise<void> {
+		const serverVersion = await this.fetch();
+		const clientVersion = maskBugfixVersion(
+			typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : '0.0.0'
+		);
+		if (serverVersion !== clientVersion) {
+			throw new VersionMismatchError(clientVersion, serverVersion);
+		}
 	}
 };

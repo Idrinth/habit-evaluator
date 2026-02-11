@@ -44,4 +44,39 @@ class ApiClientTest {
         ApiClient client = new ApiClient("https://example.com");
         assertNotNull(client.getGson());
     }
+
+    @Test
+    void testMaskBugfixVersionWithThreeParts() {
+        assertEquals("1.2.x", ApiClient.maskBugfixVersion("1.2.3"));
+    }
+
+    @Test
+    void testMaskBugfixVersionWithSnapshot() {
+        assertEquals("0.1.x", ApiClient.maskBugfixVersion("0.1.0-SNAPSHOT"));
+    }
+
+    @Test
+    void testMaskBugfixVersionWithTwoParts() {
+        assertEquals("1.2", ApiClient.maskBugfixVersion("1.2"));
+    }
+
+    @Test
+    void testMaskBugfixVersionWithOnePart() {
+        assertEquals("1", ApiClient.maskBugfixVersion("1"));
+    }
+
+    @Test
+    void testMaskBugfixVersionWithFourParts() {
+        assertEquals("1.2.x", ApiClient.maskBugfixVersion("1.2.3.4"));
+    }
+
+    @Test
+    void testMaskBugfixVersionWithNull() {
+        assertNull(ApiClient.maskBugfixVersion(null));
+    }
+
+    @Test
+    void testMaskBugfixVersionWithHighNumbers() {
+        assertEquals("22.33.x", ApiClient.maskBugfixVersion("22.33.44"));
+    }
 }
