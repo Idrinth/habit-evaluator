@@ -83,6 +83,26 @@
 				<td>7.3.1</td>
 				<td><a href="https://github.com/vitejs/vite/blob/main/LICENSE">MIT</a></td>
 			</tr>
+			<tr>
+				<td>Vitest</td>
+				<td>4.0.18</td>
+				<td><a href="https://github.com/vitest-dev/vitest/blob/main/LICENSE">MIT</a></td>
+			</tr>
+			<tr>
+				<td>Testing Library Svelte</td>
+				<td>5.3.1</td>
+				<td><a href="https://github.com/testing-library/svelte-testing-library/blob/main/LICENSE">MIT</a></td>
+			</tr>
+			<tr>
+				<td>Testing Library jest-dom</td>
+				<td>6.9.1</td>
+				<td><a href="https://github.com/testing-library/jest-dom/blob/main/LICENSE">MIT</a></td>
+			</tr>
+			<tr>
+				<td>jsdom</td>
+				<td>28.0.0</td>
+				<td><a href="https://github.com/jsdom/jsdom/blob/main/LICENSE.txt">MIT</a></td>
+			</tr>
 		</tbody>
 	</table>
 </section>
