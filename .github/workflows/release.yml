@@ -7,6 +7,7 @@ on:
 
 permissions:
   contents: write
+  packages: write
 
 jobs:
   artifacts:
@@ -150,3 +151,51 @@ jobs:
         with:
           tag_name: v${{ steps.version.outputs.VERSION }}
           files: android/build/outputs/bundle/${{ matrix.flavor }}Release/*.aab
+
+  docker:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - image: webserver
+            context: .
+            dockerfile: webserver/Dockerfile
+          - image: website
+            context: website
+            dockerfile: website/Dockerfile
+          - image: homepage
+            context: homepage
+            dockerfile: homepage/Dockerfile
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Lowercase repository
+        id: repo
+        run: echo "repo_lc=${GITHUB_REPOSITORY,,}" >> "$GITHUB_OUTPUT"
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ steps.repo.outputs.repo_lc }}/${{ matrix.image }}
+          tags: |
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+            type=ref,event=tag
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: ${{ matrix.context }}
+          file: ${{ matrix.dockerfile }}
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
