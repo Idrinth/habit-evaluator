@@ -1,5 +1,6 @@
 # habit-evaluator
-[![Crowdin](https://badges.crowdin.net/habit-evaluator/localized.svg)](https://crowdin.com/project/habit-evaluator)
+[![Crowdin](https://badges.crowdin.net/habit-evaluator/localized.svg)](https://crowdin.com/project/habit-evaluator) [![Coverage Status](https://coveralls.io/repos/github/Idrinth/habit-evaluator/badge.svg?branch=claude/add-coveralls-workflow-rQrdw)](https://coveralls.io/github/Idrinth/habit-evaluator?branch=claude/add-coveralls-workflow-rQrdw)
+
 A habit tracker focussed on analysing and evaluating data without leaking it anywhere.
 
 ## Features
