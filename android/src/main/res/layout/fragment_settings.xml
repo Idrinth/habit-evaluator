@@ -294,6 +294,93 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
+            android:text="@string/module_visibility_settings"
+            android:textSize="24sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/module_visibility_hint"
+            android:textSize="13sp"
+            android:textColor="?android:textColorSecondary" />
+
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/diaryVisibleSwitch"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:checked="true"
+            android:text="@string/module_diary" />
+
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/sleepVisibleSwitch"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="@string/module_sleep" />
+
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/emotionsVisibleSwitch"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="@string/module_emotions" />
+
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/pointsVisibleSwitch"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="@string/module_points" />
+
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/statisticsVisibleSwitch"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="@string/module_statistics" />
+
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/foodLogVisibleSwitch"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="@string/module_food_log" />
+
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/sportLogVisibleSwitch"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="@string/module_sport_log" />
+
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/medicationVisibleSwitch"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="@string/module_medication" />
+
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/backupVisibleSwitch"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="@string/module_backup" />
+
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/pdfExportVisibleSwitch"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="@string/module_pdf_export" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
             android:text="@string/reminder_settings"
             android:textSize="24sp"
             android:textStyle="bold" />

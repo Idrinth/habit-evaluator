@@ -181,6 +181,28 @@ public class SettingsFragment extends Fragment {
         String backupPassword = prefs.getString(SettingsActivity.KEY_BACKUP_PASSWORD, "");
         binding.backupPasswordInput.setText(backupPassword);
         binding.backupPasswordConfirmInput.setText(backupPassword);
+
+        // Module visibility settings
+        binding.diaryVisibleSwitch.setChecked(
+                prefs.getBoolean(SettingsActivity.KEY_MODULE_DIARY_VISIBLE, true));
+        binding.sleepVisibleSwitch.setChecked(
+                prefs.getBoolean(SettingsActivity.KEY_MODULE_SLEEP_VISIBLE, true));
+        binding.emotionsVisibleSwitch.setChecked(
+                prefs.getBoolean(SettingsActivity.KEY_MODULE_EMOTIONS_VISIBLE, true));
+        binding.pointsVisibleSwitch.setChecked(
+                prefs.getBoolean(SettingsActivity.KEY_MODULE_POINTS_VISIBLE, true));
+        binding.statisticsVisibleSwitch.setChecked(
+                prefs.getBoolean(SettingsActivity.KEY_MODULE_STATISTICS_VISIBLE, true));
+        binding.foodLogVisibleSwitch.setChecked(
+                prefs.getBoolean(SettingsActivity.KEY_MODULE_FOOD_LOG_VISIBLE, true));
+        binding.sportLogVisibleSwitch.setChecked(
+                prefs.getBoolean(SettingsActivity.KEY_MODULE_SPORT_LOG_VISIBLE, true));
+        binding.medicationVisibleSwitch.setChecked(
+                prefs.getBoolean(SettingsActivity.KEY_MODULE_MEDICATION_VISIBLE, true));
+        binding.backupVisibleSwitch.setChecked(
+                prefs.getBoolean(SettingsActivity.KEY_MODULE_BACKUP_VISIBLE, true));
+        binding.pdfExportVisibleSwitch.setChecked(
+                prefs.getBoolean(SettingsActivity.KEY_MODULE_PDF_EXPORT_VISIBLE, true));
     }
 
     private void setupListeners() {
@@ -388,6 +410,28 @@ public class SettingsFragment extends Fragment {
             editor.putBoolean(SettingsActivity.KEY_BACKUP_ENABLED, false);
             editor.putString(SettingsActivity.KEY_BACKUP_PASSWORD, "");
         }
+
+        // Module visibility settings
+        editor.putBoolean(SettingsActivity.KEY_MODULE_DIARY_VISIBLE,
+                binding.diaryVisibleSwitch.isChecked());
+        editor.putBoolean(SettingsActivity.KEY_MODULE_SLEEP_VISIBLE,
+                binding.sleepVisibleSwitch.isChecked());
+        editor.putBoolean(SettingsActivity.KEY_MODULE_EMOTIONS_VISIBLE,
+                binding.emotionsVisibleSwitch.isChecked());
+        editor.putBoolean(SettingsActivity.KEY_MODULE_POINTS_VISIBLE,
+                binding.pointsVisibleSwitch.isChecked());
+        editor.putBoolean(SettingsActivity.KEY_MODULE_STATISTICS_VISIBLE,
+                binding.statisticsVisibleSwitch.isChecked());
+        editor.putBoolean(SettingsActivity.KEY_MODULE_FOOD_LOG_VISIBLE,
+                binding.foodLogVisibleSwitch.isChecked());
+        editor.putBoolean(SettingsActivity.KEY_MODULE_SPORT_LOG_VISIBLE,
+                binding.sportLogVisibleSwitch.isChecked());
+        editor.putBoolean(SettingsActivity.KEY_MODULE_MEDICATION_VISIBLE,
+                binding.medicationVisibleSwitch.isChecked());
+        editor.putBoolean(SettingsActivity.KEY_MODULE_BACKUP_VISIBLE,
+                binding.backupVisibleSwitch.isChecked());
+        editor.putBoolean(SettingsActivity.KEY_MODULE_PDF_EXPORT_VISIBLE,
+                binding.pdfExportVisibleSwitch.isChecked());
 
         editor.apply();
         SettingsActivity.applyThemeMode(themeMode);

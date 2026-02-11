@@ -48,6 +48,16 @@ public final class SettingsActivity {
     public static final String FONT_SIZE_SMALL = "SMALL";
     public static final String FONT_SIZE_NORMAL = "NORMAL";
     public static final String FONT_SIZE_LARGE = "LARGE";
+    public static final String KEY_MODULE_DIARY_VISIBLE = "module_diary_visible";
+    public static final String KEY_MODULE_SLEEP_VISIBLE = "module_sleep_visible";
+    public static final String KEY_MODULE_EMOTIONS_VISIBLE = "module_emotions_visible";
+    public static final String KEY_MODULE_POINTS_VISIBLE = "module_points_visible";
+    public static final String KEY_MODULE_STATISTICS_VISIBLE = "module_statistics_visible";
+    public static final String KEY_MODULE_FOOD_LOG_VISIBLE = "module_food_log_visible";
+    public static final String KEY_MODULE_SPORT_LOG_VISIBLE = "module_sport_log_visible";
+    public static final String KEY_MODULE_MEDICATION_VISIBLE = "module_medication_visible";
+    public static final String KEY_MODULE_BACKUP_VISIBLE = "module_backup_visible";
+    public static final String KEY_MODULE_PDF_EXPORT_VISIBLE = "module_pdf_export_visible";
 
     /**
      * Returns the font scale multiplier for the given font size setting.

@@ -97,6 +97,36 @@ public class SettingsDialogController {
     private CheckBox customTranslationsCheckBox;
 
     @FXML
+    private CheckBox diaryVisibleCheckBox;
+
+    @FXML
+    private CheckBox sleepVisibleCheckBox;
+
+    @FXML
+    private CheckBox emotionsVisibleCheckBox;
+
+    @FXML
+    private CheckBox pointsVisibleCheckBox;
+
+    @FXML
+    private CheckBox statisticsVisibleCheckBox;
+
+    @FXML
+    private CheckBox foodLogVisibleCheckBox;
+
+    @FXML
+    private CheckBox sportLogVisibleCheckBox;
+
+    @FXML
+    private CheckBox medicationVisibleCheckBox;
+
+    @FXML
+    private CheckBox backupVisibleCheckBox;
+
+    @FXML
+    private CheckBox pdfExportVisibleCheckBox;
+
+    @FXML
     private CheckBox backupEnabledCheckBox;
 
     @FXML
@@ -239,6 +269,17 @@ public class SettingsDialogController {
         emotionReminderCountSpinner.getValueFactory().setValue(config.getEmotionReminderCount());
         wakingHoursStartField.setText(config.getWakingHoursStart());
         wakingHoursEndField.setText(config.getWakingHoursEnd());
+
+        diaryVisibleCheckBox.setSelected(config.isDiaryVisible());
+        sleepVisibleCheckBox.setSelected(config.isSleepVisible());
+        emotionsVisibleCheckBox.setSelected(config.isEmotionsVisible());
+        pointsVisibleCheckBox.setSelected(config.isPointsVisible());
+        statisticsVisibleCheckBox.setSelected(config.isStatisticsVisible());
+        foodLogVisibleCheckBox.setSelected(config.isFoodLogVisible());
+        sportLogVisibleCheckBox.setSelected(config.isSportLogVisible());
+        medicationVisibleCheckBox.setSelected(config.isMedicationVisible());
+        backupVisibleCheckBox.setSelected(config.isBackupVisible());
+        pdfExportVisibleCheckBox.setSelected(config.isPdfExportVisible());
     }
 
     @FXML
@@ -361,6 +402,17 @@ public class SettingsDialogController {
         storageConfig.setEmotionReminderCount(emotionReminderCountSpinner.getValue());
         storageConfig.setWakingHoursStart(wakingHoursStartField.getText());
         storageConfig.setWakingHoursEnd(wakingHoursEndField.getText());
+
+        storageConfig.setDiaryVisible(diaryVisibleCheckBox.isSelected());
+        storageConfig.setSleepVisible(sleepVisibleCheckBox.isSelected());
+        storageConfig.setEmotionsVisible(emotionsVisibleCheckBox.isSelected());
+        storageConfig.setPointsVisible(pointsVisibleCheckBox.isSelected());
+        storageConfig.setStatisticsVisible(statisticsVisibleCheckBox.isSelected());
+        storageConfig.setFoodLogVisible(foodLogVisibleCheckBox.isSelected());
+        storageConfig.setSportLogVisible(sportLogVisibleCheckBox.isSelected());
+        storageConfig.setMedicationVisible(medicationVisibleCheckBox.isSelected());
+        storageConfig.setBackupVisible(backupVisibleCheckBox.isSelected());
+        storageConfig.setPdfExportVisible(pdfExportVisibleCheckBox.isSelected());
 
         storageConfig.save();
         saved = true;

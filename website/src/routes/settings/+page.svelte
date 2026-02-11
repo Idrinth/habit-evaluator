@@ -1,6 +1,9 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { reminderSettings, type ReminderSettings } from '$lib/api';
+	import { reminderSettings, moduleVisibility, type ReminderSettings, type ModuleVisibility } from '$lib/api';
+	import { getLanguage, t, type Language } from '$lib/i18n';
+
+	let lang: Language = $state('en');
 
 	let settings: ReminderSettings = $state({
 		sleepReminderEnabled: false,
@@ -13,22 +16,51 @@
 		wakingHoursEnd: '22:00'
 	});
 
+	let visibility: ModuleVisibility = $state({
+		diaryVisible: true,
+		sleepVisible: true,
+		emotionsVisible: true,
+		pointsVisible: true,
+		statisticsVisible: true,
+		foodLogVisible: true,
+		sportLogVisible: true,
+		medicationVisible: true,
+		backupVisible: true,
+		pdfExportVisible: true
+	});
+
 	let error = $state('');
 	let success = $state('');
 	let loading = $state(true);
 
 	onMount(async () => {
+		lang = getLanguage();
 		try {
-			const data = await reminderSettings.get();
+			const [reminderData, visibilityData] = await Promise.all([
+				reminderSettings.get(),
+				moduleVisibility.get()
+			]);
 			settings = {
-				sleepReminderEnabled: data.sleepReminderEnabled,
-				sleepReminderTime: formatTime(data.sleepReminderTime) || '08:00',
-				diaryReminderEnabled: data.diaryReminderEnabled,
-				diaryReminderTime: formatTime(data.diaryReminderTime) || '20:00',
-				emotionReminderEnabled: data.emotionReminderEnabled,
-				emotionReminderCount: data.emotionReminderCount || 3,
-				wakingHoursStart: formatTime(data.wakingHoursStart) || '07:00',
-				wakingHoursEnd: formatTime(data.wakingHoursEnd) || '22:00'
+				sleepReminderEnabled: reminderData.sleepReminderEnabled,
+				sleepReminderTime: formatTime(reminderData.sleepReminderTime) || '08:00',
+				diaryReminderEnabled: reminderData.diaryReminderEnabled,
+				diaryReminderTime: formatTime(reminderData.diaryReminderTime) || '20:00',
+				emotionReminderEnabled: reminderData.emotionReminderEnabled,
+				emotionReminderCount: reminderData.emotionReminderCount || 3,
+				wakingHoursStart: formatTime(reminderData.wakingHoursStart) || '07:00',
+				wakingHoursEnd: formatTime(reminderData.wakingHoursEnd) || '22:00'
+			};
+			visibility = {
+				diaryVisible: visibilityData.diaryVisible,
+				sleepVisible: visibilityData.sleepVisible,
+				emotionsVisible: visibilityData.emotionsVisible,
+				pointsVisible: visibilityData.pointsVisible,
+				statisticsVisible: visibilityData.statisticsVisible,
+				foodLogVisible: visibilityData.foodLogVisible,
+				sportLogVisible: visibilityData.sportLogVisible,
+				medicationVisible: visibilityData.medicationVisible,
+				backupVisible: visibilityData.backupVisible,
+				pdfExportVisible: visibilityData.pdfExportVisible
 			};
 		} catch (err) {
 			error = err instanceof Error ? err.message : 'Failed to load settings';
@@ -47,7 +79,12 @@
 		error = '';
 		success = '';
 		try {
-			await reminderSettings.update(settings);
+			await Promise.all([
+				reminderSettings.update(settings),
+				moduleVisibility.update(visibility)
+			]);
+			localStorage.setItem('moduleVisibility', JSON.stringify(visibility));
+			window.dispatchEvent(new CustomEvent('module-visibility-changed', { detail: visibility }));
 			success = 'Settings saved successfully';
 		} catch (err) {
 			error = err instanceof Error ? err.message : 'Failed to save settings';
@@ -55,12 +92,7 @@
 	}
 </script>
 
-<h1>Reminder Settings</h1>
-
-<p class="description">
-	Configure reminders to help you track your habits consistently.
-	All reminders are disabled by default.
-</p>
+<h1>Settings</h1>
 
 {#if loading}
 	<p>Loading...</p>
@@ -73,6 +105,51 @@
 	{/if}
 
 	<form onsubmit={handleSave}>
+		<section>
+			<h2>{t('settings.moduleVisibility', lang)}</h2>
+			<p class="hint">{t('settings.moduleVisibilityHint', lang)}</p>
+			<label class="toggle-row">
+				<input type="checkbox" bind:checked={visibility.diaryVisible} />
+				<span>{t('settings.moduleDiary', lang)}</span>
+			</label>
+			<label class="toggle-row">
+				<input type="checkbox" bind:checked={visibility.sleepVisible} />
+				<span>{t('settings.moduleSleep', lang)}</span>
+			</label>
+			<label class="toggle-row">
+				<input type="checkbox" bind:checked={visibility.emotionsVisible} />
+				<span>{t('settings.moduleEmotions', lang)}</span>
+			</label>
+			<label class="toggle-row">
+				<input type="checkbox" bind:checked={visibility.pointsVisible} />
+				<span>{t('settings.modulePoints', lang)}</span>
+			</label>
+			<label class="toggle-row">
+				<input type="checkbox" bind:checked={visibility.statisticsVisible} />
+				<span>{t('settings.moduleStatistics', lang)}</span>
+			</label>
+			<label class="toggle-row">
+				<input type="checkbox" bind:checked={visibility.foodLogVisible} />
+				<span>{t('settings.moduleFoodLog', lang)}</span>
+			</label>
+			<label class="toggle-row">
+				<input type="checkbox" bind:checked={visibility.sportLogVisible} />
+				<span>{t('settings.moduleSportLog', lang)}</span>
+			</label>
+			<label class="toggle-row">
+				<input type="checkbox" bind:checked={visibility.medicationVisible} />
+				<span>{t('settings.moduleMedication', lang)}</span>
+			</label>
+			<label class="toggle-row">
+				<input type="checkbox" bind:checked={visibility.backupVisible} />
+				<span>{t('settings.moduleBackup', lang)}</span>
+			</label>
+			<label class="toggle-row">
+				<input type="checkbox" bind:checked={visibility.pdfExportVisible} />
+				<span>{t('settings.modulePdfExport', lang)}</span>
+			</label>
+		</section>
+
 		<section>
 			<h2>Sleep Reminder</h2>
 			<p class="hint">Get reminded to log last night's sleep data.</p>
@@ -136,10 +213,6 @@
 <style>
 	h1 {
 		margin-bottom: 0.5rem;
-	}
-	.description {
-		color: var(--color-text-muted, #666);
-		margin-bottom: 1.5rem;
 	}
 	section {
 		margin-bottom: 1.5rem;

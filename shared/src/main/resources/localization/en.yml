@@ -100,6 +100,18 @@ settings:
   language_fr: "Français"
   custom_translations: "Custom Translations"
   custom_translations_label: "Enable custom habit translations"
+  module_visibility: "Module Visibility"
+  module_visibility_hint: "Hide modules you don't use to simplify navigation."
+  module_diary: "Diary"
+  module_sleep: "Sleep Tracking"
+  module_emotions: "Emotions"
+  module_points: "Point Charts"
+  module_statistics: "Statistics"
+  module_food_log: "Food Log"
+  module_sport_log: "Sport Log"
+  module_medication: "Medication"
+  module_backup: "Backup"
+  module_pdf_export: "PDF Export"
 
 reminders:
   settings_title: "Reminder Settings"

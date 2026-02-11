@@ -475,6 +475,31 @@ export const defaults = {
 	}
 };
 
+export interface ModuleVisibility {
+	diaryVisible: boolean;
+	sleepVisible: boolean;
+	emotionsVisible: boolean;
+	pointsVisible: boolean;
+	statisticsVisible: boolean;
+	foodLogVisible: boolean;
+	sportLogVisible: boolean;
+	medicationVisible: boolean;
+	backupVisible: boolean;
+	pdfExportVisible: boolean;
+}
+
+export const moduleVisibility = {
+	get() {
+		return request<ModuleVisibility>('/module-visibility');
+	},
+	update(settings: ModuleVisibility) {
+		return request<ModuleVisibility>('/module-visibility', {
+			method: 'PUT',
+			body: JSON.stringify(settings)
+		});
+	}
+};
+
 export interface ReminderSettings {
 	sleepReminderEnabled: boolean;
 	sleepReminderTime: string | null;

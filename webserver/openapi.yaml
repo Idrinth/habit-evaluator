@@ -35,6 +35,35 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/ReminderSettings"
+  /api/module-visibility:
+    get:
+      tags:
+      - module-visibility-controller
+      operationId: getSettings_1
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ModuleVisibility"
+    put:
+      tags:
+      - module-visibility-controller
+      operationId: updateSettings_1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ModuleVisibility"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ModuleVisibility"
   /api/medications/{id}:
     put:
       tags:
@@ -1171,6 +1200,33 @@ components:
         createdAt:
           type: string
           format: date-time
+    ModuleVisibility:
+      type: object
+      properties:
+        id:
+          type: string
+        user:
+          $ref: "#/components/schemas/User"
+        diaryVisible:
+          type: boolean
+        sleepVisible:
+          type: boolean
+        emotionsVisible:
+          type: boolean
+        pointsVisible:
+          type: boolean
+        statisticsVisible:
+          type: boolean
+        foodLogVisible:
+          type: boolean
+        sportLogVisible:
+          type: boolean
+        medicationVisible:
+          type: boolean
+        backupVisible:
+          type: boolean
+        pdfExportVisible:
+          type: boolean
     Medication:
       type: object
       properties:
@@ -1500,10 +1556,10 @@ components:
           $ref: "#/components/schemas/User"
         description:
           type: string
-        points:
+        durationMinutes:
           type: integer
           format: int32
-        durationMinutes:
+        points:
           type: integer
           format: int32
     DiaryReference:
