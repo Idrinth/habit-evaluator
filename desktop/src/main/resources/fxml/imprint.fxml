@@ -13,6 +13,7 @@
     </padding>
 
     <Label text="Project legal" styleClass="section-title"/>
+    <Label fx:id="versionLabel" style="-fx-text-fill: #666666;"/>
 
     <Separator/>
 
