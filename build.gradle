@@ -26,6 +26,7 @@ subprojects {
         test {
             useJUnitPlatform()
             finalizedBy jacocoTestReport
+            outputs.cacheableWhen { false }
         }
 
         jacoco {

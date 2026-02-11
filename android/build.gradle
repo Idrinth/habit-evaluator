@@ -115,6 +115,10 @@ jacoco {
     toolVersion = '0.8.11'
 }
 
+tasks.withType(Test).configureEach {
+    outputs.cacheableWhen { false }
+}
+
 tasks.register('jacocoTestReport', JacocoReport) {
     dependsOn 'testModernDebugUnitTest', 'testLegacyDebugUnitTest'
 
