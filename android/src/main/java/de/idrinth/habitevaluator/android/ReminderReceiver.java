@@ -6,6 +6,7 @@ import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Build;
@@ -68,7 +69,7 @@ public class ReminderReceiver extends BroadcastReceiver {
                 }
                 break;
             case TYPE_EMOTION:
-                if (!hasEmotionEntryForToday(context)) {
+                if (!hasEnoughEmotionEntriesForToday(context)) {
                     showNotification(context, NOTIFICATION_EMOTION,
                             context.getString(R.string.reminder_emotion_notification_title),
                             context.getString(R.string.reminder_emotion_notification_text));
@@ -121,16 +122,23 @@ public class ReminderReceiver extends BroadcastReceiver {
         }
     }
 
-    private boolean hasEmotionEntryForToday(Context context) {
+    private boolean hasEnoughEmotionEntriesForToday(Context context) {
         try {
+            SharedPreferences prefs = context.getSharedPreferences(
+                    SettingsActivity.PREFS_NAME, Context.MODE_PRIVATE);
+            int requiredCount = prefs.getInt(SettingsActivity.KEY_EMOTION_REMINDER_COUNT,
+                    SettingsActivity.DEFAULT_EMOTION_REMINDER_COUNT);
             SQLiteHelper dbHelper = SQLiteHelper.getInstance(context);
             SQLiteDatabase db = dbHelper.getReadableDatabase();
             String today = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE);
             try (Cursor cursor = db.rawQuery(
-                    "SELECT 1 FROM emotion_entries WHERE recorded_at LIKE ? LIMIT 1",
+                    "SELECT COUNT(*) FROM emotion_entries WHERE recorded_at LIKE ?",
                     new String[]{today + "%"})) {
-                return cursor.moveToFirst();
+                if (cursor.moveToFirst()) {
+                    return cursor.getInt(0) >= requiredCount;
+                }
             }
+            return false;
         } catch (Exception e) {
             return false;
         }
