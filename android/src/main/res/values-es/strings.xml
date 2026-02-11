@@ -355,4 +355,16 @@
     <string name="medication_link_updated">Wikipedia link updated</string>
     <string name="diary_navigation_medication_description">Track your medications, dosages, and timing</string>
     <string name="diary_navigation_medication_list_description">Add, view, and remove your medications</string>
+    <string name="module_visibility_settings">Module Visibility</string>
+    <string name="module_visibility_hint">Hide modules you don\'t use to simplify navigation.</string>
+    <string name="module_diary">Diary</string>
+    <string name="module_sleep">Sleep Tracking</string>
+    <string name="module_emotions">Emotions</string>
+    <string name="module_points">Point Charts</string>
+    <string name="module_statistics">Statistics</string>
+    <string name="module_food_log">Food Log</string>
+    <string name="module_sport_log">Sport Log</string>
+    <string name="module_medication">Medication</string>
+    <string name="module_backup">Backup</string>
+    <string name="module_pdf_export">PDF Export</string>
 </resources>
