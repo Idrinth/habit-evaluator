@@ -9,12 +9,11 @@ vi.mock('$lib/api', () => ({
 }));
 
 vi.mock('$app/navigation', () => ({
-	goto: vi.fn(),
-	invalidate: vi.fn().mockResolvedValue(undefined)
+	goto: vi.fn().mockResolvedValue(undefined)
 }));
 
 import { auth } from '$lib/api';
-import { goto, invalidate } from '$app/navigation';
+import { goto } from '$app/navigation';
 
 describe('Login Page', () => {
 	beforeEach(() => {
@@ -81,8 +80,7 @@ describe('Login Page', () => {
 		await fireEvent.submit(screen.getByRole('button', { name: 'Login' }));
 
 		await waitFor(() => {
-			expect(invalidate).toHaveBeenCalledWith('app:session');
-			expect(goto).toHaveBeenCalledWith('/habits/home');
+			expect(goto).toHaveBeenCalledWith('/habits/home', { invalidateAll: true });
 		});
 	});
 
