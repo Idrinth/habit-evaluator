@@ -143,6 +143,14 @@ jobs:
           name: android-coverage-report
           path: android/build/reports/jacoco/
 
+      - name: Coveralls - android
+        uses: coverallsapp/github-action@v2
+        with:
+          flag-name: android
+          parallel: true
+          format: jacoco
+          file: android/build/reports/jacoco/jacocoTestReport/jacocoTestReport.xml
+
   frontend-check:
     runs-on: ubuntu-latest
 
@@ -244,7 +252,7 @@ jobs:
           path: ${{ matrix.project }}/build/
 
   coveralls-finish:
-    needs: [java, website-test]
+    needs: [java, android, website-test]
     if: always()
     runs-on: ubuntu-latest
     steps:
@@ -252,7 +260,7 @@ jobs:
         uses: coverallsapp/github-action@v2
         with:
           parallel-finished: true
-          carryforward: "shared,webserver,desktop,website"
+          carryforward: "shared,webserver,desktop,android,website"
 
   desktop-deb:
     needs: java
