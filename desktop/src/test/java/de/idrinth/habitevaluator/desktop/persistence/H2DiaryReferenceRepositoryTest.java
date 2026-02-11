@@ -157,4 +157,50 @@ class H2DiaryReferenceRepositoryTest extends H2RepositoryTestBase {
         List<String> descriptions = referenceRepository.findDistinctDescriptionsByUserId("nonexistent-user-id");
         assertTrue(descriptions.isEmpty());
     }
+
+    @Test
+    void testFindOrCreateReturnsExistingWhenFoundCaseInsensitive() {
+        DiaryReference existing = new DiaryReference("Morning Jog");
+        existing.setUser(testUser);
+        referenceRepository.save(existing);
+
+        DiaryReference result = referenceRepository.findOrCreate(
+                testUser.getId(), "morning jog", () -> testUser);
+
+        assertNotNull(result);
+        assertEquals(existing.getId(), result.getId());
+        assertEquals("Morning Jog", result.getDescription());
+    }
+
+    @Test
+    void testFindOrCreateCreatesNewWhenNotFound() {
+        DiaryReference result = referenceRepository.findOrCreate(
+                testUser.getId(), "Evening Walk", () -> testUser);
+
+        assertNotNull(result);
+        assertEquals("Evening Walk", result.getDescription());
+    }
+
+    @Test
+    void testFindOrCreateReturnsNullForNullDescription() {
+        DiaryReference result = referenceRepository.findOrCreate(
+                testUser.getId(), null, () -> testUser);
+        assertNull(result);
+    }
+
+    @Test
+    void testFindOrCreateReturnsNullForEmptyDescription() {
+        DiaryReference result = referenceRepository.findOrCreate(
+                testUser.getId(), "", () -> testUser);
+        assertNull(result);
+    }
+
+    @Test
+    void testFindOrCreateDoesNotDuplicateReference() {
+        referenceRepository.findOrCreate(testUser.getId(), "Workout", () -> testUser);
+        referenceRepository.findOrCreate(testUser.getId(), "WORKOUT", () -> testUser);
+
+        List<DiaryReference> all = referenceRepository.findByUserId(testUser.getId());
+        assertEquals(1, all.size());
+    }
 }
