@@ -100,6 +100,23 @@
 
     <Separator/>
 
+    <Label text="Module Visibility" styleClass="section-title"/>
+
+    <Label text="Hide modules you don't use to simplify navigation." style="-fx-font-size: 11px; -fx-text-fill: #888;"/>
+
+    <CheckBox fx:id="diaryVisibleCheckBox" text="Diary" selected="true"/>
+    <CheckBox fx:id="sleepVisibleCheckBox" text="Sleep Tracking" selected="true"/>
+    <CheckBox fx:id="emotionsVisibleCheckBox" text="Emotions" selected="true"/>
+    <CheckBox fx:id="pointsVisibleCheckBox" text="Point Charts" selected="true"/>
+    <CheckBox fx:id="statisticsVisibleCheckBox" text="Statistics" selected="true"/>
+    <CheckBox fx:id="foodLogVisibleCheckBox" text="Food Log" selected="true"/>
+    <CheckBox fx:id="sportLogVisibleCheckBox" text="Sport Log" selected="true"/>
+    <CheckBox fx:id="medicationVisibleCheckBox" text="Medication" selected="true"/>
+    <CheckBox fx:id="backupVisibleCheckBox" text="Backup" selected="true"/>
+    <CheckBox fx:id="pdfExportVisibleCheckBox" text="PDF Export" selected="true"/>
+
+    <Separator/>
+
     <Label text="Reminder Settings" styleClass="section-title"/>
 
     <CheckBox fx:id="sleepReminderCheckBox" text="Remind me to log sleep data"/>

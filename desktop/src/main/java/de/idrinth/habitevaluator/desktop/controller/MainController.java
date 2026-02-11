@@ -97,6 +97,27 @@ public class MainController {
     private Button loadDefaultsButton;
 
     @FXML
+    private Button statsButton;
+
+    @FXML
+    private Button exportPdfButton;
+
+    @FXML
+    private Button exportBackupButton;
+
+    @FXML
+    private Button importBackupButton;
+
+    @FXML
+    private Button sleepTrackingButton;
+
+    @FXML
+    private Button emotionPairsButton;
+
+    @FXML
+    private Button recordEmotionButton;
+
+    @FXML
     private Label storageModeLabel;
 
     @FXML
@@ -249,6 +270,7 @@ public class MainController {
         setupDiarySuggestions();
         loadDiaryEntries();
 
+        applyModuleVisibility();
         performDailyBackupIfEnabled();
         showFirstStartDialogIfNeeded();
     }
@@ -271,6 +293,23 @@ public class MainController {
         alert.showAndWait();
         storageConfig.setFirstStartCompleted(true);
         storageConfig.save();
+    }
+
+    private void applyModuleVisibility() {
+        statsButton.setVisible(storageConfig.isStatisticsVisible());
+        statsButton.setManaged(storageConfig.isStatisticsVisible());
+        exportPdfButton.setVisible(storageConfig.isPdfExportVisible());
+        exportPdfButton.setManaged(storageConfig.isPdfExportVisible());
+        exportBackupButton.setVisible(storageConfig.isBackupVisible());
+        exportBackupButton.setManaged(storageConfig.isBackupVisible());
+        importBackupButton.setVisible(storageConfig.isBackupVisible());
+        importBackupButton.setManaged(storageConfig.isBackupVisible());
+        sleepTrackingButton.setVisible(storageConfig.isSleepVisible());
+        sleepTrackingButton.setManaged(storageConfig.isSleepVisible());
+        emotionPairsButton.setVisible(storageConfig.isEmotionsVisible());
+        emotionPairsButton.setManaged(storageConfig.isEmotionsVisible());
+        recordEmotionButton.setVisible(storageConfig.isEmotionsVisible());
+        recordEmotionButton.setManaged(storageConfig.isEmotionsVisible());
     }
 
     private void performDailyBackupIfEnabled() {
@@ -552,6 +591,7 @@ public class MainController {
                 initializeStorage();
                 loadCategories();
                 loadHabits();
+                applyModuleVisibility();
             }
         } catch (IOException e) {
             showAlert("Error", "Failed to open settings: " + e.getMessage());

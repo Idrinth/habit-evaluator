@@ -424,6 +424,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setupBottomNavigation() {
+        applyModuleVisibility();
         binding.bottomNavigation.setSelectedItemId(R.id.nav_home);
         binding.bottomNavigation.setOnItemSelectedListener(item -> {
             int id = item.getItemId();
@@ -515,6 +516,20 @@ public class MainActivity extends AppCompatActivity {
 
     public void onSettingsChanged() {
         initializeStorage();
+        applyModuleVisibility();
+    }
+
+    private void applyModuleVisibility() {
+        SharedPreferences prefs = getSharedPreferences(SettingsActivity.PREFS_NAME, MODE_PRIVATE);
+        boolean diaryVisible = prefs.getBoolean(SettingsActivity.KEY_MODULE_DIARY_VISIBLE, true);
+        boolean sleepVisible = prefs.getBoolean(SettingsActivity.KEY_MODULE_SLEEP_VISIBLE, true);
+        boolean statisticsVisible = prefs.getBoolean(SettingsActivity.KEY_MODULE_STATISTICS_VISIBLE, true);
+        boolean emotionsVisible = prefs.getBoolean(SettingsActivity.KEY_MODULE_EMOTIONS_VISIBLE, true);
+        android.view.Menu menu = binding.bottomNavigation.getMenu();
+        menu.findItem(R.id.nav_diary).setVisible(diaryVisible);
+        menu.findItem(R.id.nav_sleep).setVisible(sleepVisible);
+        menu.findItem(R.id.nav_stats).setVisible(statisticsVisible);
+        menu.findItem(R.id.nav_emotions).setVisible(emotionsVisible);
     }
 
     private void initializeStorage() {

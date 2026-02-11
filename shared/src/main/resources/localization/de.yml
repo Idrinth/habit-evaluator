@@ -100,6 +100,18 @@ settings:
   language_fr: "Français"
   custom_translations: "Benutzerdefinierte Übersetzungen"
   custom_translations_label: "Benutzerdefinierte Gewohnheitsübersetzungen aktivieren"
+  module_visibility: "Modulsichtbarkeit"
+  module_visibility_hint: "Blenden Sie nicht benötigte Module aus, um die Navigation zu vereinfachen."
+  module_diary: "Tagebuch"
+  module_sleep: "Schlaftracking"
+  module_emotions: "Emotionen"
+  module_points: "Punktediagramme"
+  module_statistics: "Statistiken"
+  module_food_log: "Ernährungsprotokoll"
+  module_sport_log: "Sportprotokoll"
+  module_medication: "Medikamente"
+  module_backup: "Sicherung"
+  module_pdf_export: "PDF-Export"
 
 reminders:
   settings_title: "Erinnerungseinstellungen"

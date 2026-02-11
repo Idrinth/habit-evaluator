@@ -112,7 +112,19 @@ const translations: Record<Language, Record<string, string>> = {
 		'foodDistribution.avgCarbsPerHour': 'Average Carbs (g) per Hour',
 		'foodDistribution.meals': 'meals',
 		'foodDistribution.totalMeals': 'Total meals (30 days)',
-		'foodDistribution.backToFoodLog': 'Back to Food Log'
+		'foodDistribution.backToFoodLog': 'Back to Food Log',
+		'settings.moduleVisibility': 'Module Visibility',
+		'settings.moduleVisibilityHint': "Hide modules you don't use to simplify navigation.",
+		'settings.moduleDiary': 'Diary',
+		'settings.moduleSleep': 'Sleep Tracking',
+		'settings.moduleEmotions': 'Emotions',
+		'settings.modulePoints': 'Point Charts',
+		'settings.moduleStatistics': 'Statistics',
+		'settings.moduleFoodLog': 'Food Log',
+		'settings.moduleSportLog': 'Sport Log',
+		'settings.moduleMedication': 'Medication',
+		'settings.moduleBackup': 'Backup',
+		'settings.modulePdfExport': 'PDF Export'
 	},
 	de: {
 		'nav.home': 'Start',
@@ -218,7 +230,19 @@ const translations: Record<Language, Record<string, string>> = {
 		'foodDistribution.avgCarbsPerHour': 'Durchschn. Kohlenhydrate (g) pro Stunde',
 		'foodDistribution.meals': 'Mahlzeiten',
 		'foodDistribution.totalMeals': 'Mahlzeiten gesamt (30 Tage)',
-		'foodDistribution.backToFoodLog': 'Zurück zum Ernährungsprotokoll'
+		'foodDistribution.backToFoodLog': 'Zurück zum Ernährungsprotokoll',
+		'settings.moduleVisibility': 'Modulsichtbarkeit',
+		'settings.moduleVisibilityHint': 'Blenden Sie nicht benötigte Module aus, um die Navigation zu vereinfachen.',
+		'settings.moduleDiary': 'Tagebuch',
+		'settings.moduleSleep': 'Schlaftracking',
+		'settings.moduleEmotions': 'Emotionen',
+		'settings.modulePoints': 'Punktediagramme',
+		'settings.moduleStatistics': 'Statistiken',
+		'settings.moduleFoodLog': 'Ernährungsprotokoll',
+		'settings.moduleSportLog': 'Sportprotokoll',
+		'settings.moduleMedication': 'Medikamente',
+		'settings.moduleBackup': 'Sicherung',
+		'settings.modulePdfExport': 'PDF-Export'
 	},
 	es: {
 		'nav.home': 'Inicio',
@@ -324,7 +348,19 @@ const translations: Record<Language, Record<string, string>> = {
 		'foodDistribution.avgCarbsPerHour': 'Carbohidratos promedio (g) por hora',
 		'foodDistribution.meals': 'comidas',
 		'foodDistribution.totalMeals': 'Total de comidas (30 días)',
-		'foodDistribution.backToFoodLog': 'Volver al registro de comidas'
+		'foodDistribution.backToFoodLog': 'Volver al registro de comidas',
+		'settings.moduleVisibility': 'Visibilidad de módulos',
+		'settings.moduleVisibilityHint': 'Oculte módulos que no usa para simplificar la navegación.',
+		'settings.moduleDiary': 'Diario',
+		'settings.moduleSleep': 'Seguimiento del sueño',
+		'settings.moduleEmotions': 'Emociones',
+		'settings.modulePoints': 'Gráficos de puntos',
+		'settings.moduleStatistics': 'Estadísticas',
+		'settings.moduleFoodLog': 'Registro de comidas',
+		'settings.moduleSportLog': 'Registro deportivo',
+		'settings.moduleMedication': 'Medicación',
+		'settings.moduleBackup': 'Copia de seguridad',
+		'settings.modulePdfExport': 'Exportar PDF'
 	},
 	fr: {
 		'nav.home': 'Accueil',
@@ -430,7 +466,19 @@ const translations: Record<Language, Record<string, string>> = {
 		'foodDistribution.avgCarbsPerHour': 'Glucides moyens (g) par heure',
 		'foodDistribution.meals': 'repas',
 		'foodDistribution.totalMeals': 'Total des repas (30 jours)',
-		'foodDistribution.backToFoodLog': 'Retour au journal alimentaire'
+		'foodDistribution.backToFoodLog': 'Retour au journal alimentaire',
+		'settings.moduleVisibility': 'Visibilité des modules',
+		'settings.moduleVisibilityHint': 'Masquez les modules inutilisés pour simplifier la navigation.',
+		'settings.moduleDiary': 'Journal',
+		'settings.moduleSleep': 'Suivi du sommeil',
+		'settings.moduleEmotions': 'Émotions',
+		'settings.modulePoints': 'Graphiques de points',
+		'settings.moduleStatistics': 'Statistiques',
+		'settings.moduleFoodLog': 'Journal alimentaire',
+		'settings.moduleSportLog': 'Journal sportif',
+		'settings.moduleMedication': 'Médicaments',
+		'settings.moduleBackup': 'Sauvegarde',
+		'settings.modulePdfExport': 'Export PDF'
 	}
 };
 

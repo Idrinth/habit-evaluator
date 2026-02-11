@@ -74,6 +74,16 @@ public class StorageConfig {
     private int emotionReminderCount;
     private String wakingHoursStart;
     private String wakingHoursEnd;
+    private boolean diaryVisible;
+    private boolean sleepVisible;
+    private boolean emotionsVisible;
+    private boolean pointsVisible;
+    private boolean statisticsVisible;
+    private boolean foodLogVisible;
+    private boolean sportLogVisible;
+    private boolean medicationVisible;
+    private boolean backupVisible;
+    private boolean pdfExportVisible;
 
     private final File configFile;
 
@@ -95,6 +105,16 @@ public class StorageConfig {
         this.emotionReminderCount = 3;
         this.wakingHoursStart = "07:00";
         this.wakingHoursEnd = "22:00";
+        this.diaryVisible = true;
+        this.sleepVisible = true;
+        this.emotionsVisible = true;
+        this.pointsVisible = true;
+        this.statisticsVisible = true;
+        this.foodLogVisible = true;
+        this.sportLogVisible = true;
+        this.medicationVisible = true;
+        this.backupVisible = true;
+        this.pdfExportVisible = true;
         load();
     }
 
@@ -140,6 +160,26 @@ public class StorageConfig {
             }
             wakingHoursStart = props.getProperty("reminder.waking.start", "07:00");
             wakingHoursEnd = props.getProperty("reminder.waking.end", "22:00");
+            diaryVisible = Boolean.parseBoolean(
+                    props.getProperty("module.diary.visible", "true"));
+            sleepVisible = Boolean.parseBoolean(
+                    props.getProperty("module.sleep.visible", "true"));
+            emotionsVisible = Boolean.parseBoolean(
+                    props.getProperty("module.emotions.visible", "true"));
+            pointsVisible = Boolean.parseBoolean(
+                    props.getProperty("module.points.visible", "true"));
+            statisticsVisible = Boolean.parseBoolean(
+                    props.getProperty("module.statistics.visible", "true"));
+            foodLogVisible = Boolean.parseBoolean(
+                    props.getProperty("module.food_log.visible", "true"));
+            sportLogVisible = Boolean.parseBoolean(
+                    props.getProperty("module.sport_log.visible", "true"));
+            medicationVisible = Boolean.parseBoolean(
+                    props.getProperty("module.medication.visible", "true"));
+            backupVisible = Boolean.parseBoolean(
+                    props.getProperty("module.backup.visible", "true"));
+            pdfExportVisible = Boolean.parseBoolean(
+                    props.getProperty("module.pdf_export.visible", "true"));
         } catch (IOException e) {
             logger.warn("Failed to load storage config, using defaults", e);
         } catch (IllegalArgumentException e) {
@@ -175,6 +215,16 @@ public class StorageConfig {
         props.setProperty("reminder.emotion.count", String.valueOf(emotionReminderCount));
         props.setProperty("reminder.waking.start", wakingHoursStart != null ? wakingHoursStart : "07:00");
         props.setProperty("reminder.waking.end", wakingHoursEnd != null ? wakingHoursEnd : "22:00");
+        props.setProperty("module.diary.visible", String.valueOf(diaryVisible));
+        props.setProperty("module.sleep.visible", String.valueOf(sleepVisible));
+        props.setProperty("module.emotions.visible", String.valueOf(emotionsVisible));
+        props.setProperty("module.points.visible", String.valueOf(pointsVisible));
+        props.setProperty("module.statistics.visible", String.valueOf(statisticsVisible));
+        props.setProperty("module.food_log.visible", String.valueOf(foodLogVisible));
+        props.setProperty("module.sport_log.visible", String.valueOf(sportLogVisible));
+        props.setProperty("module.medication.visible", String.valueOf(medicationVisible));
+        props.setProperty("module.backup.visible", String.valueOf(backupVisible));
+        props.setProperty("module.pdf_export.visible", String.valueOf(pdfExportVisible));
         try (FileOutputStream fos = new FileOutputStream(configFile)) {
             props.store(fos, "Habit Evaluator Storage Configuration");
         } catch (IOException e) {
@@ -328,6 +378,86 @@ public class StorageConfig {
 
     public void setWakingHoursEnd(String wakingHoursEnd) {
         this.wakingHoursEnd = wakingHoursEnd;
+    }
+
+    public boolean isDiaryVisible() {
+        return diaryVisible;
+    }
+
+    public void setDiaryVisible(boolean diaryVisible) {
+        this.diaryVisible = diaryVisible;
+    }
+
+    public boolean isSleepVisible() {
+        return sleepVisible;
+    }
+
+    public void setSleepVisible(boolean sleepVisible) {
+        this.sleepVisible = sleepVisible;
+    }
+
+    public boolean isEmotionsVisible() {
+        return emotionsVisible;
+    }
+
+    public void setEmotionsVisible(boolean emotionsVisible) {
+        this.emotionsVisible = emotionsVisible;
+    }
+
+    public boolean isPointsVisible() {
+        return pointsVisible;
+    }
+
+    public void setPointsVisible(boolean pointsVisible) {
+        this.pointsVisible = pointsVisible;
+    }
+
+    public boolean isStatisticsVisible() {
+        return statisticsVisible;
+    }
+
+    public void setStatisticsVisible(boolean statisticsVisible) {
+        this.statisticsVisible = statisticsVisible;
+    }
+
+    public boolean isFoodLogVisible() {
+        return foodLogVisible;
+    }
+
+    public void setFoodLogVisible(boolean foodLogVisible) {
+        this.foodLogVisible = foodLogVisible;
+    }
+
+    public boolean isSportLogVisible() {
+        return sportLogVisible;
+    }
+
+    public void setSportLogVisible(boolean sportLogVisible) {
+        this.sportLogVisible = sportLogVisible;
+    }
+
+    public boolean isMedicationVisible() {
+        return medicationVisible;
+    }
+
+    public void setMedicationVisible(boolean medicationVisible) {
+        this.medicationVisible = medicationVisible;
+    }
+
+    public boolean isBackupVisible() {
+        return backupVisible;
+    }
+
+    public void setBackupVisible(boolean backupVisible) {
+        this.backupVisible = backupVisible;
+    }
+
+    public boolean isPdfExportVisible() {
+        return pdfExportVisible;
+    }
+
+    public void setPdfExportVisible(boolean pdfExportVisible) {
+        this.pdfExportVisible = pdfExportVisible;
     }
 
     private static final List<String> SUPPORTED_LANGUAGES = Arrays.asList("en", "de", "es", "fr");

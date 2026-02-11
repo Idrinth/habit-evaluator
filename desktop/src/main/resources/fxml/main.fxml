@@ -16,11 +16,11 @@
             </padding>
             <Label fx:id="storageModeLabel" text="Storage: Local" HBox.hgrow="ALWAYS"/>
             <Button fx:id="loadDefaultsButton" text="Load Default Habits" onAction="#handleLoadDefaults"/>
-            <Button text="Statistics" onAction="#handleOpenStats"/>
+            <Button fx:id="statsButton" text="Statistics" onAction="#handleOpenStats"/>
             <Button text="Sync" onAction="#handleSync"/>
-            <Button text="Export PDF" onAction="#handleExportPdf"/>
-            <Button text="Export Backup" onAction="#handleExportHezBackup" styleClass="primary-button"/>
-            <Button text="Import Backup" onAction="#handleImportHezBackup" styleClass="primary-button"/>
+            <Button fx:id="exportPdfButton" text="Export PDF" onAction="#handleExportPdf"/>
+            <Button fx:id="exportBackupButton" text="Export Backup" onAction="#handleExportHezBackup" styleClass="primary-button"/>
+            <Button fx:id="importBackupButton" text="Import Backup" onAction="#handleImportHezBackup" styleClass="primary-button"/>
             <Button text="Settings" onAction="#handleOpenSettings"/>
             <Button text="i" onAction="#handleOpenImprint" style="-fx-font-family: serif; -fx-font-style: italic; -fx-font-weight: bold; -fx-font-size: 13px; -fx-min-width: 28; -fx-max-width: 28; -fx-min-height: 28; -fx-max-height: 28; -fx-padding: 0; -fx-background-radius: 14;"/>
         </HBox>
@@ -53,9 +53,9 @@
 
             <HBox spacing="10">
                 <Button text="Add Habit" onAction="#handleOpenAddHabit" styleClass="primary-button"/>
-                <Button text="Sleep Tracking" onAction="#handleOpenSleepTracking" styleClass="primary-button"/>
-                <Button text="Emotion Pairs" onAction="#handleOpenEmotionPairs" styleClass="primary-button"/>
-                <Button text="Record Emotion" onAction="#handleOpenEmotionEntry" styleClass="primary-button"/>
+                <Button fx:id="sleepTrackingButton" text="Sleep Tracking" onAction="#handleOpenSleepTracking" styleClass="primary-button"/>
+                <Button fx:id="emotionPairsButton" text="Emotion Pairs" onAction="#handleOpenEmotionPairs" styleClass="primary-button"/>
+                <Button fx:id="recordEmotionButton" text="Record Emotion" onAction="#handleOpenEmotionEntry" styleClass="primary-button"/>
             </HBox>
 
             <Separator/>
