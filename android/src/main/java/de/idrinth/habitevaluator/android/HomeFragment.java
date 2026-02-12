@@ -389,13 +389,19 @@ public class HomeFragment extends Fragment implements HabitAdapter.OnHabitClickL
         }
     }
 
+    static boolean isCategoryUsed(String categoryId, List<Habit> habits) {
+        if (categoryId == null || categoryId.isEmpty()) {
+            return false;
+        }
+        return habits != null && habits.stream()
+                .anyMatch(h -> categoryId.equals(h.getCategoryId()));
+    }
+
     private void cleanupOrphanedCategory(String categoryId, List<Habit> allHabits, HabitCategoryRepository categoryRepository) {
         if (categoryId == null || categoryId.isEmpty() || categoryRepository == null) {
             return;
         }
-        boolean categoryStillUsed = allHabits != null && allHabits.stream()
-                .anyMatch(h -> categoryId.equals(h.getCategoryId()));
-        if (!categoryStillUsed) {
+        if (!isCategoryUsed(categoryId, allHabits)) {
             categoryRepository.deleteById(categoryId);
         }
     }

@@ -35,9 +35,12 @@ import de.idrinth.habitevaluator.shared.repository.FoodLogRepository;
 
 public class FoodLogFragment extends Fragment implements FoodLogAdapter.OnFoodLogDeleteListener {
 
-    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-    private static final DateTimeFormatter TIME_FORMAT = DateTimeFormatter.ofPattern("HH:mm");
-    private static final DateTimeFormatter DT_DISPLAY_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+    static final String DATE_PATTERN = "yyyy-MM-dd";
+    static final String TIME_PATTERN = "HH:mm";
+    static final String DT_DISPLAY_PATTERN = "yyyy-MM-dd HH:mm";
+    static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern(DATE_PATTERN);
+    static final DateTimeFormatter TIME_FORMAT = DateTimeFormatter.ofPattern(TIME_PATTERN);
+    static final DateTimeFormatter DT_DISPLAY_FORMAT = DateTimeFormatter.ofPattern(DT_DISPLAY_PATTERN);
 
     private FragmentFoodLogBinding binding;
     private FoodLogAdapter adapter;
