@@ -368,4 +368,5 @@
     <string name="module_medication">Médicaments</string>
     <string name="module_backup">Sauvegarde</string>
     <string name="module_pdf_export">Export PDF</string>
+    <string name="daily_entries_count">Aujourd\'hui: %1$d/%2$d</string>
 </resources>
