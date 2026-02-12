@@ -13,6 +13,7 @@ import com.google.android.material.card.MaterialCardView;
 
 import android.widget.ImageButton;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import de.idrinth.habitevaluator.android.R;
@@ -132,7 +133,12 @@ public class HabitAdapter extends RecyclerView.Adapter<HabitAdapter.HabitViewHol
                 nameText.setText(habit.getName());
                 descriptionText.setText(habit.getDescription());
             }
-            entriesCountText.setText(String.format("%d entries", habit.getEntries().size()));
+            LocalDate today = LocalDate.now();
+            long todayEntries = habit.getEntries().stream()
+                    .filter(entry -> entry.getCompletedAt().toLocalDate().equals(today))
+                    .count();
+            entriesCountText.setText(itemView.getContext().getString(
+                    R.string.daily_entries_count, todayEntries, habit.getMaxEntriesPerDay()));
             itemView.setSelected(isSelected);
 
             if (isSelected) {

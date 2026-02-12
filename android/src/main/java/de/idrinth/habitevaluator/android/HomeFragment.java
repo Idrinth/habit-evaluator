@@ -215,6 +215,7 @@ public class HomeFragment extends Fragment implements HabitAdapter.OnHabitClickL
                     habitRepository.save(selectedHabit);
                     if (isAdded()) {
                         requireActivity().runOnUiThread(() -> {
+                            habitAdapter.notifyDataSetChanged();
                             updateEvaluationDisplay(selectedHabit);
                             Toast.makeText(requireContext(), "Habit completed!", Toast.LENGTH_SHORT).show();
                         });
@@ -222,10 +223,12 @@ public class HomeFragment extends Fragment implements HabitAdapter.OnHabitClickL
                 }).start();
             } else {
                 habitRepository.save(selectedHabit);
+                habitAdapter.notifyDataSetChanged();
                 updateEvaluationDisplay(selectedHabit);
                 Toast.makeText(requireContext(), "Habit completed!", Toast.LENGTH_SHORT).show();
             }
         } else {
+            habitAdapter.notifyDataSetChanged();
             updateEvaluationDisplay(selectedHabit);
             Toast.makeText(requireContext(), "Habit completed!", Toast.LENGTH_SHORT).show();
         }
@@ -251,6 +254,7 @@ public class HomeFragment extends Fragment implements HabitAdapter.OnHabitClickL
                     habitRepository.save(selectedHabit);
                     if (isAdded()) {
                         requireActivity().runOnUiThread(() -> {
+                            habitAdapter.notifyDataSetChanged();
                             updateEvaluationDisplay(selectedHabit);
                             Toast.makeText(requireContext(), "Completion removed", Toast.LENGTH_SHORT).show();
                         });
@@ -258,10 +262,12 @@ public class HomeFragment extends Fragment implements HabitAdapter.OnHabitClickL
                 }).start();
             } else {
                 habitRepository.save(selectedHabit);
+                habitAdapter.notifyDataSetChanged();
                 updateEvaluationDisplay(selectedHabit);
                 Toast.makeText(requireContext(), "Completion removed", Toast.LENGTH_SHORT).show();
             }
         } else {
+            habitAdapter.notifyDataSetChanged();
             updateEvaluationDisplay(selectedHabit);
             Toast.makeText(requireContext(), "Completion removed", Toast.LENGTH_SHORT).show();
         }
