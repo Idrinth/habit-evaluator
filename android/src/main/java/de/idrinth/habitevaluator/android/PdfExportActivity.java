@@ -437,9 +437,7 @@ public class PdfExportActivity extends AppCompatActivity {
                 if (entry.getNotes() != null && !entry.getNotes().isEmpty()) {
                     line += " — " + entry.getNotes();
                 }
-                if (line.length() > 80) {
-                    line = line.substring(0, 77) + "...";
-                }
+                line = truncateLine(line, 80);
                 commands.add(new TextCommand(line, MARGIN + 10, yPosition, 10f, Color.DKGRAY));
                 yPosition += 14;
             }
@@ -516,10 +514,7 @@ public class PdfExportActivity extends AppCompatActivity {
                 String line = entry.getEventDate().format(DISPLAY_FORMAT) + " - "
                         + entry.getDescription()
                         + " (" + entry.getSignificance().getPoints() + " pts)";
-                // Truncate long descriptions
-                if (line.length() > 80) {
-                    line = line.substring(0, 77) + "...";
-                }
+                line = truncateLine(line, 80);
                 commands.add(new TextCommand(line, MARGIN + 10, yPosition, 10f, Color.DKGRAY));
                 yPosition += 14;
             }
@@ -655,9 +650,7 @@ public class PdfExportActivity extends AppCompatActivity {
             if (entry.getNotes() != null && !entry.getNotes().isEmpty()) {
                 line += " — " + entry.getNotes();
             }
-            if (line.length() > 80) {
-                line = line.substring(0, 77) + "...";
-            }
+            line = truncateLine(line, 80);
             commands.add(new TextCommand(line, MARGIN + 10, yPosition, 10f, Color.DKGRAY));
             yPosition += 14;
         }
@@ -723,9 +716,7 @@ public class PdfExportActivity extends AppCompatActivity {
                     + "  " + String.format("%+.3f", corr.getCorrelation())
                     + "  (" + corr.getSharedDays() + " days)"
                     + "  [" + confidence + "]";
-            if (line.length() > 95) {
-                line = line.substring(0, 92) + "...";
-            }
+            line = truncateLine(line, 95);
             int textColor = absCorr < 0.3 ? Color.LTGRAY : Color.DKGRAY;
             commands.add(new TextCommand(line, MARGIN + 10, yPosition, 10f, textColor));
             yPosition += 14;
@@ -733,6 +724,16 @@ public class PdfExportActivity extends AppCompatActivity {
         yPosition += 10;
 
         return yPosition;
+    }
+
+    /**
+     * Truncates a line to the given maximum length, appending "..." if truncated.
+     */
+    static String truncateLine(String line, int maxLength) {
+        if (line.length() > maxLength) {
+            return line.substring(0, maxLength - 3) + "...";
+        }
+        return line;
     }
 
     // Draw command interface and implementations for deferred rendering
@@ -1117,8 +1118,8 @@ public class PdfExportActivity extends AppCompatActivity {
                 canvas.drawRect(lx, ly - 3, lx + 10, ly + 3, legendBoxPaint);
 
                 String label = pairLabelMap.get(pairIds.get(p));
-                if (label != null && label.length() > 30) {
-                    label = label.substring(0, 27) + "...";
+                if (label != null) {
+                    label = truncateLine(label, 30);
                 }
                 canvas.drawText(label != null ? label : "", lx + 13, ly + 3, legendTextPaint);
             }
@@ -1252,8 +1253,8 @@ public class PdfExportActivity extends AppCompatActivity {
                 canvas.drawCircle(lx + 3, ly, 4, legendDotPaint);
 
                 String label = pairLabelMap.get(pairIds.get(p));
-                if (label != null && label.length() > 30) {
-                    label = label.substring(0, 27) + "...";
+                if (label != null) {
+                    label = truncateLine(label, 30);
                 }
                 canvas.drawText(label != null ? label : "", lx + 10, ly + 3, legendTextPaint);
             }

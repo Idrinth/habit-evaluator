@@ -69,7 +69,7 @@ public class SleepAnalysisActivity extends AppCompatActivity {
             }
             durations.add(dayDuration);
 
-            int dayInterruptions = Math.max(0, dayEntries.size() - 1);
+            int dayInterruptions = calculateInterruptions(dayEntries.size());
             interruptions.add((float) dayInterruptions);
 
             if (!dayEntries.isEmpty()) {
@@ -79,8 +79,8 @@ public class SleepAnalysisActivity extends AppCompatActivity {
             }
         }
 
-        float avgDuration = daysWithData > 0 ? totalDuration / daysWithData : 0f;
-        float avgInterruptions = daysWithData > 0 ? totalInterruptions / daysWithData : 0f;
+        float avgDuration = calculateAverage(totalDuration, daysWithData);
+        float avgInterruptions = calculateAverage(totalInterruptions, daysWithData);
 
         binding.durationGraphView.setBarColor(0xFF4CAF50);
         binding.durationGraphView.setValueFormat("%.1f");
@@ -89,5 +89,20 @@ public class SleepAnalysisActivity extends AppCompatActivity {
         binding.interruptionsGraphView.setBarColor(0xFF81C784);
         binding.interruptionsGraphView.setValueFormat("%.0f");
         binding.interruptionsGraphView.setData(labels, interruptions, avgInterruptions);
+    }
+
+    /**
+     * Calculates sleep interruptions for a day. Multiple sleep segments
+     * indicate interrupted sleep (e.g., 3 segments = 2 interruptions).
+     */
+    static int calculateInterruptions(int segmentCount) {
+        return Math.max(0, segmentCount - 1);
+    }
+
+    /**
+     * Calculates the average value, returning 0 when there is no data.
+     */
+    static float calculateAverage(float total, int count) {
+        return count > 0 ? total / count : 0f;
     }
 }
