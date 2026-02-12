@@ -16,7 +16,7 @@ jobs:
         env:
           LABELS: ${{ join(github.event.pull_request.labels.*.name, '\n') }}
         run: |
-          SEMVER_LABELS=$(echo "$LABELS" | grep -c '^semver:' || true)
+          SEMVER_LABELS=$(printf '%b\n' "$LABELS" | grep -c '^semver:' || true)
           if [ "$SEMVER_LABELS" -eq 0 ]; then
             echo "::error::No semver: label found. Please add exactly one semver: label to this PR."
             exit 1
@@ -25,5 +25,5 @@ jobs:
             echo "::error::Multiple semver: labels found ($SEMVER_LABELS). Please keep exactly one semver: label on this PR."
             exit 1
           fi
-          LABEL_NAME=$(echo "$LABELS" | grep '^semver:')
+          LABEL_NAME=$(printf '%b\n' "$LABELS" | grep '^semver:')
           echo "Found semver label: $LABEL_NAME"
