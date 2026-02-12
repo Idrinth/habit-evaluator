@@ -116,7 +116,7 @@ jacoco {
 }
 
 tasks.withType(Test).configureEach {
-    outputs.cacheableWhen { false }
+    outputs.cacheIf { false }
 }
 
 tasks.register('jacocoTestReport', JacocoReport) {
