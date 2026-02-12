@@ -27,6 +27,22 @@ import de.idrinth.habitevaluator.shared.repository.EmotionPairRepository;
 
 public class EmotionalStateFragment extends Fragment {
 
+    static Map<String, List<EmotionEntry>> groupEntriesByPairId(
+            List<EmotionPair> pairs, List<EmotionEntry> allEntries) {
+        Map<String, List<EmotionEntry>> entriesByPair = new HashMap<>();
+        for (EmotionPair pair : pairs) {
+            List<EmotionEntry> pairEntries = new ArrayList<>();
+            for (EmotionEntry entry : allEntries) {
+                if (entry.getEmotionPair() != null && entry.getEmotionPair().getId().equals(pair.getId())) {
+                    pairEntries.add(entry);
+                }
+            }
+            pairEntries.sort(Comparator.comparing(EmotionEntry::getRecordedAt).reversed());
+            entriesByPair.put(pair.getId(), pairEntries);
+        }
+        return entriesByPair;
+    }
+
     private FragmentEmotionalStateBinding binding;
     private EmotionDataAdapter adapter;
 
@@ -70,17 +86,7 @@ public class EmotionalStateFragment extends Fragment {
             allEntries.addAll(entryRepository.findByUserId(MainActivity.getSharedLocalUser().getId()));
         }
 
-        Map<String, List<EmotionEntry>> entriesByPair = new HashMap<>();
-        for (EmotionPair pair : pairs) {
-            List<EmotionEntry> pairEntries = new ArrayList<>();
-            for (EmotionEntry entry : allEntries) {
-                if (entry.getEmotionPair() != null && entry.getEmotionPair().getId().equals(pair.getId())) {
-                    pairEntries.add(entry);
-                }
-            }
-            pairEntries.sort(Comparator.comparing(EmotionEntry::getRecordedAt).reversed());
-            entriesByPair.put(pair.getId(), pairEntries);
-        }
+        Map<String, List<EmotionEntry>> entriesByPair = groupEntriesByPairId(pairs, allEntries);
         adapter.setData(pairs, entriesByPair);
     }
 

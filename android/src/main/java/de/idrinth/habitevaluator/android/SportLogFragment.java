@@ -29,8 +29,10 @@ import de.idrinth.habitevaluator.shared.service.SportLogService;
 
 public class SportLogFragment extends Fragment implements SportLogAdapter.OnSportLogDeleteListener {
 
-    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-    private static final DateTimeFormatter TIME_FORMAT = DateTimeFormatter.ofPattern("HH:mm");
+    static final String DATE_PATTERN = "yyyy-MM-dd";
+    static final String TIME_PATTERN = "HH:mm";
+    static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern(DATE_PATTERN);
+    static final DateTimeFormatter TIME_FORMAT = DateTimeFormatter.ofPattern(TIME_PATTERN);
 
     private FragmentSportLogBinding binding;
     private SportLogAdapter adapter;

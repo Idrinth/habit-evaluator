@@ -22,6 +22,18 @@ import de.idrinth.habitevaluator.shared.service.HabitScoringService;
 
 public class PointDevelopmentFragment extends Fragment {
 
+    static Habit findHabitById(List<Habit> habits, String habitId) {
+        if (habits == null || habitId == null) {
+            return null;
+        }
+        for (Habit h : habits) {
+            if (habitId.equals(h.getId())) {
+                return h;
+            }
+        }
+        return null;
+    }
+
     private FragmentPointDevelopmentBinding binding;
     private HabitScoringService scoringService;
     private boolean showingWeek = true;
@@ -63,16 +75,7 @@ public class PointDevelopmentFragment extends Fragment {
     private void updateCharts() {
         List<Habit> habits = MainActivity.getSharedHabits();
         String habitId = MainActivity.getPointDevelopmentHabitId();
-        Habit selectedHabit = null;
-
-        if (habits != null && habitId != null) {
-            for (Habit h : habits) {
-                if (habitId.equals(h.getId())) {
-                    selectedHabit = h;
-                    break;
-                }
-            }
-        }
+        Habit selectedHabit = findHabitById(habits, habitId);
 
         if (selectedHabit == null) {
             binding.dailyChart.setData(new ArrayList<>(), new ArrayList<>(), 0);
