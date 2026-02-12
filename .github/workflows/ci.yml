@@ -377,7 +377,7 @@ jobs:
 
   docker:
     if: github.event_name == 'push'
-    needs: [java, e2e]
+    needs: [java, e2e, frontend-check, website-test]
     runs-on: ubuntu-latest
     strategy:
       matrix:
