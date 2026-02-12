@@ -30,8 +30,10 @@ import de.idrinth.habitevaluator.shared.service.DiaryService;
 
 public class DiaryFragment extends Fragment {
 
-    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-    private static final DateTimeFormatter TIME_FORMAT = DateTimeFormatter.ofPattern("HH:mm");
+    static final String DATE_PATTERN = "yyyy-MM-dd";
+    static final String TIME_PATTERN = "HH:mm";
+    static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern(DATE_PATTERN);
+    static final DateTimeFormatter TIME_FORMAT = DateTimeFormatter.ofPattern(TIME_PATTERN);
 
     private FragmentDiaryBinding binding;
     private DiaryEntryAdapter adapter;
@@ -176,18 +178,7 @@ public class DiaryFragment extends Fragment {
         }
 
         int selectedPosition = binding.significanceSpinner.getSelectedItemPosition();
-        EventSignificance significance;
-        switch (selectedPosition) {
-            case 0:
-                significance = EventSignificance.MINOR;
-                break;
-            case 2:
-                significance = EventSignificance.MAJOR;
-                break;
-            default:
-                significance = EventSignificance.NORMAL;
-                break;
-        }
+        EventSignificance significance = mapPositionToSignificance(selectedPosition);
 
         DiaryEntry entry = new DiaryEntry(description, significance, selectedDate);
         entry.setUser(MainActivity.getSharedLocalUser());
@@ -265,6 +256,17 @@ public class DiaryFragment extends Fragment {
             trendText = getString(R.string.diary_trend_stable);
         }
         binding.monthlyTrendText.setText(trendText);
+    }
+
+    static EventSignificance mapPositionToSignificance(int position) {
+        switch (position) {
+            case 0:
+                return EventSignificance.MINOR;
+            case 2:
+                return EventSignificance.MAJOR;
+            default:
+                return EventSignificance.NORMAL;
+        }
     }
 
     @Override

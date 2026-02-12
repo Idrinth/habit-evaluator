@@ -29,8 +29,9 @@ import de.idrinth.habitevaluator.android.ui.EmotionScatterChartView;
 
 public class StatsFragment extends Fragment {
 
-    private static final int DAYS = 30;
-    private static final DateTimeFormatter LABEL_FORMAT = DateTimeFormatter.ofPattern("MM/dd");
+    static final int DAYS = 30;
+    static final String LABEL_PATTERN = "MM/dd";
+    static final DateTimeFormatter LABEL_FORMAT = DateTimeFormatter.ofPattern(LABEL_PATTERN);
 
     private FragmentStatsBinding binding;
     private final DiaryService diaryService = new DiaryService();
@@ -67,10 +68,7 @@ public class StatsFragment extends Fragment {
         LocalDate today = LocalDate.now();
         LocalDate startDate = today.minusDays(DAYS - 1);
 
-        List<String> labels = new ArrayList<>();
-        for (LocalDate d = startDate; !d.isAfter(today); d = d.plusDays(1)) {
-            labels.add(d.format(LABEL_FORMAT));
-        }
+        List<String> labels = generateDateLabels(startDate, today);
 
         updateSleepCharts(startDate, today, labels);
         updateDiaryChart(startDate, today, labels);
@@ -118,8 +116,8 @@ public class StatsFragment extends Fragment {
             }
         }
 
-        float avgDuration = daysWithData > 0 ? totalDuration / daysWithData : 0f;
-        float avgEntries = daysWithData > 0 ? totalEntries / daysWithData : 0f;
+        float avgDuration = calculateAverage(totalDuration, daysWithData);
+        float avgEntries = calculateAverage(totalEntries, daysWithData);
 
         binding.sleepDurationChart.setBarColor(0xFF4CAF50);
         binding.sleepDurationChart.setValueFormat("%.1f");
@@ -150,7 +148,7 @@ public class StatsFragment extends Fragment {
             }
         }
 
-        float avgPoints = daysWithData > 0 ? totalPoints / daysWithData : 0f;
+        float avgPoints = calculateAverage(totalPoints, daysWithData);
 
         binding.diaryPointsChart.setBarColor(0xFF66BB6A);
         binding.diaryPointsChart.setValueFormat("%.0f");
@@ -179,7 +177,7 @@ public class StatsFragment extends Fragment {
             }
         }
 
-        float avgPoints = daysWithData > 0 ? totalPoints / daysWithData : 0f;
+        float avgPoints = calculateAverage(totalPoints, daysWithData);
 
         binding.habitPointsChart.setBarColor(0xFF388E3C);
         binding.habitPointsChart.setValueFormat("%.0f");
@@ -310,6 +308,18 @@ public class StatsFragment extends Fragment {
         }
 
         binding.emotionScatterChart.setData(scatterPairs);
+    }
+
+    static float calculateAverage(float total, int count) {
+        return count > 0 ? total / count : 0f;
+    }
+
+    static List<String> generateDateLabels(LocalDate startDate, LocalDate endDate) {
+        List<String> labels = new ArrayList<>();
+        for (LocalDate d = startDate; !d.isAfter(endDate); d = d.plusDays(1)) {
+            labels.add(d.format(LABEL_FORMAT));
+        }
+        return labels;
     }
 
     @Override
