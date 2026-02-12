@@ -290,6 +290,7 @@ jobs:
           path: desktop/build/jpackage-deb/*.deb
 
   desktop-exe:
+    needs: java
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v6
