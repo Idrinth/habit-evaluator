@@ -1149,21 +1149,6 @@ paths:
           description: OK
 components:
   schemas:
-    LocalTime:
-      type: object
-      properties:
-        hour:
-          type: integer
-          format: int32
-        minute:
-          type: integer
-          format: int32
-        second:
-          type: integer
-          format: int32
-        nano:
-          type: integer
-          format: int32
     ReminderSettings:
       type: object
       properties:
@@ -1174,20 +1159,24 @@ components:
         sleepReminderEnabled:
           type: boolean
         sleepReminderTime:
-          $ref: "#/components/schemas/LocalTime"
+          type: string
+          example: 14:30:00
         diaryReminderEnabled:
           type: boolean
         diaryReminderTime:
-          $ref: "#/components/schemas/LocalTime"
+          type: string
+          example: 14:30:00
         emotionReminderEnabled:
           type: boolean
         emotionReminderCount:
           type: integer
           format: int32
         wakingHoursStart:
-          $ref: "#/components/schemas/LocalTime"
+          type: string
+          example: 14:30:00
         wakingHoursEnd:
-          $ref: "#/components/schemas/LocalTime"
+          type: string
+          example: 14:30:00
     User:
       type: object
       properties:
@@ -1348,9 +1337,11 @@ components:
         measurementUnit:
           type: string
         startTime:
-          $ref: "#/components/schemas/LocalTime"
+          type: string
+          example: 14:30:00
         endTime:
-          $ref: "#/components/schemas/LocalTime"
+          type: string
+          example: 14:30:00
         date:
           type: string
           format: date
@@ -1370,9 +1361,11 @@ components:
         id:
           type: string
         fromTime:
-          $ref: "#/components/schemas/LocalTime"
+          type: string
+          example: 14:30:00
         untilTime:
-          $ref: "#/components/schemas/LocalTime"
+          type: string
+          example: 14:30:00
         date:
           type: string
           format: date
@@ -1413,9 +1406,11 @@ components:
         attendants:
           type: string
         startTime:
-          $ref: "#/components/schemas/LocalTime"
+          type: string
+          example: 14:30:00
         endTime:
-          $ref: "#/components/schemas/LocalTime"
+          type: string
+          example: 14:30:00
         date:
           type: string
           format: date
@@ -1549,9 +1544,11 @@ components:
           type: string
           format: date-time
         startTime:
-          $ref: "#/components/schemas/LocalTime"
+          type: string
+          example: 14:30:00
         endTime:
-          $ref: "#/components/schemas/LocalTime"
+          type: string
+          example: 14:30:00
         user:
           $ref: "#/components/schemas/User"
         description:
@@ -1619,11 +1616,10 @@ components:
       properties:
         username:
           type: string
+          minLength: 1
         password:
           type: string
-      required:
-      - password
-      - username
+          minLength: 1
     SportLogStats:
       type: object
       properties:

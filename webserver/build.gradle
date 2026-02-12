@@ -30,7 +30,7 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
     // OpenAPI specification generation (test-time only)
-    testImplementation 'org.springdoc:springdoc-openapi-starter-webmvc-api:3.0.1'
+    testImplementation 'org.springdoc:springdoc-openapi-starter-webmvc-api:2.8.6'
 }
 
 test {
