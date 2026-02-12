@@ -8,6 +8,21 @@ describe('Navigation', () => {
 		cy.intercept('GET', '/api/categories', { statusCode: 200, body: [] });
 		cy.intercept('GET', '/api/habits/predict', { statusCode: 200, body: [] });
 		cy.intercept('GET', '/api/reminder-settings', { statusCode: 200, body: {} });
+		cy.intercept('GET', '/api/module-visibility', {
+			statusCode: 200,
+			body: {
+				diaryVisible: true,
+				sleepVisible: true,
+				emotionsVisible: true,
+				pointsVisible: true,
+				statisticsVisible: true,
+				foodLogVisible: true,
+				sportLogVisible: true,
+				medicationVisible: true,
+				backupVisible: true,
+				pdfExportVisible: true
+			}
+		});
 
 		cy.visit('/habits/home', {
 			onBeforeLoad(win) {
