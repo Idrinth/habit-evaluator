@@ -148,8 +148,13 @@ tasks.register('jacocoTestReport', JacocoReport) {
 
     classDirectories.setFrom(modernDebugTree + legacyDebugTree)
     sourceDirectories.setFrom(files('src/main/java'))
-    executionData.setFrom(layout.buildDirectory.files(
-        'jacoco/testModernDebugUnitTest.exec',
-        'jacoco/testLegacyDebugUnitTest.exec'
+    executionData.setFrom(fileTree(
+        dir: layout.buildDirectory,
+        includes: [
+            'jacoco/testModernDebugUnitTest.exec',
+            'jacoco/testLegacyDebugUnitTest.exec',
+            'outputs/unit_test_code_coverage/modernDebugUnitTest/testModernDebugUnitTest.exec',
+            'outputs/unit_test_code_coverage/legacyDebugUnitTest/testLegacyDebugUnitTest.exec'
+        ]
     ))
 }
