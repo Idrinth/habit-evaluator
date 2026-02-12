@@ -13,7 +13,17 @@ export default defineConfig({
 		proxy: {
 			'/api': {
 				target: 'http://localhost:8080',
-				changeOrigin: true
+				changeOrigin: true,
+				configure: (proxy) => {
+					proxy.on('error', (_err, _req, res) => {
+						if ('writeHead' in res && 'headersSent' in res && !res.headersSent) {
+							(res as import('http').ServerResponse).writeHead(502, {
+								'Content-Type': 'application/json'
+							});
+							res.end(JSON.stringify({ message: 'Backend server is not available' }));
+						}
+					});
+				}
 			}
 		}
 	},
