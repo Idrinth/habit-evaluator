@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { auth } from '$lib/api';
+	import { goto, invalidate } from '$app/navigation';
 
 	let username = $state('');
 	let password = $state('');
@@ -11,7 +12,8 @@
 		try {
 			const res = await auth.login(username, password);
 			if (res.success) {
-				window.location.href = '/habits/home';
+				await invalidate('app:session');
+				await goto('/habits/home');
 			} else {
 				error = res.message || 'Invalid username or password';
 			}

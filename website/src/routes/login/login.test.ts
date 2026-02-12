@@ -8,23 +8,17 @@ vi.mock('$lib/api', () => ({
 	}
 }));
 
+vi.mock('$app/navigation', () => ({
+	goto: vi.fn().mockResolvedValue(undefined),
+	invalidate: vi.fn().mockResolvedValue(undefined)
+}));
+
 import { auth } from '$lib/api';
+import { goto, invalidate } from '$app/navigation';
 
 describe('Login Page', () => {
-	const locationHrefSpy = vi.fn();
-
 	beforeEach(() => {
 		vi.clearAllMocks();
-		Object.defineProperty(window, 'location', {
-			value: { href: '' },
-			writable: true,
-			configurable: true
-		});
-		Object.defineProperty(window.location, 'href', {
-			set: locationHrefSpy,
-			get: () => '',
-			configurable: true
-		});
 	});
 
 	it('should render the login form', () => {
@@ -87,7 +81,8 @@ describe('Login Page', () => {
 		await fireEvent.submit(screen.getByRole('button', { name: 'Login' }));
 
 		await waitFor(() => {
-			expect(locationHrefSpy).toHaveBeenCalledWith('/habits/home');
+			expect(invalidate).toHaveBeenCalledWith('app:session');
+			expect(goto).toHaveBeenCalledWith('/habits/home');
 		});
 	});
 
