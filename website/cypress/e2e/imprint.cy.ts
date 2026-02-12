@@ -5,6 +5,21 @@ describe('Imprint Page', () => {
 			body: { userId: '1', username: 'demo', success: true }
 		});
 		cy.intercept('GET', '/api/reminder-settings', { statusCode: 200, body: {} });
+		cy.intercept('GET', '/api/module-visibility', {
+			statusCode: 200,
+			body: {
+				diaryVisible: true,
+				sleepVisible: true,
+				emotionsVisible: true,
+				pointsVisible: true,
+				statisticsVisible: true,
+				foodLogVisible: true,
+				sportLogVisible: true,
+				medicationVisible: true,
+				backupVisible: true,
+				pdfExportVisible: true
+			}
+		});
 		cy.visit('/imprint');
 	});
 
