@@ -74,13 +74,16 @@ public class MedicationListFragment extends Fragment implements MedicationAdapte
         binding.provisionTypeSpinner.setAdapter(provisionAdapter);
     }
 
-    private MedicationProvisionType getSelectedProvisionType() {
-        int position = binding.provisionTypeSpinner.getSelectedItemPosition();
+    static MedicationProvisionType mapPositionToProvisionType(int position) {
         MedicationProvisionType[] types = MedicationProvisionType.values();
         if (position >= 0 && position < types.length) {
             return types[position];
         }
         return null;
+    }
+
+    private MedicationProvisionType getSelectedProvisionType() {
+        return mapPositionToProvisionType(binding.provisionTypeSpinner.getSelectedItemPosition());
     }
 
     private void addMedication() {

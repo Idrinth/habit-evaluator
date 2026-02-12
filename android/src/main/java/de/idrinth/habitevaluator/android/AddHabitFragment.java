@@ -34,6 +34,14 @@ import de.idrinth.habitevaluator.shared.repository.HabitRepository;
 
 public class AddHabitFragment extends Fragment {
 
+    static FrequencyType mapPositionToFrequencyType(int position) {
+        FrequencyType[] values = FrequencyType.values();
+        if (position >= 0 && position < values.length) {
+            return values[position];
+        }
+        return null;
+    }
+
     private FragmentAddHabitBinding binding;
     private List<HabitCategory> categoryList = new ArrayList<>();
     private final Map<String, String> categoryDisplayNameToId = new LinkedHashMap<>();
@@ -224,9 +232,10 @@ public class AddHabitFragment extends Fragment {
             habit.setCategoryId(catId);
         }
 
-        int freqPos = binding.frequencyTypeSpinner.getSelectedItemPosition();
-        if (freqPos >= 0 && freqPos < FrequencyType.values().length) {
-            habit.setFrequencyType(FrequencyType.values()[freqPos]);
+        FrequencyType freqType = mapPositionToFrequencyType(
+                binding.frequencyTypeSpinner.getSelectedItemPosition());
+        if (freqType != null) {
+            habit.setFrequencyType(freqType);
         }
 
         try {

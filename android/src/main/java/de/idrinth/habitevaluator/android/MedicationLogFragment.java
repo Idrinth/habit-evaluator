@@ -30,7 +30,8 @@ import de.idrinth.habitevaluator.shared.repository.MedicationLogRepository;
 
 public class MedicationLogFragment extends Fragment implements MedicationLogAdapter.OnMedicationLogDeleteListener {
 
-    private static final DateTimeFormatter DT_DISPLAY_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+    static final String DT_DISPLAY_PATTERN = "yyyy-MM-dd HH:mm";
+    static final DateTimeFormatter DT_DISPLAY_FORMAT = DateTimeFormatter.ofPattern(DT_DISPLAY_PATTERN);
     private FragmentMedicationLogBinding binding;
     private MedicationLogAdapter adapter;
     private List<MedicationLog> displayedEntries;

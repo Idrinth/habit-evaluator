@@ -26,6 +26,10 @@ import de.idrinth.habitevaluator.shared.model.ScoringRule;
 
 public class EditHabitsFragment extends Fragment {
 
+    static boolean isThresholdOrderValid(int t1, int t2, int t4, int t8) {
+        return t1 >= 0 && t2 >= t1 && t4 >= t2 && t8 >= t4;
+    }
+
     private FragmentEditHabitsBinding binding;
     private EditHabitAdapter adapter;
     private List<Habit> habits;
@@ -135,8 +139,8 @@ public class EditHabitsFragment extends Fragment {
 
             ScoringRule rule = habit.getScoringRule();
             if (rule != null) {
-                if (values.threshold1 >= 0 && values.threshold2 >= values.threshold1
-                        && values.threshold4 >= values.threshold2 && values.threshold8 >= values.threshold4) {
+                if (isThresholdOrderValid(values.threshold1, values.threshold2,
+                        values.threshold4, values.threshold8)) {
                     if (rule.getThresholdFor1Point() != values.threshold1
                             || rule.getThresholdFor2Points() != values.threshold2
                             || rule.getThresholdFor4Points() != values.threshold4

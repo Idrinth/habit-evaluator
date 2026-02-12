@@ -22,6 +22,12 @@ import de.idrinth.habitevaluator.shared.repository.EmotionEntryRepository;
 
 public class RecordEmotionEntryFragment extends Fragment {
 
+    static final int SEEKBAR_OFFSET = 10;
+
+    static int seekBarProgressToStrength(int progress) {
+        return progress - SEEKBAR_OFFSET;
+    }
+
     private FragmentRecordEmotionEntryBinding binding;
     private EmotionPair currentPair;
 
@@ -40,7 +46,7 @@ public class RecordEmotionEntryFragment extends Fragment {
         binding.strengthSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                int strength = progress - 10;
+                int strength = seekBarProgressToStrength(progress);
                 binding.strengthValueLabel.setText(EmotionStrengthFormatter.format(strength, currentPair));
             }
 
@@ -112,7 +118,7 @@ public class RecordEmotionEntryFragment extends Fragment {
             return;
         }
 
-        int strength = binding.strengthSeekBar.getProgress() - 10;
+        int strength = seekBarProgressToStrength(binding.strengthSeekBar.getProgress());
         String notes = binding.notesInput.getText().toString().trim();
         if (notes.isEmpty()) {
             notes = null;

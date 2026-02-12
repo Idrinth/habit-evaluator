@@ -31,8 +31,10 @@ import de.idrinth.habitevaluator.shared.service.SleepEvaluationService;
 
 public class SleepTrackingFragment extends Fragment implements SleepEntryAdapter.OnSleepEntryDeleteListener {
 
-    private static final DateTimeFormatter TIME_FORMAT = DateTimeFormatter.ofPattern("HH:mm");
-    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    static final String TIME_PATTERN = "HH:mm";
+    static final String DATE_PATTERN = "yyyy-MM-dd";
+    static final DateTimeFormatter TIME_FORMAT = DateTimeFormatter.ofPattern(TIME_PATTERN);
+    static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern(DATE_PATTERN);
 
     private FragmentSleepTrackingBinding binding;
     private SleepEntryAdapter adapter;
