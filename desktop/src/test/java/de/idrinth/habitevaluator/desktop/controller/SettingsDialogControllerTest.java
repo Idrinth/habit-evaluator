@@ -60,6 +60,16 @@ class SettingsDialogControllerTest extends JavaFXControllerTestBase {
     private Spinner<Integer> emotionReminderCountSpinner;
     private TextField wakingHoursStartField;
     private TextField wakingHoursEndField;
+    private CheckBox diaryVisibleCheckBox;
+    private CheckBox sleepVisibleCheckBox;
+    private CheckBox emotionsVisibleCheckBox;
+    private CheckBox pointsVisibleCheckBox;
+    private CheckBox statisticsVisibleCheckBox;
+    private CheckBox foodLogVisibleCheckBox;
+    private CheckBox sportLogVisibleCheckBox;
+    private CheckBox medicationVisibleCheckBox;
+    private CheckBox backupVisibleCheckBox;
+    private CheckBox pdfExportVisibleCheckBox;
 
     @TempDir
     File tempDir;
@@ -121,6 +131,16 @@ class SettingsDialogControllerTest extends JavaFXControllerTestBase {
                 new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 10, 3));
         wakingHoursStartField = new TextField();
         wakingHoursEndField = new TextField();
+        diaryVisibleCheckBox = new CheckBox();
+        sleepVisibleCheckBox = new CheckBox();
+        emotionsVisibleCheckBox = new CheckBox();
+        pointsVisibleCheckBox = new CheckBox();
+        statisticsVisibleCheckBox = new CheckBox();
+        foodLogVisibleCheckBox = new CheckBox();
+        sportLogVisibleCheckBox = new CheckBox();
+        medicationVisibleCheckBox = new CheckBox();
+        backupVisibleCheckBox = new CheckBox();
+        pdfExportVisibleCheckBox = new CheckBox();
 
         setField(controller, "storageToggleGroup", storageToggleGroup);
         setField(controller, "localRadio", localRadio);
@@ -160,6 +180,16 @@ class SettingsDialogControllerTest extends JavaFXControllerTestBase {
         setField(controller, "emotionReminderCountSpinner", emotionReminderCountSpinner);
         setField(controller, "wakingHoursStartField", wakingHoursStartField);
         setField(controller, "wakingHoursEndField", wakingHoursEndField);
+        setField(controller, "diaryVisibleCheckBox", diaryVisibleCheckBox);
+        setField(controller, "sleepVisibleCheckBox", sleepVisibleCheckBox);
+        setField(controller, "emotionsVisibleCheckBox", emotionsVisibleCheckBox);
+        setField(controller, "pointsVisibleCheckBox", pointsVisibleCheckBox);
+        setField(controller, "statisticsVisibleCheckBox", statisticsVisibleCheckBox);
+        setField(controller, "foodLogVisibleCheckBox", foodLogVisibleCheckBox);
+        setField(controller, "sportLogVisibleCheckBox", sportLogVisibleCheckBox);
+        setField(controller, "medicationVisibleCheckBox", medicationVisibleCheckBox);
+        setField(controller, "backupVisibleCheckBox", backupVisibleCheckBox);
+        setField(controller, "pdfExportVisibleCheckBox", pdfExportVisibleCheckBox);
     }
 
     private StorageConfig createStorageConfig() {
