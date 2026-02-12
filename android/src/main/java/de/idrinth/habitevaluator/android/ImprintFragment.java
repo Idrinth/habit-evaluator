@@ -15,7 +15,18 @@ import de.idrinth.habitevaluator.android.databinding.FragmentImprintBinding;
 
 public class ImprintFragment extends Fragment {
 
+    static final String EMAIL_ADDRESS = "self@idrinth.de";
+    static final String MAILTO_URI = "mailto:" + EMAIL_ADDRESS;
+    static final String VERSION_PREFIX = "Version ";
+
     private FragmentImprintBinding binding;
+
+    static String formatVersionLabel(String versionName) {
+        if (versionName == null || versionName.isEmpty()) {
+            return VERSION_PREFIX + "unknown";
+        }
+        return VERSION_PREFIX + versionName;
+    }
 
     @Nullable
     @Override
@@ -28,10 +39,10 @@ public class ImprintFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        binding.versionLabel.setText("Version " + BuildConfig.VERSION_NAME);
+        binding.versionLabel.setText(formatVersionLabel(BuildConfig.VERSION_NAME));
         binding.emailLink.setOnClickListener(v -> {
             Intent intent = new Intent(Intent.ACTION_SENDTO);
-            intent.setData(Uri.parse("mailto:self@idrinth.de"));
+            intent.setData(Uri.parse(MAILTO_URI));
             if (intent.resolveActivity(requireActivity().getPackageManager()) != null) {
                 startActivity(intent);
             }
