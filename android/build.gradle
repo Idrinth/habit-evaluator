@@ -137,16 +137,12 @@ tasks.register('jacocoTestReport', JacocoReport) {
         'android/**/*.*'
     ]
 
-    def modernDebugTree = fileTree(
-        dir: layout.buildDirectory.dir("intermediates/javac/modernDebug/classes"),
-        excludes: fileFilter
-    )
-    def legacyDebugTree = fileTree(
-        dir: layout.buildDirectory.dir("intermediates/javac/legacyDebug/classes"),
+    def debugTree = fileTree(
+        dir: layout.buildDirectory.dir("intermediates/javac/modernDebug/compileModernDebugJavaWithJavac/classes"),
         excludes: fileFilter
     )
 
-    classDirectories.setFrom(modernDebugTree + legacyDebugTree)
+    classDirectories.setFrom(debugTree)
     sourceDirectories.setFrom(files('src/main/java'))
     executionData.setFrom(fileTree(
         dir: layout.buildDirectory,
