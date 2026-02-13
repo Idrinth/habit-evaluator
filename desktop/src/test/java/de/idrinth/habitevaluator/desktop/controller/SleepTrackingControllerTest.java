@@ -3,6 +3,7 @@ package de.idrinth.habitevaluator.desktop.controller;
 import de.idrinth.habitevaluator.shared.model.SleepEntry;
 import de.idrinth.habitevaluator.shared.model.User;
 import de.idrinth.habitevaluator.shared.repository.SleepEntryRepository;
+import javafx.scene.canvas.Canvas;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
@@ -57,6 +58,7 @@ class SleepTrackingControllerTest extends JavaFXControllerTestBase {
         monthlyMaxLabel = new Label();
         monthlyCountLabel = new Label();
         entriesContainer = new VBox();
+        Canvas distributionCanvas = new Canvas(400, 200);
 
         setField(controller, "datePicker", datePicker);
         setField(controller, "fromTimeField", fromTimeField);
@@ -72,6 +74,7 @@ class SleepTrackingControllerTest extends JavaFXControllerTestBase {
         setField(controller, "monthlyMaxLabel", monthlyMaxLabel);
         setField(controller, "monthlyCountLabel", monthlyCountLabel);
         setField(controller, "entriesContainer", entriesContainer);
+        setField(controller, "distributionCanvas", distributionCanvas);
 
         controller.setSleepEntryRepository(sleepEntryRepository);
     }
