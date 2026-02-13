@@ -4,6 +4,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -68,6 +69,79 @@ public class DiaryEntryAdapterTest {
         DiaryEntryAdapter nullListenerAdapter = new DiaryEntryAdapter(entries, null);
         entries.add(createEntry("Entry", EventSignificance.NORMAL));
         assertEquals(1, nullListenerAdapter.getItemCount());
+    }
+
+    @Test
+    public void testAdapterBackedByOriginalList() {
+        entries.add(createEntry("Entry 1", EventSignificance.MINOR));
+        assertEquals(1, adapter.getItemCount());
+        entries.add(createEntry("Entry 2", EventSignificance.MAJOR));
+        assertEquals(2, adapter.getItemCount());
+        entries.clear();
+        assertEquals(0, adapter.getItemCount());
+    }
+
+    @Test
+    public void testAllSignificanceLevelsCanBeAdded() {
+        entries.add(createEntry("Minor event", EventSignificance.MINOR));
+        entries.add(createEntry("Normal event", EventSignificance.NORMAL));
+        entries.add(createEntry("Major event", EventSignificance.MAJOR));
+        assertEquals(3, adapter.getItemCount());
+    }
+
+    @Test
+    public void testEntryWithStartAndEndTime() {
+        DiaryEntry entry = new DiaryEntry();
+        entry.setDescription("Meeting");
+        entry.setSignificance(EventSignificance.NORMAL);
+        entry.setEventDate(LocalDate.now());
+        entry.setStartTime(LocalTime.of(9, 0));
+        entry.setEndTime(LocalTime.of(10, 30));
+        entries.add(entry);
+        assertEquals(1, adapter.getItemCount());
+    }
+
+    @Test
+    public void testEntryWithDurationFromTimes() {
+        DiaryEntry entry = new DiaryEntry();
+        entry.setDescription("Meeting");
+        entry.setSignificance(EventSignificance.NORMAL);
+        entry.setEventDate(LocalDate.now());
+        entry.setStartTime(LocalTime.of(9, 0));
+        entry.setEndTime(LocalTime.of(10, 30));
+        entries.add(entry);
+        assertEquals(1, adapter.getItemCount());
+        assertEquals(Integer.valueOf(90), entry.getDurationMinutes());
+    }
+
+    @Test
+    public void testEntryWithNullStartTime() {
+        DiaryEntry entry = new DiaryEntry();
+        entry.setDescription("Quick note");
+        entry.setSignificance(EventSignificance.MINOR);
+        entry.setEventDate(LocalDate.now());
+        entry.setStartTime(null);
+        entry.setEndTime(null);
+        entries.add(entry);
+        assertEquals(1, adapter.getItemCount());
+    }
+
+    @Test
+    public void testEntryWithSpecificDate() {
+        DiaryEntry entry = new DiaryEntry();
+        entry.setDescription("Past event");
+        entry.setSignificance(EventSignificance.MAJOR);
+        entry.setEventDate(LocalDate.of(2025, 1, 15));
+        entries.add(entry);
+        assertEquals(1, adapter.getItemCount());
+    }
+
+    @Test
+    public void testManyEntries() {
+        for (int i = 0; i < 50; i++) {
+            entries.add(createEntry("Entry " + i, EventSignificance.NORMAL));
+        }
+        assertEquals(50, adapter.getItemCount());
     }
 
     private DiaryEntry createEntry(String description, EventSignificance significance) {

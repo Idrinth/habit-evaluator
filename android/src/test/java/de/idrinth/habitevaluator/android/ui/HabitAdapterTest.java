@@ -6,6 +6,7 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.List;
 
+import de.idrinth.habitevaluator.shared.model.FrequencyType;
 import de.idrinth.habitevaluator.shared.model.Habit;
 
 import static org.junit.Assert.*;
@@ -98,6 +99,83 @@ public class HabitAdapterTest {
         assertEquals(0, adapter.getItemCount());
     }
 
+    @Test
+    public void testManyHabitsItemCount() {
+        for (int i = 0; i < 100; i++) {
+            habits.add(new Habit("Habit " + i, "Description " + i));
+        }
+        assertEquals(100, adapter.getItemCount());
+    }
+
+    @Test
+    public void testHabitWithEntries() {
+        Habit habit = new Habit("Exercise", "Daily exercise");
+        habit.setTargetFrequency(3);
+        habit.setMaxEntriesPerDay(5);
+        habits.add(habit);
+        assertEquals(1, adapter.getItemCount());
+    }
+
+    @Test
+    public void testHabitWithFrequencyType() {
+        Habit habit = new Habit("Exercise", "Daily exercise");
+        habit.setFrequencyType(FrequencyType.DAILY);
+        habits.add(habit);
+        assertEquals(1, adapter.getItemCount());
+    }
+
+    @Test
+    public void testHabitWithWeeklyFrequency() {
+        Habit habit = new Habit("Exercise", "Weekly exercise");
+        habit.setFrequencyType(FrequencyType.WEEKLY);
+        habits.add(habit);
+        assertEquals(1, adapter.getItemCount());
+    }
+
+    @Test
+    public void testHabitWithMonthlyFrequency() {
+        Habit habit = new Habit("Exercise", "Monthly exercise");
+        habit.setFrequencyType(FrequencyType.MONTHLY);
+        habits.add(habit);
+        assertEquals(1, adapter.getItemCount());
+    }
+
+    @Test
+    public void testHabitWithCategoryId() {
+        Habit habit = new Habit("Exercise", "Daily exercise");
+        habit.setCategoryId("cat-health");
+        habits.add(habit);
+        assertEquals(1, adapter.getItemCount());
+    }
+
+    @Test
+    public void testHabitWithNullCategoryId() {
+        Habit habit = new Habit("Exercise", "Daily exercise");
+        habit.setCategoryId(null);
+        habits.add(habit);
+        assertEquals(1, adapter.getItemCount());
+    }
+
+    @Test
+    public void testSetEditAndDeleteListenersThenClear() {
+        TestEditListener editListener = new TestEditListener();
+        TestDeleteListener deleteListenerObj = new TestDeleteListener();
+        adapter.setOnHabitEditListener(editListener);
+        adapter.setOnHabitDeleteListener(deleteListenerObj);
+        // Setting to null should not throw
+        adapter.setOnHabitEditListener(null);
+        adapter.setOnHabitDeleteListener(null);
+    }
+
+    @Test
+    public void testMultipleDisplayLanguageChanges() {
+        adapter.setDisplayLanguage("en");
+        adapter.setDisplayLanguage("de");
+        adapter.setDisplayLanguage("es");
+        adapter.setDisplayLanguage(null);
+        // Should not throw at any point
+    }
+
     private static class TestClickListener implements HabitAdapter.OnHabitClickListener {
         Habit lastClickedHabit;
         boolean deselected;
@@ -110,6 +188,24 @@ public class HabitAdapterTest {
         @Override
         public void onHabitDeselect() {
             deselected = true;
+        }
+    }
+
+    private static class TestEditListener implements HabitAdapter.OnHabitEditListener {
+        Habit lastEdited;
+
+        @Override
+        public void onHabitEdit(Habit habit) {
+            lastEdited = habit;
+        }
+    }
+
+    private static class TestDeleteListener implements HabitAdapter.OnHabitDeleteListener {
+        Habit lastDeleted;
+
+        @Override
+        public void onHabitDelete(Habit habit) {
+            lastDeleted = habit;
         }
     }
 }
