@@ -15,6 +15,10 @@ class RestoreOptionsTest {
         assertTrue(options.isRestoreSleepEntries());
         assertTrue(options.isRestoreSportLogs());
         assertTrue(options.isRestoreFoodLogs());
+        assertTrue(options.isRestoreEmotionData());
+        assertTrue(options.isRestoreMeetingEntries());
+        assertTrue(options.isRestoreMedicationData());
+        assertTrue(options.isRestoreReminderSettings());
     }
 
     @Test
@@ -26,6 +30,10 @@ class RestoreOptionsTest {
         assertTrue(options.isRestoreSleepEntries());
         assertTrue(options.isRestoreSportLogs());
         assertTrue(options.isRestoreFoodLogs());
+        assertTrue(options.isRestoreEmotionData());
+        assertTrue(options.isRestoreMeetingEntries());
+        assertTrue(options.isRestoreMedicationData());
+        assertTrue(options.isRestoreReminderSettings());
     }
 
     @Test
@@ -37,6 +45,10 @@ class RestoreOptionsTest {
         assertFalse(options.isRestoreSleepEntries());
         assertFalse(options.isRestoreSportLogs());
         assertFalse(options.isRestoreFoodLogs());
+        assertFalse(options.isRestoreEmotionData());
+        assertFalse(options.isRestoreMeetingEntries());
+        assertFalse(options.isRestoreMedicationData());
+        assertFalse(options.isRestoreReminderSettings());
     }
 
     @Test
@@ -60,6 +72,18 @@ class RestoreOptionsTest {
 
         options.setRestoreFoodLogs(false);
         assertFalse(options.isRestoreFoodLogs());
+
+        options.setRestoreEmotionData(false);
+        assertFalse(options.isRestoreEmotionData());
+
+        options.setRestoreMeetingEntries(false);
+        assertFalse(options.isRestoreMeetingEntries());
+
+        options.setRestoreMedicationData(false);
+        assertFalse(options.isRestoreMedicationData());
+
+        options.setRestoreReminderSettings(false);
+        assertFalse(options.isRestoreReminderSettings());
     }
 
     @Test
@@ -73,5 +97,51 @@ class RestoreOptionsTest {
         assertFalse(options.isRestoreSleepEntries());
         assertFalse(options.isRestoreSportLogs());
         assertFalse(options.isRestoreFoodLogs());
+        assertFalse(options.isRestoreEmotionData());
+        assertFalse(options.isRestoreMeetingEntries());
+        assertFalse(options.isRestoreMedicationData());
+        assertFalse(options.isRestoreReminderSettings());
+    }
+
+    @Test
+    void testIndividualEmotionFlag() {
+        RestoreOptions options = RestoreOptions.none();
+        options.setRestoreEmotionData(true);
+
+        assertFalse(options.isRestoreCategories());
+        assertFalse(options.isRestoreHabits());
+        assertTrue(options.isRestoreEmotionData());
+        assertFalse(options.isRestoreMeetingEntries());
+        assertFalse(options.isRestoreMedicationData());
+        assertFalse(options.isRestoreReminderSettings());
+    }
+
+    @Test
+    void testIndividualMeetingFlag() {
+        RestoreOptions options = RestoreOptions.none();
+        options.setRestoreMeetingEntries(true);
+
+        assertFalse(options.isRestoreCategories());
+        assertTrue(options.isRestoreMeetingEntries());
+        assertFalse(options.isRestoreMedicationData());
+    }
+
+    @Test
+    void testIndividualMedicationFlag() {
+        RestoreOptions options = RestoreOptions.none();
+        options.setRestoreMedicationData(true);
+
+        assertFalse(options.isRestoreCategories());
+        assertFalse(options.isRestoreMeetingEntries());
+        assertTrue(options.isRestoreMedicationData());
+    }
+
+    @Test
+    void testIndividualReminderFlag() {
+        RestoreOptions options = RestoreOptions.none();
+        options.setRestoreReminderSettings(true);
+
+        assertFalse(options.isRestoreCategories());
+        assertTrue(options.isRestoreReminderSettings());
     }
 }
