@@ -127,10 +127,12 @@ jobs:
       - name: Build debug APKs and run tests
         run: >
           ./gradlew
-          :android:assembleModernDebug
-          :android:assembleLegacyDebug
-          :android:testModernDebugUnitTest
-          :android:testLegacyDebugUnitTest
+          :android:assembleLollipopDebug
+          :android:assembleOreoDebug
+          :android:assembleTiramisuDebug
+          :android:testLollipopDebugUnitTest
+          :android:testOreoDebugUnitTest
+          :android:testTiramisuDebugUnitTest
 
       - name: Generate coverage report
         run: ./gradlew :android:jacocoTestReport
@@ -373,7 +375,14 @@ jobs:
     if: needs.check-signing.outputs.has-secrets == 'true'
     strategy:
       matrix:
-        flavor: [modern, legacy]
+        flavor: [lollipop, oreo, tiramisu]
+        include:
+          - flavor: lollipop
+            taskName: Lollipop
+          - flavor: oreo
+            taskName: Oreo
+          - flavor: tiramisu
+            taskName: Tiramisu
     steps:
       - uses: actions/checkout@v6
 
@@ -398,8 +407,8 @@ jobs:
           ANDROID_VERSION_CODE: ${{ github.run_number }}
         run: >
           ./gradlew
-          :android:assemble${{ matrix.flavor == 'modern' && 'Modern' || 'Legacy' }}Release
-          :android:bundle${{ matrix.flavor == 'modern' && 'Modern' || 'Legacy' }}Release
+          :android:assemble${{ matrix.taskName }}Release
+          :android:bundle${{ matrix.taskName }}Release
 
       - name: Upload APK (${{ matrix.flavor }})
         uses: actions/upload-artifact@v6

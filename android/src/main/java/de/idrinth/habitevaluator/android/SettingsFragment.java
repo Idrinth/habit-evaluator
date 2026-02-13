@@ -44,6 +44,7 @@ public class SettingsFragment extends Fragment {
     private byte[] pendingHezBackupData;
     private ActivityResultLauncher<Intent> createDocumentLauncher;
     private ActivityResultLauncher<Intent> openDocumentLauncher;
+    private ActivityResultLauncher<String> notificationPermissionLauncher;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -69,6 +70,16 @@ public class SettingsFragment extends Fragment {
                         if (uri != null) {
                             showPasswordDialogAndRestoreFromFile(uri);
                         }
+                    }
+                });
+
+        notificationPermissionLauncher = registerForActivityResult(
+                new ActivityResultContracts.RequestPermission(),
+                isGranted -> {
+                    if (!isGranted) {
+                        Toast.makeText(requireContext(),
+                                R.string.notification_permission_denied,
+                                Toast.LENGTH_LONG).show();
                     }
                 });
     }
@@ -437,6 +448,18 @@ public class SettingsFragment extends Fragment {
         SettingsActivity.applyThemeMode(themeMode);
         SettingsActivity.applyLanguage(language);
         ReminderScheduler.rescheduleAll(requireContext());
+
+        boolean anyReminderEnabled = binding.sleepReminderSwitch.isChecked()
+                || binding.diaryReminderSwitch.isChecked()
+                || binding.emotionReminderSwitch.isChecked();
+        NotificationPermissionHandler permHandler = NotificationHelper.permissionHandler();
+        if (anyReminderEnabled && !permHandler.hasPermission(requireContext())) {
+            String permission = permHandler.permissionName();
+            if (permission != null) {
+                notificationPermissionLauncher.launch(permission);
+            }
+        }
+
         Toast.makeText(requireContext(), R.string.settings_saved, Toast.LENGTH_SHORT).show();
 
         if (getActivity() instanceof MainActivity) {

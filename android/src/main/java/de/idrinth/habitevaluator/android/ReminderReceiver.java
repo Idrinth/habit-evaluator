@@ -1,6 +1,5 @@
 package de.idrinth.habitevaluator.android;
 
-import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
@@ -9,7 +8,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.os.Build;
 
 import androidx.core.app.NotificationCompat;
 
@@ -30,7 +28,6 @@ public class ReminderReceiver extends BroadcastReceiver {
     static final String TYPE_DIARY = "diary";
     static final String TYPE_EMOTION = "emotion";
 
-    private static final String CHANNEL_ID = "habit_evaluator_reminders";
     private static final int NOTIFICATION_SLEEP = 1001;
     private static final int NOTIFICATION_DIARY = 1002;
     private static final int NOTIFICATION_EMOTION = 1003;
@@ -51,7 +48,7 @@ public class ReminderReceiver extends BroadcastReceiver {
             return;
         }
 
-        ensureNotificationChannel(context);
+        NotificationHelper.ensureNotificationChannel(context);
 
         switch (type) {
             case TYPE_SLEEP:
@@ -75,20 +72,6 @@ public class ReminderReceiver extends BroadcastReceiver {
                             context.getString(R.string.reminder_emotion_notification_text));
                 }
                 break;
-        }
-    }
-
-    private void ensureNotificationChannel(Context context) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel channel = new NotificationChannel(
-                    CHANNEL_ID,
-                    context.getString(R.string.reminder_channel_name),
-                    NotificationManager.IMPORTANCE_DEFAULT);
-            channel.setDescription(context.getString(R.string.reminder_channel_description));
-            NotificationManager manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-            if (manager != null) {
-                manager.createNotificationChannel(channel);
-            }
         }
     }
 
@@ -151,7 +134,7 @@ public class ReminderReceiver extends BroadcastReceiver {
         PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, launchIntent,
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, CHANNEL_ID)
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, NotificationHelper.CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_launcher)
                 .setContentTitle(title)
                 .setContentText(text)

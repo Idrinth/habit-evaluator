@@ -88,7 +88,14 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        flavor: [modern, legacy]
+        flavor: [lollipop, oreo, tiramisu]
+        include:
+          - flavor: lollipop
+            taskName: Lollipop
+          - flavor: oreo
+            taskName: Oreo
+          - flavor: tiramisu
+            taskName: Tiramisu
     steps:
       - uses: actions/checkout@v6
 
@@ -117,8 +124,8 @@ jobs:
           ANDROID_VERSION_CODE: ${{ github.run_number }}
         run: >
           ./gradlew
-          :android:assemble${{ matrix.flavor == 'modern' && 'Modern' || 'Legacy' }}Release
-          :android:bundle${{ matrix.flavor == 'modern' && 'Modern' || 'Legacy' }}Release
+          :android:assemble${{ matrix.taskName }}Release
+          :android:bundle${{ matrix.taskName }}Release
           "-PreleaseVersion=${{ steps.version.outputs.VERSION }}"
 
       - name: Upload APK release assets (${{ matrix.flavor }})
