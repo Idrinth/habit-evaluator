@@ -74,4 +74,85 @@ class MergeResultTest {
         assertTrue(str.contains("emotion entries added=7"));
         assertTrue(str.contains("reminder settings restored=true"));
     }
+
+    @Test
+    void testSportLogConstructor() {
+        MergeResult result = new MergeResult(1, 2, 3, 4, 5, 6, 7);
+        assertEquals(7, result.getSportLogsAdded());
+        assertEquals(0, result.getFoodLogsAdded());
+    }
+
+    @Test
+    void testSportAndFoodLogConstructor() {
+        MergeResult result = new MergeResult(1, 2, 3, 4, 5, 6, 7, 8);
+        assertEquals(7, result.getSportLogsAdded());
+        assertEquals(8, result.getFoodLogsAdded());
+        assertEquals(0, result.getEmotionPairsAdded());
+        assertFalse(result.isReminderSettingsRestored());
+    }
+
+    @Test
+    void testFullConstructorWithMeetingAndMedication() {
+        MergeResult result = new MergeResult(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, true);
+        assertEquals(1, result.getCategoriesAdded());
+        assertEquals(2, result.getHabitsAdded());
+        assertEquals(3, result.getHabitsMerged());
+        assertEquals(4, result.getEntriesAdded());
+        assertEquals(5, result.getDiaryEntriesAdded());
+        assertEquals(6, result.getSleepEntriesAdded());
+        assertEquals(7, result.getSportLogsAdded());
+        assertEquals(8, result.getFoodLogsAdded());
+        assertEquals(9, result.getEmotionPairsAdded());
+        assertEquals(10, result.getEmotionEntriesAdded());
+        assertEquals(11, result.getMeetingEntriesAdded());
+        assertEquals(12, result.getMedicationsAdded());
+        assertEquals(13, result.getMedicationLogsAdded());
+        assertTrue(result.isReminderSettingsRestored());
+    }
+
+    @Test
+    void testTotalChangesIncludesMeetingAndMedication() {
+        MergeResult result = new MergeResult(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 3, 7, false);
+        // meeting(5) + medications(3) + medicationLogs(7) = 15
+        assertEquals(15, result.getTotalChanges());
+    }
+
+    @Test
+    void testTotalChangesExcludesEntriesAdded() {
+        // entriesAdded (habit entries) is deliberately excluded from getTotalChanges()
+        MergeResult result = new MergeResult(0, 0, 0, 100, 0, 0);
+        assertEquals(0, result.getTotalChanges());
+    }
+
+    @Test
+    void testToStringIncludesMeetingAndMedication() {
+        MergeResult result = new MergeResult(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 2, 6, false);
+        String str = result.toString();
+        assertTrue(str.contains("meeting entries added=4"));
+        assertTrue(str.contains("medications added=2"));
+        assertTrue(str.contains("medication logs added=6"));
+        assertTrue(str.contains("reminder settings restored=false"));
+    }
+
+    @Test
+    void testToStringIncludesSportAndFoodLogs() {
+        MergeResult result = new MergeResult(0, 0, 0, 0, 0, 0, 3, 5, 0, 0, false);
+        String str = result.toString();
+        assertTrue(str.contains("sport logs added=3"));
+        assertTrue(str.contains("food logs added=5"));
+    }
+
+    @Test
+    void testReminderSettingsNotRestoredDefault() {
+        MergeResult result = new MergeResult(1, 2, 3, 4, 5, 6);
+        assertFalse(result.isReminderSettingsRestored());
+    }
+
+    @Test
+    void testMeetingEntriesDefaultZero() {
+        MergeResult result = new MergeResult(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, true);
+        assertEquals(0, result.getMeetingEntriesAdded());
+        assertEquals(0, result.getMedicationsAdded());
+        assertEquals(0, result.getMedicationLogsAdded());
+    }
 }

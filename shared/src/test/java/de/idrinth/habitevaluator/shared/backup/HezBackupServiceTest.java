@@ -1,14 +1,20 @@
 package de.idrinth.habitevaluator.shared.backup;
 
 import de.idrinth.habitevaluator.shared.model.DiaryEntry;
+import de.idrinth.habitevaluator.shared.model.EmotionEntry;
+import de.idrinth.habitevaluator.shared.model.EmotionPair;
 import de.idrinth.habitevaluator.shared.model.EventSignificance;
 import de.idrinth.habitevaluator.shared.model.Habit;
 import de.idrinth.habitevaluator.shared.model.HabitCategory;
+import de.idrinth.habitevaluator.shared.model.ReminderSettings;
 import de.idrinth.habitevaluator.shared.model.SleepEntry;
 import de.idrinth.habitevaluator.shared.model.User;
 import de.idrinth.habitevaluator.shared.repository.DiaryEntryRepository;
+import de.idrinth.habitevaluator.shared.repository.EmotionEntryRepository;
+import de.idrinth.habitevaluator.shared.repository.EmotionPairRepository;
 import de.idrinth.habitevaluator.shared.repository.HabitCategoryRepository;
 import de.idrinth.habitevaluator.shared.repository.HabitRepository;
+import de.idrinth.habitevaluator.shared.repository.ReminderSettingsRepository;
 import de.idrinth.habitevaluator.shared.repository.SleepEntryRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,6 +23,7 @@ import org.junit.jupiter.api.io.TempDir;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -286,6 +293,190 @@ class HezBackupServiceTest {
         assertFalse(hezBackupService.isValidHezFile(new File(tempDir, "nonexistent.hez")));
     }
 
+    @Test
+    void testCreateHezBackupWithEmotionAndReminderData() throws BackupException {
+        InMemoryEmotionPairRepository emotionPairRepository = new InMemoryEmotionPairRepository();
+        InMemoryEmotionEntryRepository emotionEntryRepository = new InMemoryEmotionEntryRepository();
+        InMemoryReminderSettingsRepository reminderSettingsRepository =
+                new InMemoryReminderSettingsRepository();
+
+        EmotionPair pair = new EmotionPair("Sad", "Happy");
+        pair.setUser(user);
+        emotionPairRepository.save(pair);
+
+        EmotionEntry entry = new EmotionEntry(pair, 7,
+                LocalDateTime.of(2026, 1, 15, 14, 30), "Feeling good");
+        entry.setUser(user);
+        emotionEntryRepository.save(entry);
+
+        ReminderSettings settings = new ReminderSettings();
+        settings.setUser(user);
+        settings.setSleepReminderEnabled(true);
+        settings.setSleepReminderTime(LocalTime.of(22, 0));
+        reminderSettingsRepository.save(settings);
+
+        byte[] hezData = hezBackupService.createHezBackup("password", user, habitRepository,
+                categoryRepository, diaryEntryRepository, sleepEntryRepository,
+                emotionPairRepository, emotionEntryRepository, reminderSettingsRepository);
+
+        assertNotNull(hezData);
+        assertTrue(hezBackupService.isValidHezData(hezData));
+
+        BackupData restored = hezBackupService.restoreFromHezBytes(hezData, "password");
+        assertEquals(1, restored.getEmotionPairs().size());
+        assertEquals("Sad", restored.getEmotionPairs().get(0).getNegativeLabel());
+        assertEquals(1, restored.getEmotionEntries().size());
+        assertEquals(7, restored.getEmotionEntries().get(0).getStrength());
+        assertNotNull(restored.getReminderSettings());
+        assertTrue(restored.getReminderSettings().isSleepReminderEnabled());
+    }
+
+    @Test
+    void testMergeFromHezBytesWithEmotionData() throws BackupException {
+        InMemoryEmotionPairRepository emotionPairRepository = new InMemoryEmotionPairRepository();
+        InMemoryEmotionEntryRepository emotionEntryRepository = new InMemoryEmotionEntryRepository();
+        InMemoryReminderSettingsRepository reminderSettingsRepository =
+                new InMemoryReminderSettingsRepository();
+
+        EmotionPair pair = new EmotionPair("Anxious", "Calm");
+        pair.setUser(user);
+        emotionPairRepository.save(pair);
+
+        EmotionEntry entry = new EmotionEntry(pair, -3,
+                LocalDateTime.of(2026, 1, 15, 10, 0), "Stressful morning");
+        entry.setUser(user);
+        emotionEntryRepository.save(entry);
+
+        byte[] hezData = hezBackupService.createHezBackup("password", user, habitRepository,
+                categoryRepository, diaryEntryRepository, sleepEntryRepository,
+                emotionPairRepository, emotionEntryRepository, reminderSettingsRepository);
+
+        // Clear repositories
+        InMemoryEmotionPairRepository targetPairRepo = new InMemoryEmotionPairRepository();
+        InMemoryEmotionEntryRepository targetEntryRepo = new InMemoryEmotionEntryRepository();
+        InMemoryReminderSettingsRepository targetReminderRepo = new InMemoryReminderSettingsRepository();
+
+        MergeResult result = hezBackupService.mergeFromHezBytes(hezData, "password", user,
+                habitRepository, categoryRepository, diaryEntryRepository, sleepEntryRepository,
+                targetPairRepo, targetEntryRepo, targetReminderRepo, RestoreOptions.all());
+
+        assertEquals(1, result.getEmotionPairsAdded());
+        assertEquals(1, result.getEmotionEntriesAdded());
+    }
+
+    @Test
+    void testMergeFromHezFileWithRestoreOptions() throws BackupException {
+        Habit habit = new Habit("Exercise", "Test");
+        habit.setUser(user);
+        habitRepository.save(habit);
+
+        DiaryEntry diary = new DiaryEntry("Test", EventSignificance.MINOR, LocalDate.of(2026, 1, 15));
+        diary.setUser(user);
+        diaryEntryRepository.save(diary);
+
+        File outputFile = new File(tempDir, "test.hez");
+        hezBackupService.createHezBackupToFile(outputFile, "password", user, habitRepository,
+                categoryRepository, diaryEntryRepository, sleepEntryRepository);
+
+        habitRepository.deleteById(habit.getId());
+        diaryEntryRepository.deleteById(diary.getId());
+
+        // Only restore habits, not diary
+        RestoreOptions options = RestoreOptions.none();
+        options.setRestoreHabits(true);
+
+        MergeResult result = hezBackupService.mergeFromHezFile(outputFile, "password", user,
+                habitRepository, categoryRepository, diaryEntryRepository, sleepEntryRepository,
+                options);
+
+        assertEquals(1, result.getHabitsAdded());
+        assertEquals(0, result.getDiaryEntriesAdded());
+    }
+
+    @Test
+    void testMergeFromHezStreamWithRestoreOptions() throws BackupException {
+        Habit habit = new Habit("Exercise", "Test");
+        habit.setUser(user);
+        habitRepository.save(habit);
+
+        byte[] hezData = hezBackupService.createHezBackup("password", user, habitRepository,
+                categoryRepository, diaryEntryRepository, sleepEntryRepository);
+
+        habitRepository.deleteById(habit.getId());
+
+        RestoreOptions options = RestoreOptions.none();
+        options.setRestoreHabits(true);
+
+        ByteArrayInputStream inputStream = new ByteArrayInputStream(hezData);
+        MergeResult result = hezBackupService.mergeFromHezStream(inputStream, "password", user,
+                habitRepository, categoryRepository, diaryEntryRepository, sleepEntryRepository,
+                options);
+
+        assertEquals(1, result.getHabitsAdded());
+    }
+
+    @Test
+    void testRestoreFromHezBytesWithInvalidZipData() {
+        byte[] invalidData = new byte[]{0x50, 0x4B, 0x03, 0x04, 0x00, 0x00}; // ZIP header but truncated
+        assertThrows(BackupException.class, () ->
+                hezBackupService.restoreFromHezBytes(invalidData, "password"));
+    }
+
+    @Test
+    void testRestoreFromHezFileNullPasswordThrows() {
+        File fakeFile = new File(tempDir, "test.hez");
+        assertThrows(BackupException.class, () ->
+                hezBackupService.restoreFromHezFile(fakeFile, null));
+    }
+
+    @Test
+    void testIsValidHezDataWithPartialZipMagic() {
+        assertFalse(hezBackupService.isValidHezData(new byte[]{0x50, 0x4B}));
+        assertFalse(hezBackupService.isValidHezData(new byte[]{0x50, 0x4B, 0x03}));
+    }
+
+    @Test
+    void testHezBackupEmptyRepositories() throws BackupException {
+        byte[] hezData = hezBackupService.createHezBackup("password", user,
+                habitRepository, categoryRepository, diaryEntryRepository, sleepEntryRepository);
+
+        BackupData restored = hezBackupService.restoreFromHezBytes(hezData, "password");
+        assertNotNull(restored);
+        assertTrue(restored.getHabits().isEmpty());
+        assertTrue(restored.getCategories().isEmpty());
+        assertTrue(restored.getDiaryEntries().isEmpty());
+        assertTrue(restored.getSleepEntries().isEmpty());
+        assertNotNull(restored.getUser());
+        assertEquals("testuser", restored.getUser().getUsername());
+    }
+
+    @Test
+    void testHezBackupMultipleHabitsRoundTrip() throws BackupException {
+        Habit habit1 = new Habit("Exercise", "Workout");
+        habit1.setUser(user);
+        habitRepository.save(habit1);
+
+        Habit habit2 = new Habit("Reading", "Daily reading");
+        habit2.setUser(user);
+        habitRepository.save(habit2);
+
+        Habit habit3 = new Habit("Meditation", "Mindfulness");
+        habit3.setUser(user);
+        habitRepository.save(habit3);
+
+        byte[] hezData = hezBackupService.createHezBackup("password", user,
+                habitRepository, categoryRepository, diaryEntryRepository, sleepEntryRepository);
+
+        BackupData restored = hezBackupService.restoreFromHezBytes(hezData, "password");
+        assertEquals(3, restored.getHabits().size());
+    }
+
+    @Test
+    void testGenerateDefaultFilenameFormat() {
+        String filename = hezBackupService.generateDefaultFilename();
+        assertTrue(filename.matches("habit-evaluator-\\d{4}-\\d{2}-\\d{2}\\.hez"));
+    }
+
     // Simple in-memory repositories for testing
 
     private static class InMemoryHabitRepository implements HabitRepository {
@@ -465,6 +656,107 @@ class HezBackupServiceTest {
                 }
             }
             return result;
+        }
+    }
+
+    private static class InMemoryEmotionPairRepository implements EmotionPairRepository {
+        private final List<EmotionPair> pairs = new ArrayList<>();
+
+        @Override
+        public EmotionPair save(EmotionPair pair) {
+            pairs.removeIf(p -> p.getId().equals(pair.getId()));
+            pairs.add(pair);
+            return pair;
+        }
+
+        @Override
+        public Optional<EmotionPair> findById(String id) {
+            return pairs.stream().filter(p -> p.getId().equals(id)).findFirst();
+        }
+
+        @Override
+        public List<EmotionPair> findAll() {
+            return new ArrayList<>(pairs);
+        }
+
+        @Override
+        public void deleteById(String id) {
+            pairs.removeIf(p -> p.getId().equals(id));
+        }
+
+        @Override
+        public List<EmotionPair> findByUserId(String userId) {
+            List<EmotionPair> result = new ArrayList<>();
+            for (EmotionPair p : pairs) {
+                if (p.getUser() != null && p.getUser().getId().equals(userId)) {
+                    result.add(p);
+                }
+            }
+            return result;
+        }
+    }
+
+    private static class InMemoryEmotionEntryRepository implements EmotionEntryRepository {
+        private final List<EmotionEntry> entries = new ArrayList<>();
+
+        @Override
+        public EmotionEntry save(EmotionEntry entry) {
+            entries.removeIf(e -> e.getId().equals(entry.getId()));
+            entries.add(entry);
+            return entry;
+        }
+
+        @Override
+        public Optional<EmotionEntry> findById(String id) {
+            return entries.stream().filter(e -> e.getId().equals(id)).findFirst();
+        }
+
+        @Override
+        public List<EmotionEntry> findAll() {
+            return new ArrayList<>(entries);
+        }
+
+        @Override
+        public void deleteById(String id) {
+            entries.removeIf(e -> e.getId().equals(id));
+        }
+
+        @Override
+        public List<EmotionEntry> findByUserId(String userId) {
+            List<EmotionEntry> result = new ArrayList<>();
+            for (EmotionEntry e : entries) {
+                if (e.getUser() != null && e.getUser().getId().equals(userId)) {
+                    result.add(e);
+                }
+            }
+            return result;
+        }
+    }
+
+    private static class InMemoryReminderSettingsRepository implements ReminderSettingsRepository {
+        private ReminderSettings settings;
+
+        @Override
+        public ReminderSettings save(ReminderSettings s) {
+            this.settings = s;
+            return s;
+        }
+
+        @Override
+        public Optional<ReminderSettings> findByUserId(String userId) {
+            if (settings != null && settings.getUser() != null
+                    && settings.getUser().getId().equals(userId)) {
+                return Optional.of(settings);
+            }
+            return Optional.empty();
+        }
+
+        @Override
+        public void deleteByUserId(String userId) {
+            if (settings != null && settings.getUser() != null
+                    && settings.getUser().getId().equals(userId)) {
+                settings = null;
+            }
         }
     }
 }
