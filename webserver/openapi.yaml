@@ -1563,12 +1563,12 @@ components:
           example: 14:30:00
         user:
           $ref: "#/components/schemas/User"
+        durationMinutes:
+          type: integer
+          format: int32
         description:
           type: string
         points:
-          type: integer
-          format: int32
-        durationMinutes:
           type: integer
           format: int32
     DiaryReference:

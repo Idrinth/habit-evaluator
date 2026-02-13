@@ -319,4 +319,225 @@ class BackupDataTest {
         assertNotNull(data.getReminderSettings());
         assertTrue(data.getReminderSettings().isSleepReminderEnabled());
     }
+
+    @Test
+    void testDefaultStateIncludesAllLists() {
+        BackupData data = new BackupData();
+        assertNotNull(data.getSportLogs());
+        assertTrue(data.getSportLogs().isEmpty());
+        assertNotNull(data.getFoodLogs());
+        assertTrue(data.getFoodLogs().isEmpty());
+        assertNotNull(data.getFoodTags());
+        assertTrue(data.getFoodTags().isEmpty());
+        assertNotNull(data.getMeetingEntries());
+        assertTrue(data.getMeetingEntries().isEmpty());
+        assertNotNull(data.getMedications());
+        assertTrue(data.getMedications().isEmpty());
+        assertNotNull(data.getMedicationLogs());
+        assertTrue(data.getMedicationLogs().isEmpty());
+    }
+
+    @Test
+    void testSportLogData() {
+        BackupData.SportLogData entry = new BackupData.SportLogData();
+        entry.setId("sl1");
+        entry.setName("Running");
+        entry.setMeasurement(5.2);
+        entry.setMeasurementUnit("km");
+        entry.setStartTime("07:00");
+        entry.setEndTime("07:45");
+        entry.setDate("2026-02-01");
+        entry.setNotes("Morning run");
+        entry.setCreatedAt("2026-02-01T07:00:00");
+
+        assertEquals("sl1", entry.getId());
+        assertEquals("Running", entry.getName());
+        assertEquals(5.2, entry.getMeasurement());
+        assertEquals("km", entry.getMeasurementUnit());
+        assertEquals("07:00", entry.getStartTime());
+        assertEquals("07:45", entry.getEndTime());
+        assertEquals("2026-02-01", entry.getDate());
+        assertEquals("Morning run", entry.getNotes());
+        assertEquals("2026-02-01T07:00:00", entry.getCreatedAt());
+    }
+
+    @Test
+    void testSetSportLogs() {
+        BackupData data = new BackupData();
+        List<BackupData.SportLogData> logs = new ArrayList<>();
+        BackupData.SportLogData log = new BackupData.SportLogData();
+        log.setName("Swimming");
+        logs.add(log);
+        data.setSportLogs(logs);
+        assertEquals(1, data.getSportLogs().size());
+        assertEquals("Swimming", data.getSportLogs().get(0).getName());
+    }
+
+    @Test
+    void testFoodLogData() {
+        BackupData.FoodLogData entry = new BackupData.FoodLogData();
+        entry.setId("fl1");
+        entry.setCarbohydrates(45.5);
+        entry.setKcal(350);
+        entry.setDateTime("2026-02-01T12:30:00");
+        entry.setFoodItems("Rice, Chicken");
+        entry.setNotes("Lunch");
+        entry.setCreatedAt("2026-02-01T12:30:00");
+
+        List<String> tagNames = new ArrayList<>();
+        tagNames.add("Healthy");
+        tagNames.add("HighProtein");
+        entry.setTagNames(tagNames);
+
+        assertEquals("fl1", entry.getId());
+        assertEquals(45.5, entry.getCarbohydrates());
+        assertEquals(350, entry.getKcal());
+        assertEquals("2026-02-01T12:30:00", entry.getDateTime());
+        assertEquals("Rice, Chicken", entry.getFoodItems());
+        assertEquals("Lunch", entry.getNotes());
+        assertEquals("2026-02-01T12:30:00", entry.getCreatedAt());
+        assertEquals(2, entry.getTagNames().size());
+        assertEquals("Healthy", entry.getTagNames().get(0));
+    }
+
+    @Test
+    void testFoodLogDataDefaultTagNames() {
+        BackupData.FoodLogData entry = new BackupData.FoodLogData();
+        assertNotNull(entry.getTagNames());
+        assertTrue(entry.getTagNames().isEmpty());
+    }
+
+    @Test
+    void testSetFoodLogs() {
+        BackupData data = new BackupData();
+        List<BackupData.FoodLogData> logs = new ArrayList<>();
+        logs.add(new BackupData.FoodLogData());
+        data.setFoodLogs(logs);
+        assertEquals(1, data.getFoodLogs().size());
+    }
+
+    @Test
+    void testFoodTagData() {
+        BackupData.FoodTagData tag = new BackupData.FoodTagData();
+        tag.setId("ft1");
+        tag.setName("Vegan");
+
+        assertEquals("ft1", tag.getId());
+        assertEquals("Vegan", tag.getName());
+    }
+
+    @Test
+    void testSetFoodTags() {
+        BackupData data = new BackupData();
+        List<BackupData.FoodTagData> tags = new ArrayList<>();
+        BackupData.FoodTagData tag = new BackupData.FoodTagData();
+        tag.setName("Organic");
+        tags.add(tag);
+        data.setFoodTags(tags);
+        assertEquals(1, data.getFoodTags().size());
+        assertEquals("Organic", data.getFoodTags().get(0).getName());
+    }
+
+    @Test
+    void testMeetingEntryData() {
+        BackupData.MeetingEntryData entry = new BackupData.MeetingEntryData();
+        entry.setId("me1");
+        entry.setPlace("Office Room A");
+        entry.setAttendants("Alice, Bob, Charlie");
+        entry.setStartTime("14:00");
+        entry.setEndTime("15:30");
+        entry.setDate("2026-02-01");
+        entry.setCreatedAt("2026-02-01T14:00:00");
+
+        assertEquals("me1", entry.getId());
+        assertEquals("Office Room A", entry.getPlace());
+        assertEquals("Alice, Bob, Charlie", entry.getAttendants());
+        assertEquals("14:00", entry.getStartTime());
+        assertEquals("15:30", entry.getEndTime());
+        assertEquals("2026-02-01", entry.getDate());
+        assertEquals("2026-02-01T14:00:00", entry.getCreatedAt());
+    }
+
+    @Test
+    void testSetMeetingEntries() {
+        BackupData data = new BackupData();
+        List<BackupData.MeetingEntryData> entries = new ArrayList<>();
+        BackupData.MeetingEntryData entry = new BackupData.MeetingEntryData();
+        entry.setPlace("Cafe");
+        entries.add(entry);
+        data.setMeetingEntries(entries);
+        assertEquals(1, data.getMeetingEntries().size());
+        assertEquals("Cafe", data.getMeetingEntries().get(0).getPlace());
+    }
+
+    @Test
+    void testMedicationData() {
+        BackupData.MedicationData med = new BackupData.MedicationData();
+        med.setId("med1");
+        med.setName("Ibuprofen");
+        med.setWikipediaLink("https://en.wikipedia.org/wiki/Ibuprofen");
+        med.setProvisionType("PILL");
+
+        assertEquals("med1", med.getId());
+        assertEquals("Ibuprofen", med.getName());
+        assertEquals("https://en.wikipedia.org/wiki/Ibuprofen", med.getWikipediaLink());
+        assertEquals("PILL", med.getProvisionType());
+    }
+
+    @Test
+    void testSetMedications() {
+        BackupData data = new BackupData();
+        List<BackupData.MedicationData> meds = new ArrayList<>();
+        BackupData.MedicationData med = new BackupData.MedicationData();
+        med.setName("Aspirin");
+        meds.add(med);
+        data.setMedications(meds);
+        assertEquals(1, data.getMedications().size());
+        assertEquals("Aspirin", data.getMedications().get(0).getName());
+    }
+
+    @Test
+    void testMedicationLogData() {
+        BackupData.MedicationLogData log = new BackupData.MedicationLogData();
+        log.setId("ml1");
+        log.setMedicationId("med1");
+        log.setAmount(400.0);
+        log.setTakenAt("2026-02-01T08:00:00");
+        log.setNotes("After breakfast");
+        log.setCreatedAt("2026-02-01T08:00:00");
+
+        assertEquals("ml1", log.getId());
+        assertEquals("med1", log.getMedicationId());
+        assertEquals(400.0, log.getAmount());
+        assertEquals("2026-02-01T08:00:00", log.getTakenAt());
+        assertEquals("After breakfast", log.getNotes());
+        assertEquals("2026-02-01T08:00:00", log.getCreatedAt());
+    }
+
+    @Test
+    void testSetMedicationLogs() {
+        BackupData data = new BackupData();
+        List<BackupData.MedicationLogData> logs = new ArrayList<>();
+        logs.add(new BackupData.MedicationLogData());
+        data.setMedicationLogs(logs);
+        assertEquals(1, data.getMedicationLogs().size());
+    }
+
+    @Test
+    void testFoodLogDataNullableFields() {
+        BackupData.FoodLogData entry = new BackupData.FoodLogData();
+        assertNull(entry.getCarbohydrates());
+        assertNull(entry.getKcal());
+        assertNull(entry.getDateTime());
+        assertNull(entry.getFoodItems());
+        assertNull(entry.getNotes());
+    }
+
+    @Test
+    void testUserDataIdField() {
+        BackupData.UserData userData = new BackupData.UserData();
+        assertNull(userData.getId());
+        userData.setId("user-uuid-123");
+        assertEquals("user-uuid-123", userData.getId());
+    }
 }
