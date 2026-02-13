@@ -1,34 +1,34 @@
-package de.idrinth.habitevaluator.android.persistence;
+package de.idrinth.habitevaluator.shared.persistence;
 
 import de.idrinth.habitevaluator.shared.model.DiaryEntry;
 import de.idrinth.habitevaluator.shared.model.EventSignificance;
 import de.idrinth.habitevaluator.shared.model.User;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class FileSystemDiaryEntryRepositoryTest {
+class FileSystemDiaryEntryRepositoryTest {
 
     private File tempDir;
     private FileSystemDiaryEntryRepository repository;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         tempDir = new File(System.getProperty("java.io.tmpdir"), "diary-test-" + System.nanoTime());
         tempDir.mkdirs();
         repository = new FileSystemDiaryEntryRepository(tempDir);
     }
 
-    @After
-    public void tearDown() {
+    @AfterEach
+    void tearDown() {
         File[] files = tempDir.listFiles();
         if (files != null) {
             for (File f : files) {
@@ -39,7 +39,7 @@ public class FileSystemDiaryEntryRepositoryTest {
     }
 
     @Test
-    public void testSaveAndFindById() {
+    void testSaveAndFindById() {
         DiaryEntry entry = new DiaryEntry("Had a great day", EventSignificance.MAJOR);
         entry.setEventDate(LocalDate.of(2024, 6, 15));
         repository.save(entry);
@@ -51,12 +51,12 @@ public class FileSystemDiaryEntryRepositoryTest {
     }
 
     @Test
-    public void testFindByIdNotFound() {
+    void testFindByIdNotFound() {
         assertFalse(repository.findById("nonexistent").isPresent());
     }
 
     @Test
-    public void testFindAll() {
+    void testFindAll() {
         repository.save(new DiaryEntry("Entry 1", EventSignificance.MINOR));
         repository.save(new DiaryEntry("Entry 2", EventSignificance.NORMAL));
         repository.save(new DiaryEntry("Entry 3", EventSignificance.MAJOR));
@@ -65,7 +65,7 @@ public class FileSystemDiaryEntryRepositoryTest {
     }
 
     @Test
-    public void testDeleteById() {
+    void testDeleteById() {
         DiaryEntry entry = new DiaryEntry("To delete", EventSignificance.MINOR);
         repository.save(entry);
         assertEquals(1, repository.findAll().size());
@@ -75,7 +75,7 @@ public class FileSystemDiaryEntryRepositoryTest {
     }
 
     @Test
-    public void testFindByUserId() {
+    void testFindByUserId() {
         User user = new User("testuser", "password");
         DiaryEntry e1 = new DiaryEntry("User entry", EventSignificance.NORMAL);
         e1.setUser(user);
@@ -90,7 +90,7 @@ public class FileSystemDiaryEntryRepositoryTest {
     }
 
     @Test
-    public void testFindDistinctDescriptionsByUserId() {
+    void testFindDistinctDescriptionsByUserId() {
         User user = new User("testuser", "password");
         DiaryEntry e1 = new DiaryEntry("Workout", EventSignificance.NORMAL);
         e1.setUser(user);
@@ -110,7 +110,7 @@ public class FileSystemDiaryEntryRepositoryTest {
     }
 
     @Test
-    public void testPersistenceAcrossInstances() {
+    void testPersistenceAcrossInstances() {
         DiaryEntry entry = new DiaryEntry("Persistent entry", EventSignificance.MAJOR);
         entry.setEventDate(LocalDate.of(2024, 3, 20));
         repository.save(entry);
@@ -124,7 +124,7 @@ public class FileSystemDiaryEntryRepositoryTest {
     }
 
     @Test
-    public void testAllSignificanceLevels() {
+    void testAllSignificanceLevels() {
         for (EventSignificance sig : EventSignificance.values()) {
             DiaryEntry entry = new DiaryEntry("Entry-" + sig.name(), sig);
             repository.save(entry);
@@ -135,12 +135,12 @@ public class FileSystemDiaryEntryRepositoryTest {
     }
 
     @Test
-    public void testEmptyRepository() {
+    void testEmptyRepository() {
         assertTrue(repository.findAll().isEmpty());
     }
 
     @Test
-    public void testSaveWithUser() {
+    void testSaveWithUser() {
         User user = new User("testuser", "password");
         DiaryEntry entry = new DiaryEntry("User entry", EventSignificance.NORMAL);
         entry.setUser(user);

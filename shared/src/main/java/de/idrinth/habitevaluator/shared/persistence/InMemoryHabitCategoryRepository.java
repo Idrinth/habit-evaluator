@@ -1,4 +1,4 @@
-package de.idrinth.habitevaluator.android.persistence;
+package de.idrinth.habitevaluator.shared.persistence;
 
 import de.idrinth.habitevaluator.shared.model.HabitCategory;
 import de.idrinth.habitevaluator.shared.repository.HabitCategoryRepository;

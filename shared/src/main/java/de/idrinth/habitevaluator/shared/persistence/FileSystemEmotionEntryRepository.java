@@ -1,6 +1,6 @@
-package de.idrinth.habitevaluator.android.persistence;
+package de.idrinth.habitevaluator.shared.persistence;
 
-import static de.idrinth.habitevaluator.android.persistence.GsonSerializers.*;
+import static de.idrinth.habitevaluator.shared.gson.GsonSerializers.*;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
@@ -8,6 +8,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 
+import de.idrinth.habitevaluator.shared.gson.GsonSerializers;
 import de.idrinth.habitevaluator.shared.model.EmotionEntry;
 import de.idrinth.habitevaluator.shared.model.EmotionPair;
 import de.idrinth.habitevaluator.shared.repository.EmotionEntryRepository;

@@ -7,8 +7,10 @@ module de.idrinth.habitevaluator.shared {
 
     exports de.idrinth.habitevaluator.shared.api;
     exports de.idrinth.habitevaluator.shared.backup;
+    exports de.idrinth.habitevaluator.shared.gson;
     exports de.idrinth.habitevaluator.shared.localization;
     exports de.idrinth.habitevaluator.shared.model;
+    exports de.idrinth.habitevaluator.shared.persistence;
     exports de.idrinth.habitevaluator.shared.service;
     exports de.idrinth.habitevaluator.shared.repository;
     exports de.idrinth.habitevaluator.shared.util;

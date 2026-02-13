@@ -1,11 +1,11 @@
-package de.idrinth.habitevaluator.android.persistence;
+package de.idrinth.habitevaluator.shared.persistence;
 
 import de.idrinth.habitevaluator.shared.model.SleepEntry;
 import de.idrinth.habitevaluator.shared.model.User;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.time.LocalDate;
@@ -13,22 +13,22 @@ import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class FileSystemSleepEntryRepositoryTest {
+class FileSystemSleepEntryRepositoryTest {
 
     private File tempDir;
     private FileSystemSleepEntryRepository repository;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         tempDir = new File(System.getProperty("java.io.tmpdir"), "sleep-test-" + System.nanoTime());
         tempDir.mkdirs();
         repository = new FileSystemSleepEntryRepository(tempDir);
     }
 
-    @After
-    public void tearDown() {
+    @AfterEach
+    void tearDown() {
         File[] files = tempDir.listFiles();
         if (files != null) {
             for (File f : files) {
@@ -39,7 +39,7 @@ public class FileSystemSleepEntryRepositoryTest {
     }
 
     @Test
-    public void testSaveAndFindById() {
+    void testSaveAndFindById() {
         SleepEntry entry = new SleepEntry(LocalTime.of(23, 0), LocalTime.of(7, 0));
         entry.setDate(LocalDate.of(2024, 6, 15));
         entry.setNotes("Good sleep");
@@ -53,12 +53,12 @@ public class FileSystemSleepEntryRepositoryTest {
     }
 
     @Test
-    public void testFindByIdNotFound() {
+    void testFindByIdNotFound() {
         assertFalse(repository.findById("nonexistent").isPresent());
     }
 
     @Test
-    public void testFindAll() {
+    void testFindAll() {
         repository.save(new SleepEntry(LocalTime.of(22, 0), LocalTime.of(6, 0)));
         repository.save(new SleepEntry(LocalTime.of(23, 0), LocalTime.of(7, 0)));
 
@@ -66,7 +66,7 @@ public class FileSystemSleepEntryRepositoryTest {
     }
 
     @Test
-    public void testDeleteById() {
+    void testDeleteById() {
         SleepEntry entry = new SleepEntry(LocalTime.of(22, 0), LocalTime.of(6, 0));
         repository.save(entry);
         assertTrue(repository.existsById(entry.getId()));
@@ -76,7 +76,7 @@ public class FileSystemSleepEntryRepositoryTest {
     }
 
     @Test
-    public void testExistsById() {
+    void testExistsById() {
         SleepEntry entry = new SleepEntry(LocalTime.of(22, 0), LocalTime.of(6, 0));
         assertFalse(repository.existsById(entry.getId()));
 
@@ -85,7 +85,7 @@ public class FileSystemSleepEntryRepositoryTest {
     }
 
     @Test
-    public void testFindByUserId() {
+    void testFindByUserId() {
         User user = new User("testuser", "password");
         SleepEntry e1 = new SleepEntry(LocalTime.of(22, 0), LocalTime.of(6, 0));
         e1.setUser(user);
@@ -99,7 +99,7 @@ public class FileSystemSleepEntryRepositoryTest {
     }
 
     @Test
-    public void testPersistenceAcrossInstances() {
+    void testPersistenceAcrossInstances() {
         SleepEntry entry = new SleepEntry(LocalTime.of(22, 30), LocalTime.of(6, 45));
         entry.setDate(LocalDate.of(2024, 3, 20));
         entry.setNotes("Persistent sleep");
@@ -115,7 +115,7 @@ public class FileSystemSleepEntryRepositoryTest {
     }
 
     @Test
-    public void testSaveWithUser() {
+    void testSaveWithUser() {
         User user = new User("testuser", "password");
         SleepEntry entry = new SleepEntry(LocalTime.of(23, 0), LocalTime.of(7, 0));
         entry.setUser(user);
@@ -129,7 +129,7 @@ public class FileSystemSleepEntryRepositoryTest {
     }
 
     @Test
-    public void testEmptyRepository() {
+    void testEmptyRepository() {
         assertTrue(repository.findAll().isEmpty());
     }
 }

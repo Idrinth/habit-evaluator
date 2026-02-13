@@ -1,32 +1,32 @@
-package de.idrinth.habitevaluator.android.persistence;
+package de.idrinth.habitevaluator.shared.persistence;
 
 import de.idrinth.habitevaluator.shared.model.DiaryReference;
 import de.idrinth.habitevaluator.shared.model.User;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class FileSystemDiaryReferenceRepositoryTest {
+class FileSystemDiaryReferenceRepositoryTest {
 
     private File tempDir;
     private FileSystemDiaryReferenceRepository repository;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         tempDir = new File(System.getProperty("java.io.tmpdir"), "diary-ref-test-" + System.nanoTime());
         tempDir.mkdirs();
         repository = new FileSystemDiaryReferenceRepository(tempDir);
     }
 
-    @After
-    public void tearDown() {
+    @AfterEach
+    void tearDown() {
         File[] files = tempDir.listFiles();
         if (files != null) {
             for (File f : files) {
@@ -37,7 +37,7 @@ public class FileSystemDiaryReferenceRepositoryTest {
     }
 
     @Test
-    public void testSaveAndFindById() {
+    void testSaveAndFindById() {
         DiaryReference ref = new DiaryReference("Morning Jog");
         repository.save(ref);
 
@@ -48,12 +48,12 @@ public class FileSystemDiaryReferenceRepositoryTest {
     }
 
     @Test
-    public void testFindByIdNotFound() {
+    void testFindByIdNotFound() {
         assertFalse(repository.findById("nonexistent").isPresent());
     }
 
     @Test
-    public void testFindAll() {
+    void testFindAll() {
         repository.save(new DiaryReference("Ref 1"));
         repository.save(new DiaryReference("Ref 2"));
         repository.save(new DiaryReference("Ref 3"));
@@ -62,7 +62,7 @@ public class FileSystemDiaryReferenceRepositoryTest {
     }
 
     @Test
-    public void testDeleteById() {
+    void testDeleteById() {
         DiaryReference ref = new DiaryReference("To delete");
         repository.save(ref);
         assertEquals(1, repository.findAll().size());
@@ -72,7 +72,7 @@ public class FileSystemDiaryReferenceRepositoryTest {
     }
 
     @Test
-    public void testFindByUserId() {
+    void testFindByUserId() {
         User user = new User("testuser", "password");
         DiaryReference ref1 = new DiaryReference("User ref");
         ref1.setUser(user);
@@ -87,7 +87,7 @@ public class FileSystemDiaryReferenceRepositoryTest {
     }
 
     @Test
-    public void testFindByUserIdAndDescriptionIgnoreCase() {
+    void testFindByUserIdAndDescriptionIgnoreCase() {
         User user = new User("testuser", "password");
         DiaryReference ref = new DiaryReference("Morning Jog");
         ref.setUser(user);
@@ -100,7 +100,7 @@ public class FileSystemDiaryReferenceRepositoryTest {
     }
 
     @Test
-    public void testFindByUserIdAndDescriptionIgnoreCaseUpperCase() {
+    void testFindByUserIdAndDescriptionIgnoreCaseUpperCase() {
         User user = new User("testuser", "password");
         DiaryReference ref = new DiaryReference("Morning Jog");
         ref.setUser(user);
@@ -113,7 +113,7 @@ public class FileSystemDiaryReferenceRepositoryTest {
     }
 
     @Test
-    public void testFindByUserIdAndDescriptionIgnoreCaseNotFound() {
+    void testFindByUserIdAndDescriptionIgnoreCaseNotFound() {
         User user = new User("testuser", "password");
         Optional<DiaryReference> found = repository.findByUserIdAndDescriptionIgnoreCase(
                 user.getId(), "nonexistent");
@@ -121,7 +121,7 @@ public class FileSystemDiaryReferenceRepositoryTest {
     }
 
     @Test
-    public void testFindByUserIdAndDescriptionIgnoreCaseWithNull() {
+    void testFindByUserIdAndDescriptionIgnoreCaseWithNull() {
         User user = new User("testuser", "password");
         Optional<DiaryReference> found = repository.findByUserIdAndDescriptionIgnoreCase(
                 user.getId(), null);
@@ -129,7 +129,7 @@ public class FileSystemDiaryReferenceRepositoryTest {
     }
 
     @Test
-    public void testFindDistinctDescriptionsByUserId() {
+    void testFindDistinctDescriptionsByUserId() {
         User user = new User("testuser", "password");
         DiaryReference ref1 = new DiaryReference("Alpha");
         ref1.setUser(user);
@@ -150,7 +150,7 @@ public class FileSystemDiaryReferenceRepositoryTest {
     }
 
     @Test
-    public void testPersistenceAcrossInstances() {
+    void testPersistenceAcrossInstances() {
         DiaryReference ref = new DiaryReference("Persistent ref");
         User user = new User("testuser", "password");
         ref.setUser(user);
@@ -166,12 +166,12 @@ public class FileSystemDiaryReferenceRepositoryTest {
     }
 
     @Test
-    public void testEmptyRepository() {
+    void testEmptyRepository() {
         assertTrue(repository.findAll().isEmpty());
     }
 
     @Test
-    public void testUpdateExistingReference() {
+    void testUpdateExistingReference() {
         DiaryReference ref = new DiaryReference("Original");
         repository.save(ref);
 
@@ -184,7 +184,7 @@ public class FileSystemDiaryReferenceRepositoryTest {
     }
 
     @Test
-    public void testFindByUserIdAndDescriptionIgnoreCaseDoesNotMatchDifferentUser() {
+    void testFindByUserIdAndDescriptionIgnoreCaseDoesNotMatchDifferentUser() {
         User user1 = new User("user1", "password");
         User user2 = new User("user2", "password");
 

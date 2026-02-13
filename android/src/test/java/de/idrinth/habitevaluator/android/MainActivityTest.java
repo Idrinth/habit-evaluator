@@ -6,7 +6,7 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.idrinth.habitevaluator.android.persistence.InMemoryHabitRepository;
+import de.idrinth.habitevaluator.shared.persistence.InMemoryHabitRepository;
 import de.idrinth.habitevaluator.shared.model.Habit;
 import de.idrinth.habitevaluator.shared.model.User;
 
