@@ -1,5 +1,6 @@
 package de.idrinth.habitevaluator.webserver.controller;
 
+import de.idrinth.habitevaluator.shared.model.SleepDistribution;
 import de.idrinth.habitevaluator.shared.model.SleepEntry;
 import de.idrinth.habitevaluator.shared.model.SleepStats;
 import de.idrinth.habitevaluator.shared.model.User;
@@ -91,5 +92,15 @@ public class SleepEntryController {
         stats.put("weekly", sleepEvaluationService.getCurrentWeekStats(entries));
         stats.put("monthly", sleepEvaluationService.getCurrentMonthStats(entries));
         return ResponseEntity.ok(stats);
+    }
+
+    @GetMapping("/distribution")
+    public ResponseEntity<SleepDistribution> getDistribution(HttpSession session) {
+        String userId = (String) session.getAttribute("userId");
+        if (userId == null) {
+            return ResponseEntity.status(401).build();
+        }
+        List<SleepEntry> entries = sleepEntryRepository.findByUserId(userId);
+        return ResponseEntity.ok(sleepEvaluationService.calculateSleepDistribution(entries));
     }
 }

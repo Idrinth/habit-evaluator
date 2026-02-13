@@ -1,5 +1,6 @@
 package de.idrinth.habitevaluator.desktop.controller;
 
+import de.idrinth.habitevaluator.shared.model.SleepDistribution;
 import de.idrinth.habitevaluator.shared.model.SleepEntry;
 import de.idrinth.habitevaluator.shared.model.SleepStats;
 import de.idrinth.habitevaluator.shared.model.User;
@@ -7,6 +8,8 @@ import de.idrinth.habitevaluator.shared.repository.SleepEntryRepository;
 import de.idrinth.habitevaluator.shared.service.SleepEvaluationService;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
+import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
@@ -14,6 +17,9 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.TextAlignment;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -65,6 +71,9 @@ public class SleepTrackingController {
     private Label monthlyCountLabel;
 
     @FXML
+    private Canvas distributionCanvas;
+
+    @FXML
     private VBox entriesContainer;
 
     private SleepEntryRepository sleepEntryRepository;
@@ -96,6 +105,7 @@ public class SleepTrackingController {
         entries.sort(Comparator.comparing(SleepEntry::getDate)
                 .thenComparing(SleepEntry::getFromTime).reversed());
         updateStats();
+        updateDistributionChart();
         updateEntryList();
     }
 
@@ -126,6 +136,69 @@ public class SleepTrackingController {
             monthlyMaxLabel.setText("Max: -");
             monthlyCountLabel.setText("Entries: 0");
         }
+    }
+
+    private void updateDistributionChart() {
+        GraphicsContext gc = distributionCanvas.getGraphicsContext2D();
+        double width = distributionCanvas.getWidth();
+        double height = distributionCanvas.getHeight();
+
+        gc.clearRect(0, 0, width, height);
+
+        SleepDistribution distribution = sleepEvaluationService.calculateSleepDistribution(entries);
+        double[] data = distribution.getPercentAsleep();
+
+        double paddingLeft = 50;
+        double paddingRight = 10;
+        double paddingTop = 10;
+        double paddingBottom = 30;
+        double chartWidth = width - paddingLeft - paddingRight;
+        double chartHeight = height - paddingTop - paddingBottom;
+
+        // Grid lines and Y-axis labels
+        gc.setStroke(Color.gray(0.5));
+        gc.setLineWidth(0.5);
+        gc.setFill(Color.LIGHTGRAY);
+        gc.setFont(Font.font(10));
+        gc.setTextAlign(TextAlignment.RIGHT);
+        for (int i = 0; i <= 4; i++) {
+            double val = i * 25;
+            double y = paddingTop + chartHeight - (val / 100.0) * chartHeight;
+            gc.strokeLine(paddingLeft, y, width - paddingRight, y);
+            gc.fillText(String.format("%.0f%%", val), paddingLeft - 4, y + 4);
+        }
+
+        // Bars
+        double barSpacing = chartWidth / 24.0;
+        double barWidth = Math.max(barSpacing * 0.7, 4);
+        gc.setFill(Color.web("#5b78f6"));
+
+        for (int h = 0; h < 24; h++) {
+            double val = data[h];
+            double barHeight = (val / 100.0) * chartHeight;
+            double x = paddingLeft + barSpacing * h + (barSpacing - barWidth) / 2.0;
+            double y = paddingTop + chartHeight - barHeight;
+            gc.fillRoundRect(x, y, barWidth, barHeight, 3, 3);
+        }
+
+        // X-axis labels
+        gc.setFill(Color.LIGHTGRAY);
+        gc.setFont(Font.font(9));
+        gc.setTextAlign(TextAlignment.CENTER);
+        for (int h = 0; h < 24; h += 3) {
+            double x = paddingLeft + barSpacing * h + barSpacing / 2.0;
+            gc.fillText(String.format("%02d:00", h), x, paddingTop + chartHeight + 16);
+        }
+
+        // Y-axis label
+        gc.save();
+        gc.setFill(Color.LIGHTGRAY);
+        gc.setFont(Font.font(10));
+        gc.setTextAlign(TextAlignment.CENTER);
+        gc.translate(12, paddingTop + chartHeight / 2.0);
+        gc.rotate(-90);
+        gc.fillText("% Asleep", 0, 0);
+        gc.restore();
     }
 
     private void updateEntryList() {

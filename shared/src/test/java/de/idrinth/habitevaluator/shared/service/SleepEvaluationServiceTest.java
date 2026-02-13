@@ -181,4 +181,97 @@ class SleepEvaluationServiceTest {
         assertEquals(8.0, stats.getAverageHours(), 0.01);
         assertEquals(1, stats.getTotalEntries());
     }
+
+    @Test
+    void distributionEmptyList() {
+        var dist = service.calculateSleepDistribution(new ArrayList<>());
+        assertNotNull(dist);
+        for (double v : dist.getPercentAsleep()) {
+            assertEquals(0.0, v, 0.01);
+        }
+    }
+
+    @Test
+    void distributionNullList() {
+        var dist = service.calculateSleepDistribution(null);
+        assertNotNull(dist);
+        assertEquals(24, dist.getPercentAsleep().length);
+    }
+
+    @Test
+    void distributionSingleSameDayEntry() {
+        List<SleepEntry> entries = new ArrayList<>();
+        // 13:00 to 15:00 on one day
+        entries.add(new SleepEntry(LocalTime.of(13, 0), LocalTime.of(15, 0), DATE));
+
+        var dist = service.calculateSleepDistribution(entries);
+        double[] pct = dist.getPercentAsleep();
+
+        // Hours 13 and 14 should be 100%
+        assertEquals(100.0, pct[13], 0.01);
+        assertEquals(100.0, pct[14], 0.01);
+        // Adjacent hours should be 0
+        assertEquals(0.0, pct[12], 0.01);
+        assertEquals(0.0, pct[15], 0.01);
+    }
+
+    @Test
+    void distributionMidnightCrossingEntry() {
+        List<SleepEntry> entries = new ArrayList<>();
+        // 22:00 to 06:00 (crosses midnight)
+        entries.add(new SleepEntry(LocalTime.of(22, 0), LocalTime.of(6, 0), DATE));
+
+        var dist = service.calculateSleepDistribution(entries);
+        double[] pct = dist.getPercentAsleep();
+
+        // Hours 22, 23, 0, 1, 2, 3, 4, 5 should be 100%
+        assertEquals(100.0, pct[22], 0.01);
+        assertEquals(100.0, pct[23], 0.01);
+        assertEquals(100.0, pct[0], 0.01);
+        assertEquals(100.0, pct[1], 0.01);
+        assertEquals(100.0, pct[2], 0.01);
+        assertEquals(100.0, pct[3], 0.01);
+        assertEquals(100.0, pct[4], 0.01);
+        assertEquals(100.0, pct[5], 0.01);
+        // Hour 6, 21 should be 0
+        assertEquals(0.0, pct[6], 0.01);
+        assertEquals(0.0, pct[21], 0.01);
+    }
+
+    @Test
+    void distributionMultipleDaysAverages() {
+        List<SleepEntry> entries = new ArrayList<>();
+        // Day 1: sleep 22:00-06:00
+        entries.add(new SleepEntry(LocalTime.of(22, 0), LocalTime.of(6, 0), DATE));
+        // Day 2: sleep 23:00-07:00
+        entries.add(new SleepEntry(LocalTime.of(23, 0), LocalTime.of(7, 0), DATE.plusDays(1)));
+
+        var dist = service.calculateSleepDistribution(entries);
+        double[] pct = dist.getPercentAsleep();
+
+        // Hour 22: only day 1 -> 50%
+        assertEquals(50.0, pct[22], 0.01);
+        // Hour 23: both days -> 100%
+        assertEquals(100.0, pct[23], 0.01);
+        // Hour 5: both days -> 100%
+        assertEquals(100.0, pct[5], 0.01);
+        // Hour 6: only day 2 -> 50%
+        assertEquals(50.0, pct[6], 0.01);
+    }
+
+    @Test
+    void distributionPartialHourAtEnd() {
+        List<SleepEntry> entries = new ArrayList<>();
+        // 10:00 to 12:30 - partial hour at the end
+        entries.add(new SleepEntry(LocalTime.of(10, 0), LocalTime.of(12, 30), DATE));
+
+        var dist = service.calculateSleepDistribution(entries);
+        double[] pct = dist.getPercentAsleep();
+
+        assertEquals(100.0, pct[10], 0.01);
+        assertEquals(100.0, pct[11], 0.01);
+        // Hour 12 should be counted because there are 30 minutes in it
+        assertEquals(100.0, pct[12], 0.01);
+        assertEquals(0.0, pct[13], 0.01);
+    }
 }

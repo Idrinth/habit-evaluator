@@ -1,5 +1,6 @@
 package de.idrinth.habitevaluator.shared.service;
 
+import de.idrinth.habitevaluator.shared.model.SleepDistribution;
 import de.idrinth.habitevaluator.shared.model.SleepEntry;
 import de.idrinth.habitevaluator.shared.model.SleepStats;
 
@@ -8,8 +9,10 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.temporal.TemporalAdjusters;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -74,6 +77,68 @@ public class SleepEvaluationService {
         LocalDate today = LocalDate.now();
         LocalDate monthStart = today.withDayOfMonth(1);
         return calculateStats(entries, monthStart, today);
+    }
+
+    /**
+     * Calculates the sleep distribution across a 24-hour period.
+     * For each hour (0-23), computes the percentage of days where the user
+     * was asleep during that hour.
+     *
+     * @param entries all sleep entries to consider
+     * @return SleepDistribution with percentage asleep per hour
+     */
+    public SleepDistribution calculateSleepDistribution(List<SleepEntry> entries) {
+        double[] percentAsleep = new double[24];
+
+        if (entries == null || entries.isEmpty()) {
+            return new SleepDistribution(percentAsleep);
+        }
+
+        Set<LocalDate> datesWithEntries = new HashSet<>();
+        for (SleepEntry entry : entries) {
+            datesWithEntries.add(entry.getDate());
+        }
+        int totalDays = datesWithEntries.size();
+
+        if (totalDays == 0) {
+            return new SleepDistribution(percentAsleep);
+        }
+
+        int[] asleepCount = new int[24];
+
+        for (SleepEntry entry : entries) {
+            int fromHour = entry.getFromTime().getHour();
+            int untilHour = entry.getUntilTime().getHour();
+            int untilMinute = entry.getUntilTime().getMinute();
+
+            if (entry.getFromTime().isBefore(entry.getUntilTime())
+                    || entry.getFromTime().equals(entry.getUntilTime())) {
+                // Same-day sleep (e.g. 13:00 to 15:00)
+                for (int h = fromHour; h < untilHour; h++) {
+                    asleepCount[h]++;
+                }
+                if (untilMinute > 0 && untilHour < 24) {
+                    asleepCount[untilHour]++;
+                }
+            } else {
+                // Crosses midnight (e.g. 22:00 to 06:00)
+                for (int h = fromHour; h < 24; h++) {
+                    asleepCount[h]++;
+                }
+                for (int h = 0; h < untilHour; h++) {
+                    asleepCount[h]++;
+                }
+                if (untilMinute > 0 && untilHour < 24) {
+                    asleepCount[untilHour]++;
+                }
+            }
+        }
+
+        for (int h = 0; h < 24; h++) {
+            percentAsleep[h] = Math.round((double) asleepCount[h] / totalDays * 1000.0) / 10.0;
+        }
+
+        return new SleepDistribution(percentAsleep);
     }
 
     /**

@@ -255,6 +255,173 @@ public class EditHabitAdapterTest {
         assertEquals(1, adapter.getItemCount());
     }
 
+    @Test
+    public void testEditedValuesReflectMonthlyFrequencyType() {
+        Habit habit = createHabit("Exercise", "Daily exercise", "cat-1");
+        habit.setFrequencyType(FrequencyType.MONTHLY);
+        habits.add(habit);
+        EditHabitAdapter adapter = new EditHabitAdapter(habits, false, categories, "en");
+        EditHabitAdapter.EditedHabitValues values = adapter.getEditedValues().get(habit.getId());
+        assertNotNull(values);
+        assertEquals(FrequencyType.MONTHLY, values.frequencyType);
+    }
+
+    @Test
+    public void testEditedValuesWithHighTargetFrequency() {
+        Habit habit = createHabit("Exercise", "Daily exercise", "cat-1");
+        habit.setTargetFrequency(100);
+        habits.add(habit);
+        EditHabitAdapter adapter = new EditHabitAdapter(habits, false, categories, "en");
+        EditHabitAdapter.EditedHabitValues values = adapter.getEditedValues().get(habit.getId());
+        assertNotNull(values);
+        assertEquals(100, values.targetFrequency);
+    }
+
+    @Test
+    public void testEditedValuesWithHighMaxEntriesPerDay() {
+        Habit habit = createHabit("Exercise", "Daily exercise", "cat-1");
+        habit.setMaxEntriesPerDay(50);
+        habits.add(habit);
+        EditHabitAdapter adapter = new EditHabitAdapter(habits, false, categories, "en");
+        EditHabitAdapter.EditedHabitValues values = adapter.getEditedValues().get(habit.getId());
+        assertNotNull(values);
+        assertEquals(50, values.maxEntriesPerDay);
+    }
+
+    @Test
+    public void testEditedValuesWithZeroTargetFrequency() {
+        Habit habit = createHabit("Exercise", "Daily exercise", "cat-1");
+        habit.setTargetFrequency(0);
+        habits.add(habit);
+        EditHabitAdapter adapter = new EditHabitAdapter(habits, false, categories, "en");
+        EditHabitAdapter.EditedHabitValues values = adapter.getEditedValues().get(habit.getId());
+        assertNotNull(values);
+        assertEquals(0, values.targetFrequency);
+    }
+
+    @Test
+    public void testEditedValuesHaveIndependentMaps() {
+        Habit habit1 = createHabit("Exercise", "Daily exercise", "cat-1");
+        habit1.getNameTranslations().put("de", "Sport");
+        Habit habit2 = createHabit("Reading", "Read books", "cat-1");
+        habit2.getNameTranslations().put("de", "Lesen");
+        habits.add(habit1);
+        habits.add(habit2);
+        EditHabitAdapter adapter = new EditHabitAdapter(habits, true, categories, "en");
+
+        EditHabitAdapter.EditedHabitValues values1 = adapter.getEditedValues().get(habit1.getId());
+        EditHabitAdapter.EditedHabitValues values2 = adapter.getEditedValues().get(habit2.getId());
+        assertNotNull(values1);
+        assertNotNull(values2);
+        assertEquals("Sport", values1.nameTranslations.get("de"));
+        assertEquals("Lesen", values2.nameTranslations.get("de"));
+    }
+
+    @Test
+    public void testEditedValuesWithNullCategoryId() {
+        Habit habit = createHabit("Exercise", "Daily exercise", null);
+        habits.add(habit);
+        EditHabitAdapter adapter = new EditHabitAdapter(habits, false, categories, "en");
+        EditHabitAdapter.EditedHabitValues values = adapter.getEditedValues().get(habit.getId());
+        assertNotNull(values);
+        assertNull(values.categoryId);
+    }
+
+    @Test
+    public void testEditedValuesTranslationsEnabledNoTranslationsOnHabit() {
+        Habit habit = createHabit("Exercise", "Daily exercise", "cat-1");
+        habits.add(habit);
+        EditHabitAdapter adapter = new EditHabitAdapter(habits, true, categories, "en");
+        EditHabitAdapter.EditedHabitValues values = adapter.getEditedValues().get(habit.getId());
+        assertNotNull(values);
+        assertTrue(values.nameTranslations.isEmpty());
+        assertTrue(values.descriptionTranslations.isEmpty());
+    }
+
+    @Test
+    public void testEditedValuesTranslationsEnabledWithEnglishTranslation() {
+        Habit habit = createHabit("Exercise", "Daily exercise", "cat-1");
+        habit.getNameTranslations().put("en", "Exercise EN");
+        habit.getDescriptionTranslations().put("en", "Daily exercise EN");
+        habits.add(habit);
+        EditHabitAdapter adapter = new EditHabitAdapter(habits, true, categories, "en");
+        EditHabitAdapter.EditedHabitValues values = adapter.getEditedValues().get(habit.getId());
+        assertNotNull(values);
+        assertEquals("Exercise EN", values.nameTranslations.get("en"));
+        assertEquals("Daily exercise EN", values.descriptionTranslations.get("en"));
+    }
+
+    @Test
+    public void testEditedValuesIgnoresUnsupportedLanguage() {
+        Habit habit = createHabit("Exercise", "Daily exercise", "cat-1");
+        habit.getNameTranslations().put("ja", "Japanese translation");
+        habits.add(habit);
+        EditHabitAdapter adapter = new EditHabitAdapter(habits, true, categories, "en");
+        EditHabitAdapter.EditedHabitValues values = adapter.getEditedValues().get(habit.getId());
+        assertNotNull(values);
+        assertNull(values.nameTranslations.get("ja"));
+    }
+
+    @Test
+    public void testEditedValuesMapIsModifiable() {
+        Habit habit = createHabit("Exercise", "Daily exercise", "cat-1");
+        habits.add(habit);
+        EditHabitAdapter adapter = new EditHabitAdapter(habits, false, categories, "en");
+        Map<String, EditHabitAdapter.EditedHabitValues> editedValues = adapter.getEditedValues();
+        assertNotNull(editedValues);
+        // Values should be mutable (used by UI for editing)
+        EditHabitAdapter.EditedHabitValues values = editedValues.get(habit.getId());
+        assertNotNull(values);
+        values.targetFrequency = 99;
+        assertEquals(99, adapter.getEditedValues().get(habit.getId()).targetFrequency);
+    }
+
+    @Test
+    public void testMultipleHabitsWithDifferentScoringRules() {
+        Habit habit1 = createHabit("Exercise", "Daily exercise", "cat-1");
+        ScoringRule rule1 = new ScoringRule();
+        rule1.setThresholdFor1Point(1);
+        rule1.setThresholdFor2Points(3);
+        rule1.setThresholdFor4Points(5);
+        rule1.setThresholdFor8Points(8);
+        habit1.setScoringRule(rule1);
+
+        Habit habit2 = createHabit("Reading", "Read books", "cat-1");
+        // No scoring rule — should use defaults
+
+        habits.add(habit1);
+        habits.add(habit2);
+        EditHabitAdapter adapter = new EditHabitAdapter(habits, false, categories, "en");
+
+        EditHabitAdapter.EditedHabitValues values1 = adapter.getEditedValues().get(habit1.getId());
+        EditHabitAdapter.EditedHabitValues values2 = adapter.getEditedValues().get(habit2.getId());
+        assertNotNull(values1);
+        assertNotNull(values2);
+
+        assertEquals(1, values1.threshold1);
+        assertEquals(3, values1.threshold2);
+        assertEquals(5, values1.threshold4);
+        assertEquals(8, values1.threshold8);
+
+        assertEquals(1, values2.threshold1);
+        assertEquals(2, values2.threshold2);
+        assertEquals(4, values2.threshold4);
+        assertEquals(7, values2.threshold8);
+    }
+
+    @Test
+    public void testCategoryDisplayNameMappingWithDisplayLanguage() {
+        HabitCategory cat2 = new HabitCategory();
+        cat2.setId("cat-2");
+        cat2.setName("Fitness");
+        cat2.getNameTranslations().put("de", "Fitness DE");
+        categories.add(cat2);
+
+        habits.add(createHabit("Exercise", "Daily exercise", "cat-2"));
+        EditHabitAdapter adapter = new EditHabitAdapter(habits, false, categories, "de");
+        assertEquals(1, adapter.getItemCount());
+    }
+
     private Habit createHabit(String name, String description, String categoryId) {
         Habit habit = new Habit(name, description);
         habit.setCategoryId(categoryId);

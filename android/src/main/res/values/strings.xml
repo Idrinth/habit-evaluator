@@ -130,6 +130,7 @@
     <string name="sleep_analysis_title">Sleep Analysis</string>
     <string name="sleep_duration_graph_title">Daily Sleep Duration (hours)</string>
     <string name="sleep_interruptions_graph_title">Daily Sleep Interruptions</string>
+    <string name="sleep_distribution_graph_title">Sleep Time Distribution</string>
     <string name="translation_settings">Translation Settings</string>
     <string name="custom_translations_label">Allow custom translations for habit and category names</string>
     <string name="custom_translations_enabled">Custom translations</string>
