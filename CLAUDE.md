@@ -12,16 +12,17 @@ A privacy-focused, multi-platform habit tracker for analyzing and evaluating hab
 
 ```text
 habit-evaluator/
-├── shared/              # Core models, services, repositories, localization, backup
-├── webserver/           # Spring Boot 3.2.2 web application (REST API)
+├── shared/              # Core models, services, repositories, localization, backup, persistence
+├── webserver/           # Spring Boot 3.5.10 web application (REST API)
 ├── desktop/             # JavaFX 21.0.2 desktop application
-├── android/             # Android (SDK 35, min 26) mobile application
+├── android/             # Android (SDK 35, min 21/26/33) mobile application
 ├── website/             # SvelteKit 2.0 frontend application
 ├── homepage/            # SvelteKit 2.0 static homepage/documentation site
+├── api-bench/           # API performance benchmarking (idrinth-api-bench)
 ├── .github/workflows/   # CI/CD (GitHub Actions)
 ├── build.gradle         # Root build configuration (JaCoCo coverage)
-├── settings.gradle      # Module definitions (6 modules)
-├── gradle.properties    # Version pins (Java 17, Spring Boot 3.2.2, JavaFX 21.0.2)
+├── settings.gradle      # Module definitions (6 Gradle modules)
+├── gradle.properties    # Version pins (Java 17, Spring Boot 3.5.10, JavaFX 21.0.2)
 ├── compose.yml          # Docker Compose (MariaDB + webserver + website + homepage + nginx)
 ├── crowdin.yml          # Crowdin localization configuration
 ├── CONTRIBUTING.md      # Contribution guidelines
@@ -34,27 +35,29 @@ habit-evaluator/
 
 Core library consumed by all platform modules. Uses JPMS (`module-info.java`) and opens model package to Hibernate for reflection and backup package to GSON for serialization.
 
-- **Models:** `Habit`, `HabitEntry`, `User`, `HabitCategory`, `Evaluation`, `ScoringRule`, `WeeklyScore`, `HabitScore`, `PredictedWeeklyScore`, `PredictedHabitScore`, `MagicLink`, `FrequencyType` (enum: DAILY/WEEKLY/MONTHLY), `DiaryEntry`, `DiaryReference`, `EventSignificance` (enum: MINOR/NORMAL/MAJOR), `SleepEntry`, `SleepStats`, `EmotionEntry`, `EmotionPair`, `EmotionStrengthFormatter`, `EventCorrelation`, `ReminderSettings`
-- **Services:** `HabitEvaluatorService` (streaks, completion rates, on-track detection, avoidance streaks for negative habits), `HabitScoringService` (point scoring with thresholds 0/1/2/4/8, weekly aggregation, predicted scores), `DiaryService` (day/week/month points, weekly averages, monthly trends, daily averages), `SleepEvaluationService` (sleep stats: avg/min/max hours, weekly/monthly aggregation, overlap detection), `EventCorrelationService` (time-weighted Pearson correlations with proximity boost across habits, diary, sleep, and emotions over past year; returns top 10 by absolute strength), `DefaultDataInitializer` (42 default habits, 10 categories, 10 emotion pairs with i18n)
-- **Repositories (interfaces):** `HabitRepository`, `UserRepository`, `HabitCategoryRepository`, `ScoringRuleRepository`, `MagicLinkRepository`, `DiaryEntryRepository`, `DiaryReferenceRepository`, `SleepEntryRepository`, `EmotionEntryRepository`, `EmotionPairRepository`, `ReminderSettingsRepository`
-- **Localization:** `Localizer` service — YAML-based i18n loaded from classpath `localization/{lang}.yml`. Resolution: module.key (requested lang) -> module.key (English) -> general.key (requested lang) -> general.key (English) -> literal fallback. Uses concurrent caching.
-- **API client:** `ApiClient`, `RemoteHabitRepository`, `RemoteUserRepository`, `StorageConfig` (with ThemeMode enum: SYSTEM/LIGHT/DARK), `SyncData`, `SyncService`, `CircuitBreaker` for resilient client-server communication and bidirectional sync
-- **Backup:** `BackupService`, `HezBackupService` (.hcz/.hez backup format), `BackupEncryptionService` (password-based encryption), `BackupData` (nested data structures for serialization), `BackupException`, `MergeResult`
-- **Utilities:** `DateRangeUtils` (date range calculations), `PdfDataAggregator` (PDF report data assembly)
-- **Dependencies:** GSON 2.10.1, SLF4J 2.0.11, SnakeYAML 2.2, Jakarta Persistence API 3.1.0 (compile-only), Jackson Annotations 2.16.1 (compile-only)
+- **Models:** `Habit`, `HabitEntry`, `User`, `HabitCategory`, `Evaluation`, `ScoringRule`, `WeeklyScore`, `HabitScore`, `PredictedWeeklyScore`, `PredictedHabitScore`, `MagicLink`, `FrequencyType` (enum: DAILY/WEEKLY/MONTHLY), `DiaryEntry`, `DiaryReference`, `EventSignificance` (enum: MINOR/NORMAL/MAJOR), `SleepEntry`, `SleepStats`, `SleepDistribution`, `EmotionEntry`, `EmotionPair`, `EmotionStrengthFormatter`, `EventCorrelation`, `ReminderSettings`, `FoodLog`, `FoodTag`, `SportLog`, `SportLogStats`, `Medication`, `MedicationLog`, `MedicationProvisionType` (enum: PILL/LIQUID_DROPS/LIQUID_ML), `MeetingEntry`, `ModuleVisibility`
+- **Services:** `HabitEvaluatorService` (streaks, completion rates, on-track detection, avoidance streaks for negative habits), `HabitScoringService` (point scoring with thresholds 0/1/2/4/8, weekly aggregation, predicted scores), `DiaryService` (day/week/month points, weekly averages, monthly trends, daily averages), `SleepEvaluationService` (sleep stats: avg/min/max hours, weekly/monthly aggregation, overlap detection), `EventCorrelationService` (time-weighted Pearson correlations with proximity boost across habits, diary, sleep, and emotions over past year; returns top 10 by absolute strength), `SportLogService` (sport log statistics and analysis), `DefaultDataInitializer` (42 default habits, 10 categories, 10 emotion pairs with i18n)
+- **Repositories (interfaces):** `HabitRepository`, `UserRepository`, `HabitCategoryRepository`, `ScoringRuleRepository`, `MagicLinkRepository`, `DiaryEntryRepository`, `DiaryReferenceRepository`, `SleepEntryRepository`, `EmotionEntryRepository`, `EmotionPairRepository`, `ReminderSettingsRepository`, `FoodLogRepository`, `FoodTagRepository`, `SportLogRepository`, `MedicationRepository`, `MedicationLogRepository`, `MeetingEntryRepository`, `ModuleVisibilityRepository`
+- **Persistence (shared implementations):** FileSystem repositories (JSON-based via GSON): `FileSystemHabitRepository`, `FileSystemHabitCategoryRepository`, `FileSystemDiaryEntryRepository`, `FileSystemDiaryReferenceRepository`, `FileSystemSleepEntryRepository`, `FileSystemEmotionPairRepository`, `FileSystemEmotionEntryRepository`; In-memory: `InMemoryHabitRepository`, `InMemoryHabitCategoryRepository`
+- **Localization:** `Localizer` service — YAML-based i18n loaded from classpath `localization/{lang}.yml`. Resolution: module.key (requested lang) -> module.key (English) -> general.key (requested lang) -> general.key (English) -> literal fallback. Uses concurrent caching. `ResourceStreamProvider` for classpath resource loading.
+- **API client:** `ApiClient` (with `maskBugfixVersion()` for version compatibility), `RemoteHabitRepository`, `RemoteUserRepository`, `StorageConfig` (with ThemeMode enum: SYSTEM/LIGHT/DARK), `SyncData`, `SyncService`, `CircuitBreaker` for resilient client-server communication and bidirectional sync, `VersionMismatchException`
+- **Backup:** `BackupService`, `HezBackupService` (.hcz/.hez backup format), `BackupEncryptionService` (password-based encryption), `BackupData` (nested data structures for serialization), `BackupException`, `MergeResult`, `RestoreOptions` (selective restoration: categories, habits, diary, sleep, sport, food, emotions, meetings, medication, reminders)
+- **GSON:** `GsonSerializers` (custom serialization helpers)
+- **Utilities:** `DateRangeUtils` (date range calculations), `PdfDataAggregator` (PDF report data assembly), `ReminderScheduleCalculator` (reminder schedule computation)
+- **Dependencies:** GSON 2.10.1, SLF4J 2.0.11, SnakeYAML 2.5, Jakarta Persistence API 3.1.0 (compile-only), Jackson Annotations 2.21 (compile-only)
 
 ### webserver
 
-Spring Boot 3.2.2 application with Spring Security, Spring Data JPA.
+Spring Boot 3.5.10 application with Spring Security, Spring Data JPA, Spring Dependency Management 1.1.7.
 
 - **Entry point:** `de.idrinth.habitevaluator.webserver.HabitEvaluatorWebApplication`
-- **Controllers:** `HabitController`, `AuthController`, `CategoryController`, `ScoringRuleController`, `MagicLinkController`, `DefaultDataController`, `SyncController`, `DiaryController`, `SleepEntryController`, `EmotionPairController`, `ReminderSettingsController`, `StatsController`, `PdfExportController`, `BackupController`
-- **Repositories:** 11 `Database*Repository` wrappers (`DatabaseHabitRepository`, `DatabaseUserRepository`, `DatabaseHabitCategoryRepository`, `DatabaseScoringRuleRepository`, `DatabaseMagicLinkRepository`, `DatabaseDiaryEntryRepository`, `DatabaseDiaryReferenceRepository`, `DatabaseSleepEntryRepository`, `DatabaseEmotionEntryRepository`, `DatabaseEmotionPairRepository`, `DatabaseReminderSettingsRepository`) over 12 Spring Data JPA interfaces (`JpaHabitRepository`, `JpaHabitEntryRepository`, `JpaHabitCategoryRepository`, `JpaUserRepository`, `JpaScoringRuleRepository`, `JpaMagicLinkRepository`, `JpaDiaryEntryRepository`, `JpaDiaryReferenceRepository`, `JpaSleepEntryRepository`, `JpaEmotionEntryRepository`, `JpaEmotionPairRepository`, `JpaReminderSettingsRepository`)
-- **Configuration:** `SecurityConfig` (BCrypt, session-based auth, CSRF disabled), `AppConfig` (service beans), `DataInitializer` (demo user: username "demo", password "demo123")
+- **Controllers:** `HabitController`, `AuthController`, `CategoryController`, `ScoringRuleController`, `MagicLinkController`, `DefaultDataController`, `SyncController`, `DiaryController`, `SleepEntryController`, `EmotionPairController`, `ReminderSettingsController`, `StatsController`, `PdfExportController`, `BackupController`, `FoodLogController`, `SportLogController`, `MedicationController`, `MeetingController`, `ModuleVisibilityController`, `VersionController`
+- **Repositories:** 18 `Database*Repository` wrappers (`DatabaseHabitRepository`, `DatabaseUserRepository`, `DatabaseHabitCategoryRepository`, `DatabaseScoringRuleRepository`, `DatabaseMagicLinkRepository`, `DatabaseDiaryEntryRepository`, `DatabaseDiaryReferenceRepository`, `DatabaseSleepEntryRepository`, `DatabaseEmotionEntryRepository`, `DatabaseEmotionPairRepository`, `DatabaseReminderSettingsRepository`, `DatabaseFoodLogRepository`, `DatabaseFoodTagRepository`, `DatabaseSportLogRepository`, `DatabaseMedicationRepository`, `DatabaseMedicationLogRepository`, `DatabaseMeetingEntryRepository`, `DatabaseModuleVisibilityRepository`) over 19 Spring Data JPA interfaces (`JpaHabitRepository`, `JpaHabitEntryRepository`, `JpaHabitCategoryRepository`, `JpaUserRepository`, `JpaScoringRuleRepository`, `JpaMagicLinkRepository`, `JpaDiaryEntryRepository`, `JpaDiaryReferenceRepository`, `JpaSleepEntryRepository`, `JpaEmotionEntryRepository`, `JpaEmotionPairRepository`, `JpaReminderSettingsRepository`, `JpaFoodLogRepository`, `JpaFoodTagRepository`, `JpaSportLogRepository`, `JpaMedicationRepository`, `JpaMedicationLogRepository`, `JpaMeetingEntryRepository`, `JpaModuleVisibilityRepository`)
+- **Configuration:** `SecurityConfig` (BCrypt, session-based auth, CSRF disabled), `AppConfig` (service beans), `DataInitializer` (demo user: username "demo", password "demo123"), `RequestIdFilter` (CSRF & replay attack prevention requiring X-Request-ID header on state-changing requests)
 - **DTOs:** `LoginRequest`, `LoginResponse` (standalone); `CreateCategoryRequest`, `CreateScoringRuleRequest`, `MagicLinkRequest` (inner classes in controllers)
 - **Database:** H2 (dev, console at `/h2-console`) or MariaDB (production via `mariadb` profile)
 - **Artifact:** `habit-evaluator-web.jar`
-- **Additional dependency:** OpenPDF 1.3.35 (PDF generation)
+- **Additional dependencies:** OpenPDF 1.3.35 (PDF generation), springdoc-openapi 2.8.6 (test-only, OpenAPI spec generation)
 - **Docker:** `webserver/Dockerfile` — two-stage build (Eclipse Temurin JDK 17 build, JRE 17 runtime), exposes port 8080
 
 ### desktop
@@ -64,43 +67,42 @@ JavaFX 21.0.2 application with JPMS module system.
 - **Entry point:** `de.idrinth.habitevaluator.desktop.HabitEvaluatorDesktopApp`
 - **Controllers:** `MainController`, `AddHabitController`, `SettingsDialogController`, `SyncDialogController`, `StatsController`, `SleepTrackingController`, `EmotionEntryController`, `EmotionPairController`, `PdfExportController`, `ImprintController`
 - **Services:** `ReminderService` (reminder and notification system)
-- **Persistence:** `PersistenceManager`, `JpaTransactionHelper`, `H2HabitRepository`, `H2HabitCategoryRepository`, `H2UserRepository`, `H2DiaryEntryRepository`, `H2DiaryReferenceRepository`, `H2SleepEntryRepository`, `H2EmotionPairRepository`, `H2EmotionEntryRepository`
+- **Persistence:** `PersistenceManager`, `JpaTransactionHelper`, `H2HabitRepository`, `H2HabitCategoryRepository`, `H2UserRepository`, `H2DiaryEntryRepository`, `H2DiaryReferenceRepository`, `H2SleepEntryRepository`, `H2EmotionPairRepository`, `H2EmotionEntryRepository`, `H2FoodLogRepository`, `H2FoodTagRepository`, `H2SportLogRepository`
 - **UI:** FXML layouts (`main.fxml`, `add-habit.fxml`, `settings.fxml`, `sync.fxml`, `stats.fxml`, `sleep-tracking.fxml`, `emotion-entry.fxml`, `emotion-pairs.fxml`, `pdf-export.fxml`, `imprint.fxml`), CSS (`styles.css`, `dark.css`)
 - **Database:** H2 file-based at `~/.habit-evaluator/data`, configured via `persistence.xml`
-- **Dependencies:** JavaFX (controls, FXML), Hibernate Core 6.4.2, H2, Logback 1.4.14, OpenPDF 1.3.35
+- **Dependencies:** JavaFX (controls, FXML), Hibernate Core 6.4.2, H2 2.2.224, Logback 1.4.14, OpenPDF 1.3.35, TestFX Monocle 17.0.10 (test)
 - **Packaging:** `jpackageDeb` (Linux .deb), `jpackageExe` (Windows .exe) via jpackage tasks
+- **Version properties:** Auto-generated `version.properties` from `project.version` during build
 
 ### android
 
-Android application (SDK 35, min 26).
+Android application (SDK 35, min 21/26/33).
 
 - **Namespace:** `de.idrinth.habitevaluator.android`
 - **Activities:** `MainActivity` (launcher with bottom navigation and fragment tabs), `SettingsActivity`, `PdfExportActivity`, `SleepAnalysisActivity`, `CorrelationActivity`
-- **Fragments:** `HomeFragment`, `EditHabitsFragment`, `AddHabitFragment`, `DiaryFragment`, `SleepTrackingFragment`, `StatsFragment`, `PointDevelopmentFragment`, `EmotionalStateFragment`, `RecordEmotionEntryFragment`, `AddEmotionPairFragment`, `ImprintFragment`, `SettingsFragment`
-- **UI Adapters:** `HabitAdapter`, `TrackHabitAdapter`, `EditHabitAdapter`, `DiaryEntryAdapter`, `SleepEntryAdapter`, `EmotionPairAdapter`, `EmotionDataAdapter`, `ScreenPagerAdapter`
+- **Fragments:** `HomeFragment`, `EditHabitsFragment`, `AddHabitFragment`, `DiaryFragment`, `DiaryNavigationFragment`, `SleepTrackingFragment`, `StatsFragment`, `PointDevelopmentFragment`, `EmotionalStateFragment`, `RecordEmotionEntryFragment`, `AddEmotionPairFragment`, `ImprintFragment`, `SettingsFragment`, `FoodLogFragment`, `SportLogFragment`, `MedicationListFragment`, `MedicationLogFragment`
+- **UI Adapters:** `HabitAdapter`, `EditHabitAdapter`, `DiaryEntryAdapter`, `SleepEntryAdapter`, `EmotionPairAdapter`, `EmotionDataAdapter`, `FoodLogAdapter`, `SportLogAdapter`, `MedicationAdapter`, `MedicationLogAdapter`, `ScreenPagerAdapter`
 - **Chart Views:** `PointChartView`, `SleepGraphView`, `EmotionLineChartView`, `EmotionScatterChartView` (custom Android views)
 - **Utilities:** `FontSizeHelper`, `ViewPager2SwipeSensitivityReducer`, `GsonSerializers`
 - **Reminders:** `ReminderScheduler`, `ReminderReceiver` (broadcast receiver for boot-completed and reminder intents)
-- **Persistence (3 implementations):**
-  - FileSystem (legacy, JSON-based via GSON): `FileSystemHabitRepository`, `FileSystemHabitCategoryRepository`, `FileSystemDiaryEntryRepository`, `FileSystemDiaryReferenceRepository`, `FileSystemSleepEntryRepository`, `FileSystemEmotionPairRepository`, `FileSystemEmotionEntryRepository`
-  - SQLite (modern): `SQLiteHabitRepository`, `SQLiteHabitCategoryRepository`, `SQLiteDiaryEntryRepository`, `SQLiteDiaryReferenceRepository`, `SQLiteSleepEntryRepository`, `SQLiteEmotionPairRepository`, `SQLiteEmotionEntryRepository`, `SQLiteHelper`
-  - In-memory: `InMemoryHabitRepository`, `InMemoryHabitCategoryRepository`
-  - Migration: `JsonToSqliteMigration` (migrates from FileSystem to SQLite)
+- **Permission Handlers:** `Api33PermissionHandler` (Android 13+), `PreApi33PermissionHandler`, `NotificationPermissionHandler`
+- **Persistence (SQLite):** `SQLiteHabitRepository`, `SQLiteHabitCategoryRepository`, `SQLiteDiaryEntryRepository`, `SQLiteDiaryReferenceRepository`, `SQLiteSleepEntryRepository`, `SQLiteEmotionPairRepository`, `SQLiteEmotionEntryRepository`, `SQLiteFoodLogRepository`, `SQLiteFoodTagRepository`, `SQLiteSportLogRepository`, `SQLiteMedicationRepository`, `SQLiteMedicationLogRepository`, `SQLiteHelper`
+- **Migration:** `JsonToSqliteMigration` (migrates from legacy FileSystem to SQLite)
 - **Permissions:** INTERNET, POST_NOTIFICATIONS, RECEIVE_BOOT_COMPLETED, SCHEDULE_EXACT_ALARM (API ≤32)
-- **Build Flavors:** `modern` (minSdk 26) and `legacy` (minSdk 21) with Core Library Desugaring
-- **Dependencies:** AndroidX AppCompat 1.6.1, Material 1.11.0, ConstraintLayout 2.1.4, RecyclerView 1.3.2, CardView 1.0.0, ViewPager2 1.0.0, Lifecycle (ViewModel/LiveData 2.7.0), Core Library Desugaring 2.0.4, SLF4J no-op 2.0.11
-- **Build:** ProGuard minification and resource shrinking in release builds, signing config for release APKs, AAB (Android App Bundle) support, JaCoCo coverage reporting for both flavors
+- **Build Flavors:** `lollipop` (minSdk 21), `oreo` (minSdk 26), `tiramisu` (minSdk 33) with Core Library Desugaring
+- **Dependencies:** AndroidX AppCompat 1.7.1, Material 1.11.0, ConstraintLayout 2.2.1, RecyclerView 1.4.0, CardView 1.0.0, ViewPager2 1.1.0, Lifecycle (ViewModel/LiveData 2.7.0), Core Library Desugaring 2.0.4, SLF4J no-op 2.0.17, Mockito 5.11.0 (test)
+- **Build:** Android Gradle Plugin 8.9.0, ProGuard minification and resource shrinking in release builds, signing config for release APKs, AAB (Android App Bundle) support, JaCoCo coverage reporting for all three flavors, view binding enabled, buildConfig enabled
 
 ### website
 
 SvelteKit 2.0 frontend application with TypeScript.
 
-- **Routes:** Login, habits (add/edit/home), categories (add), score-rules (add), diary, sleep, emotions graph, stats (dashboard, correlations), points, PDF export, backup, settings, imprint
-- **API client:** `src/lib/api.ts` (463 lines, 40+ endpoints, circuit breaker pattern)
+- **Routes:** Login, habits (add/edit/home), categories (add), score-rules (add), diary, sleep, emotions graph, stats (dashboard, correlations), points, PDF export, backup, settings, imprint, food-log (home, distribution), sport-graph
+- **API client:** `src/lib/api.ts` (40+ endpoints, circuit breaker pattern)
 - **i18n:** `src/lib/i18n.ts` — client-side internationalization
 - **Config:** `src/lib/config.ts` — runtime configuration with dynamic API URL
-- **Build:** SvelteKit 2.50.1, Svelte 5.49.1, Vite 7.3.1, `svelte-check` for type checking, TypeScript 5.9.3 (strict mode)
-- **Testing:** Vitest 4.0.18, Testing Library (Svelte, user-event), jsdom 28.0.0
+- **Build:** SvelteKit 2.50.2, Svelte 5.50.2, Vite 7.3.1, `svelte-check` for type checking, TypeScript 5.9.3 (strict mode)
+- **Testing:** Vitest 4.0.18, Testing Library (Svelte 5.3.1, user-event 14.6.1, jest-dom 6.9.1), jsdom 28.0.0, Cypress 15.10.0 (E2E)
 - **Docker:** `website/Dockerfile` — Node.js 22 alpine build, nginx alpine runtime; `docker-entrypoint.sh` injects `API_BASE_URL` at runtime
 - **Static adapter** with SPA fallback (`index.html`)
 
@@ -109,9 +111,20 @@ SvelteKit 2.0 frontend application with TypeScript.
 SvelteKit 2.0 static homepage and documentation site.
 
 - **Routes:** Landing page, features page, documentation pages (android, desktop, api, webserver), imprint
-- **Build:** SvelteKit 2.50.1, Svelte 5.49.1, Vite 7.3.1, TypeScript 5.9.3
+- **Build:** SvelteKit 2.50.2, Svelte 5.50.2, Vite 7.3.1, TypeScript 5.9.3
 - **Prerendering:** All routes prerendered (`['*']`), strict mode enabled
 - **Docker:** `homepage/Dockerfile` — Node.js 22 alpine build, nginx alpine runtime
+
+### api-bench
+
+API performance benchmarking suite using `@idrinth-api-bench/framework`.
+
+- **Entry point:** `npm start` (runs `iab bench`)
+- **Configuration:** `.env` file for target API settings
+- **Route structure:**
+  - `src/routes/before-all/` — Setup routes (login, init-defaults)
+  - `src/routes/main/` — 33 benchmark routes covering all API endpoints (auth, habits, categories, diary, sleep, emotions, food-logs, sport-logs, medications, meetings, stats, sync, magic-links, reminder-settings, score-rules)
+- **Requirements:** Node.js >= 20
 
 ## REST API
 
@@ -120,6 +133,7 @@ SvelteKit 2.0 static homepage and documentation site.
 | POST | `/api/auth/login` | Login |
 | POST | `/api/auth/logout` | Logout |
 | GET | `/api/auth/me` | Get current user |
+| GET | `/api/version` | Get masked API version |
 | GET | `/api/habits` | List user's habits |
 | GET | `/api/habits/{id}` | Get habit by ID |
 | POST | `/api/habits` | Create habit |
@@ -148,17 +162,40 @@ SvelteKit 2.0 static homepage and documentation site.
 | GET | `/api/sleep-entries/stats` | Sleep stats (weekly and monthly: avg/min/max hours) |
 | GET | `/api/emotions/pairs` | List user's emotion pairs with labels |
 | GET | `/api/emotions/graph` | Emotion graph data (daily averages, overall averages per pair) |
+| GET | `/api/food-logs` | List user's food log entries |
+| POST | `/api/food-logs` | Create food log entry (auto-resolves food tags) |
+| DELETE | `/api/food-logs/{id}` | Delete food log entry |
+| GET | `/api/food-logs/suggestions` | Get food item suggestions from tags |
+| POST | `/api/food-logs/migrate-tags` | Migrate existing entries to use food tags |
+| GET | `/api/sport-logs` | List user's sport log entries |
+| POST | `/api/sport-logs` | Create sport log entry (validates name and unit) |
+| DELETE | `/api/sport-logs/{id}` | Delete sport log entry |
+| GET | `/api/sport-logs/graph` | 30-day sport activity graph (by activity, duration/measurement/count) |
+| GET | `/api/sport-logs/stats` | Sport stats (weekly and monthly) |
+| GET | `/api/medications` | List user's medications |
+| POST | `/api/medications` | Create medication |
+| PUT | `/api/medications/{id}` | Update medication (wikipedia link) |
+| DELETE | `/api/medications/{id}` | Delete medication |
+| GET | `/api/medications/logs` | List user's medication logs |
+| POST | `/api/medications/logs` | Create medication log entry |
+| DELETE | `/api/medications/logs/{id}` | Delete medication log entry |
+| GET | `/api/meetings` | List user's meeting entries |
+| POST | `/api/meetings` | Create meeting entry |
+| DELETE | `/api/meetings/{id}` | Delete meeting entry |
+| GET | `/api/module-visibility` | Get module visibility settings |
+| PUT | `/api/module-visibility` | Update module visibility settings |
 | GET | `/api/reminder-settings` | Get reminder settings |
 | PUT | `/api/reminder-settings` | Update reminder settings |
 | GET | `/api/stats/dashboard` | 30-day dashboard (habit points, diary points, sleep duration/entries) |
 | GET | `/api/stats/daily-timeline` | 30-day daily timeline of habit entries with category colors |
 | GET | `/api/stats/correlations` | Top event correlations across habits, diary, sleep, emotions |
 | GET | `/api/stats/emotion-scatter` | Emotion scatter plot by time-of-day |
+| GET | `/api/stats/food-distribution` | Food distribution statistics |
 | GET | `/api/export/pdf` | PDF report (params: from, to, habits, sleep, diary, emotions flags) |
 | POST | `/api/sync` | Bidirectional sync (merges client/server habits and entries) |
 | POST | `/api/init-defaults` | Initialize default data for user (with language parameter) |
 | GET | `/api/backup` | Download .hez backup file (password encrypted) |
-| POST | `/api/backup` | Upload and restore .hez backup |
+| POST | `/api/backup` | Upload and restore .hez backup (supports selective RestoreOptions) |
 
 ## Database Schema
 
@@ -176,6 +213,13 @@ All entities use UUID string IDs (`@Id @Column(length = 36)`).
 - **emotion_pairs** — id, negative_label, positive_label, user_id (FK)
 - **emotion_entries** — id, emotion_pair_id (FK), strength (int, -10 to +10), recorded_at, notes (max 500), user_id (FK)
 - **reminder_settings** — id, user_id (FK, unique, OneToOne), sleep_reminder_enabled, sleep_reminder_time, diary_reminder_enabled, diary_reminder_time, emotion_reminder_enabled, emotion_reminder_count (1-10), waking_hours_start, waking_hours_end
+- **food_logs** — id, carbohydrates (Double), kcal (Integer), food_items (2000, comma-separated), notes (500), date_time, created_at, user_id (FK); many-to-many with food_tags via `food_log_tags` join table
+- **food_tags** — id, name, name_lower (auto-generated lowercase), user_id (FK)
+- **sport_logs** — id, name, measurement (double), measurement_unit, start_time, end_time, date, notes (500), created_at, user_id (FK)
+- **medications** — id, name, wikipedia_link (500), provision_type (ENUM: PILL/LIQUID_DROPS/LIQUID_ML), user_id (FK)
+- **medication_logs** — id, medication_id (FK), dose (double), taken_at, notes (500), created_at, user_id (FK)
+- **meeting_entries** — id, place, attendants (1000), start_time, end_time, date, created_at, user_id (FK)
+- **module_visibility** — id, user_id (FK, unique, OneToOne), diary_visible, sleep_visible, emotions_visible, points_visible, statistics_visible, food_log_visible, sport_log_visible, medication_visible, backup_visible, pdf_export_visible (all default true)
 
 **Unique constraints:** Habit (name + categoryId + userId), User (username)
 **Cascade:** User -> habits (delete), Habit -> entries (delete), User -> diary_entries (delete), User -> sleep_entries (delete)
@@ -187,8 +231,9 @@ All entities use UUID string IDs (`@Id @Column(length = 36)`).
 ## Authentication & Security
 
 - Session-based with HttpSession and BCrypt password encoding
+- `RequestIdFilter` requires `X-Request-ID` header (UUID v4) on state-changing HTTP methods (POST, PUT, DELETE, PATCH) for CSRF and replay attack prevention
 - Magic links for read-only shared access with optional expiration and category/time filtering
-- Public endpoints: `/api/auth/**`, `/api/shared/**`, `/login`, `/h2-console`, `/score-rules/**`
+- Public endpoints: `/api/auth/**`, `/api/shared/**`, `/api/version`, `/login`, `/h2-console`, `/score-rules/**`
 - All other endpoints require authentication
 
 ## Scoring & Evaluation Logic
@@ -224,6 +269,10 @@ All entities use UUID string IDs (`@Id @Column(length = 36)`).
 - `hasOverlap()` — validates no overlapping sleep entries (handles midnight crossing)
 - Sleep duration handles midnight crossing (e.g., 23:00 to 07:00)
 
+**SportLogService:**
+- `getCurrentWeekStats(entries)` / `getCurrentMonthStats(entries)` — SportLogStats aggregation
+- Statistics per activity: total duration, total measurement, entry count
+
 **EventCorrelationService:**
 - Calculates time-weighted Pearson correlations across habits, diary, sleep, and emotions over the past year (365 days)
 - Creates daily signals for habit completions, diary points, diary duration, sleep hours, and emotion pair averages
@@ -252,11 +301,14 @@ All entities use UUID string IDs (`@Id @Column(length = 36)`).
 # Run tests with coverage report
 ./gradlew test jacocoTestReport
 
-# Build Android APK (debug, modern flavor)
-./gradlew :android:assembleModernDebug
+# Build Android APK (debug, oreo flavor)
+./gradlew :android:assembleOreoDebug
 
-# Build Android APK (debug, legacy flavor)
-./gradlew :android:assembleLegacyDebug
+# Build Android APK (debug, lollipop flavor)
+./gradlew :android:assembleLollipopDebug
+
+# Build Android APK (debug, tiramisu flavor)
+./gradlew :android:assembleTiramisuDebug
 
 # Build Android AAB (release bundle)
 ./gradlew :android:bundleRelease
@@ -279,11 +331,17 @@ cd website && npm run check
 # Website tests
 cd website && npm test
 
+# Website E2E tests
+cd website && npm run test:e2e
+
 # Homepage development
 cd homepage && npm install && npm run dev
 
 # Homepage type checking
 cd homepage && npm run check
+
+# API benchmarks
+cd api-bench && npm install && npm start
 ```
 
 ## Outbound Proxy Configuration
@@ -370,7 +428,7 @@ python3 scripts/local-proxy.py &
 LOCAL_PROXY_PID=$!
 sleep 2
 export ANDROID_HOME=/opt/android-sdk
-./gradlew :android:assembleModernDebug \
+./gradlew :android:assembleOreoDebug \
   -Dhttp.proxyHost=127.0.0.1 -Dhttp.proxyPort=18080 \
   -Dhttps.proxyHost=127.0.0.1 -Dhttps.proxyPort=18080 \
   -Dhttp.nonProxyHosts="localhost|127.0.0.1"
@@ -390,23 +448,32 @@ cd "$WRAPPER_DIR" && unzip -q gradle-8.14.3-bin.zip && rm -f *.lck *.part
 ## Testing
 
 **Java Framework:** JUnit 5 (Jupiter 5.10.2), JaCoCo 0.8.11 for coverage
-**Frontend Framework:** Vitest 4.0.18, Testing Library (Svelte/user-event), jsdom
+**Frontend Framework:** Vitest 4.0.18, Testing Library (Svelte/user-event), jsdom 28.0.0, Cypress 15.10.0 (E2E)
 
 **Test locations:**
-- `shared/src/test/java/` — 43 test classes:
-  - **Service tests:** `HabitEvaluatorServiceTest`, `HabitScoringServiceTest`, `HabitScoringServicePredictionTest`, `DiaryServiceTest`, `SleepEvaluationServiceTest`, `EventCorrelationServiceTest`, `DefaultDataInitializerTest`
-  - **Model tests:** `HabitTest`, `HabitEntryTest`, `UserTest`, `HabitCategoryTest`, `ScoringRuleTest`, `WeeklyScoreTest`, `HabitScoreTest`, `PredictedHabitScoreTest`, `PredictedWeeklyScoreTest`, `EvaluationTest`, `MagicLinkTest`, `FrequencyTypeTest`, `DiaryEntryTest`, `DiaryReferenceTest`, `SleepEntryTest`, `SleepStatsTest`, `EmotionEntryTest`, `EmotionPairTest`, `EmotionStrengthFormatterTest`, `EventSignificanceTest`, `EventCorrelationTest`, `ReminderSettingsTest`
-  - **API/Sync tests:** `ApiClientTest`, `SyncDataTest`, `SyncServiceTest`, `StorageConfigTest`, `CircuitBreakerTest`
-  - **Backup tests:** `BackupServiceTest`, `HezBackupServiceTest`, `BackupEncryptionServiceTest`, `BackupDataTest`, `BackupExceptionTest`, `MergeResultTest`
-  - **Localization tests:** `LocalizerTest`, `TranslationCompletenessTest`
-- `webserver/src/test/java/` — 17 test classes:
-  - **Controller tests:** `AuthControllerTest`, `HabitControllerTest`, `CategoryControllerTest`, `DiaryControllerTest`, `SleepEntryControllerTest`, `EmotionPairControllerTest`, `ScoringRuleControllerTest`, `MagicLinkControllerTest`, `StatsControllerTest`, `SyncControllerTest`, `PdfExportControllerTest`, `DefaultDataControllerTest`, `SecurityConfigTest`
-  - **Repository tests:** `JpaHabitRepositoryTest`, `JpaUserRepositoryTest`, `JpaDiaryEntryRepositoryTest`, `JpaMagicLinkRepositoryTest`
-  - **Application test:** `HabitEvaluatorWebApplicationTest`
-- `desktop/src/test/java/` — 8 test classes:
-  - `H2RepositoryTestBase` (shared base), `H2HabitRepositoryTest`, `H2HabitCategoryRepositoryTest`, `H2UserRepositoryTest`, `H2DiaryEntryRepositoryTest`, `H2SleepEntryRepositoryTest`, `H2EmotionPairRepositoryTest`, `H2EmotionEntryRepositoryTest`
-- `android/src/test/java/` — 9 test classes:
-  - `FileSystemHabitRepositoryTest`, `FileSystemHabitCategoryRepositoryTest`, `FileSystemDiaryEntryRepositoryTest`, `FileSystemSleepEntryRepositoryTest`, `FileSystemEmotionPairRepositoryTest`, `FileSystemEmotionEntryRepositoryTest`, `InMemoryHabitRepositoryTest`, `InMemoryHabitCategoryRepositoryTest`, `ScreenPagerAdapterTest`
+- `shared/src/test/java/` — 68 test classes:
+  - **Service tests (8):** `HabitEvaluatorServiceTest`, `HabitScoringServiceTest`, `HabitScoringServicePredictionTest`, `DiaryServiceTest`, `SleepEvaluationServiceTest`, `EventCorrelationServiceTest`, `SportLogServiceTest`, `DefaultDataInitializerTest`
+  - **Model tests (32):** `HabitTest`, `HabitEntryTest`, `UserTest`, `HabitCategoryTest`, `ScoringRuleTest`, `WeeklyScoreTest`, `HabitScoreTest`, `PredictedHabitScoreTest`, `PredictedWeeklyScoreTest`, `EvaluationTest`, `MagicLinkTest`, `FrequencyTypeTest`, `DiaryEntryTest`, `DiaryReferenceTest`, `SleepEntryTest`, `SleepStatsTest`, `SleepDistributionTest`, `EmotionEntryTest`, `EmotionPairTest`, `EmotionStrengthFormatterTest`, `EventSignificanceTest`, `EventCorrelationTest`, `ReminderSettingsTest`, `FoodLogTest`, `FoodTagTest`, `SportLogTest`, `SportLogStatsTest`, `MedicationTest`, `MedicationLogTest`, `MedicationProvisionTypeTest`, `MeetingEntryTest`, `ModuleVisibilityTest`
+  - **API/Sync tests (8):** `ApiClientTest`, `SyncDataTest`, `SyncServiceTest`, `StorageConfigTest`, `CircuitBreakerTest`, `RemoteHabitRepositoryTest`, `RemoteUserRepositoryTest`, `VersionMismatchExceptionTest`
+  - **Backup tests (7):** `BackupServiceTest`, `HezBackupServiceTest`, `BackupEncryptionServiceTest`, `BackupDataTest`, `BackupExceptionTest`, `MergeResultTest`, `RestoreOptionsTest`
+  - **Persistence tests (9):** `FileSystemHabitRepositoryTest`, `FileSystemHabitCategoryRepositoryTest`, `FileSystemDiaryEntryRepositoryTest`, `FileSystemDiaryReferenceRepositoryTest`, `FileSystemSleepEntryRepositoryTest`, `FileSystemEmotionPairRepositoryTest`, `FileSystemEmotionEntryRepositoryTest`, `InMemoryHabitRepositoryTest`, `InMemoryHabitCategoryRepositoryTest`
+  - **Localization tests (3):** `LocalizerTest`, `TranslationCompletenessTest`, `ResourceStreamProviderTest`
+  - **Other tests:** `GsonSerializersTest`, `DiaryReferenceRepositoryTest`, `DateRangeUtilsTest`, `PdfDataAggregatorTest`, `ReminderScheduleCalculatorTest`
+- `webserver/src/test/java/` — 45 test classes:
+  - **Controller tests (21):** `AuthControllerTest`, `HabitControllerTest`, `CategoryControllerTest`, `DiaryControllerTest`, `SleepEntryControllerTest`, `EmotionPairControllerTest`, `ScoringRuleControllerTest`, `MagicLinkControllerTest`, `ReminderSettingsControllerTest`, `StatsControllerTest`, `SyncControllerTest`, `PdfExportControllerTest`, `DefaultDataControllerTest`, `BackupControllerTest`, `SecurityConfigTest`, `FoodLogControllerTest`, `SportLogControllerTest`, `MedicationControllerTest`, `MeetingControllerTest`, `ModuleVisibilityControllerTest`, `VersionControllerTest`
+  - **Repository tests (18):** `JpaHabitRepositoryTest`, `JpaUserRepositoryTest`, `JpaDiaryEntryRepositoryTest`, `JpaDiaryReferenceRepositoryTest`, `JpaMagicLinkRepositoryTest`, `JpaScoringRuleRepositoryTest`, `JpaSleepEntryRepositoryTest`, `JpaEmotionEntryRepositoryTest`, `JpaEmotionPairRepositoryTest`, `JpaReminderSettingsRepositoryTest`, `JpaHabitCategoryRepositoryTest`, `JpaFoodLogRepositoryTest`, `JpaFoodTagRepositoryTest`, `JpaSportLogRepositoryTest`, `JpaMedicationRepositoryTest`, `JpaMedicationLogRepositoryTest`, `JpaMeetingEntryRepositoryTest`, `JpaModuleVisibilityRepositoryTest`
+  - **Config tests (2):** `RequestIdFilterTest`, `DataInitializerTest`
+  - **DTO tests (2):** `LoginRequestTest`, `LoginResponseTest`
+  - **Other (2):** `HabitEvaluatorWebApplicationTest`, `OpenApiGeneratorTest`
+- `desktop/src/test/java/` — 24 test classes:
+  - **Repository tests (12):** `H2RepositoryTestBase` (shared base), `H2HabitRepositoryTest`, `H2HabitCategoryRepositoryTest`, `H2UserRepositoryTest`, `H2DiaryEntryRepositoryTest`, `H2DiaryReferenceRepositoryTest`, `H2SleepEntryRepositoryTest`, `H2EmotionPairRepositoryTest`, `H2EmotionEntryRepositoryTest`, `H2FoodLogRepositoryTest`, `H2FoodTagRepositoryTest`, `H2SportLogRepositoryTest`
+  - **Controller tests (11):** `JavaFXControllerTestBase` (shared base), `MainControllerTest`, `AddHabitControllerTest`, `SettingsDialogControllerTest`, `SyncDialogControllerTest`, `StatsControllerTest`, `SleepTrackingControllerTest`, `EmotionEntryControllerTest`, `EmotionPairControllerTest`, `PdfExportControllerTest`, `ImprintControllerTest`
+  - **Service tests (1):** `ReminderServiceTest`
+- `android/src/test/java/` — 46 test classes:
+  - **Activity/Fragment tests (22):** `MainActivityTest`, `HomeFragmentTest`, `EditHabitsFragmentTest`, `AddHabitFragmentTest`, `DiaryFragmentTest`, `DiaryNavigationFragmentTest`, `SleepTrackingFragmentTest`, `StatsFragmentTest`, `PointDevelopmentFragmentTest`, `EmotionalStateFragmentTest`, `RecordEmotionEntryFragmentTest`, `AddEmotionPairFragmentTest`, `ImprintFragmentTest`, `SettingsActivityTest`, `SettingsFragmentTest`, `PdfExportActivityTest`, `SleepAnalysisActivityTest`, `CorrelationActivityTest`, `FoodLogFragmentTest`, `SportLogFragmentTest`, `MedicationListFragmentTest`, `MedicationLogFragmentTest`
+  - **Adapter tests (11):** `HabitAdapterTest`, `EditHabitAdapterTest`, `DiaryEntryAdapterTest`, `SleepEntryAdapterTest`, `EmotionPairAdapterTest`, `EmotionDataAdapterTest`, `FoodLogAdapterTest`, `SportLogAdapterTest`, `MedicationAdapterTest`, `MedicationLogAdapterTest`, `ScreenPagerAdapterTest`
+  - **Utility tests (1):** `FontSizeHelperTest`
+  - **Persistence tests (12):** `SQLiteHabitRepositoryTest`, `SQLiteHabitCategoryRepositoryTest`, `SQLiteDiaryEntryRepositoryTest`, `SQLiteDiaryReferenceRepositoryTest`, `SQLiteSleepEntryRepositoryTest`, `SQLiteEmotionPairRepositoryTest`, `SQLiteEmotionEntryRepositoryTest`, `SQLiteFoodLogRepositoryTest`, `SQLiteFoodTagRepositoryTest`, `SQLiteSportLogRepositoryTest`, `SQLiteMedicationRepositoryTest`, `SQLiteMedicationLogRepositoryTest`
 - `website/src/` — 6 test files:
   - `lib/api.test.ts`, `lib/config.test.ts`, `lib/i18n.test.ts`, `routes/login/login.test.ts`, `routes/diary/diary.test.ts`, `routes/categories/add/categories-add.test.ts`
 - `shared/src/test/resources/test-localization/` — German and English YAML test fixtures
@@ -416,16 +483,17 @@ cd "$WRAPPER_DIR" && unzip -q gradle-8.14.3-bin.zip && rm -f *.lck *.part
 - `@BeforeEach` setup methods for test fixtures
 - Standard JUnit assertions (`assertEquals`, `assertTrue`, `assertFalse`)
 - Webserver tests use `@ActiveProfiles("test")` with in-memory H2
-- Desktop tests use shared `H2RepositoryTestBase` for JPA setup
+- Desktop tests use shared `H2RepositoryTestBase` for JPA setup and `JavaFXControllerTestBase` for controller tests
+- Android tests use JUnit 4 with Mockito 5.11.0
 
 ## CI/CD
 
 GitHub Actions workflows at `.github/workflows/`:
 
-- **build.yml** — Primary build: triggers on push/PR to `the-one`, JDK 17 (Temurin), `./gradlew build`, JaCoCo coverage reports (shared + webserver), parallel jobs for desktop packaging (.deb) and desktop JAR
-- **frontend.yml** — SvelteKit CI: push/PR to `the-one`, Node.js 22, `npm run check` and `npm run build` for both website and homepage; separate test job for website (`npm test` with coverage)
-- **release.yml** — Release automation: artifact builds (Linux .deb, Windows .exe, Android APK for modern/legacy flavors, AAB), Docker builds to GHCR (webserver, website, homepage), signing with environment variables
-- **docker.yml** — Docker image builds
+- **ci.yml** — Primary CI: triggers on push/PR to `the-one`, JDK 17 (Temurin), `./gradlew build`, JaCoCo coverage reports (shared + webserver), parallel jobs for desktop packaging (.deb) and desktop JAR, Android builds for all three flavors (lollipop, oreo, tiramisu), Node.js 22 for website/homepage checks and tests
+- **release.yml** — Release automation: artifact builds (Linux .deb, Windows .exe, Android APK for lollipop/oreo/tiramisu flavors, AAB), Docker builds to GHCR (webserver, website, homepage), signing with environment variables
+- **release-auto-draft.yml** — Automatic draft release creation with semantic versioning
+- **semver-label.yml** — Validates PR semver labels (major/minor/patch)
 - **coderabbit-retry.yml** — Code review automation
 
 ## Architecture & Conventions
@@ -434,17 +502,18 @@ GitHub Actions workflows at `.github/workflows/`:
 - Models (JPA entities) and Services (stateless business logic) live in `shared`
 - Each platform provides its own Repository implementation and UI/Controller layer
 - Webserver uses Spring DI; desktop and Android use manual dependency management
+- FileSystem and InMemory repository implementations also live in `shared` (under `shared.persistence`)
 
 **Package naming:** `de.idrinth.habitevaluator.[module].[layer]`
 
 **Naming patterns:**
-- Entities: PascalCase (`Habit`, `HabitEntry`, `User`, `DiaryEntry`, `DiaryReference`, `SleepEntry`, `EmotionEntry`, `EmotionPair`, `ReminderSettings`)
-- Services: `*Service` (`HabitEvaluatorService`, `DiaryService`, `SleepEvaluationService`, `EventCorrelationService`, `BackupService`, `SyncService`, `ReminderService`)
-- Repositories: `*Repository` (interface), `Database*Repository` (Spring Data wrapper), `H2*Repository` (desktop), `FileSystem*Repository` (Android legacy), `SQLite*Repository` (Android modern), `InMemory*Repository` (Android testing)
-- Controllers: `*Controller` (`HabitController`, `AuthController`, `CategoryController`, `StatsController`, `PdfExportController`, `BackupController`, `ReminderSettingsController`)
-- Fragments (Android): `*Fragment` (`DiaryFragment`, `SleepTrackingFragment`, `EditHabitsFragment`, `EmotionalStateFragment`, `StatsFragment`)
-- Adapters (Android): `*Adapter` (`HabitAdapter`, `DiaryEntryAdapter`, `SleepEntryAdapter`, `EmotionPairAdapter`)
-- Chart Views (Android): `*View` / `*ChartView` (`PointChartView`, `SleepGraphView`, `EmotionLineChartView`)
+- Entities: PascalCase (`Habit`, `HabitEntry`, `User`, `DiaryEntry`, `DiaryReference`, `SleepEntry`, `EmotionEntry`, `EmotionPair`, `ReminderSettings`, `FoodLog`, `FoodTag`, `SportLog`, `Medication`, `MedicationLog`, `MeetingEntry`, `ModuleVisibility`)
+- Services: `*Service` (`HabitEvaluatorService`, `DiaryService`, `SleepEvaluationService`, `EventCorrelationService`, `SportLogService`, `BackupService`, `SyncService`, `ReminderService`)
+- Repositories: `*Repository` (interface), `Database*Repository` (Spring Data wrapper), `H2*Repository` (desktop), `FileSystem*Repository` (shared, JSON-based), `SQLite*Repository` (Android), `InMemory*Repository` (shared, testing)
+- Controllers: `*Controller` (`HabitController`, `AuthController`, `CategoryController`, `StatsController`, `PdfExportController`, `BackupController`, `ReminderSettingsController`, `FoodLogController`, `SportLogController`, `MedicationController`, `MeetingController`, `ModuleVisibilityController`, `VersionController`)
+- Fragments (Android): `*Fragment` (`DiaryFragment`, `SleepTrackingFragment`, `EditHabitsFragment`, `EmotionalStateFragment`, `StatsFragment`, `FoodLogFragment`, `SportLogFragment`, `MedicationListFragment`, `MedicationLogFragment`, `DiaryNavigationFragment`)
+- Adapters (Android): `*Adapter` (`HabitAdapter`, `DiaryEntryAdapter`, `SleepEntryAdapter`, `EmotionPairAdapter`, `FoodLogAdapter`, `SportLogAdapter`, `MedicationAdapter`, `MedicationLogAdapter`)
+- Chart Views (Android): `*View` / `*ChartView` (`PointChartView`, `SleepGraphView`, `EmotionLineChartView`, `EmotionScatterChartView`)
 - Methods: camelCase (`evaluate`, `calculateTargetEntries`, `isExpired`)
 
 **Key patterns:**
@@ -453,13 +522,17 @@ GitHub Actions workflows at `.github/workflows/`:
 - `@JsonIgnore` on sensitive fields (User.password, User.habits)
 - Lazy loading for JPA relationships
 - JPMS module system for shared and desktop modules
-- Android dual persistence: FileSystem (legacy JSON via GSON) and SQLite with `JsonToSqliteMigration`
-- Android build flavors: `modern` (API 26) and `legacy` (API 21) with core library desugaring
+- Android persistence: SQLite (primary) with `JsonToSqliteMigration` from legacy FileSystem format
+- Android build flavors: `lollipop` (API 21), `oreo` (API 26), `tiramisu` (API 33) with core library desugaring
 - Bidirectional sync via SyncController merging client and server data by ID
 - Emotion strength clamped to [-10, +10] range with validation in model
 - Circuit breaker pattern in API client for resilient network communication
 - DiaryReference pattern for reusable diary descriptions with case-insensitive matching
-- Encrypted backup/restore via .hez file format with password-based encryption
+- FoodTag pattern for normalized food items with case-insensitive matching (similar to DiaryReference)
+- Encrypted backup/restore via .hez file format with password-based encryption and selective RestoreOptions
+- ModuleVisibility for per-user UI section toggling (all visible by default)
+- RequestIdFilter for CSRF/replay protection on state-changing API requests
+- Version masking via `ApiClient.maskBugfixVersion()` for client-server compatibility checks
 
 **Library documentation:** When adding or updating third-party libraries, their name, version, and license must be documented in the Project legal (info) page of the respective project part (website, homepage, desktop, android).
 
