@@ -191,66 +191,6 @@ class ReminderServiceTest {
     }
 
     @Test
-    void testParseTimeWithValidTime() throws Exception {
-        Method parseTime = ReminderService.class.getDeclaredMethod("parseTime", String.class);
-        parseTime.setAccessible(true);
-
-        int[] result = (int[]) parseTime.invoke(null, "14:30");
-        assertEquals(14, result[0]);
-        assertEquals(30, result[1]);
-    }
-
-    @Test
-    void testParseTimeWithMidnight() throws Exception {
-        Method parseTime = ReminderService.class.getDeclaredMethod("parseTime", String.class);
-        parseTime.setAccessible(true);
-
-        int[] result = (int[]) parseTime.invoke(null, "00:00");
-        assertEquals(0, result[0]);
-        assertEquals(0, result[1]);
-    }
-
-    @Test
-    void testParseTimeWithEndOfDay() throws Exception {
-        Method parseTime = ReminderService.class.getDeclaredMethod("parseTime", String.class);
-        parseTime.setAccessible(true);
-
-        int[] result = (int[]) parseTime.invoke(null, "23:59");
-        assertEquals(23, result[0]);
-        assertEquals(59, result[1]);
-    }
-
-    @Test
-    void testParseTimeWithInvalidStringDefaultsToEight() throws Exception {
-        Method parseTime = ReminderService.class.getDeclaredMethod("parseTime", String.class);
-        parseTime.setAccessible(true);
-
-        int[] result = (int[]) parseTime.invoke(null, "invalid");
-        assertEquals(8, result[0]);
-        assertEquals(0, result[1]);
-    }
-
-    @Test
-    void testParseTimeWithEmptyStringDefaultsToEight() throws Exception {
-        Method parseTime = ReminderService.class.getDeclaredMethod("parseTime", String.class);
-        parseTime.setAccessible(true);
-
-        int[] result = (int[]) parseTime.invoke(null, "");
-        assertEquals(8, result[0]);
-        assertEquals(0, result[1]);
-    }
-
-    @Test
-    void testParseTimeWithNullDefaultsToEight() throws Exception {
-        Method parseTime = ReminderService.class.getDeclaredMethod("parseTime", String.class);
-        parseTime.setAccessible(true);
-
-        int[] result = (int[]) parseTime.invoke(null, (String) null);
-        assertEquals(8, result[0]);
-        assertEquals(0, result[1]);
-    }
-
-    @Test
     void testSecondsUntilReturnsPositiveValue() throws Exception {
         Method secondsUntil = ReminderService.class.getDeclaredMethod("secondsUntil", String.class);
         secondsUntil.setAccessible(true);

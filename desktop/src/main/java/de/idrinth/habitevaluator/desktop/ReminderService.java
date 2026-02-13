@@ -1,6 +1,7 @@
 package de.idrinth.habitevaluator.desktop;
 
 import de.idrinth.habitevaluator.shared.api.StorageConfig;
+import de.idrinth.habitevaluator.shared.util.ReminderScheduleCalculator;
 import javafx.application.Platform;
 
 import java.awt.SystemTray;
@@ -8,7 +9,7 @@ import java.awt.TrayIcon;
 import java.awt.Toolkit;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
-import java.util.Random;
+import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -75,23 +76,8 @@ public class ReminderService {
         String startStr = config.getWakingHoursStart();
         String endStr = config.getWakingHoursEnd();
 
-        int[] start = parseTime(startStr);
-        int[] end = parseTime(endStr);
-        int startMinutes = start[0] * 60 + start[1];
-        int endMinutes = end[0] * 60 + end[1];
-        if (endMinutes <= startMinutes) {
-            endMinutes = startMinutes + 60;
-        }
-        int range = endMinutes - startMinutes;
-
-        Random random = new Random();
-        for (int i = 0; i < Math.min(count, 10); i++) {
-            int offsetMinutes = random.nextInt(range);
-            int totalMinutes = startMinutes + offsetMinutes;
-            int hour = totalMinutes / 60;
-            int minute = totalMinutes % 60;
-            String time = String.format("%02d:%02d", hour, minute);
-
+        List<String> times = ReminderScheduleCalculator.calculateEmotionReminderTimes(startStr, endStr, count);
+        for (String time : times) {
             long delaySeconds = secondsUntil(time);
             scheduler.scheduleAtFixedRate(
                     () -> showNotification("How are you feeling?",
@@ -104,7 +90,7 @@ public class ReminderService {
     }
 
     private long secondsUntil(String timeStr) {
-        int[] hm = parseTime(timeStr);
+        int[] hm = ReminderScheduleCalculator.parseTime(timeStr);
         LocalTime target = LocalTime.of(hm[0], hm[1]);
         LocalTime now = LocalTime.now();
         long seconds = now.until(target, ChronoUnit.SECONDS);
@@ -143,12 +129,4 @@ public class ReminderService {
         }
     }
 
-    private static int[] parseTime(String time) {
-        try {
-            String[] parts = time.split(":");
-            return new int[]{Integer.parseInt(parts[0]), Integer.parseInt(parts[1])};
-        } catch (Exception e) {
-            return new int[]{8, 0};
-        }
-    }
 }

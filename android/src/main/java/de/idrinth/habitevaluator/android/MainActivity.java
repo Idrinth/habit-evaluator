@@ -19,12 +19,12 @@ import java.util.List;
 import java.util.Map;
 
 import de.idrinth.habitevaluator.android.databinding.ActivityMainBinding;
-import de.idrinth.habitevaluator.android.persistence.FileSystemDiaryEntryRepository;
-import de.idrinth.habitevaluator.android.persistence.FileSystemEmotionEntryRepository;
-import de.idrinth.habitevaluator.android.persistence.FileSystemEmotionPairRepository;
-import de.idrinth.habitevaluator.android.persistence.FileSystemHabitCategoryRepository;
-import de.idrinth.habitevaluator.android.persistence.FileSystemHabitRepository;
-import de.idrinth.habitevaluator.android.persistence.FileSystemSleepEntryRepository;
+import de.idrinth.habitevaluator.shared.persistence.FileSystemDiaryEntryRepository;
+import de.idrinth.habitevaluator.shared.persistence.FileSystemEmotionEntryRepository;
+import de.idrinth.habitevaluator.shared.persistence.FileSystemEmotionPairRepository;
+import de.idrinth.habitevaluator.shared.persistence.FileSystemHabitCategoryRepository;
+import de.idrinth.habitevaluator.shared.persistence.FileSystemHabitRepository;
+import de.idrinth.habitevaluator.shared.persistence.FileSystemSleepEntryRepository;
 import de.idrinth.habitevaluator.android.persistence.JsonToSqliteMigration;
 import de.idrinth.habitevaluator.android.persistence.SQLiteDiaryEntryRepository;
 import de.idrinth.habitevaluator.android.persistence.SQLiteDiaryReferenceRepository;

@@ -1,11 +1,11 @@
-package de.idrinth.habitevaluator.android.persistence;
+package de.idrinth.habitevaluator.shared.persistence;
 
 import de.idrinth.habitevaluator.shared.model.HabitCategory;
 import de.idrinth.habitevaluator.shared.model.User;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.util.HashMap;
@@ -13,22 +13,22 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class FileSystemHabitCategoryRepositoryTest {
+class FileSystemHabitCategoryRepositoryTest {
 
     private File tempDir;
     private FileSystemHabitCategoryRepository repository;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         tempDir = new File(System.getProperty("java.io.tmpdir"), "category-test-" + System.nanoTime());
         tempDir.mkdirs();
         repository = new FileSystemHabitCategoryRepository(tempDir);
     }
 
-    @After
-    public void tearDown() {
+    @AfterEach
+    void tearDown() {
         File[] files = tempDir.listFiles();
         if (files != null) {
             for (File f : files) {
@@ -39,7 +39,7 @@ public class FileSystemHabitCategoryRepositoryTest {
     }
 
     @Test
-    public void testSaveAndFindById() {
+    void testSaveAndFindById() {
         HabitCategory category = new HabitCategory("Health", "Health related habits", "#FF0000");
         repository.save(category);
 
@@ -51,12 +51,12 @@ public class FileSystemHabitCategoryRepositoryTest {
     }
 
     @Test
-    public void testFindByIdNotFound() {
+    void testFindByIdNotFound() {
         assertFalse(repository.findById("nonexistent").isPresent());
     }
 
     @Test
-    public void testFindAll() {
+    void testFindAll() {
         repository.save(new HabitCategory("Health"));
         repository.save(new HabitCategory("Education"));
         repository.save(new HabitCategory("Fitness"));
@@ -65,7 +65,7 @@ public class FileSystemHabitCategoryRepositoryTest {
     }
 
     @Test
-    public void testDeleteById() {
+    void testDeleteById() {
         HabitCategory category = new HabitCategory("Health");
         repository.save(category);
         assertTrue(repository.existsById(category.getId()));
@@ -75,7 +75,7 @@ public class FileSystemHabitCategoryRepositoryTest {
     }
 
     @Test
-    public void testExistsById() {
+    void testExistsById() {
         HabitCategory category = new HabitCategory("Health");
         assertFalse(repository.existsById(category.getId()));
 
@@ -84,7 +84,7 @@ public class FileSystemHabitCategoryRepositoryTest {
     }
 
     @Test
-    public void testFindByUserId() {
+    void testFindByUserId() {
         User user = new User("testuser", "password");
         HabitCategory c1 = new HabitCategory("Health");
         c1.setUser(user);
@@ -99,7 +99,7 @@ public class FileSystemHabitCategoryRepositoryTest {
     }
 
     @Test
-    public void testPersistenceAcrossInstances() {
+    void testPersistenceAcrossInstances() {
         HabitCategory category = new HabitCategory("Health", "Health habits", "#00FF00");
         repository.save(category);
 
@@ -112,7 +112,7 @@ public class FileSystemHabitCategoryRepositoryTest {
     }
 
     @Test
-    public void testSaveWithTranslations() {
+    void testSaveWithTranslations() {
         HabitCategory category = new HabitCategory("Health");
         Map<String, String> nameTranslations = new HashMap<>();
         nameTranslations.put("de", "Gesundheit");
@@ -134,7 +134,7 @@ public class FileSystemHabitCategoryRepositoryTest {
     }
 
     @Test
-    public void testSaveWithUser() {
+    void testSaveWithUser() {
         User user = new User("testuser", "password");
         HabitCategory category = new HabitCategory("Health");
         category.setUser(user);
@@ -148,12 +148,12 @@ public class FileSystemHabitCategoryRepositoryTest {
     }
 
     @Test
-    public void testEmptyRepository() {
+    void testEmptyRepository() {
         assertTrue(repository.findAll().isEmpty());
     }
 
     @Test
-    public void testUpdateExistingCategory() {
+    void testUpdateExistingCategory() {
         HabitCategory category = new HabitCategory("Health");
         repository.save(category);
 

@@ -1,36 +1,36 @@
-package de.idrinth.habitevaluator.android.persistence;
+package de.idrinth.habitevaluator.shared.persistence;
 
 import de.idrinth.habitevaluator.shared.model.EmotionEntry;
 import de.idrinth.habitevaluator.shared.model.EmotionPair;
 import de.idrinth.habitevaluator.shared.model.User;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class FileSystemEmotionEntryRepositoryTest {
+class FileSystemEmotionEntryRepositoryTest {
 
     private File tempDir;
     private FileSystemEmotionPairRepository pairRepository;
     private FileSystemEmotionEntryRepository repository;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         tempDir = new File(System.getProperty("java.io.tmpdir"), "emotion-entry-test-" + System.nanoTime());
         tempDir.mkdirs();
         pairRepository = new FileSystemEmotionPairRepository(tempDir);
         repository = new FileSystemEmotionEntryRepository(tempDir, pairRepository);
     }
 
-    @After
-    public void tearDown() {
+    @AfterEach
+    void tearDown() {
         File[] files = tempDir.listFiles();
         if (files != null) {
             for (File f : files) {
@@ -41,7 +41,7 @@ public class FileSystemEmotionEntryRepositoryTest {
     }
 
     @Test
-    public void testSaveAndFindById() {
+    void testSaveAndFindById() {
         EmotionPair pair = new EmotionPair("Sad", "Happy");
         pairRepository.save(pair);
 
@@ -55,12 +55,12 @@ public class FileSystemEmotionEntryRepositoryTest {
     }
 
     @Test
-    public void testFindByIdNotFound() {
+    void testFindByIdNotFound() {
         assertFalse(repository.findById("nonexistent").isPresent());
     }
 
     @Test
-    public void testFindAll() {
+    void testFindAll() {
         EmotionPair pair = new EmotionPair("Sad", "Happy");
         pairRepository.save(pair);
 
@@ -71,7 +71,7 @@ public class FileSystemEmotionEntryRepositoryTest {
     }
 
     @Test
-    public void testDeleteById() {
+    void testDeleteById() {
         EmotionPair pair = new EmotionPair("Sad", "Happy");
         pairRepository.save(pair);
 
@@ -84,7 +84,7 @@ public class FileSystemEmotionEntryRepositoryTest {
     }
 
     @Test
-    public void testFindByUserId() {
+    void testFindByUserId() {
         EmotionPair pair = new EmotionPair("Sad", "Happy");
         pairRepository.save(pair);
 
@@ -101,7 +101,7 @@ public class FileSystemEmotionEntryRepositoryTest {
     }
 
     @Test
-    public void testPersistenceAcrossInstances() {
+    void testPersistenceAcrossInstances() {
         EmotionPair pair = new EmotionPair("Sad", "Happy");
         pairRepository.save(pair);
 
@@ -118,7 +118,7 @@ public class FileSystemEmotionEntryRepositoryTest {
     }
 
     @Test
-    public void testEntryWithDeletedPairIsSkipped() {
+    void testEntryWithDeletedPairIsSkipped() {
         EmotionPair pair = new EmotionPair("Sad", "Happy");
         pairRepository.save(pair);
 
@@ -132,12 +132,12 @@ public class FileSystemEmotionEntryRepositoryTest {
     }
 
     @Test
-    public void testEmptyRepository() {
+    void testEmptyRepository() {
         assertTrue(repository.findAll().isEmpty());
     }
 
     @Test
-    public void testStrengthClamping() {
+    void testStrengthClamping() {
         EmotionPair pair = new EmotionPair("Sad", "Happy");
         pairRepository.save(pair);
 

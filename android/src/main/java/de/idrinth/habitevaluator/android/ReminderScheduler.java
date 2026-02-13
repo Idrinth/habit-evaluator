@@ -6,8 +6,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 
+import de.idrinth.habitevaluator.shared.util.ReminderScheduleCalculator;
+
 import java.util.Calendar;
-import java.util.Random;
+import java.util.List;
 
 /**
  * Schedules and cancels reminder alarms using AlarmManager.
@@ -50,7 +52,7 @@ public final class ReminderScheduler {
 
         String time = prefs.getString(SettingsActivity.KEY_SLEEP_REMINDER_TIME,
                 SettingsActivity.DEFAULT_SLEEP_REMINDER_TIME);
-        int[] hm = parseTime(time);
+        int[] hm = ReminderScheduleCalculator.parseTime(time);
         scheduleDaily(alarmManager, pi, hm[0], hm[1]);
     }
 
@@ -69,7 +71,7 @@ public final class ReminderScheduler {
 
         String time = prefs.getString(SettingsActivity.KEY_DIARY_REMINDER_TIME,
                 SettingsActivity.DEFAULT_DIARY_REMINDER_TIME);
-        int[] hm = parseTime(time);
+        int[] hm = ReminderScheduleCalculator.parseTime(time);
         scheduleDaily(alarmManager, pi, hm[0], hm[1]);
     }
 
@@ -96,26 +98,13 @@ public final class ReminderScheduler {
                 SettingsActivity.DEFAULT_WAKING_HOURS_START);
         String endStr = prefs.getString(SettingsActivity.KEY_WAKING_HOURS_END,
                 SettingsActivity.DEFAULT_WAKING_HOURS_END);
-        int[] start = parseTime(startStr);
-        int[] end = parseTime(endStr);
 
-        int startMinutes = start[0] * 60 + start[1];
-        int endMinutes = end[0] * 60 + end[1];
-        if (endMinutes <= startMinutes) {
-            endMinutes = startMinutes + 60;
-        }
-        int range = endMinutes - startMinutes;
-
-        Random random = new Random();
-        for (int i = 0; i < Math.min(count, 10); i++) {
-            int offsetMinutes = random.nextInt(range);
-            int totalMinutes = startMinutes + offsetMinutes;
-            int hour = totalMinutes / 60;
-            int minute = totalMinutes % 60;
-
+        List<String> times = ReminderScheduleCalculator.calculateEmotionReminderTimes(startStr, endStr, count);
+        for (int i = 0; i < times.size(); i++) {
+            int[] hm = ReminderScheduleCalculator.parseTime(times.get(i));
             PendingIntent pi = createPendingIntent(context,
                     EMOTION_REMINDER_BASE_REQUEST_CODE + i, ReminderReceiver.TYPE_EMOTION);
-            scheduleDaily(alarmManager, pi, hour, minute);
+            scheduleDaily(alarmManager, pi, hm[0], hm[1]);
         }
     }
 
@@ -149,12 +138,4 @@ public final class ReminderScheduler {
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
     }
 
-    private static int[] parseTime(String time) {
-        try {
-            String[] parts = time.split(":");
-            return new int[]{Integer.parseInt(parts[0]), Integer.parseInt(parts[1])};
-        } catch (Exception e) {
-            return new int[]{8, 0};
-        }
-    }
 }

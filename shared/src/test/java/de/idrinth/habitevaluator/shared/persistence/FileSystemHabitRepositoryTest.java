@@ -1,4 +1,4 @@
-package de.idrinth.habitevaluator.android.persistence;
+package de.idrinth.habitevaluator.shared.persistence;
 
 import de.idrinth.habitevaluator.shared.model.FrequencyType;
 import de.idrinth.habitevaluator.shared.model.Habit;
@@ -6,9 +6,9 @@ import de.idrinth.habitevaluator.shared.model.HabitEntry;
 import de.idrinth.habitevaluator.shared.model.ScoringRule;
 import de.idrinth.habitevaluator.shared.model.User;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.time.LocalDateTime;
@@ -18,22 +18,22 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class FileSystemHabitRepositoryTest {
+class FileSystemHabitRepositoryTest {
 
     private File tempDir;
     private FileSystemHabitRepository repository;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         tempDir = new File(System.getProperty("java.io.tmpdir"), "habit-test-" + System.nanoTime());
         tempDir.mkdirs();
         repository = new FileSystemHabitRepository(tempDir);
     }
 
-    @After
-    public void tearDown() {
+    @AfterEach
+    void tearDown() {
         File[] files = tempDir.listFiles();
         if (files != null) {
             for (File f : files) {
@@ -44,10 +44,9 @@ public class FileSystemHabitRepositoryTest {
     }
 
     @Test
-    public void testSaveAndFindById() {
+    void testSaveAndFindById() {
         Habit habit = new Habit("Exercise", "Daily exercise");
         repository.save(habit);
-
         Optional<Habit> found = repository.findById(habit.getId());
         assertTrue(found.isPresent());
         assertEquals("Exercise", found.get().getName());
@@ -55,64 +54,54 @@ public class FileSystemHabitRepositoryTest {
     }
 
     @Test
-    public void testFindByIdNotFound() {
+    void testFindByIdNotFound() {
         Optional<Habit> found = repository.findById("nonexistent");
         assertFalse(found.isPresent());
     }
 
     @Test
-    public void testFindAll() {
-        Habit h1 = new Habit("Exercise", "Daily exercise");
-        Habit h2 = new Habit("Reading", "Read a book");
-        repository.save(h1);
-        repository.save(h2);
-
-        List<Habit> all = repository.findAll();
-        assertEquals(2, all.size());
+    void testFindAll() {
+        repository.save(new Habit("Exercise", "Daily exercise"));
+        repository.save(new Habit("Reading", "Read a book"));
+        assertEquals(2, repository.findAll().size());
     }
 
     @Test
-    public void testDeleteById() {
+    void testDeleteById() {
         Habit habit = new Habit("Exercise", "Daily exercise");
         repository.save(habit);
         assertTrue(repository.existsById(habit.getId()));
-
         repository.deleteById(habit.getId());
         assertFalse(repository.existsById(habit.getId()));
     }
 
     @Test
-    public void testExistsById() {
+    void testExistsById() {
         Habit habit = new Habit("Exercise", "Daily exercise");
         assertFalse(repository.existsById(habit.getId()));
-
         repository.save(habit);
         assertTrue(repository.existsById(habit.getId()));
     }
 
     @Test
-    public void testFindByUserId() {
+    void testFindByUserId() {
         User user = new User("testuser", "password");
         Habit h1 = new Habit("Exercise", "Daily exercise");
         h1.setUser(user);
         Habit h2 = new Habit("Reading", "Read a book");
-        // h2 has no user
-
         repository.save(h1);
         repository.save(h2);
-
         List<Habit> userHabits = repository.findByUserId(user.getId());
         assertEquals(1, userHabits.size());
         assertEquals("Exercise", userHabits.get(0).getName());
     }
 
     @Test
-    public void testPersistenceAcrossInstances() {
+    void testPersistenceAcrossInstances() {
         Habit habit = new Habit("Exercise", "Daily exercise");
         habit.setFrequencyType(FrequencyType.WEEKLY);
         habit.setTargetFrequency(3);
         repository.save(habit);
-
         FileSystemHabitRepository newRepo = new FileSystemHabitRepository(tempDir);
         Optional<Habit> found = newRepo.findById(habit.getId());
         assertTrue(found.isPresent());
@@ -122,7 +111,7 @@ public class FileSystemHabitRepositoryTest {
     }
 
     @Test
-    public void testSaveWithEntries() {
+    void testSaveWithEntries() {
         Habit habit = new Habit("Exercise", "Daily exercise");
         HabitEntry entry = new HabitEntry();
         entry.setCompletedAt(LocalDateTime.of(2024, 1, 15, 10, 0));
@@ -131,9 +120,7 @@ public class FileSystemHabitRepositoryTest {
         entry.setHabit(habit);
         habit.setEntries(new ArrayList<>());
         habit.getEntries().add(entry);
-
         repository.save(habit);
-
         FileSystemHabitRepository newRepo = new FileSystemHabitRepository(tempDir);
         Optional<Habit> found = newRepo.findById(habit.getId());
         assertTrue(found.isPresent());
@@ -142,14 +129,12 @@ public class FileSystemHabitRepositoryTest {
     }
 
     @Test
-    public void testSaveWithScoringRule() {
+    void testSaveWithScoringRule() {
         Habit habit = new Habit("Exercise", "Daily exercise");
         ScoringRule rule = new ScoringRule();
         rule.setName("Custom Rule");
         habit.setScoringRule(rule);
-
         repository.save(habit);
-
         FileSystemHabitRepository newRepo = new FileSystemHabitRepository(tempDir);
         Optional<Habit> found = newRepo.findById(habit.getId());
         assertTrue(found.isPresent());
@@ -158,19 +143,16 @@ public class FileSystemHabitRepositoryTest {
     }
 
     @Test
-    public void testSaveWithTranslations() {
+    void testSaveWithTranslations() {
         Habit habit = new Habit("Exercise", "Daily exercise");
         Map<String, String> nameTranslations = new HashMap<>();
         nameTranslations.put("de", "Übung");
         nameTranslations.put("es", "Ejercicio");
         habit.setNameTranslations(nameTranslations);
-
         Map<String, String> descTranslations = new HashMap<>();
         descTranslations.put("de", "Tägliche Übung");
         habit.setDescriptionTranslations(descTranslations);
-
         repository.save(habit);
-
         FileSystemHabitRepository newRepo = new FileSystemHabitRepository(tempDir);
         Optional<Habit> found = newRepo.findById(habit.getId());
         assertTrue(found.isPresent());
@@ -180,13 +162,11 @@ public class FileSystemHabitRepositoryTest {
     }
 
     @Test
-    public void testSaveWithUser() {
+    void testSaveWithUser() {
         User user = new User("testuser", "password");
         Habit habit = new Habit("Exercise", "Daily exercise");
         habit.setUser(user);
-
         repository.save(habit);
-
         FileSystemHabitRepository newRepo = new FileSystemHabitRepository(tempDir);
         Optional<Habit> found = newRepo.findById(habit.getId());
         assertTrue(found.isPresent());
@@ -196,33 +176,28 @@ public class FileSystemHabitRepositoryTest {
     }
 
     @Test
-    public void testUpdateExistingHabit() {
+    void testUpdateExistingHabit() {
         Habit habit = new Habit("Exercise", "Daily exercise");
         repository.save(habit);
-
         habit.setName("Updated Exercise");
         habit.setDescription("Updated description");
         repository.save(habit);
-
-        List<Habit> all = repository.findAll();
-        assertEquals(1, all.size());
-        assertEquals("Updated Exercise", all.get(0).getName());
+        assertEquals(1, repository.findAll().size());
+        assertEquals("Updated Exercise", repository.findAll().get(0).getName());
     }
 
     @Test
-    public void testEmptyRepository() {
-        List<Habit> all = repository.findAll();
-        assertTrue(all.isEmpty());
+    void testEmptyRepository() {
+        assertTrue(repository.findAll().isEmpty());
     }
 
     @Test
-    public void testSaveWithAllFrequencyTypes() {
+    void testSaveWithAllFrequencyTypes() {
         for (FrequencyType type : FrequencyType.values()) {
             Habit habit = new Habit("Habit-" + type.name(), "Description");
             habit.setFrequencyType(type);
             repository.save(habit);
         }
-
         FileSystemHabitRepository newRepo = new FileSystemHabitRepository(tempDir);
         assertEquals(FrequencyType.values().length, newRepo.findAll().size());
     }
