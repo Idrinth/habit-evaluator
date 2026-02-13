@@ -19,16 +19,21 @@ android {
 
     flavorDimensions "apiLevel"
     productFlavors {
-        legacy {
+        lollipop {
             dimension "apiLevel"
             minSdk 21
-            versionNameSuffix "-legacy"
+            versionNameSuffix "-lollipop"
             versionCode = (System.getenv("ANDROID_VERSION_CODE") ?: "1").toInteger() * 100 + 21
         }
-        modern {
+        oreo {
             dimension "apiLevel"
             minSdk 26
             versionCode = (System.getenv("ANDROID_VERSION_CODE") ?: "1").toInteger() * 100 + 26
+        }
+        tiramisu {
+            dimension "apiLevel"
+            minSdk 33
+            versionCode = (System.getenv("ANDROID_VERSION_CODE") ?: "1").toInteger() * 100 + 33
         }
     }
 
@@ -123,7 +128,7 @@ tasks.withType(Test).configureEach {
 }
 
 tasks.register('jacocoTestReport', JacocoReport) {
-    dependsOn 'testModernDebugUnitTest', 'testLegacyDebugUnitTest'
+    dependsOn 'testLollipopDebugUnitTest', 'testOreoDebugUnitTest', 'testTiramisuDebugUnitTest'
 
     reports {
         xml.required = true
@@ -141,7 +146,7 @@ tasks.register('jacocoTestReport', JacocoReport) {
     ]
 
     def debugTree = fileTree(
-        dir: layout.buildDirectory.dir("intermediates/javac/modernDebug/compileModernDebugJavaWithJavac/classes"),
+        dir: layout.buildDirectory.dir("intermediates/javac/tiramisuDebug/compileTiramisuDebugJavaWithJavac/classes"),
         excludes: fileFilter
     )
 
@@ -150,10 +155,12 @@ tasks.register('jacocoTestReport', JacocoReport) {
     executionData.setFrom(fileTree(
         dir: layout.buildDirectory,
         includes: [
-            'jacoco/testModernDebugUnitTest.exec',
-            'jacoco/testLegacyDebugUnitTest.exec',
-            'outputs/unit_test_code_coverage/modernDebugUnitTest/testModernDebugUnitTest.exec',
-            'outputs/unit_test_code_coverage/legacyDebugUnitTest/testLegacyDebugUnitTest.exec'
+            'jacoco/testLollipopDebugUnitTest.exec',
+            'jacoco/testOreoDebugUnitTest.exec',
+            'jacoco/testTiramisuDebugUnitTest.exec',
+            'outputs/unit_test_code_coverage/lollipopDebugUnitTest/testLollipopDebugUnitTest.exec',
+            'outputs/unit_test_code_coverage/oreoDebugUnitTest/testOreoDebugUnitTest.exec',
+            'outputs/unit_test_code_coverage/tiramisuDebugUnitTest/testTiramisuDebugUnitTest.exec'
         ]
     ))
 }

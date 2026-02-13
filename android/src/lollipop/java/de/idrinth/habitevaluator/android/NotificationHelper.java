@@ -6,9 +6,9 @@ import android.content.Context;
 import android.os.Build;
 
 /**
- * Legacy flavor notification helper.
+ * Lollipop flavor notification helper (API 21+).
  * Guards NotificationChannel creation behind an API 26 check since
- * the legacy flavor supports devices running API 21+.
+ * this flavor supports devices that predate notification channels.
  */
 public final class NotificationHelper {
 
@@ -17,11 +17,6 @@ public final class NotificationHelper {
     private NotificationHelper() {
     }
 
-    /**
-     * Creates the notification channel if running on API 26+.
-     * On older devices this is a no-op since notification channels
-     * do not exist.
-     */
     public static void ensureNotificationChannel(Context context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel channel = new NotificationChannel(
@@ -37,14 +32,7 @@ public final class NotificationHelper {
         }
     }
 
-    /**
-     * Returns the appropriate {@link NotificationPermissionHandler}
-     * for the current API level.
-     */
     public static NotificationPermissionHandler permissionHandler() {
-        if (Build.VERSION.SDK_INT >= 33) {
-            return new Api33PermissionHandler();
-        }
         return new PreApi33PermissionHandler();
     }
 }
