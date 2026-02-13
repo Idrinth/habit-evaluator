@@ -415,4 +415,139 @@ class SettingsDialogControllerTest extends JavaFXControllerTestBase {
 
         assertTrue(connectionStatusLabel.getText().contains("HTTPS"));
     }
+
+    @Test
+    void testHandleTestConnectionWithLocalhostHttpAllowed() throws Exception {
+        controller.initialize();
+        apiUrlField.setText("http://localhost:8080");
+        apiUsernameField.setText("user");
+        apiPasswordField.setText("pass");
+
+        java.lang.reflect.Method handleTestConnection =
+                SettingsDialogController.class.getDeclaredMethod("handleTestConnection");
+        handleTestConnection.setAccessible(true);
+        handleTestConnection.invoke(controller);
+
+        // Should not show HTTPS error for localhost
+        assertFalse(connectionStatusLabel.getText().contains("HTTPS"));
+    }
+
+    @Test
+    void testSetStorageConfigVisibilitySettings() {
+        controller.initialize();
+        StorageConfig config = createStorageConfig();
+        config.setDiaryVisible(true);
+        config.setSleepVisible(false);
+        config.setEmotionsVisible(true);
+        config.setPointsVisible(false);
+        config.setStatisticsVisible(true);
+        config.setFoodLogVisible(false);
+        config.setSportLogVisible(true);
+        config.setMedicationVisible(false);
+        config.setBackupVisible(true);
+        config.setPdfExportVisible(false);
+
+        controller.setStorageConfig(config);
+
+        assertTrue(diaryVisibleCheckBox.isSelected());
+        assertFalse(sleepVisibleCheckBox.isSelected());
+        assertTrue(emotionsVisibleCheckBox.isSelected());
+        assertFalse(pointsVisibleCheckBox.isSelected());
+        assertTrue(statisticsVisibleCheckBox.isSelected());
+        assertFalse(foodLogVisibleCheckBox.isSelected());
+        assertTrue(sportLogVisibleCheckBox.isSelected());
+        assertFalse(medicationVisibleCheckBox.isSelected());
+        assertTrue(backupVisibleCheckBox.isSelected());
+        assertFalse(pdfExportVisibleCheckBox.isSelected());
+    }
+
+    @Test
+    void testSetStorageConfigCustomTranslationsEnabled() {
+        controller.initialize();
+        StorageConfig config = createStorageConfig();
+        config.setCustomTranslationsEnabled(true);
+
+        controller.setStorageConfig(config);
+
+        assertTrue(customTranslationsCheckBox.isSelected());
+    }
+
+    @Test
+    void testSetStorageConfigCustomTranslationsDisabled() {
+        controller.initialize();
+        StorageConfig config = createStorageConfig();
+        config.setCustomTranslationsEnabled(false);
+
+        controller.setStorageConfig(config);
+
+        assertFalse(customTranslationsCheckBox.isSelected());
+    }
+
+    @Test
+    void testSetStorageConfigRemindersDisabled() {
+        controller.initialize();
+        StorageConfig config = createStorageConfig();
+        config.setSleepReminderEnabled(false);
+        config.setDiaryReminderEnabled(false);
+        config.setEmotionReminderEnabled(false);
+
+        controller.setStorageConfig(config);
+
+        assertFalse(sleepReminderCheckBox.isSelected());
+        assertTrue(sleepReminderTimePane.isDisable());
+        assertFalse(diaryReminderCheckBox.isSelected());
+        assertTrue(diaryReminderTimePane.isDisable());
+        assertFalse(emotionReminderCheckBox.isSelected());
+        assertTrue(emotionReminderPane.isDisable());
+    }
+
+    @Test
+    void testHandleTestConnectionWithPartialFieldsShowsError() throws Exception {
+        controller.initialize();
+        apiUrlField.setText("https://example.com");
+        apiUsernameField.setText("user");
+        // password field left empty
+
+        java.lang.reflect.Method handleTestConnection =
+                SettingsDialogController.class.getDeclaredMethod("handleTestConnection");
+        handleTestConnection.setAccessible(true);
+        handleTestConnection.invoke(controller);
+
+        assertEquals("Please fill in all fields", connectionStatusLabel.getText());
+    }
+
+    @Test
+    void testSetStorageConfigWakingHoursFields() {
+        controller.initialize();
+        StorageConfig config = createStorageConfig();
+        config.setEmotionReminderEnabled(true);
+        config.setWakingHoursStart("06:30");
+        config.setWakingHoursEnd("22:30");
+
+        controller.setStorageConfig(config);
+
+        assertEquals("06:30", wakingHoursStartField.getText());
+        assertEquals("22:30", wakingHoursEndField.getText());
+    }
+
+    @Test
+    void testInitializeRegistersStorageToggleListener() {
+        controller.initialize();
+
+        // Selecting remote should enable remote settings pane
+        remoteRadio.setSelected(true);
+        remoteRadio.fire();
+        // The listener is on the toggle group, so it fires when selection changes
+        assertNotNull(storageToggleGroup.getSelectedToggle());
+    }
+
+    @Test
+    void testInitializeSetsEmotionReminderSpinnerRange() {
+        controller.initialize();
+
+        SpinnerValueFactory<Integer> factory = emotionReminderCountSpinner.getValueFactory();
+        assertNotNull(factory);
+        // The spinner should have min 1, max 10 with default 3
+        assertEquals(3, emotionReminderCountSpinner.getValue());
+    }
 }

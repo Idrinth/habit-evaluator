@@ -114,6 +114,67 @@ class AddHabitControllerTest extends JavaFXControllerTestBase {
         assertEquals("Learning", categoryComboBox.getItems().get(2));
     }
 
+    @Test
+    void testSetCategoryListStoresCategories() {
+        HabitCategory cat = new HabitCategory("Health");
+        controller.setCategoryList(List.of(cat));
+
+        // Should store the list (verified through combo box content)
+        assertTrue(categoryComboBox.getItems().contains("Health"));
+    }
+
+    @Test
+    void testInitializeSetsDefaultFrequencySelection() {
+        controller.initialize();
+
+        // Default selection should be the first frequency type
+        assertEquals(0, frequencyTypeComboBox.getSelectionModel().getSelectedIndex());
+        assertNotNull(frequencyTypeComboBox.getSelectionModel().getSelectedItem());
+    }
+
+    @Test
+    void testSetCategoryListWithNewCategoryOption() {
+        controller.setCategoryList(Collections.emptyList());
+
+        // Should always have "New category" as first item
+        assertEquals("New category", categoryComboBox.getItems().get(0));
+    }
+
+    @Test
+    void testSetStorageConfigWithNullDoesNotThrow() {
+        assertDoesNotThrow(() -> controller.setStorageConfig(null));
+    }
+
+    @Test
+    void testSetCategoryRepositoryDoesNotThrow() {
+        assertDoesNotThrow(() -> controller.setCategoryRepository(null));
+    }
+
+    @Test
+    void testSetApiClientDoesNotThrow() {
+        assertDoesNotThrow(() -> controller.setApiClient(null));
+    }
+
+    @Test
+    void testGetAddedHabitRemainsNullAfterSetup() {
+        controller.initialize();
+        HabitCategory cat = new HabitCategory("Health");
+        controller.setCategoryList(List.of(cat));
+
+        // Without calling handleAddHabit, addedHabit should remain null
+        assertNull(controller.getAddedHabit());
+    }
+
+    @Test
+    void testInitializeFrequencyTypeContainsDailyWeeklyMonthly() {
+        controller.initialize();
+
+        List<String> items = frequencyTypeComboBox.getItems();
+        assertTrue(items.contains("Daily"));
+        assertTrue(items.contains("Weekly"));
+        assertTrue(items.contains("Monthly"));
+    }
+
     /**
      * Minimal stub for HabitRepository that stores habits in memory.
      */

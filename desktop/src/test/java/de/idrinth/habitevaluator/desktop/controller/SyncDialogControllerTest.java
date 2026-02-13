@@ -92,6 +92,72 @@ class SyncDialogControllerTest extends JavaFXControllerTestBase {
         assertEquals("Please fill in all fields", getStatusLabel().getText());
     }
 
+    @Test
+    void testHandleSyncWithAllFieldsFilledStartsSync() throws Exception {
+        controller.setCurrentUser(new User("testuser", "password"));
+        getField("serverUrlField", TextField.class).setText("https://example.com");
+        getField("usernameField", TextField.class).setText("user");
+        getField("passwordField", PasswordField.class).setText("pass");
+
+        Method handleSync = SyncDialogController.class.getDeclaredMethod("handleSync");
+        handleSync.setAccessible(true);
+        handleSync.invoke(controller);
+
+        Label statusLabel = getStatusLabel();
+        // When fields are filled, status should change from empty (either "Syncing..." or a failure message
+        // since there is no real server, but it should NOT be the validation error)
+        assertNotEquals("Please fill in all fields", statusLabel.getText());
+    }
+
+    @Test
+    void testGetClientVersionReturnsValue() throws Exception {
+        Method getClientVersion = SyncDialogController.class.getDeclaredMethod("getClientVersion");
+        getClientVersion.setAccessible(true);
+
+        String version = (String) getClientVersion.invoke(controller);
+        assertNotNull(version);
+        // Should return "unknown" or an actual version string
+        assertFalse(version.isEmpty());
+    }
+
+    @Test
+    void testHandleSyncDisablesSyncButton() throws Exception {
+        controller.setCurrentUser(new User("testuser", "password"));
+        getField("serverUrlField", TextField.class).setText("https://example.com");
+        getField("usernameField", TextField.class).setText("user");
+        getField("passwordField", PasswordField.class).setText("pass");
+
+        Button syncButton = getField("syncButton", Button.class);
+        assertFalse(syncButton.isDisable());
+
+        Method handleSync = SyncDialogController.class.getDeclaredMethod("handleSync");
+        handleSync.setAccessible(true);
+        handleSync.invoke(controller);
+
+        // After starting sync, button should be disabled
+        assertTrue(syncButton.isDisable());
+    }
+
+    @Test
+    void testHandleSyncWithWhitespaceOnlyFieldsShowsError() throws Exception {
+        controller.setCurrentUser(new User("testuser", "password"));
+        getField("serverUrlField", TextField.class).setText("   ");
+        getField("usernameField", TextField.class).setText("user");
+        getField("passwordField", PasswordField.class).setText("pass");
+
+        Method handleSync = SyncDialogController.class.getDeclaredMethod("handleSync");
+        handleSync.setAccessible(true);
+        handleSync.invoke(controller);
+
+        assertEquals("Please fill in all fields", getStatusLabel().getText());
+    }
+
+    @Test
+    void testSetHabitRepository() {
+        // Just verify setter doesn't throw
+        assertDoesNotThrow(() -> controller.setHabitRepository(null));
+    }
+
     private Label getStatusLabel() throws Exception {
         return getField("statusLabel", Label.class);
     }
