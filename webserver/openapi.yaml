@@ -1553,10 +1553,10 @@ components:
           $ref: "#/components/schemas/User"
         description:
           type: string
-        durationMinutes:
+        points:
           type: integer
           format: int32
-        points:
+        durationMinutes:
           type: integer
           format: int32
     DiaryReference:
