@@ -1,10 +1,11 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
-	import { sleepEntries, type SleepEntry, type SleepStats } from '$lib/api';
+	import { onMount, tick } from 'svelte';
+	import { sleepEntries, type SleepEntry, type SleepStats, type SleepDistribution } from '$lib/api';
 
 	let entries: SleepEntry[] = $state([]);
 	let weeklyStats: SleepStats | null = $state(null);
 	let monthlyStats: SleepStats | null = $state(null);
+	let distribution: SleepDistribution | null = $state(null);
 
 	let date = $state(new Date().toISOString().split('T')[0]);
 	let fromTime = $state('22:00');
@@ -14,15 +15,18 @@
 	let success = $state('');
 	let loading = $state(true);
 
+	let distributionCanvas: HTMLCanvasElement | undefined = $state();
+
 	onMount(async () => {
 		await loadData();
 	});
 
 	async function loadData() {
 		try {
-			const [entryList, statsData] = await Promise.all([
+			const [entryList, statsData, distData] = await Promise.all([
 				sleepEntries.list(),
-				sleepEntries.stats()
+				sleepEntries.stats(),
+				sleepEntries.distribution()
 			]);
 			entries = entryList.sort((a, b) => {
 				const dateCmp = b.date.localeCompare(a.date);
@@ -31,11 +35,97 @@
 			});
 			weeklyStats = statsData.weekly;
 			monthlyStats = statsData.monthly;
+			distribution = distData;
+			await tick();
+			drawDistributionChart();
 		} catch (err) {
 			error = err instanceof Error ? err.message : 'Failed to load sleep data';
 		} finally {
 			loading = false;
 		}
+	}
+
+	function drawDistributionChart() {
+		if (!distributionCanvas || !distribution) return;
+
+		const canvas = distributionCanvas;
+		const ctx = canvas.getContext('2d');
+		if (!ctx) return;
+
+		const dpr = window.devicePixelRatio || 1;
+		const rect = canvas.getBoundingClientRect();
+		canvas.width = rect.width * dpr;
+		canvas.height = rect.height * dpr;
+		ctx.scale(dpr, dpr);
+
+		const width = rect.width;
+		const height = rect.height;
+		const paddingLeft = 50;
+		const paddingRight = 16;
+		const paddingTop = 16;
+		const paddingBottom = 36;
+		const chartWidth = width - paddingLeft - paddingRight;
+		const chartHeight = height - paddingTop - paddingBottom;
+
+		const data = distribution.percentAsleep;
+
+		const styles = getComputedStyle(canvas);
+		const textColor = styles.color || '#666';
+		const barColor = '#5b78f6';
+
+		ctx.clearRect(0, 0, width, height);
+
+		// Y-axis grid and labels
+		ctx.strokeStyle = '#e0e0e0';
+		ctx.lineWidth = 1;
+		ctx.fillStyle = textColor;
+		ctx.font = '11px sans-serif';
+		ctx.textAlign = 'right';
+		ctx.textBaseline = 'middle';
+		for (let i = 0; i <= 4; i++) {
+			const val = i * 25;
+			const y = paddingTop + chartHeight - (val / 100) * chartHeight;
+			ctx.beginPath();
+			ctx.moveTo(paddingLeft, y);
+			ctx.lineTo(width - paddingRight, y);
+			ctx.stroke();
+			ctx.fillText(val + '%', paddingLeft - 6, y);
+		}
+
+		// Bars
+		const barSpacing = chartWidth / 24;
+		const barWidth = Math.max(barSpacing * 0.7, 4);
+		ctx.fillStyle = barColor;
+
+		for (let h = 0; h < 24; h++) {
+			const val = data[h];
+			const barHeight = (val / 100) * chartHeight;
+			const x = paddingLeft + barSpacing * h + (barSpacing - barWidth) / 2;
+			const y = paddingTop + chartHeight - barHeight;
+			ctx.beginPath();
+			ctx.roundRect(x, y, barWidth, barHeight, 2);
+			ctx.fill();
+		}
+
+		// X-axis labels
+		ctx.fillStyle = textColor;
+		ctx.font = '10px sans-serif';
+		ctx.textAlign = 'center';
+		ctx.textBaseline = 'top';
+		for (let h = 0; h < 24; h += 3) {
+			const x = paddingLeft + barSpacing * h + barSpacing / 2;
+			ctx.fillText(String(h).padStart(2, '0') + ':00', x, paddingTop + chartHeight + 6);
+		}
+
+		// Y-axis label
+		ctx.save();
+		ctx.fillStyle = textColor;
+		ctx.font = '11px sans-serif';
+		ctx.textAlign = 'center';
+		ctx.translate(12, paddingTop + chartHeight / 2);
+		ctx.rotate(-Math.PI / 2);
+		ctx.fillText('% Asleep', 0, 0);
+		ctx.restore();
 	}
 
 	async function handleSubmit(e: Event) {
@@ -145,6 +235,15 @@
 				{/if}
 			</div>
 		</div>
+
+		<h2>Sleep Time Distribution</h2>
+		{#if distribution && entries.length > 0}
+			<div class="chart-container">
+				<canvas bind:this={distributionCanvas} class="distribution-chart"></canvas>
+			</div>
+		{:else}
+			<p class="no-data">No data available for distribution chart</p>
+		{/if}
 
 		<h2>Sleep Entries</h2>
 		{#if entries.length > 0}
@@ -286,5 +385,18 @@
 	h2 {
 		font-size: 1.1rem;
 		margin: 1.5rem 0 0.75rem 0;
+	}
+
+	.chart-container {
+		border: 1px solid var(--color-border-light);
+		border-radius: 4px;
+		padding: 0.5rem;
+		margin-bottom: 1rem;
+	}
+
+	.distribution-chart {
+		width: 100%;
+		height: 220px;
+		color: var(--color-text);
 	}
 </style>

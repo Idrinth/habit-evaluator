@@ -15,6 +15,7 @@ import java.util.TreeMap;
 
 import de.idrinth.habitevaluator.android.databinding.ActivitySleepAnalysisBinding;
 import de.idrinth.habitevaluator.shared.model.SleepEntry;
+import de.idrinth.habitevaluator.shared.service.SleepEvaluationService;
 
 public class SleepAnalysisActivity extends AppCompatActivity {
 
@@ -89,6 +90,10 @@ public class SleepAnalysisActivity extends AppCompatActivity {
         binding.interruptionsGraphView.setBarColor(0xFF81C784);
         binding.interruptionsGraphView.setValueFormat("%.0f");
         binding.interruptionsGraphView.setData(labels, interruptions, avgInterruptions);
+
+        SleepEvaluationService sleepService = new SleepEvaluationService();
+        binding.distributionGraphView.setData(
+                sleepService.calculateSleepDistribution(allEntries).getPercentAsleep());
     }
 
     /**

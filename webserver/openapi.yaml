@@ -809,6 +809,18 @@ paths:
                 type: object
                 additionalProperties:
                   $ref: "#/components/schemas/SleepStats"
+  /api/sleep-entries/distribution:
+    get:
+      tags:
+      - sleep-entry-controller
+      operationId: getDistribution
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/SleepDistribution"
   /api/shared/{token}:
     get:
       tags:
@@ -1551,11 +1563,11 @@ components:
           example: 14:30:00
         user:
           $ref: "#/components/schemas/User"
-        description:
-          type: string
         durationMinutes:
           type: integer
           format: int32
+        description:
+          type: string
         points:
           type: integer
           format: int32
@@ -1671,6 +1683,14 @@ components:
         totalEntries:
           type: integer
           format: int32
+    SleepDistribution:
+      type: object
+      properties:
+        percentAsleep:
+          type: array
+          items:
+            type: number
+            format: double
     Evaluation:
       type: object
       properties:
