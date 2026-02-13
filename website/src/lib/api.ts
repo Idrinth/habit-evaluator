@@ -405,6 +405,10 @@ export interface SleepStats {
 	totalEntries: number;
 }
 
+export interface SleepDistribution {
+	percentAsleep: number[];
+}
+
 export const sleepEntries = {
 	list() {
 		return request<SleepEntry[]>('/sleep-entries');
@@ -420,6 +424,9 @@ export const sleepEntries = {
 	},
 	stats() {
 		return request<{ weekly: SleepStats; monthly: SleepStats }>('/sleep-entries/stats');
+	},
+	distribution() {
+		return request<SleepDistribution>('/sleep-entries/distribution');
 	}
 };
 
