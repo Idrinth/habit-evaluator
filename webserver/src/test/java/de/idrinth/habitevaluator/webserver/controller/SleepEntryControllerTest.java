@@ -1,5 +1,6 @@
 package de.idrinth.habitevaluator.webserver.controller;
 
+import de.idrinth.habitevaluator.shared.model.SleepDistribution;
 import de.idrinth.habitevaluator.shared.model.SleepEntry;
 import de.idrinth.habitevaluator.shared.model.SleepStats;
 import de.idrinth.habitevaluator.shared.model.User;
@@ -140,5 +141,47 @@ class SleepEntryControllerTest {
         assertNotNull(response.getBody().get("weekly"));
         assertNotNull(response.getBody().get("monthly"));
         assertEquals(7.5, response.getBody().get("weekly").getAverageHours());
+    }
+
+    @Test
+    void testGetDistributionUnauthenticated() {
+        MockHttpSession unauthSession = new MockHttpSession();
+        ResponseEntity<SleepDistribution> response = controller.getDistribution(unauthSession);
+        assertEquals(401, response.getStatusCode().value());
+    }
+
+    @Test
+    void testGetDistributionSuccess() {
+        List<SleepEntry> entries = List.of(new SleepEntry(LocalTime.of(23, 0), LocalTime.of(7, 0)));
+        when(sleepEntryRepository.findByUserId(testUser.getId())).thenReturn(entries);
+
+        double[] percentages = new double[24];
+        percentages[23] = 100.0;
+        percentages[0] = 100.0;
+        percentages[6] = 50.0;
+        SleepDistribution distribution = new SleepDistribution(percentages);
+        when(sleepEvaluationService.calculateSleepDistribution(entries)).thenReturn(distribution);
+
+        ResponseEntity<SleepDistribution> response = controller.getDistribution(session);
+
+        assertEquals(200, response.getStatusCode().value());
+        assertNotNull(response.getBody());
+        assertEquals(100.0, response.getBody().getPercentAsleep()[23]);
+        assertEquals(100.0, response.getBody().getPercentAsleep()[0]);
+        assertEquals(50.0, response.getBody().getPercentAsleep()[6]);
+    }
+
+    @Test
+    void testGetDistributionEmpty() {
+        when(sleepEntryRepository.findByUserId(testUser.getId())).thenReturn(new ArrayList<>());
+
+        SleepDistribution distribution = new SleepDistribution();
+        when(sleepEvaluationService.calculateSleepDistribution(any())).thenReturn(distribution);
+
+        ResponseEntity<SleepDistribution> response = controller.getDistribution(session);
+
+        assertEquals(200, response.getStatusCode().value());
+        assertNotNull(response.getBody());
+        assertEquals(0.0, response.getBody().getPercentAsleep()[0]);
     }
 }

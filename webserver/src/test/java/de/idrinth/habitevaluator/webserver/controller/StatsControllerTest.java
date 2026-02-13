@@ -2,6 +2,7 @@ package de.idrinth.habitevaluator.webserver.controller;
 
 import de.idrinth.habitevaluator.shared.model.DiaryEntry;
 import de.idrinth.habitevaluator.shared.model.EmotionEntry;
+import de.idrinth.habitevaluator.shared.model.EmotionPair;
 import de.idrinth.habitevaluator.shared.model.EventCorrelation;
 import de.idrinth.habitevaluator.shared.model.FoodLog;
 import de.idrinth.habitevaluator.shared.model.Habit;
@@ -206,5 +207,64 @@ class StatsControllerTest {
         List<Double> avgKcal = (List<Double>) body.get("avgKcal");
         assertEquals(400.0, avgKcal.get(12));
         assertEquals(800.0, avgKcal.get(19));
+    }
+
+    @Test
+    void testGetEmotionScatterUnauthenticated() {
+        MockHttpSession unauthSession = new MockHttpSession();
+        ResponseEntity<Map<String, Object>> response = controller.getEmotionScatter(unauthSession);
+        assertEquals(401, response.getStatusCode().value());
+    }
+
+    @Test
+    void testGetEmotionScatterSuccess() {
+        when(emotionEntryRepository.findByUserId(testUser.getId())).thenReturn(new ArrayList<>());
+
+        ResponseEntity<Map<String, Object>> response = controller.getEmotionScatter(session);
+
+        assertEquals(200, response.getStatusCode().value());
+        Map<String, Object> body = response.getBody();
+        assertNotNull(body);
+        assertTrue(body.containsKey("labels"));
+        assertTrue(body.containsKey("pairs"));
+
+        List<?> labels = (List<?>) body.get("labels");
+        assertEquals(5, labels.size());
+        assertEquals("00:00", labels.get(0));
+        assertEquals("24:00", labels.get(4));
+
+        List<?> pairs = (List<?>) body.get("pairs");
+        assertEquals(0, pairs.size());
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    void testGetEmotionScatterWithEntries() {
+        EmotionPair pair = new EmotionPair("Sad", "Happy");
+
+        EmotionEntry entry1 = new EmotionEntry(pair, 5, LocalDateTime.now().withHour(10).withMinute(30), "Good morning");
+        EmotionEntry entry2 = new EmotionEntry(pair, -3, LocalDateTime.now().withHour(22).withMinute(0), "Tired");
+
+        when(emotionEntryRepository.findByUserId(testUser.getId())).thenReturn(List.of(entry1, entry2));
+
+        ResponseEntity<Map<String, Object>> response = controller.getEmotionScatter(session);
+
+        assertEquals(200, response.getStatusCode().value());
+        Map<String, Object> body = response.getBody();
+        assertNotNull(body);
+
+        List<Map<String, Object>> pairs = (List<Map<String, Object>>) body.get("pairs");
+        assertEquals(1, pairs.size());
+
+        Map<String, Object> pairScatter = pairs.get(0);
+        assertEquals(pair.getId(), pairScatter.get("pairId"));
+        assertNotNull(pairScatter.get("pairLabel"));
+        assertNotNull(pairScatter.get("color"));
+
+        List<Map<String, Object>> entries = (List<Map<String, Object>>) pairScatter.get("entries");
+        assertEquals(2, entries.size());
+
+        assertEquals(5, entries.get(0).get("strength"));
+        assertEquals(-3, entries.get(1).get("strength"));
     }
 }

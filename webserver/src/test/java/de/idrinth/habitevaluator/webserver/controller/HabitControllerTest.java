@@ -324,4 +324,60 @@ class HabitControllerTest {
         ResponseEntity<Map<String, Object>> response = controller.getPointDevelopment("nonexistent", "week", session);
         assertEquals(404, response.getStatusCode().value());
     }
+
+    @Test
+    void testRemoveLastEntrySuccess() {
+        Habit habit = new Habit("Exercise", "desc");
+        habit.setUser(testUser);
+        HabitEntry entry = new HabitEntry();
+        entry.setCompletedAt(LocalDate.now().atTime(10, 0));
+        habit.addEntry(entry);
+        when(habitRepository.findById(habit.getId())).thenReturn(Optional.of(habit));
+        when(habitRepository.save(any(Habit.class))).thenAnswer(i -> i.getArgument(0));
+
+        ResponseEntity<Void> response = controller.removeLastEntry(habit.getId(), LocalDate.now(), session);
+
+        assertEquals(204, response.getStatusCode().value());
+        verify(habitRepository).save(habit);
+    }
+
+    @Test
+    void testRemoveLastEntryNoEntriesForDate() {
+        Habit habit = new Habit("Exercise", "desc");
+        habit.setUser(testUser);
+        when(habitRepository.findById(habit.getId())).thenReturn(Optional.of(habit));
+
+        ResponseEntity<Void> response = controller.removeLastEntry(habit.getId(), LocalDate.now(), session);
+
+        assertEquals(404, response.getStatusCode().value());
+        verify(habitRepository, never()).save(any());
+    }
+
+    @Test
+    void testRemoveLastEntryHabitNotFound() {
+        when(habitRepository.findById("nonexistent")).thenReturn(Optional.empty());
+
+        ResponseEntity<Void> response = controller.removeLastEntry("nonexistent", LocalDate.now(), session);
+
+        assertEquals(404, response.getStatusCode().value());
+    }
+
+    @Test
+    void testRemoveLastEntryNotOwned() {
+        User otherUser = new User("other", "pass");
+        Habit habit = new Habit("Exercise", "desc");
+        habit.setUser(otherUser);
+        when(habitRepository.findById(habit.getId())).thenReturn(Optional.of(habit));
+
+        ResponseEntity<Void> response = controller.removeLastEntry(habit.getId(), LocalDate.now(), session);
+
+        assertEquals(404, response.getStatusCode().value());
+    }
+
+    @Test
+    void testRemoveLastEntryUnauthenticated() {
+        MockHttpSession unauthSession = new MockHttpSession();
+        ResponseEntity<Void> response = controller.removeLastEntry("any-id", LocalDate.now(), unauthSession);
+        assertEquals(401, response.getStatusCode().value());
+    }
 }
