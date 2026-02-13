@@ -3,10 +3,7 @@ package de.idrinth.habitevaluator.android;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
-import android.content.pm.PackageManager;
 import android.os.Build;
-
-import androidx.core.content.ContextCompat;
 
 /**
  * Legacy flavor notification helper.
@@ -16,9 +13,6 @@ import androidx.core.content.ContextCompat;
 public final class NotificationHelper {
 
     public static final String CHANNEL_ID = "habit_evaluator_reminders";
-
-    private static final String PERMISSION_POST_NOTIFICATIONS =
-            "android.permission.POST_NOTIFICATIONS";
 
     private NotificationHelper() {
     }
@@ -44,27 +38,13 @@ public final class NotificationHelper {
     }
 
     /**
-     * Checks whether the app has permission to post notifications.
-     * On API &lt; 33 this always returns {@code true} because runtime
-     * permission is not required.
+     * Returns the appropriate {@link NotificationPermissionHandler}
+     * for the current API level.
      */
-    public static boolean hasNotificationPermission(Context context) {
+    public static NotificationPermissionHandler permissionHandler() {
         if (Build.VERSION.SDK_INT >= 33) {
-            return ContextCompat.checkSelfPermission(context, PERMISSION_POST_NOTIFICATIONS)
-                    == PackageManager.PERMISSION_GRANTED;
+            return new Api33PermissionHandler();
         }
-        return true;
-    }
-
-    /**
-     * Returns the POST_NOTIFICATIONS permission string when running
-     * on API 33+, or {@code null} on older devices where runtime
-     * permission is not needed.
-     */
-    public static String notificationPermission() {
-        if (Build.VERSION.SDK_INT >= 33) {
-            return PERMISSION_POST_NOTIFICATIONS;
-        }
-        return null;
+        return new PreApi33PermissionHandler();
     }
 }

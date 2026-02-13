@@ -452,9 +452,9 @@ public class SettingsFragment extends Fragment {
         boolean anyReminderEnabled = binding.sleepReminderSwitch.isChecked()
                 || binding.diaryReminderSwitch.isChecked()
                 || binding.emotionReminderSwitch.isChecked();
-        if (anyReminderEnabled
-                && !NotificationHelper.hasNotificationPermission(requireContext())) {
-            String permission = NotificationHelper.notificationPermission();
+        NotificationPermissionHandler permHandler = NotificationHelper.permissionHandler();
+        if (anyReminderEnabled && !permHandler.hasPermission(requireContext())) {
+            String permission = permHandler.permissionName();
             if (permission != null) {
                 notificationPermissionLauncher.launch(permission);
             }
