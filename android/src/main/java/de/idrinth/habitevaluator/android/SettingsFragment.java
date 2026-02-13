@@ -39,6 +39,10 @@ import de.idrinth.habitevaluator.shared.backup.RestoreOptions;
 
 public class SettingsFragment extends Fragment {
 
+    static final int DEFAULT_HOUR = 8;
+    static final int DEFAULT_MINUTE = 0;
+    static final String TIME_SEPARATOR = ":";
+
     private FragmentSettingsBinding binding;
     private final HezBackupService hezBackupService = new HezBackupService();
     private byte[] pendingHezBackupData;
@@ -278,7 +282,7 @@ public class SettingsFragment extends Fragment {
         String username = binding.apiUsernameInput.getText().toString().trim();
         String password = binding.apiPasswordInput.getText().toString();
 
-        if (url.isEmpty() || username.isEmpty() || password.isEmpty()) {
+        if (!areRemoteFieldsComplete(url, username, password)) {
             binding.connectionStatusText.setText(R.string.fill_all_fields);
             binding.connectionStatusText.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_red_dark));
             return;
@@ -327,7 +331,7 @@ public class SettingsFragment extends Fragment {
         String password = binding.apiPasswordInput.getText().toString();
 
         if (binding.remoteRadio.isChecked()) {
-            if (url.isEmpty() || username.isEmpty() || password.isEmpty()) {
+            if (!areRemoteFieldsComplete(url, username, password)) {
                 Toast.makeText(requireContext(), R.string.fill_all_fields, Toast.LENGTH_SHORT).show();
                 return;
             }
@@ -410,7 +414,7 @@ public class SettingsFragment extends Fragment {
                 binding.backupStatusText.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_red_dark));
                 return;
             }
-            if (!backupPassword.equals(confirmPassword)) {
+            if (!isBackupPasswordValid(backupPassword, confirmPassword)) {
                 binding.backupStatusText.setText(R.string.backup_passwords_mismatch);
                 binding.backupStatusText.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_red_dark));
                 return;
@@ -467,18 +471,39 @@ public class SettingsFragment extends Fragment {
         }
     }
 
-    private void showTimePicker(String currentTime, TimePickerCallback callback) {
-        int hour = 8;
-        int minute = 0;
+    static int[] parseTimeString(String timeString) {
+        int hour = DEFAULT_HOUR;
+        int minute = DEFAULT_MINUTE;
+        if (timeString == null) {
+            return new int[]{hour, minute};
+        }
         try {
-            String[] parts = currentTime.split(":");
+            String[] parts = timeString.split(TIME_SEPARATOR);
             hour = Integer.parseInt(parts[0]);
             minute = Integer.parseInt(parts[1]);
         } catch (Exception ignored) {
         }
+        return new int[]{hour, minute};
+    }
+
+    static boolean isBackupPasswordValid(String password, String confirmPassword) {
+        if (password == null || password.isEmpty()) {
+            return false;
+        }
+        return password.equals(confirmPassword);
+    }
+
+    static boolean areRemoteFieldsComplete(String url, String username, String password) {
+        return url != null && !url.trim().isEmpty()
+                && username != null && !username.trim().isEmpty()
+                && password != null && !password.isEmpty();
+    }
+
+    private void showTimePicker(String currentTime, TimePickerCallback callback) {
+        int[] parsed = parseTimeString(currentTime);
         new TimePickerDialog(requireContext(),
                 (view, hourOfDay, minuteOfHour) -> callback.onTimeSet(hourOfDay, minuteOfHour),
-                hour, minute, true).show();
+                parsed[0], parsed[1], true).show();
     }
 
     private interface TimePickerCallback {

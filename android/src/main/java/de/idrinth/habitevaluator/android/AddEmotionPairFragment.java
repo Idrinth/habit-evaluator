@@ -17,6 +17,8 @@ import de.idrinth.habitevaluator.shared.repository.EmotionPairRepository;
 
 public class AddEmotionPairFragment extends Fragment {
 
+    static final int REQUIRED_LABEL_COUNT = 2;
+
     private FragmentAddEmotionPairBinding binding;
 
     @Nullable
@@ -33,11 +35,18 @@ public class AddEmotionPairFragment extends Fragment {
         binding.saveEmotionPairButton.setOnClickListener(v -> addEmotionPair());
     }
 
+    static boolean areLabelsValid(String negativeLabel, String positiveLabel) {
+        if (negativeLabel == null || positiveLabel == null) {
+            return false;
+        }
+        return !negativeLabel.trim().isEmpty() && !positiveLabel.trim().isEmpty();
+    }
+
     private void addEmotionPair() {
         String negativeLabel = binding.negativeLabelInput.getText().toString().trim();
         String positiveLabel = binding.positiveLabelInput.getText().toString().trim();
 
-        if (negativeLabel.isEmpty() || positiveLabel.isEmpty()) {
+        if (!areLabelsValid(negativeLabel, positiveLabel)) {
             Toast.makeText(requireContext(), R.string.emotion_labels_required, Toast.LENGTH_SHORT).show();
             return;
         }

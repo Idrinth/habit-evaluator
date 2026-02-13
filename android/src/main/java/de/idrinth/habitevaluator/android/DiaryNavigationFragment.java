@@ -13,7 +13,24 @@ import de.idrinth.habitevaluator.android.databinding.FragmentDiaryNavigationBind
 
 public class DiaryNavigationFragment extends Fragment {
 
+    static final int NAVIGATION_CARD_COUNT = 5;
+    static final String[] NAVIGATION_TARGETS = {
+            "positivityDiary", "sportLog", "foodLog", "medicationLog", "medicationList"
+    };
+
     private FragmentDiaryNavigationBinding binding;
+
+    static boolean isValidNavigationTarget(String target) {
+        if (target == null) {
+            return false;
+        }
+        for (String t : NAVIGATION_TARGETS) {
+            if (t.equals(target)) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     @Nullable
     @Override
