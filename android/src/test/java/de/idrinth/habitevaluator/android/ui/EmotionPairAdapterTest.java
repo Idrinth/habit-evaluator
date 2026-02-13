@@ -1,24 +1,24 @@
 package de.idrinth.habitevaluator.android.ui;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import de.idrinth.habitevaluator.shared.model.EmotionPair;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class EmotionPairAdapterTest {
+class EmotionPairAdapterTest {
 
     private List<EmotionPair> emotionPairs;
     private TestDeleteListener deleteListener;
     private TestClickListener clickListener;
     private EmotionPairAdapter adapter;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         emotionPairs = new ArrayList<>();
         deleteListener = new TestDeleteListener();
         clickListener = new TestClickListener();
@@ -26,12 +26,12 @@ public class EmotionPairAdapterTest {
     }
 
     @Test
-    public void testEmptyAdapterItemCount() {
+    void testEmptyAdapterItemCount() {
         assertEquals(0, adapter.getItemCount());
     }
 
     @Test
-    public void testItemCountWithPairs() {
+    void testItemCountWithPairs() {
         emotionPairs.add(createPair("sad", "happy"));
         emotionPairs.add(createPair("anxious", "calm"));
         emotionPairs.add(createPair("tired", "energetic"));
@@ -39,14 +39,14 @@ public class EmotionPairAdapterTest {
     }
 
     @Test
-    public void testItemCountAfterAdding() {
+    void testItemCountAfterAdding() {
         assertEquals(0, adapter.getItemCount());
         emotionPairs.add(createPair("sad", "happy"));
         assertEquals(1, adapter.getItemCount());
     }
 
     @Test
-    public void testItemCountAfterRemoving() {
+    void testItemCountAfterRemoving() {
         EmotionPair pair = createPair("sad", "happy");
         emotionPairs.add(pair);
         assertEquals(1, adapter.getItemCount());
@@ -55,7 +55,7 @@ public class EmotionPairAdapterTest {
     }
 
     @Test
-    public void testItemCountAfterClearing() {
+    void testItemCountAfterClearing() {
         emotionPairs.add(createPair("sad", "happy"));
         emotionPairs.add(createPair("anxious", "calm"));
         assertEquals(2, adapter.getItemCount());
@@ -64,7 +64,7 @@ public class EmotionPairAdapterTest {
     }
 
     @Test
-    public void testAdapterWithNullListeners() {
+    void testAdapterWithNullListeners() {
         EmotionPairAdapter nullListenersAdapter = new EmotionPairAdapter(emotionPairs, null, null);
         emotionPairs.add(createPair("sad", "happy"));
         assertEquals(1, nullListenersAdapter.getItemCount());

@@ -5,21 +5,21 @@ import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-public class FontSizeHelperTest {
+class FontSizeHelperTest {
 
     private Context baseContext;
     private SharedPreferences prefs;
     private Resources resources;
     private Context configContext;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         baseContext = mock(Context.class);
         prefs = mock(SharedPreferences.class);
         resources = mock(Resources.class);
@@ -34,7 +34,7 @@ public class FontSizeHelperTest {
     }
 
     @Test
-    public void testSystemDefaultReturnsOriginalContext() {
+    void testSystemDefaultReturnsOriginalContext() {
         when(prefs.getString(SettingsActivity.KEY_FONT_SIZE, SettingsActivity.FONT_SIZE_SYSTEM))
                 .thenReturn(SettingsActivity.FONT_SIZE_SYSTEM);
 
@@ -45,7 +45,7 @@ public class FontSizeHelperTest {
     }
 
     @Test
-    public void testNullSettingReturnsOriginalContext() {
+    void testNullSettingReturnsOriginalContext() {
         when(prefs.getString(SettingsActivity.KEY_FONT_SIZE, SettingsActivity.FONT_SIZE_SYSTEM))
                 .thenReturn(null);
 
@@ -56,7 +56,7 @@ public class FontSizeHelperTest {
     }
 
     @Test
-    public void testUnknownSettingReturnsOriginalContext() {
+    void testUnknownSettingReturnsOriginalContext() {
         when(prefs.getString(SettingsActivity.KEY_FONT_SIZE, SettingsActivity.FONT_SIZE_SYSTEM))
                 .thenReturn("UNKNOWN_VALUE");
 
@@ -67,7 +67,7 @@ public class FontSizeHelperTest {
     }
 
     @Test
-    public void testXsFontSizeCreatesConfigurationContext() {
+    void testXsFontSizeCreatesConfigurationContext() {
         when(prefs.getString(SettingsActivity.KEY_FONT_SIZE, SettingsActivity.FONT_SIZE_SYSTEM))
                 .thenReturn(SettingsActivity.FONT_SIZE_XS);
 
@@ -78,7 +78,7 @@ public class FontSizeHelperTest {
     }
 
     @Test
-    public void testSmallFontSizeCreatesConfigurationContext() {
+    void testSmallFontSizeCreatesConfigurationContext() {
         when(prefs.getString(SettingsActivity.KEY_FONT_SIZE, SettingsActivity.FONT_SIZE_SYSTEM))
                 .thenReturn(SettingsActivity.FONT_SIZE_SMALL);
 
@@ -89,7 +89,7 @@ public class FontSizeHelperTest {
     }
 
     @Test
-    public void testNormalFontSizeCreatesConfigurationContext() {
+    void testNormalFontSizeCreatesConfigurationContext() {
         when(prefs.getString(SettingsActivity.KEY_FONT_SIZE, SettingsActivity.FONT_SIZE_SYSTEM))
                 .thenReturn(SettingsActivity.FONT_SIZE_NORMAL);
 
@@ -100,7 +100,7 @@ public class FontSizeHelperTest {
     }
 
     @Test
-    public void testLargeFontSizeCreatesConfigurationContext() {
+    void testLargeFontSizeCreatesConfigurationContext() {
         when(prefs.getString(SettingsActivity.KEY_FONT_SIZE, SettingsActivity.FONT_SIZE_SYSTEM))
                 .thenReturn(SettingsActivity.FONT_SIZE_LARGE);
 
@@ -111,7 +111,7 @@ public class FontSizeHelperTest {
     }
 
     @Test
-    public void testCustomScaleDoesNotModifyOriginalConfiguration() {
+    void testCustomScaleDoesNotModifyOriginalConfiguration() {
         Configuration originalConfig = new Configuration();
         float originalFontScale = originalConfig.fontScale;
         when(resources.getConfiguration()).thenReturn(originalConfig);

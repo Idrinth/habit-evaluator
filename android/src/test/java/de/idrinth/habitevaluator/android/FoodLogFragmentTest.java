@@ -1,94 +1,94 @@
 package de.idrinth.habitevaluator.android;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class FoodLogFragmentTest {
+class FoodLogFragmentTest {
 
     @Test
-    public void testDatePatternValue() {
+    void testDatePatternValue() {
         assertEquals("yyyy-MM-dd", FoodLogFragment.DATE_PATTERN);
     }
 
     @Test
-    public void testTimePatternValue() {
+    void testTimePatternValue() {
         assertEquals("HH:mm", FoodLogFragment.TIME_PATTERN);
     }
 
     @Test
-    public void testDtDisplayPatternValue() {
+    void testDtDisplayPatternValue() {
         assertEquals("yyyy-MM-dd HH:mm", FoodLogFragment.DT_DISPLAY_PATTERN);
     }
 
     @Test
-    public void testDateFormatNotNull() {
+    void testDateFormatNotNull() {
         assertNotNull(FoodLogFragment.DATE_FORMAT);
     }
 
     @Test
-    public void testTimeFormatNotNull() {
+    void testTimeFormatNotNull() {
         assertNotNull(FoodLogFragment.TIME_FORMAT);
     }
 
     @Test
-    public void testDtDisplayFormatNotNull() {
+    void testDtDisplayFormatNotNull() {
         assertNotNull(FoodLogFragment.DT_DISPLAY_FORMAT);
     }
 
     @Test
-    public void testDateFormatProducesExpectedOutput() {
+    void testDateFormatProducesExpectedOutput() {
         LocalDate date = LocalDate.of(2025, 7, 4);
         assertEquals("2025-07-04", FoodLogFragment.DATE_FORMAT.format(date));
     }
 
     @Test
-    public void testDateFormatLeapYearDate() {
+    void testDateFormatLeapYearDate() {
         LocalDate date = LocalDate.of(2024, 2, 29);
         assertEquals("2024-02-29", FoodLogFragment.DATE_FORMAT.format(date));
     }
 
     @Test
-    public void testTimeFormatProducesExpectedOutput() {
+    void testTimeFormatProducesExpectedOutput() {
         LocalTime time = LocalTime.of(8, 30);
         assertEquals("08:30", FoodLogFragment.TIME_FORMAT.format(time));
     }
 
     @Test
-    public void testTimeFormatEndOfDay() {
+    void testTimeFormatEndOfDay() {
         LocalTime time = LocalTime.of(23, 59);
         assertEquals("23:59", FoodLogFragment.TIME_FORMAT.format(time));
     }
 
     @Test
-    public void testDtDisplayFormatProducesExpectedOutput() {
+    void testDtDisplayFormatProducesExpectedOutput() {
         LocalDateTime dateTime = LocalDateTime.of(2025, 7, 4, 12, 30);
         assertEquals("2025-07-04 12:30", FoodLogFragment.DT_DISPLAY_FORMAT.format(dateTime));
     }
 
     @Test
-    public void testDtDisplayFormatMidnight() {
+    void testDtDisplayFormatMidnight() {
         LocalDateTime dateTime = LocalDateTime.of(2025, 1, 1, 0, 0);
         assertEquals("2025-01-01 00:00", FoodLogFragment.DT_DISPLAY_FORMAT.format(dateTime));
     }
 
     @Test
-    public void testDtDisplayFormatEndOfYear() {
+    void testDtDisplayFormatEndOfYear() {
         LocalDateTime dateTime = LocalDateTime.of(2025, 12, 31, 23, 59);
         assertEquals("2025-12-31 23:59", FoodLogFragment.DT_DISPLAY_FORMAT.format(dateTime));
     }
 
     @Test
-    public void testDatePatternMatchesDiaryFragmentPattern() {
+    void testDatePatternMatchesDiaryFragmentPattern() {
         assertEquals(DiaryFragment.DATE_PATTERN, FoodLogFragment.DATE_PATTERN);
     }
 
     @Test
-    public void testTimePatternMatchesDiaryFragmentPattern() {
+    void testTimePatternMatchesDiaryFragmentPattern() {
         assertEquals(DiaryFragment.TIME_PATTERN, FoodLogFragment.TIME_PATTERN);
     }
 }

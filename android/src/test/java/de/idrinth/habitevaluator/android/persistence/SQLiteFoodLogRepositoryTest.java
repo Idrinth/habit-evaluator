@@ -5,25 +5,25 @@ import android.database.sqlite.SQLiteDatabase;
 
 import de.idrinth.habitevaluator.shared.model.FoodLog;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 import static org.mockito.ArgumentMatchers.*;
 
-public class SQLiteFoodLogRepositoryTest {
+class SQLiteFoodLogRepositoryTest {
 
     private SQLiteHelper dbHelper;
     private SQLiteDatabase db;
     private SQLiteFoodLogRepository repository;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         dbHelper = mock(SQLiteHelper.class);
         db = mock(SQLiteDatabase.class);
         when(dbHelper.getReadableDatabase()).thenReturn(db);
@@ -32,7 +32,7 @@ public class SQLiteFoodLogRepositoryTest {
     }
 
     @Test
-    public void testSaveCallsInsert() {
+    void testSaveCallsInsert() {
         FoodLog entry = new FoodLog(25.0, 300, LocalDateTime.of(2024, 6, 15, 12, 0), "Rice, Chicken");
 
         repository.save(entry);
@@ -41,7 +41,7 @@ public class SQLiteFoodLogRepositoryTest {
     }
 
     @Test
-    public void testFindByIdNotFound() {
+    void testFindByIdNotFound() {
         Cursor cursor = mock(Cursor.class);
         when(cursor.moveToFirst()).thenReturn(false);
         when(db.rawQuery(eq("SELECT * FROM food_logs WHERE id = ?"), eq(new String[]{"nonexistent"}))).thenReturn(cursor);
@@ -50,7 +50,7 @@ public class SQLiteFoodLogRepositoryTest {
     }
 
     @Test
-    public void testFindByIdFound() {
+    void testFindByIdFound() {
         Cursor cursor = createFoodLogCursor("f1", 25.5, 350, "2024-06-15T12:00:00", "Rice, Chicken", "Lunch", null, null);
         when(db.rawQuery(eq("SELECT * FROM food_logs WHERE id = ?"), eq(new String[]{"f1"}))).thenReturn(cursor);
 
@@ -64,7 +64,7 @@ public class SQLiteFoodLogRepositoryTest {
     }
 
     @Test
-    public void testFindByIdWithNullCarbohydratesAndKcal() {
+    void testFindByIdWithNullCarbohydratesAndKcal() {
         Cursor cursor = createFoodLogCursor("f1", null, null, "2024-06-15T12:00:00", "Snack", null, null, null);
         when(db.rawQuery(eq("SELECT * FROM food_logs WHERE id = ?"), eq(new String[]{"f1"}))).thenReturn(cursor);
 
@@ -76,7 +76,7 @@ public class SQLiteFoodLogRepositoryTest {
     }
 
     @Test
-    public void testFindByIdWithUser() {
+    void testFindByIdWithUser() {
         Cursor cursor = createFoodLogCursor("f1", 10.0, 200, "2024-06-15T12:00:00", "Salad", null, "u1", "testuser");
         when(db.rawQuery(eq("SELECT * FROM food_logs WHERE id = ?"), eq(new String[]{"f1"}))).thenReturn(cursor);
 
@@ -88,7 +88,7 @@ public class SQLiteFoodLogRepositoryTest {
     }
 
     @Test
-    public void testFindAllEmpty() {
+    void testFindAllEmpty() {
         Cursor cursor = createEmptyCursor();
         when(db.rawQuery(eq("SELECT * FROM food_logs"), isNull())).thenReturn(cursor);
 
@@ -96,14 +96,14 @@ public class SQLiteFoodLogRepositoryTest {
     }
 
     @Test
-    public void testDeleteById() {
+    void testDeleteById() {
         repository.deleteById("f1");
 
         verify(db).delete(eq("food_logs"), eq("id = ?"), eq(new String[]{"f1"}));
     }
 
     @Test
-    public void testExistsByIdTrue() {
+    void testExistsByIdTrue() {
         Cursor cursor = mock(Cursor.class);
         when(cursor.moveToFirst()).thenReturn(true);
         when(db.rawQuery(eq("SELECT 1 FROM food_logs WHERE id = ?"), eq(new String[]{"f1"}))).thenReturn(cursor);
@@ -112,7 +112,7 @@ public class SQLiteFoodLogRepositoryTest {
     }
 
     @Test
-    public void testExistsByIdFalse() {
+    void testExistsByIdFalse() {
         Cursor cursor = mock(Cursor.class);
         when(cursor.moveToFirst()).thenReturn(false);
         when(db.rawQuery(eq("SELECT 1 FROM food_logs WHERE id = ?"), eq(new String[]{"f1"}))).thenReturn(cursor);
@@ -121,7 +121,7 @@ public class SQLiteFoodLogRepositoryTest {
     }
 
     @Test
-    public void testFindByUserIdEmpty() {
+    void testFindByUserIdEmpty() {
         Cursor cursor = createEmptyCursor();
         when(db.rawQuery(startsWith("SELECT * FROM food_logs WHERE user_id"), any())).thenReturn(cursor);
 
@@ -129,7 +129,7 @@ public class SQLiteFoodLogRepositoryTest {
     }
 
     @Test
-    public void testSaveReturnsEntry() {
+    void testSaveReturnsEntry() {
         FoodLog entry = new FoodLog();
         FoodLog result = repository.save(entry);
         assertSame(entry, result);

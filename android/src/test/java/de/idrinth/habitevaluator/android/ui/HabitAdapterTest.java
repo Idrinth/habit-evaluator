@@ -1,7 +1,7 @@
 package de.idrinth.habitevaluator.android.ui;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,28 +9,28 @@ import java.util.List;
 import de.idrinth.habitevaluator.shared.model.FrequencyType;
 import de.idrinth.habitevaluator.shared.model.Habit;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class HabitAdapterTest {
+class HabitAdapterTest {
 
     private List<Habit> habits;
     private TestClickListener clickListener;
     private HabitAdapter adapter;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         habits = new ArrayList<>();
         clickListener = new TestClickListener();
         adapter = new HabitAdapter(habits, clickListener);
     }
 
     @Test
-    public void testEmptyAdapterItemCount() {
+    void testEmptyAdapterItemCount() {
         assertEquals(0, adapter.getItemCount());
     }
 
     @Test
-    public void testItemCountMatchesList() {
+    void testItemCountMatchesList() {
         habits.add(new Habit("Exercise", "Daily exercise"));
         habits.add(new Habit("Read", "Read a book"));
         habits.add(new Habit("Meditate", "Morning meditation"));
@@ -38,14 +38,14 @@ public class HabitAdapterTest {
     }
 
     @Test
-    public void testItemCountAfterAddingItem() {
+    void testItemCountAfterAddingItem() {
         assertEquals(0, adapter.getItemCount());
         habits.add(new Habit("Exercise", "Daily exercise"));
         assertEquals(1, adapter.getItemCount());
     }
 
     @Test
-    public void testItemCountAfterRemovingItem() {
+    void testItemCountAfterRemovingItem() {
         Habit habit = new Habit("Exercise", "Daily exercise");
         habits.add(habit);
         assertEquals(1, adapter.getItemCount());
@@ -54,43 +54,43 @@ public class HabitAdapterTest {
     }
 
     @Test
-    public void testSetDisplayLanguage() {
+    void testSetDisplayLanguage() {
         adapter.setDisplayLanguage("de");
         // Should not throw
     }
 
     @Test
-    public void testSetDisplayLanguageNull() {
+    void testSetDisplayLanguageNull() {
         adapter.setDisplayLanguage(null);
         // Should not throw
     }
 
     @Test
-    public void testSetOnHabitEditListener() {
+    void testSetOnHabitEditListener() {
         adapter.setOnHabitEditListener(habit -> {});
         // Should not throw
     }
 
     @Test
-    public void testSetOnHabitDeleteListener() {
+    void testSetOnHabitDeleteListener() {
         adapter.setOnHabitDeleteListener(habit -> {});
         // Should not throw
     }
 
     @Test
-    public void testSetOnHabitEditListenerNull() {
+    void testSetOnHabitEditListenerNull() {
         adapter.setOnHabitEditListener(null);
         // Should not throw
     }
 
     @Test
-    public void testSetOnHabitDeleteListenerNull() {
+    void testSetOnHabitDeleteListenerNull() {
         adapter.setOnHabitDeleteListener(null);
         // Should not throw
     }
 
     @Test
-    public void testAdapterBackedByOriginalList() {
+    void testAdapterBackedByOriginalList() {
         habits.add(new Habit("A", "desc A"));
         assertEquals(1, adapter.getItemCount());
         habits.add(new Habit("B", "desc B"));
@@ -100,7 +100,7 @@ public class HabitAdapterTest {
     }
 
     @Test
-    public void testManyHabitsItemCount() {
+    void testManyHabitsItemCount() {
         for (int i = 0; i < 100; i++) {
             habits.add(new Habit("Habit " + i, "Description " + i));
         }
@@ -108,7 +108,7 @@ public class HabitAdapterTest {
     }
 
     @Test
-    public void testHabitWithEntries() {
+    void testHabitWithEntries() {
         Habit habit = new Habit("Exercise", "Daily exercise");
         habit.setTargetFrequency(3);
         habit.setMaxEntriesPerDay(5);
@@ -117,7 +117,7 @@ public class HabitAdapterTest {
     }
 
     @Test
-    public void testHabitWithFrequencyType() {
+    void testHabitWithFrequencyType() {
         Habit habit = new Habit("Exercise", "Daily exercise");
         habit.setFrequencyType(FrequencyType.DAILY);
         habits.add(habit);
@@ -125,7 +125,7 @@ public class HabitAdapterTest {
     }
 
     @Test
-    public void testHabitWithWeeklyFrequency() {
+    void testHabitWithWeeklyFrequency() {
         Habit habit = new Habit("Exercise", "Weekly exercise");
         habit.setFrequencyType(FrequencyType.WEEKLY);
         habits.add(habit);
@@ -133,7 +133,7 @@ public class HabitAdapterTest {
     }
 
     @Test
-    public void testHabitWithMonthlyFrequency() {
+    void testHabitWithMonthlyFrequency() {
         Habit habit = new Habit("Exercise", "Monthly exercise");
         habit.setFrequencyType(FrequencyType.MONTHLY);
         habits.add(habit);
@@ -141,7 +141,7 @@ public class HabitAdapterTest {
     }
 
     @Test
-    public void testHabitWithCategoryId() {
+    void testHabitWithCategoryId() {
         Habit habit = new Habit("Exercise", "Daily exercise");
         habit.setCategoryId("cat-health");
         habits.add(habit);
@@ -149,7 +149,7 @@ public class HabitAdapterTest {
     }
 
     @Test
-    public void testHabitWithNullCategoryId() {
+    void testHabitWithNullCategoryId() {
         Habit habit = new Habit("Exercise", "Daily exercise");
         habit.setCategoryId(null);
         habits.add(habit);
@@ -157,7 +157,7 @@ public class HabitAdapterTest {
     }
 
     @Test
-    public void testSetEditAndDeleteListenersThenClear() {
+    void testSetEditAndDeleteListenersThenClear() {
         TestEditListener editListener = new TestEditListener();
         TestDeleteListener deleteListenerObj = new TestDeleteListener();
         adapter.setOnHabitEditListener(editListener);
@@ -168,7 +168,7 @@ public class HabitAdapterTest {
     }
 
     @Test
-    public void testMultipleDisplayLanguageChanges() {
+    void testMultipleDisplayLanguageChanges() {
         adapter.setDisplayLanguage("en");
         adapter.setDisplayLanguage("de");
         adapter.setDisplayLanguage("es");

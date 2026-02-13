@@ -7,26 +7,26 @@ import de.idrinth.habitevaluator.shared.model.Medication;
 import de.idrinth.habitevaluator.shared.model.MedicationLog;
 import de.idrinth.habitevaluator.shared.model.MedicationProvisionType;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 import static org.mockito.ArgumentMatchers.*;
 
-public class SQLiteMedicationLogRepositoryTest {
+class SQLiteMedicationLogRepositoryTest {
 
     private SQLiteHelper dbHelper;
     private SQLiteDatabase db;
     private SQLiteMedicationRepository medicationRepository;
     private SQLiteMedicationLogRepository repository;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         dbHelper = mock(SQLiteHelper.class);
         db = mock(SQLiteDatabase.class);
         medicationRepository = mock(SQLiteMedicationRepository.class);
@@ -36,7 +36,7 @@ public class SQLiteMedicationLogRepositoryTest {
     }
 
     @Test
-    public void testSaveCallsInsert() {
+    void testSaveCallsInsert() {
         Medication medication = new Medication("Ibuprofen", MedicationProvisionType.PILL);
         MedicationLog log = new MedicationLog(medication, 400.0, LocalDateTime.of(2024, 6, 15, 8, 0));
 
@@ -46,7 +46,7 @@ public class SQLiteMedicationLogRepositoryTest {
     }
 
     @Test
-    public void testFindByIdNotFound() {
+    void testFindByIdNotFound() {
         Cursor cursor = mock(Cursor.class);
         when(cursor.moveToFirst()).thenReturn(false);
         when(db.rawQuery(eq("SELECT * FROM medication_logs WHERE id = ?"), eq(new String[]{"nonexistent"}))).thenReturn(cursor);
@@ -55,7 +55,7 @@ public class SQLiteMedicationLogRepositoryTest {
     }
 
     @Test
-    public void testFindByIdFoundWithMedication() {
+    void testFindByIdFoundWithMedication() {
         Medication medication = new Medication("Ibuprofen", MedicationProvisionType.PILL);
         medication.setId("med1");
         when(medicationRepository.findById("med1")).thenReturn(Optional.of(medication));
@@ -73,7 +73,7 @@ public class SQLiteMedicationLogRepositoryTest {
     }
 
     @Test
-    public void testFindByIdWithoutMedication() {
+    void testFindByIdWithoutMedication() {
         when(medicationRepository.findById("missing")).thenReturn(Optional.empty());
 
         Cursor cursor = createLogCursor("l1", "missing", 200.0, "2024-06-15T08:00:00", null, null, null);
@@ -86,7 +86,7 @@ public class SQLiteMedicationLogRepositoryTest {
     }
 
     @Test
-    public void testFindByIdWithUser() {
+    void testFindByIdWithUser() {
         when(medicationRepository.findById(anyString())).thenReturn(Optional.empty());
 
         Cursor cursor = createLogCursor("l1", "med1", 400.0, "2024-06-15T08:00:00", null, "u1", "testuser");
@@ -100,7 +100,7 @@ public class SQLiteMedicationLogRepositoryTest {
     }
 
     @Test
-    public void testFindAllEmpty() {
+    void testFindAllEmpty() {
         Cursor cursor = createEmptyCursor();
         when(db.rawQuery(eq("SELECT * FROM medication_logs"), isNull())).thenReturn(cursor);
 
@@ -108,14 +108,14 @@ public class SQLiteMedicationLogRepositoryTest {
     }
 
     @Test
-    public void testDeleteById() {
+    void testDeleteById() {
         repository.deleteById("l1");
 
         verify(db).delete(eq("medication_logs"), eq("id = ?"), eq(new String[]{"l1"}));
     }
 
     @Test
-    public void testFindByUserIdEmpty() {
+    void testFindByUserIdEmpty() {
         Cursor cursor = createEmptyCursor();
         when(db.rawQuery(startsWith("SELECT * FROM medication_logs WHERE user_id = ?"), any())).thenReturn(cursor);
 
@@ -123,7 +123,7 @@ public class SQLiteMedicationLogRepositoryTest {
     }
 
     @Test
-    public void testFindByUserIdPagedEmpty() {
+    void testFindByUserIdPagedEmpty() {
         Cursor cursor = createEmptyCursor();
         when(db.rawQuery(contains("LIMIT"), any())).thenReturn(cursor);
 
@@ -133,7 +133,7 @@ public class SQLiteMedicationLogRepositoryTest {
     }
 
     @Test
-    public void testCountByUserIdZero() {
+    void testCountByUserIdZero() {
         Cursor cursor = mock(Cursor.class);
         when(cursor.moveToFirst()).thenReturn(true);
         when(cursor.getInt(0)).thenReturn(0);
@@ -143,7 +143,7 @@ public class SQLiteMedicationLogRepositoryTest {
     }
 
     @Test
-    public void testCountByUserIdWithResults() {
+    void testCountByUserIdWithResults() {
         Cursor cursor = mock(Cursor.class);
         when(cursor.moveToFirst()).thenReturn(true);
         when(cursor.getInt(0)).thenReturn(5);
@@ -153,7 +153,7 @@ public class SQLiteMedicationLogRepositoryTest {
     }
 
     @Test
-    public void testCountByUserIdNoRows() {
+    void testCountByUserIdNoRows() {
         Cursor cursor = mock(Cursor.class);
         when(cursor.moveToFirst()).thenReturn(false);
         when(db.rawQuery(startsWith("SELECT COUNT(*)"), any())).thenReturn(cursor);
@@ -162,7 +162,7 @@ public class SQLiteMedicationLogRepositoryTest {
     }
 
     @Test
-    public void testSaveReturnsLog() {
+    void testSaveReturnsLog() {
         Medication medication = new Medication("Test", MedicationProvisionType.PILL);
         MedicationLog log = new MedicationLog(medication, 100.0, LocalDateTime.now());
         MedicationLog result = repository.save(log);

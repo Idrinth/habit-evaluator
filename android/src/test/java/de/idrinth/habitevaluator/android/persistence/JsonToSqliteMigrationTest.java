@@ -1,8 +1,8 @@
 package de.idrinth.habitevaluator.android.persistence;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -25,10 +25,10 @@ import de.idrinth.habitevaluator.shared.repository.HabitCategoryRepository;
 import de.idrinth.habitevaluator.shared.repository.HabitRepository;
 import de.idrinth.habitevaluator.shared.repository.SleepEntryRepository;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-public class JsonToSqliteMigrationTest {
+class JsonToSqliteMigrationTest {
 
     private File tempDir;
     private HabitRepository habitRepository;
@@ -40,8 +40,8 @@ public class JsonToSqliteMigrationTest {
     private EmotionEntryRepository emotionEntryRepository;
     private JsonToSqliteMigration migration;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         tempDir = new File(System.getProperty("java.io.tmpdir"),
                 "migration-test-" + System.nanoTime());
         tempDir.mkdirs();
@@ -66,8 +66,8 @@ public class JsonToSqliteMigrationTest {
         );
     }
 
-    @After
-    public void tearDown() {
+    @AfterEach
+    void tearDown() {
         deleteRecursive(tempDir);
     }
 
@@ -91,7 +91,7 @@ public class JsonToSqliteMigrationTest {
     }
 
     @Test
-    public void testNeedsMigrationReturnsFalseWhenDirectoryDoesNotExist() {
+    void testNeedsMigrationReturnsFalseWhenDirectoryDoesNotExist() {
         File nonExistentDir = new File(tempDir, "nonexistent");
         JsonToSqliteMigration migrationWithMissingDir = new JsonToSqliteMigration(
                 nonExistentDir,
@@ -108,12 +108,12 @@ public class JsonToSqliteMigrationTest {
     }
 
     @Test
-    public void testNeedsMigrationReturnsFalseWhenNoJsonFiles() {
+    void testNeedsMigrationReturnsFalseWhenNoJsonFiles() {
         assertFalse(migration.needsMigration());
     }
 
     @Test
-    public void testNeedsMigrationReturnsFalseWhenJsonFilesAreEmpty() throws IOException {
+    void testNeedsMigrationReturnsFalseWhenJsonFilesAreEmpty() throws IOException {
         createFile("habits.json", "");
         createFile("categories.json", "");
 
@@ -121,56 +121,56 @@ public class JsonToSqliteMigrationTest {
     }
 
     @Test
-    public void testNeedsMigrationReturnsTrueWhenHabitsJsonHasContent() throws IOException {
+    void testNeedsMigrationReturnsTrueWhenHabitsJsonHasContent() throws IOException {
         createFile("habits.json", "[]");
 
         assertTrue(migration.needsMigration());
     }
 
     @Test
-    public void testNeedsMigrationReturnsTrueWhenCategoriesJsonHasContent() throws IOException {
+    void testNeedsMigrationReturnsTrueWhenCategoriesJsonHasContent() throws IOException {
         createFile("categories.json", "[]");
 
         assertTrue(migration.needsMigration());
     }
 
     @Test
-    public void testNeedsMigrationReturnsTrueWhenSleepEntriesJsonHasContent() throws IOException {
+    void testNeedsMigrationReturnsTrueWhenSleepEntriesJsonHasContent() throws IOException {
         createFile("sleep_entries.json", "[]");
 
         assertTrue(migration.needsMigration());
     }
 
     @Test
-    public void testNeedsMigrationReturnsTrueWhenEmotionPairsJsonHasContent() throws IOException {
+    void testNeedsMigrationReturnsTrueWhenEmotionPairsJsonHasContent() throws IOException {
         createFile("emotion-pairs.json", "[{\"id\":\"1\"}]");
 
         assertTrue(migration.needsMigration());
     }
 
     @Test
-    public void testNeedsMigrationReturnsTrueWhenDiaryReferencesJsonHasContent() throws IOException {
+    void testNeedsMigrationReturnsTrueWhenDiaryReferencesJsonHasContent() throws IOException {
         createFile("diary_references.json", "[]");
 
         assertTrue(migration.needsMigration());
     }
 
     @Test
-    public void testNeedsMigrationReturnsTrueWhenDiaryEntriesJsonHasContent() throws IOException {
+    void testNeedsMigrationReturnsTrueWhenDiaryEntriesJsonHasContent() throws IOException {
         createFile("diary_entries.json", "[]");
 
         assertTrue(migration.needsMigration());
     }
 
     @Test
-    public void testNeedsMigrationReturnsTrueWhenEmotionEntriesJsonHasContent() throws IOException {
+    void testNeedsMigrationReturnsTrueWhenEmotionEntriesJsonHasContent() throws IOException {
         createFile("emotion-entries.json", "[]");
 
         assertTrue(migration.needsMigration());
     }
 
     @Test
-    public void testMigrateDoesNothingWhenDirectoryDoesNotExist() {
+    void testMigrateDoesNothingWhenDirectoryDoesNotExist() {
         File nonExistentDir = new File(tempDir, "nonexistent");
         JsonToSqliteMigration migrationWithMissingDir = new JsonToSqliteMigration(
                 nonExistentDir,
@@ -190,7 +190,7 @@ public class JsonToSqliteMigrationTest {
     }
 
     @Test
-    public void testMigrateDoesNothingWhenNoJsonFiles() {
+    void testMigrateDoesNothingWhenNoJsonFiles() {
         migration.migrate();
 
         verifyNoInteractions(habitRepository, categoryRepository, diaryReferenceRepository,
@@ -198,7 +198,7 @@ public class JsonToSqliteMigrationTest {
     }
 
     @Test
-    public void testMigrateSkipsEmptyFiles() throws IOException {
+    void testMigrateSkipsEmptyFiles() throws IOException {
         createFile("habits.json", "");
         createFile("categories.json", "");
 
@@ -208,7 +208,7 @@ public class JsonToSqliteMigrationTest {
     }
 
     @Test
-    public void testMigrateDeletesCategoriesJsonAfterMigration() throws IOException {
+    void testMigrateDeletesCategoriesJsonAfterMigration() throws IOException {
         createFile("categories.json", "[]");
 
         migration.migrate();
@@ -217,7 +217,7 @@ public class JsonToSqliteMigrationTest {
     }
 
     @Test
-    public void testMigrateDeletesHabitsJsonAfterMigration() throws IOException {
+    void testMigrateDeletesHabitsJsonAfterMigration() throws IOException {
         createFile("habits.json", "[]");
 
         migration.migrate();
@@ -226,7 +226,7 @@ public class JsonToSqliteMigrationTest {
     }
 
     @Test
-    public void testMigrateDeletesSleepEntriesJsonAfterMigration() throws IOException {
+    void testMigrateDeletesSleepEntriesJsonAfterMigration() throws IOException {
         createFile("sleep_entries.json", "[]");
 
         migration.migrate();
@@ -235,7 +235,7 @@ public class JsonToSqliteMigrationTest {
     }
 
     @Test
-    public void testMigrateDeletesDiaryReferencesJsonAfterMigration() throws IOException {
+    void testMigrateDeletesDiaryReferencesJsonAfterMigration() throws IOException {
         createFile("diary_references.json", "[]");
 
         migration.migrate();
@@ -244,7 +244,7 @@ public class JsonToSqliteMigrationTest {
     }
 
     @Test
-    public void testMigrateDeletesDiaryEntriesJsonAfterMigration() throws IOException {
+    void testMigrateDeletesDiaryEntriesJsonAfterMigration() throws IOException {
         createFile("diary_entries.json", "[]");
 
         migration.migrate();
@@ -253,7 +253,7 @@ public class JsonToSqliteMigrationTest {
     }
 
     @Test
-    public void testMigrateDeletesEmotionPairsJsonAfterMigration() throws IOException {
+    void testMigrateDeletesEmotionPairsJsonAfterMigration() throws IOException {
         createFile("emotion-pairs.json", "[]");
 
         migration.migrate();
@@ -262,7 +262,7 @@ public class JsonToSqliteMigrationTest {
     }
 
     @Test
-    public void testMigrateDeletesEmotionEntriesJsonAfterMigration() throws IOException {
+    void testMigrateDeletesEmotionEntriesJsonAfterMigration() throws IOException {
         createFile("emotion-entries.json", "[]");
 
         migration.migrate();
@@ -271,7 +271,7 @@ public class JsonToSqliteMigrationTest {
     }
 
     @Test
-    public void testNeedsMigrationOnlyChecksKnownFiles() throws IOException {
+    void testNeedsMigrationOnlyChecksKnownFiles() throws IOException {
         createFile("unknown_file.json", "[{\"some\":\"data\"}]");
 
         assertFalse(migration.needsMigration());

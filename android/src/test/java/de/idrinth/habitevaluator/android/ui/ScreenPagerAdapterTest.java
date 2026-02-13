@@ -1,13 +1,13 @@
 package de.idrinth.habitevaluator.android.ui;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class ScreenPagerAdapterTest {
+class ScreenPagerAdapterTest {
 
     @Test
-    public void testPageConstants() {
+    void testPageConstants() {
         assertEquals(0, ScreenPagerAdapter.PAGE_EDIT_HABITS);
         assertEquals(1, ScreenPagerAdapter.PAGE_HOME);
         assertEquals(2, ScreenPagerAdapter.PAGE_DIARY);
@@ -28,17 +28,17 @@ public class ScreenPagerAdapterTest {
     }
 
     @Test
-    public void testPageCount() {
+    void testPageCount() {
         assertEquals(17, ScreenPagerAdapter.PAGE_COUNT);
     }
 
     @Test
-    public void testPageCountMatchesLastPagePlusOne() {
+    void testPageCountMatchesLastPagePlusOne() {
         assertEquals(ScreenPagerAdapter.PAGE_MEDICATION_LIST + 1, ScreenPagerAdapter.PAGE_COUNT);
     }
 
     @Test
-    public void testAllPageIndicesAreUnique() {
+    void testAllPageIndicesAreUnique() {
         int[] pages = {
             ScreenPagerAdapter.PAGE_EDIT_HABITS,
             ScreenPagerAdapter.PAGE_HOME,
@@ -61,14 +61,14 @@ public class ScreenPagerAdapterTest {
 
         for (int i = 0; i < pages.length; i++) {
             for (int j = i + 1; j < pages.length; j++) {
-                assertNotEquals("Page indices " + i + " and " + j + " should be unique",
-                    pages[i], pages[j]);
+                assertNotEquals(
+                    pages[i], pages[j],"Page indices " + i + " and " + j + " should be unique");
             }
         }
     }
 
     @Test
-    public void testPageIndicesAreContiguous() {
+    void testPageIndicesAreContiguous() {
         int[] pages = {
             ScreenPagerAdapter.PAGE_EDIT_HABITS,
             ScreenPagerAdapter.PAGE_HOME,

@@ -7,26 +7,26 @@ import de.idrinth.habitevaluator.shared.model.EmotionEntry;
 import de.idrinth.habitevaluator.shared.model.EmotionPair;
 import de.idrinth.habitevaluator.shared.repository.EmotionPairRepository;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 import static org.mockito.ArgumentMatchers.*;
 
-public class SQLiteEmotionEntryRepositoryTest {
+class SQLiteEmotionEntryRepositoryTest {
 
     private SQLiteHelper dbHelper;
     private SQLiteDatabase db;
     private EmotionPairRepository emotionPairRepository;
     private SQLiteEmotionEntryRepository repository;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         dbHelper = mock(SQLiteHelper.class);
         db = mock(SQLiteDatabase.class);
         emotionPairRepository = mock(EmotionPairRepository.class);
@@ -36,7 +36,7 @@ public class SQLiteEmotionEntryRepositoryTest {
     }
 
     @Test
-    public void testSaveCallsInsert() {
+    void testSaveCallsInsert() {
         EmotionPair pair = new EmotionPair("Sad", "Happy");
         EmotionEntry entry = new EmotionEntry(pair, 5, LocalDateTime.of(2024, 6, 15, 10, 0), "Feeling good");
 
@@ -46,7 +46,7 @@ public class SQLiteEmotionEntryRepositoryTest {
     }
 
     @Test
-    public void testSaveThrowsWhenPairIsNull() {
+    void testSaveThrowsWhenPairIsNull() {
         EmotionEntry entry = new EmotionEntry();
 
         try {
@@ -58,7 +58,7 @@ public class SQLiteEmotionEntryRepositoryTest {
     }
 
     @Test
-    public void testFindByIdNotFound() {
+    void testFindByIdNotFound() {
         Cursor cursor = mock(Cursor.class);
         when(cursor.moveToFirst()).thenReturn(false);
         when(db.rawQuery(eq("SELECT * FROM emotion_entries WHERE id = ?"), eq(new String[]{"nonexistent"}))).thenReturn(cursor);
@@ -67,7 +67,7 @@ public class SQLiteEmotionEntryRepositoryTest {
     }
 
     @Test
-    public void testFindByIdFoundWithPair() {
+    void testFindByIdFoundWithPair() {
         EmotionPair pair = new EmotionPair("Sad", "Happy");
         pair.setId("p1");
         when(emotionPairRepository.findById("p1")).thenReturn(Optional.of(pair));
@@ -85,7 +85,7 @@ public class SQLiteEmotionEntryRepositoryTest {
     }
 
     @Test
-    public void testFindByIdReturnsEmptyWhenPairNotFound() {
+    void testFindByIdReturnsEmptyWhenPairNotFound() {
         when(emotionPairRepository.findById("missing-pair")).thenReturn(Optional.empty());
 
         Cursor cursor = createEntryCursor("e1", "missing-pair", 5, "2024-06-15T10:00:00", null, null, null);
@@ -97,7 +97,7 @@ public class SQLiteEmotionEntryRepositoryTest {
     }
 
     @Test
-    public void testFindByIdWithUser() {
+    void testFindByIdWithUser() {
         EmotionPair pair = new EmotionPair("Sad", "Happy");
         pair.setId("p1");
         when(emotionPairRepository.findById("p1")).thenReturn(Optional.of(pair));
@@ -113,7 +113,7 @@ public class SQLiteEmotionEntryRepositoryTest {
     }
 
     @Test
-    public void testFindAllEmpty() {
+    void testFindAllEmpty() {
         Cursor cursor = createEmptyCursor();
         when(db.rawQuery(eq("SELECT * FROM emotion_entries"), isNull())).thenReturn(cursor);
 
@@ -121,14 +121,14 @@ public class SQLiteEmotionEntryRepositoryTest {
     }
 
     @Test
-    public void testDeleteById() {
+    void testDeleteById() {
         repository.deleteById("e1");
 
         verify(db).delete(eq("emotion_entries"), eq("id = ?"), eq(new String[]{"e1"}));
     }
 
     @Test
-    public void testFindByUserIdEmpty() {
+    void testFindByUserIdEmpty() {
         Cursor cursor = createEmptyCursor();
         when(db.rawQuery(startsWith("SELECT * FROM emotion_entries WHERE user_id"), any())).thenReturn(cursor);
 
@@ -136,7 +136,7 @@ public class SQLiteEmotionEntryRepositoryTest {
     }
 
     @Test
-    public void testSaveReturnsEntry() {
+    void testSaveReturnsEntry() {
         EmotionPair pair = new EmotionPair("Sad", "Happy");
         EmotionEntry entry = new EmotionEntry(pair, 5, LocalDateTime.now(), null);
         EmotionEntry result = repository.save(entry);

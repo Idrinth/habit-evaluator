@@ -8,27 +8,27 @@ import de.idrinth.habitevaluator.shared.model.DiaryReference;
 import de.idrinth.habitevaluator.shared.model.EventSignificance;
 import de.idrinth.habitevaluator.shared.repository.DiaryReferenceRepository;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 import static org.mockito.ArgumentMatchers.*;
 
-public class SQLiteDiaryEntryRepositoryTest {
+class SQLiteDiaryEntryRepositoryTest {
 
     private SQLiteHelper dbHelper;
     private SQLiteDatabase db;
     private SQLiteDiaryEntryRepository repository;
     private DiaryReferenceRepository diaryReferenceRepository;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         dbHelper = mock(SQLiteHelper.class);
         db = mock(SQLiteDatabase.class);
         diaryReferenceRepository = mock(DiaryReferenceRepository.class);
@@ -39,7 +39,7 @@ public class SQLiteDiaryEntryRepositoryTest {
     }
 
     @Test
-    public void testSaveCallsInsert() {
+    void testSaveCallsInsert() {
         DiaryEntry entry = new DiaryEntry("Had a great day", EventSignificance.MAJOR);
         entry.setEventDate(LocalDate.of(2024, 6, 15));
 
@@ -49,7 +49,7 @@ public class SQLiteDiaryEntryRepositoryTest {
     }
 
     @Test
-    public void testFindByIdNotFound() {
+    void testFindByIdNotFound() {
         Cursor cursor = mock(Cursor.class);
         when(cursor.moveToFirst()).thenReturn(false);
         when(db.rawQuery(eq("SELECT * FROM diary_entries WHERE id = ?"), eq(new String[]{"nonexistent"}))).thenReturn(cursor);
@@ -58,7 +58,7 @@ public class SQLiteDiaryEntryRepositoryTest {
     }
 
     @Test
-    public void testFindByIdFound() {
+    void testFindByIdFound() {
         Cursor cursor = createEntryCursor("e1", "Great day", null, "MAJOR", "2024-06-15", "10:00", "11:00", null, null);
         when(db.rawQuery(eq("SELECT * FROM diary_entries WHERE id = ?"), eq(new String[]{"e1"}))).thenReturn(cursor);
 
@@ -73,7 +73,7 @@ public class SQLiteDiaryEntryRepositoryTest {
     }
 
     @Test
-    public void testFindByIdWithDiaryReference() {
+    void testFindByIdWithDiaryReference() {
         DiaryReference ref = new DiaryReference("Morning workout");
         when(diaryReferenceRepository.findById("ref1")).thenReturn(Optional.of(ref));
 
@@ -88,7 +88,7 @@ public class SQLiteDiaryEntryRepositoryTest {
     }
 
     @Test
-    public void testFindByIdWithUser() {
+    void testFindByIdWithUser() {
         Cursor cursor = createEntryCursor("e1", "Great day", null, "NORMAL", "2024-06-15", null, null, "u1", "testuser");
         when(db.rawQuery(eq("SELECT * FROM diary_entries WHERE id = ?"), eq(new String[]{"e1"}))).thenReturn(cursor);
 
@@ -100,7 +100,7 @@ public class SQLiteDiaryEntryRepositoryTest {
     }
 
     @Test
-    public void testFindAllEmpty() {
+    void testFindAllEmpty() {
         Cursor cursor = createEmptyCursor();
         when(db.rawQuery(eq("SELECT * FROM diary_entries"), isNull())).thenReturn(cursor);
 
@@ -108,14 +108,14 @@ public class SQLiteDiaryEntryRepositoryTest {
     }
 
     @Test
-    public void testDeleteById() {
+    void testDeleteById() {
         repository.deleteById("e1");
 
         verify(db).delete(eq("diary_entries"), eq("id = ?"), eq(new String[]{"e1"}));
     }
 
     @Test
-    public void testFindByUserIdEmpty() {
+    void testFindByUserIdEmpty() {
         Cursor cursor = createEmptyCursor();
         when(db.rawQuery(startsWith("SELECT * FROM diary_entries WHERE user_id"), any())).thenReturn(cursor);
 
@@ -123,7 +123,7 @@ public class SQLiteDiaryEntryRepositoryTest {
     }
 
     @Test
-    public void testFindDistinctDescriptionsByUserId() {
+    void testFindDistinctDescriptionsByUserId() {
         Cursor cursor = mock(Cursor.class);
         when(cursor.moveToNext()).thenReturn(true, true, false);
         when(cursor.getString(0)).thenReturn("Workout", "Meditation");
@@ -135,7 +135,7 @@ public class SQLiteDiaryEntryRepositoryTest {
     }
 
     @Test
-    public void testFindEntriesNeedingMigration() {
+    void testFindEntriesNeedingMigration() {
         Cursor cursor = createEmptyCursor();
         when(db.rawQuery(startsWith("SELECT * FROM diary_entries WHERE user_id"), any())).thenReturn(cursor);
 
@@ -145,7 +145,7 @@ public class SQLiteDiaryEntryRepositoryTest {
     }
 
     @Test
-    public void testSaveReturnsEntry() {
+    void testSaveReturnsEntry() {
         DiaryEntry entry = new DiaryEntry("Test", EventSignificance.MINOR);
         DiaryEntry result = repository.save(entry);
         assertSame(entry, result);

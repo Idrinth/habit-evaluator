@@ -1,54 +1,54 @@
 package de.idrinth.habitevaluator.android;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class SettingsActivityTest {
+class SettingsActivityTest {
 
     @Test
-    public void testGetFontScaleSystem() {
+    void testGetFontScaleSystem() {
         assertEquals(-1f, SettingsActivity.getFontScale(SettingsActivity.FONT_SIZE_SYSTEM), 0.001f);
     }
 
     @Test
-    public void testGetFontScaleNull() {
+    void testGetFontScaleNull() {
         assertEquals(-1f, SettingsActivity.getFontScale(null), 0.001f);
     }
 
     @Test
-    public void testGetFontScaleXs() {
+    void testGetFontScaleXs() {
         assertEquals(0.8f, SettingsActivity.getFontScale(SettingsActivity.FONT_SIZE_XS), 0.001f);
     }
 
     @Test
-    public void testGetFontScaleSmall() {
+    void testGetFontScaleSmall() {
         assertEquals(0.9f, SettingsActivity.getFontScale(SettingsActivity.FONT_SIZE_SMALL), 0.001f);
     }
 
     @Test
-    public void testGetFontScaleNormal() {
+    void testGetFontScaleNormal() {
         assertEquals(1.0f, SettingsActivity.getFontScale(SettingsActivity.FONT_SIZE_NORMAL), 0.001f);
     }
 
     @Test
-    public void testGetFontScaleLarge() {
+    void testGetFontScaleLarge() {
         assertEquals(1.2f, SettingsActivity.getFontScale(SettingsActivity.FONT_SIZE_LARGE), 0.001f);
     }
 
     @Test
-    public void testGetFontScaleUnknown() {
+    void testGetFontScaleUnknown() {
         assertEquals(-1f, SettingsActivity.getFontScale("UNKNOWN"), 0.001f);
     }
 
     @Test
-    public void testGetEffectiveLanguageNull() {
+    void testGetEffectiveLanguageNull() {
         String result = SettingsActivity.getEffectiveLanguage(null);
         assertNotNull(result);
     }
 
     @Test
-    public void testGetEffectiveLanguageSystem() {
+    void testGetEffectiveLanguageSystem() {
         String result = SettingsActivity.getEffectiveLanguage(SettingsActivity.LANGUAGE_SYSTEM);
         assertNotNull(result);
         assertTrue(
@@ -58,45 +58,45 @@ public class SettingsActivityTest {
     }
 
     @Test
-    public void testGetEffectiveLanguageEn() {
+    void testGetEffectiveLanguageEn() {
         assertEquals("en", SettingsActivity.getEffectiveLanguage(SettingsActivity.LANGUAGE_EN));
     }
 
     @Test
-    public void testGetEffectiveLanguageDe() {
+    void testGetEffectiveLanguageDe() {
         assertEquals("de", SettingsActivity.getEffectiveLanguage(SettingsActivity.LANGUAGE_DE));
     }
 
     @Test
-    public void testGetEffectiveLanguageEs() {
+    void testGetEffectiveLanguageEs() {
         assertEquals("es", SettingsActivity.getEffectiveLanguage(SettingsActivity.LANGUAGE_ES));
     }
 
     @Test
-    public void testGetEffectiveLanguageFr() {
+    void testGetEffectiveLanguageFr() {
         assertEquals("fr", SettingsActivity.getEffectiveLanguage(SettingsActivity.LANGUAGE_FR));
     }
 
     @Test
-    public void testPrefsNameConstant() {
+    void testPrefsNameConstant() {
         assertEquals("habit_evaluator_settings", SettingsActivity.PREFS_NAME);
     }
 
     @Test
-    public void testStorageModeConstants() {
+    void testStorageModeConstants() {
         assertEquals("LOCAL", SettingsActivity.MODE_LOCAL);
         assertEquals("REMOTE", SettingsActivity.MODE_REMOTE);
     }
 
     @Test
-    public void testThemeModeConstants() {
+    void testThemeModeConstants() {
         assertEquals("SYSTEM", SettingsActivity.THEME_SYSTEM);
         assertEquals("LIGHT", SettingsActivity.THEME_LIGHT);
         assertEquals("DARK", SettingsActivity.THEME_DARK);
     }
 
     @Test
-    public void testLanguageConstants() {
+    void testLanguageConstants() {
         assertEquals("system", SettingsActivity.LANGUAGE_SYSTEM);
         assertEquals("en", SettingsActivity.LANGUAGE_EN);
         assertEquals("de", SettingsActivity.LANGUAGE_DE);
@@ -105,7 +105,7 @@ public class SettingsActivityTest {
     }
 
     @Test
-    public void testFontSizeConstants() {
+    void testFontSizeConstants() {
         assertEquals("SYSTEM", SettingsActivity.FONT_SIZE_SYSTEM);
         assertEquals("XS", SettingsActivity.FONT_SIZE_XS);
         assertEquals("SMALL", SettingsActivity.FONT_SIZE_SMALL);
@@ -114,7 +114,7 @@ public class SettingsActivityTest {
     }
 
     @Test
-    public void testDefaultReminderValues() {
+    void testDefaultReminderValues() {
         assertEquals("08:00", SettingsActivity.DEFAULT_SLEEP_REMINDER_TIME);
         assertEquals("20:00", SettingsActivity.DEFAULT_DIARY_REMINDER_TIME);
         assertEquals(3, SettingsActivity.DEFAULT_EMOTION_REMINDER_COUNT);
@@ -123,7 +123,7 @@ public class SettingsActivityTest {
     }
 
     @Test
-    public void testModuleVisibilityKeyConstants() {
+    void testModuleVisibilityKeyConstants() {
         assertNotNull(SettingsActivity.KEY_MODULE_DIARY_VISIBLE);
         assertNotNull(SettingsActivity.KEY_MODULE_SLEEP_VISIBLE);
         assertNotNull(SettingsActivity.KEY_MODULE_EMOTIONS_VISIBLE);
@@ -137,7 +137,7 @@ public class SettingsActivityTest {
     }
 
     @Test
-    public void testModuleVisibilityKeysAreUnique() {
+    void testModuleVisibilityKeysAreUnique() {
         String[] keys = {
                 SettingsActivity.KEY_MODULE_DIARY_VISIBLE,
                 SettingsActivity.KEY_MODULE_SLEEP_VISIBLE,
@@ -153,14 +153,14 @@ public class SettingsActivityTest {
         for (int i = 0; i < keys.length; i++) {
             for (int j = i + 1; j < keys.length; j++) {
                 assertNotEquals(
-                        "Module visibility keys " + keys[i] + " and " + keys[j] + " should be unique",
-                        keys[i], keys[j]);
+                        keys[i], keys[j],
+                        "Module visibility keys " + keys[i] + " and " + keys[j] + " should be unique");
             }
         }
     }
 
     @Test
-    public void testSettingsKeyConstants() {
+    void testSettingsKeyConstants() {
         assertEquals("storage_mode", SettingsActivity.KEY_STORAGE_MODE);
         assertEquals("api_base_url", SettingsActivity.KEY_API_URL);
         assertEquals("api_username", SettingsActivity.KEY_API_USERNAME);
@@ -175,7 +175,7 @@ public class SettingsActivityTest {
     }
 
     @Test
-    public void testReminderKeyConstants() {
+    void testReminderKeyConstants() {
         assertEquals("sleep_reminder_enabled", SettingsActivity.KEY_SLEEP_REMINDER_ENABLED);
         assertEquals("sleep_reminder_time", SettingsActivity.KEY_SLEEP_REMINDER_TIME);
         assertEquals("diary_reminder_enabled", SettingsActivity.KEY_DIARY_REMINDER_ENABLED);

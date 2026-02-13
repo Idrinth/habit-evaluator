@@ -1,93 +1,93 @@
 package de.idrinth.habitevaluator.android;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class DiaryNavigationFragmentTest {
+class DiaryNavigationFragmentTest {
 
     @Test
-    public void testNavigationCardCountValue() {
+    void testNavigationCardCountValue() {
         assertEquals(5, DiaryNavigationFragment.NAVIGATION_CARD_COUNT);
     }
 
     @Test
-    public void testNavigationTargetsNotNull() {
+    void testNavigationTargetsNotNull() {
         assertNotNull(DiaryNavigationFragment.NAVIGATION_TARGETS);
     }
 
     @Test
-    public void testNavigationTargetsLength() {
+    void testNavigationTargetsLength() {
         assertEquals(DiaryNavigationFragment.NAVIGATION_CARD_COUNT,
                 DiaryNavigationFragment.NAVIGATION_TARGETS.length);
     }
 
     @Test
-    public void testNavigationTargetsContainsPositivityDiary() {
+    void testNavigationTargetsContainsPositivityDiary() {
         assertTrue(DiaryNavigationFragment.isValidNavigationTarget("positivityDiary"));
     }
 
     @Test
-    public void testNavigationTargetsContainsSportLog() {
+    void testNavigationTargetsContainsSportLog() {
         assertTrue(DiaryNavigationFragment.isValidNavigationTarget("sportLog"));
     }
 
     @Test
-    public void testNavigationTargetsContainsFoodLog() {
+    void testNavigationTargetsContainsFoodLog() {
         assertTrue(DiaryNavigationFragment.isValidNavigationTarget("foodLog"));
     }
 
     @Test
-    public void testNavigationTargetsContainsMedicationLog() {
+    void testNavigationTargetsContainsMedicationLog() {
         assertTrue(DiaryNavigationFragment.isValidNavigationTarget("medicationLog"));
     }
 
     @Test
-    public void testNavigationTargetsContainsMedicationList() {
+    void testNavigationTargetsContainsMedicationList() {
         assertTrue(DiaryNavigationFragment.isValidNavigationTarget("medicationList"));
     }
 
     @Test
-    public void testIsValidNavigationTargetWithInvalidTarget() {
+    void testIsValidNavigationTargetWithInvalidTarget() {
         assertFalse(DiaryNavigationFragment.isValidNavigationTarget("nonExistent"));
     }
 
     @Test
-    public void testIsValidNavigationTargetWithNull() {
+    void testIsValidNavigationTargetWithNull() {
         assertFalse(DiaryNavigationFragment.isValidNavigationTarget(null));
     }
 
     @Test
-    public void testIsValidNavigationTargetWithEmptyString() {
+    void testIsValidNavigationTargetWithEmptyString() {
         assertFalse(DiaryNavigationFragment.isValidNavigationTarget(""));
     }
 
     @Test
-    public void testIsValidNavigationTargetIsCaseSensitive() {
+    void testIsValidNavigationTargetIsCaseSensitive() {
         assertFalse(DiaryNavigationFragment.isValidNavigationTarget("SPORTLOG"));
     }
 
     @Test
-    public void testIsValidNavigationTargetWithPartialMatch() {
+    void testIsValidNavigationTargetWithPartialMatch() {
         assertFalse(DiaryNavigationFragment.isValidNavigationTarget("sport"));
     }
 
     @Test
-    public void testAllNavigationTargetsAreNonNull() {
+    void testAllNavigationTargetsAreNonNull() {
         for (String target : DiaryNavigationFragment.NAVIGATION_TARGETS) {
             assertNotNull(target);
         }
     }
 
     @Test
-    public void testAllNavigationTargetsAreNonEmpty() {
+    void testAllNavigationTargetsAreNonEmpty() {
         for (String target : DiaryNavigationFragment.NAVIGATION_TARGETS) {
             assertFalse(target.isEmpty());
         }
     }
 
     @Test
-    public void testAllNavigationTargetsAreValidatable() {
+    void testAllNavigationTargetsAreValidatable() {
         for (String target : DiaryNavigationFragment.NAVIGATION_TARGETS) {
             assertTrue(DiaryNavigationFragment.isValidNavigationTarget(target));
         }

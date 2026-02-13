@@ -1,32 +1,32 @@
 package de.idrinth.habitevaluator.android.ui;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class EmotionScatterChartViewTest {
+class EmotionScatterChartViewTest {
 
     @Test
-    public void testScatterEntryStoresHourOfDay() {
+    void testScatterEntryStoresHourOfDay() {
         EmotionScatterChartView.ScatterEntry entry =
                 new EmotionScatterChartView.ScatterEntry(14.5f, 7.0f);
         assertEquals(14.5f, entry.hourOfDay, 0.001f);
     }
 
     @Test
-    public void testScatterEntryStoresStrength() {
+    void testScatterEntryStoresStrength() {
         EmotionScatterChartView.ScatterEntry entry =
                 new EmotionScatterChartView.ScatterEntry(14.5f, 7.0f);
         assertEquals(7.0f, entry.strength, 0.001f);
     }
 
     @Test
-    public void testScatterEntryWithZeroValues() {
+    void testScatterEntryWithZeroValues() {
         EmotionScatterChartView.ScatterEntry entry =
                 new EmotionScatterChartView.ScatterEntry(0f, 0f);
         assertEquals(0f, entry.hourOfDay, 0.001f);
@@ -34,14 +34,14 @@ public class EmotionScatterChartViewTest {
     }
 
     @Test
-    public void testScatterEntryWithNegativeStrength() {
+    void testScatterEntryWithNegativeStrength() {
         EmotionScatterChartView.ScatterEntry entry =
                 new EmotionScatterChartView.ScatterEntry(8.0f, -5.5f);
         assertEquals(-5.5f, entry.strength, 0.001f);
     }
 
     @Test
-    public void testScatterEntryWithBoundaryHours() {
+    void testScatterEntryWithBoundaryHours() {
         EmotionScatterChartView.ScatterEntry earlyEntry =
                 new EmotionScatterChartView.ScatterEntry(0f, 3.0f);
         EmotionScatterChartView.ScatterEntry lateEntry =
@@ -51,28 +51,28 @@ public class EmotionScatterChartViewTest {
     }
 
     @Test
-    public void testScatterEntryWithMaxStrength() {
+    void testScatterEntryWithMaxStrength() {
         EmotionScatterChartView.ScatterEntry entry =
                 new EmotionScatterChartView.ScatterEntry(12f, 10f);
         assertEquals(10f, entry.strength, 0.001f);
     }
 
     @Test
-    public void testScatterEntryWithMinStrength() {
+    void testScatterEntryWithMinStrength() {
         EmotionScatterChartView.ScatterEntry entry =
                 new EmotionScatterChartView.ScatterEntry(12f, -10f);
         assertEquals(-10f, entry.strength, 0.001f);
     }
 
     @Test
-    public void testScatterPairStoresLabel() {
+    void testScatterPairStoresLabel() {
         EmotionScatterChartView.ScatterPair pair =
                 new EmotionScatterChartView.ScatterPair("Happy - Sad", new ArrayList<>());
         assertEquals("Happy - Sad", pair.pairLabel);
     }
 
     @Test
-    public void testScatterPairStoresEntries() {
+    void testScatterPairStoresEntries() {
         List<EmotionScatterChartView.ScatterEntry> entries = new ArrayList<>();
         entries.add(new EmotionScatterChartView.ScatterEntry(10f, 5f));
         entries.add(new EmotionScatterChartView.ScatterEntry(14f, -2f));
@@ -86,7 +86,7 @@ public class EmotionScatterChartViewTest {
     }
 
     @Test
-    public void testScatterPairWithNullEntries() {
+    void testScatterPairWithNullEntries() {
         EmotionScatterChartView.ScatterPair pair =
                 new EmotionScatterChartView.ScatterPair("Test", null);
         assertNotNull(pair.entries);
@@ -94,21 +94,21 @@ public class EmotionScatterChartViewTest {
     }
 
     @Test
-    public void testScatterPairWithNullLabel() {
+    void testScatterPairWithNullLabel() {
         EmotionScatterChartView.ScatterPair pair =
                 new EmotionScatterChartView.ScatterPair(null, new ArrayList<>());
         assertNull(pair.pairLabel);
     }
 
     @Test
-    public void testScatterPairWithEmptyEntries() {
+    void testScatterPairWithEmptyEntries() {
         EmotionScatterChartView.ScatterPair pair =
                 new EmotionScatterChartView.ScatterPair("Label", new ArrayList<>());
         assertTrue(pair.entries.isEmpty());
     }
 
     @Test
-    public void testScatterPairEntriesListIsNotCopied() {
+    void testScatterPairEntriesListIsNotCopied() {
         List<EmotionScatterChartView.ScatterEntry> entries = new ArrayList<>();
         entries.add(new EmotionScatterChartView.ScatterEntry(8f, 3f));
 
@@ -122,7 +122,7 @@ public class EmotionScatterChartViewTest {
     }
 
     @Test
-    public void testMultipleScatterPairsAreIndependent() {
+    void testMultipleScatterPairsAreIndependent() {
         List<EmotionScatterChartView.ScatterEntry> entries1 = new ArrayList<>();
         entries1.add(new EmotionScatterChartView.ScatterEntry(8f, 5f));
 

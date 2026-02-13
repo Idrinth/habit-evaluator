@@ -1,7 +1,7 @@
 package de.idrinth.habitevaluator.android.ui;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -11,28 +11,28 @@ import de.idrinth.habitevaluator.shared.model.Medication;
 import de.idrinth.habitevaluator.shared.model.MedicationLog;
 import de.idrinth.habitevaluator.shared.model.MedicationProvisionType;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class MedicationLogAdapterTest {
+class MedicationLogAdapterTest {
 
     private List<MedicationLog> entries;
     private TestDeleteListener deleteListener;
     private MedicationLogAdapter adapter;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         entries = new ArrayList<>();
         deleteListener = new TestDeleteListener();
         adapter = new MedicationLogAdapter(entries, deleteListener);
     }
 
     @Test
-    public void testEmptyAdapterItemCount() {
+    void testEmptyAdapterItemCount() {
         assertEquals(0, adapter.getItemCount());
     }
 
     @Test
-    public void testItemCountWithEntries() {
+    void testItemCountWithEntries() {
         entries.add(createEntry("Aspirin", MedicationProvisionType.PILL, 2.0));
         entries.add(createEntry("Cough Syrup", MedicationProvisionType.LIQUID_ML, 10.0));
         entries.add(createEntry("Eye Drops", MedicationProvisionType.LIQUID_DROPS, 3.0));
@@ -40,14 +40,14 @@ public class MedicationLogAdapterTest {
     }
 
     @Test
-    public void testItemCountAfterAdding() {
+    void testItemCountAfterAdding() {
         assertEquals(0, adapter.getItemCount());
         entries.add(createEntry("Aspirin", MedicationProvisionType.PILL, 1.0));
         assertEquals(1, adapter.getItemCount());
     }
 
     @Test
-    public void testItemCountAfterRemoving() {
+    void testItemCountAfterRemoving() {
         MedicationLog entry = createEntry("Aspirin", MedicationProvisionType.PILL, 1.0);
         entries.add(entry);
         assertEquals(1, adapter.getItemCount());
@@ -56,7 +56,7 @@ public class MedicationLogAdapterTest {
     }
 
     @Test
-    public void testItemCountAfterClearing() {
+    void testItemCountAfterClearing() {
         entries.add(createEntry("Aspirin", MedicationProvisionType.PILL, 2.0));
         entries.add(createEntry("Vitamins", MedicationProvisionType.LIQUID_DROPS, 5.0));
         assertEquals(2, adapter.getItemCount());
@@ -65,14 +65,14 @@ public class MedicationLogAdapterTest {
     }
 
     @Test
-    public void testAdapterWithNullDeleteListener() {
+    void testAdapterWithNullDeleteListener() {
         MedicationLogAdapter nullListenerAdapter = new MedicationLogAdapter(entries, null);
         entries.add(createEntry("Aspirin", MedicationProvisionType.PILL, 1.0));
         assertEquals(1, nullListenerAdapter.getItemCount());
     }
 
     @Test
-    public void testAdapterBackedByOriginalList() {
+    void testAdapterBackedByOriginalList() {
         entries.add(createEntry("Aspirin", MedicationProvisionType.PILL, 1.0));
         assertEquals(1, adapter.getItemCount());
         entries.add(createEntry("Ibuprofen", MedicationProvisionType.PILL, 2.0));
@@ -82,14 +82,14 @@ public class MedicationLogAdapterTest {
     }
 
     @Test
-    public void testEntryWithNullMedication() {
+    void testEntryWithNullMedication() {
         MedicationLog entry = new MedicationLog(null, 1.0, LocalDateTime.now());
         entries.add(entry);
         assertEquals(1, adapter.getItemCount());
     }
 
     @Test
-    public void testEntryWithNullTakenAt() {
+    void testEntryWithNullTakenAt() {
         Medication med = new Medication("Aspirin", MedicationProvisionType.PILL);
         MedicationLog entry = new MedicationLog(med, 1.0, null);
         entries.add(entry);
@@ -97,7 +97,7 @@ public class MedicationLogAdapterTest {
     }
 
     @Test
-    public void testEntryWithNotes() {
+    void testEntryWithNotes() {
         MedicationLog entry = createEntry("Aspirin", MedicationProvisionType.PILL, 1.0);
         entry.setNotes("Taken with food");
         entries.add(entry);
@@ -105,7 +105,7 @@ public class MedicationLogAdapterTest {
     }
 
     @Test
-    public void testEntryWithEmptyNotes() {
+    void testEntryWithEmptyNotes() {
         MedicationLog entry = createEntry("Aspirin", MedicationProvisionType.PILL, 1.0);
         entry.setNotes("");
         entries.add(entry);

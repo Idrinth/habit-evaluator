@@ -1,7 +1,7 @@
 package de.idrinth.habitevaluator.android.ui;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -10,28 +10,28 @@ import java.util.List;
 
 import de.idrinth.habitevaluator.shared.model.SportLog;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class SportLogAdapterTest {
+class SportLogAdapterTest {
 
     private List<SportLog> entries;
     private TestDeleteListener deleteListener;
     private SportLogAdapter adapter;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         entries = new ArrayList<>();
         deleteListener = new TestDeleteListener();
         adapter = new SportLogAdapter(entries, deleteListener);
     }
 
     @Test
-    public void testEmptyAdapterItemCount() {
+    void testEmptyAdapterItemCount() {
         assertEquals(0, adapter.getItemCount());
     }
 
     @Test
-    public void testItemCountWithEntries() {
+    void testItemCountWithEntries() {
         entries.add(createEntry("Running", 5.0, "km", LocalTime.of(8, 0), LocalTime.of(9, 0)));
         entries.add(createEntry("Swimming", 1.5, "km", LocalTime.of(10, 0), LocalTime.of(11, 30)));
         entries.add(createEntry("Cycling", 20.0, "km", LocalTime.of(14, 0), LocalTime.of(15, 0)));
@@ -39,14 +39,14 @@ public class SportLogAdapterTest {
     }
 
     @Test
-    public void testItemCountAfterAdding() {
+    void testItemCountAfterAdding() {
         assertEquals(0, adapter.getItemCount());
         entries.add(createEntry("Running", 5.0, "km", LocalTime.of(8, 0), LocalTime.of(9, 0)));
         assertEquals(1, adapter.getItemCount());
     }
 
     @Test
-    public void testItemCountAfterRemoving() {
+    void testItemCountAfterRemoving() {
         SportLog entry = createEntry("Running", 5.0, "km", LocalTime.of(8, 0), LocalTime.of(9, 0));
         entries.add(entry);
         assertEquals(1, adapter.getItemCount());
@@ -55,7 +55,7 @@ public class SportLogAdapterTest {
     }
 
     @Test
-    public void testItemCountAfterClearing() {
+    void testItemCountAfterClearing() {
         entries.add(createEntry("Running", 5.0, "km", LocalTime.of(8, 0), LocalTime.of(9, 0)));
         entries.add(createEntry("Yoga", 0.0, "min", LocalTime.of(7, 0), LocalTime.of(7, 45)));
         assertEquals(2, adapter.getItemCount());
@@ -64,14 +64,14 @@ public class SportLogAdapterTest {
     }
 
     @Test
-    public void testAdapterWithNullDeleteListener() {
+    void testAdapterWithNullDeleteListener() {
         SportLogAdapter nullListenerAdapter = new SportLogAdapter(entries, null);
         entries.add(createEntry("Running", 5.0, "km", LocalTime.of(8, 0), LocalTime.of(9, 0)));
         assertEquals(1, nullListenerAdapter.getItemCount());
     }
 
     @Test
-    public void testAdapterBackedByOriginalList() {
+    void testAdapterBackedByOriginalList() {
         entries.add(createEntry("Running", 5.0, "km", LocalTime.of(8, 0), LocalTime.of(9, 0)));
         assertEquals(1, adapter.getItemCount());
         entries.add(createEntry("Swimming", 1.5, "km", LocalTime.of(10, 0), LocalTime.of(11, 0)));
@@ -81,21 +81,21 @@ public class SportLogAdapterTest {
     }
 
     @Test
-    public void testEntryWithNullStartTime() {
+    void testEntryWithNullStartTime() {
         SportLog entry = new SportLog("Running", 5.0, "km", null, LocalTime.of(9, 0));
         entries.add(entry);
         assertEquals(1, adapter.getItemCount());
     }
 
     @Test
-    public void testEntryWithNullEndTime() {
+    void testEntryWithNullEndTime() {
         SportLog entry = new SportLog("Running", 5.0, "km", LocalTime.of(8, 0), null);
         entries.add(entry);
         assertEquals(1, adapter.getItemCount());
     }
 
     @Test
-    public void testEntryWithNotes() {
+    void testEntryWithNotes() {
         SportLog entry = createEntry("Running", 5.0, "km", LocalTime.of(8, 0), LocalTime.of(9, 0));
         entry.setNotes("Felt great today");
         entries.add(entry);
@@ -103,7 +103,7 @@ public class SportLogAdapterTest {
     }
 
     @Test
-    public void testEntryWithEmptyNotes() {
+    void testEntryWithEmptyNotes() {
         SportLog entry = createEntry("Running", 5.0, "km", LocalTime.of(8, 0), LocalTime.of(9, 0));
         entry.setNotes("");
         entries.add(entry);
@@ -111,7 +111,7 @@ public class SportLogAdapterTest {
     }
 
     @Test
-    public void testEntryWithExplicitDate() {
+    void testEntryWithExplicitDate() {
         SportLog entry = new SportLog("Running", 5.0, "km", LocalTime.of(8, 0), LocalTime.of(9, 0), LocalDate.of(2025, 1, 15));
         entries.add(entry);
         assertEquals(1, adapter.getItemCount());

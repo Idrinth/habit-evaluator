@@ -1,6 +1,6 @@
 package de.idrinth.habitevaluator.android.ui;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -19,41 +19,41 @@ import de.idrinth.habitevaluator.shared.model.MedicationLog;
 import de.idrinth.habitevaluator.shared.model.SleepEntry;
 import de.idrinth.habitevaluator.shared.model.SportLog;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Regression test: every item in the adapter's backing data must be represented
  * in getItemCount(). If getItemCount() returns fewer items than the data holds,
  * the RecyclerView will silently drop rows and the user cannot scroll to them.
  */
-public class AdapterDataConsistencyTest {
+class AdapterDataConsistencyTest {
 
     // ── HabitAdapter ────────────────────────────────────────────────────────
 
     @Test
-    public void testHabitAdapterItemCountAlwaysMatchesBackingList() {
+    void testHabitAdapterItemCountAlwaysMatchesBackingList() {
         List<Habit> habits = new ArrayList<>();
         HabitAdapter adapter = new HabitAdapter(habits, new NoOpHabitClickListener());
 
         for (int i = 0; i < 50; i++) {
             habits.add(new Habit("Habit " + i, "desc"));
             assertEquals(
-                    "After adding item " + i + ", getItemCount must equal list size",
                     habits.size(), adapter.getItemCount()
-            );
+            ,
+                    "After adding item " + i + ", getItemCount must equal list size");
         }
 
         while (!habits.isEmpty()) {
             habits.remove(habits.size() - 1);
             assertEquals(
-                    "After removing, getItemCount must equal list size",
                     habits.size(), adapter.getItemCount()
-            );
+            ,
+                    "After removing, getItemCount must equal list size");
         }
     }
 
     @Test
-    public void testHabitAdapterItemCountAfterBulkClear() {
+    void testHabitAdapterItemCountAfterBulkClear() {
         List<Habit> habits = new ArrayList<>();
         HabitAdapter adapter = new HabitAdapter(habits, new NoOpHabitClickListener());
 
@@ -69,7 +69,7 @@ public class AdapterDataConsistencyTest {
     // ── DiaryEntryAdapter ───────────────────────────────────────────────────
 
     @Test
-    public void testDiaryEntryAdapterItemCountAlwaysMatchesBackingList() {
+    void testDiaryEntryAdapterItemCountAlwaysMatchesBackingList() {
         List<DiaryEntry> entries = new ArrayList<>();
         DiaryEntryAdapter adapter = new DiaryEntryAdapter(entries, null);
 
@@ -91,7 +91,7 @@ public class AdapterDataConsistencyTest {
     // ── SleepEntryAdapter ───────────────────────────────────────────────────
 
     @Test
-    public void testSleepEntryAdapterItemCountAlwaysMatchesBackingList() {
+    void testSleepEntryAdapterItemCountAlwaysMatchesBackingList() {
         List<SleepEntry> entries = new ArrayList<>();
         SleepEntryAdapter adapter = new SleepEntryAdapter(entries, null);
 
@@ -113,7 +113,7 @@ public class AdapterDataConsistencyTest {
     // ── EmotionPairAdapter ──────────────────────────────────────────────────
 
     @Test
-    public void testEmotionPairAdapterItemCountAlwaysMatchesBackingList() {
+    void testEmotionPairAdapterItemCountAlwaysMatchesBackingList() {
         List<EmotionPair> pairs = new ArrayList<>();
         EmotionPairAdapter adapter = new EmotionPairAdapter(pairs, null, null);
 
@@ -138,16 +138,16 @@ public class AdapterDataConsistencyTest {
     // data is loaded, preventing IndexOutOfBoundsException on first layout pass.
 
     @Test
-    public void testEmotionDataAdapterStartsEmpty() {
+    void testEmotionDataAdapterStartsEmpty() {
         EmotionDataAdapter adapter = new EmotionDataAdapter(pair -> {}, pair -> {}, entry -> {});
         assertEquals(
-                "EmotionDataAdapter must start with zero items before setData is called",
                 0, adapter.getItemCount()
-        );
+        ,
+                "EmotionDataAdapter must start with zero items before setData is called");
     }
 
     @Test
-    public void testEmotionDataAdapterWithNullListenersStartsEmpty() {
+    void testEmotionDataAdapterWithNullListenersStartsEmpty() {
         EmotionDataAdapter adapter = new EmotionDataAdapter(null, null, null);
         assertEquals(0, adapter.getItemCount());
     }
@@ -155,7 +155,7 @@ public class AdapterDataConsistencyTest {
     // ── EditHabitAdapter ────────────────────────────────────────────────────
 
     @Test
-    public void testEditHabitAdapterItemCountMatchesBackingList() {
+    void testEditHabitAdapterItemCountMatchesBackingList() {
         List<Habit> habits = new ArrayList<>();
         List<HabitCategory> categories = new ArrayList<>();
         HabitCategory cat = new HabitCategory("Health", "Health category", "#00FF00");
@@ -172,7 +172,7 @@ public class AdapterDataConsistencyTest {
     }
 
     @Test
-    public void testEditHabitAdapterEmptyList() {
+    void testEditHabitAdapterEmptyList() {
         List<Habit> habits = new ArrayList<>();
         List<HabitCategory> categories = new ArrayList<>();
         EditHabitAdapter adapter = new EditHabitAdapter(habits, false, categories, "en");
@@ -182,7 +182,7 @@ public class AdapterDataConsistencyTest {
     // ── SportLogAdapter ─────────────────────────────────────────────────────
 
     @Test
-    public void testSportLogAdapterItemCountAlwaysMatchesBackingList() {
+    void testSportLogAdapterItemCountAlwaysMatchesBackingList() {
         List<SportLog> entries = new ArrayList<>();
         SportLogAdapter adapter = new SportLogAdapter(entries, null);
 
@@ -199,7 +199,7 @@ public class AdapterDataConsistencyTest {
     // ── FoodLogAdapter ──────────────────────────────────────────────────────
 
     @Test
-    public void testFoodLogAdapterItemCountAlwaysMatchesBackingList() {
+    void testFoodLogAdapterItemCountAlwaysMatchesBackingList() {
         List<FoodLog> entries = new ArrayList<>();
         FoodLogAdapter adapter = new FoodLogAdapter(entries, null);
 
@@ -215,7 +215,7 @@ public class AdapterDataConsistencyTest {
     // ── MedicationLogAdapter ────────────────────────────────────────────────
 
     @Test
-    public void testMedicationLogAdapterItemCountAlwaysMatchesBackingList() {
+    void testMedicationLogAdapterItemCountAlwaysMatchesBackingList() {
         List<MedicationLog> entries = new ArrayList<>();
         MedicationLogAdapter adapter = new MedicationLogAdapter(entries, null);
 
@@ -231,7 +231,7 @@ public class AdapterDataConsistencyTest {
     // ── Cross-adapter: bulk insert + remove never desynchronizes ────────────
 
     @Test
-    public void testAllSimpleAdaptersStaySynchronizedDuringMixedOperations() {
+    void testAllSimpleAdaptersStaySynchronizedDuringMixedOperations() {
         // HabitAdapter
         List<Habit> habits = new ArrayList<>();
         HabitAdapter habitAdapter = new HabitAdapter(habits, new NoOpHabitClickListener());

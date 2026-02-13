@@ -1,58 +1,58 @@
 package de.idrinth.habitevaluator.android;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class EditHabitsFragmentTest {
+class EditHabitsFragmentTest {
 
     @Test
-    public void testIsThresholdOrderValidWithAscendingValues() {
+    void testIsThresholdOrderValidWithAscendingValues() {
         assertTrue(EditHabitsFragment.isThresholdOrderValid(1, 2, 4, 7));
     }
 
     @Test
-    public void testIsThresholdOrderValidWithEqualValues() {
+    void testIsThresholdOrderValidWithEqualValues() {
         assertTrue(EditHabitsFragment.isThresholdOrderValid(3, 3, 3, 3));
     }
 
     @Test
-    public void testIsThresholdOrderValidWithZeros() {
+    void testIsThresholdOrderValidWithZeros() {
         assertTrue(EditHabitsFragment.isThresholdOrderValid(0, 0, 0, 0));
     }
 
     @Test
-    public void testIsThresholdOrderValidWithZeroStart() {
+    void testIsThresholdOrderValidWithZeroStart() {
         assertTrue(EditHabitsFragment.isThresholdOrderValid(0, 1, 2, 3));
     }
 
     @Test
-    public void testIsThresholdOrderInvalidWithNegativeFirst() {
+    void testIsThresholdOrderInvalidWithNegativeFirst() {
         assertFalse(EditHabitsFragment.isThresholdOrderValid(-1, 2, 4, 7));
     }
 
     @Test
-    public void testIsThresholdOrderInvalidWithDescendingPair() {
+    void testIsThresholdOrderInvalidWithDescendingPair() {
         assertFalse(EditHabitsFragment.isThresholdOrderValid(5, 3, 4, 7));
     }
 
     @Test
-    public void testIsThresholdOrderInvalidWithDescendingMiddle() {
+    void testIsThresholdOrderInvalidWithDescendingMiddle() {
         assertFalse(EditHabitsFragment.isThresholdOrderValid(1, 5, 3, 7));
     }
 
     @Test
-    public void testIsThresholdOrderInvalidWithDescendingLast() {
+    void testIsThresholdOrderInvalidWithDescendingLast() {
         assertFalse(EditHabitsFragment.isThresholdOrderValid(1, 2, 8, 5));
     }
 
     @Test
-    public void testIsThresholdOrderValidWithLargeValues() {
+    void testIsThresholdOrderValidWithLargeValues() {
         assertTrue(EditHabitsFragment.isThresholdOrderValid(10, 20, 50, 100));
     }
 
     @Test
-    public void testIsThresholdOrderValidWithDefaultThresholds() {
+    void testIsThresholdOrderValidWithDefaultThresholds() {
         assertTrue(EditHabitsFragment.isThresholdOrderValid(1, 2, 4, 7));
     }
 }

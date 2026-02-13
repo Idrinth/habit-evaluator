@@ -1,119 +1,119 @@
 package de.idrinth.habitevaluator.android;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class ImprintFragmentTest {
+class ImprintFragmentTest {
 
     @Test
-    public void testEmailAddressIsNotNull() {
+    void testEmailAddressIsNotNull() {
         assertNotNull(ImprintFragment.EMAIL_ADDRESS);
     }
 
     @Test
-    public void testEmailAddressIsNotEmpty() {
+    void testEmailAddressIsNotEmpty() {
         assertFalse(ImprintFragment.EMAIL_ADDRESS.isEmpty());
     }
 
     @Test
-    public void testEmailAddressContainsAtSymbol() {
+    void testEmailAddressContainsAtSymbol() {
         assertTrue(ImprintFragment.EMAIL_ADDRESS.contains("@"));
     }
 
     @Test
-    public void testEmailAddressValue() {
+    void testEmailAddressValue() {
         assertEquals("self@idrinth.de", ImprintFragment.EMAIL_ADDRESS);
     }
 
     @Test
-    public void testMailtoUriIsNotNull() {
+    void testMailtoUriIsNotNull() {
         assertNotNull(ImprintFragment.MAILTO_URI);
     }
 
     @Test
-    public void testMailtoUriStartsWithMailtoScheme() {
+    void testMailtoUriStartsWithMailtoScheme() {
         assertTrue(ImprintFragment.MAILTO_URI.startsWith("mailto:"));
     }
 
     @Test
-    public void testMailtoUriContainsEmailAddress() {
+    void testMailtoUriContainsEmailAddress() {
         assertTrue(ImprintFragment.MAILTO_URI.contains(ImprintFragment.EMAIL_ADDRESS));
     }
 
     @Test
-    public void testMailtoUriValue() {
+    void testMailtoUriValue() {
         assertEquals("mailto:self@idrinth.de", ImprintFragment.MAILTO_URI);
     }
 
     @Test
-    public void testMailtoUriMatchesEmailAddress() {
+    void testMailtoUriMatchesEmailAddress() {
         assertEquals("mailto:" + ImprintFragment.EMAIL_ADDRESS, ImprintFragment.MAILTO_URI);
     }
 
     @Test
-    public void testVersionPrefixIsNotNull() {
+    void testVersionPrefixIsNotNull() {
         assertNotNull(ImprintFragment.VERSION_PREFIX);
     }
 
     @Test
-    public void testVersionPrefixValue() {
+    void testVersionPrefixValue() {
         assertEquals("Version ", ImprintFragment.VERSION_PREFIX);
     }
 
     @Test
-    public void testVersionPrefixEndsWithSpace() {
+    void testVersionPrefixEndsWithSpace() {
         assertTrue(ImprintFragment.VERSION_PREFIX.endsWith(" "));
     }
 
     @Test
-    public void testFormatVersionLabelWithValidVersion() {
+    void testFormatVersionLabelWithValidVersion() {
         assertEquals("Version 1.0.0", ImprintFragment.formatVersionLabel("1.0.0"));
     }
 
     @Test
-    public void testFormatVersionLabelWithSnapshotVersion() {
+    void testFormatVersionLabelWithSnapshotVersion() {
         assertEquals("Version 0.1.0-SNAPSHOT", ImprintFragment.formatVersionLabel("0.1.0-SNAPSHOT"));
     }
 
     @Test
-    public void testFormatVersionLabelStartsWithPrefix() {
+    void testFormatVersionLabelStartsWithPrefix() {
         assertTrue(ImprintFragment.formatVersionLabel("2.3.4").startsWith(ImprintFragment.VERSION_PREFIX));
     }
 
     @Test
-    public void testFormatVersionLabelWithNullVersion() {
+    void testFormatVersionLabelWithNullVersion() {
         assertEquals("Version unknown", ImprintFragment.formatVersionLabel(null));
     }
 
     @Test
-    public void testFormatVersionLabelWithEmptyVersion() {
+    void testFormatVersionLabelWithEmptyVersion() {
         assertEquals("Version unknown", ImprintFragment.formatVersionLabel(""));
     }
 
     @Test
-    public void testFormatVersionLabelWithSingleDigitVersion() {
+    void testFormatVersionLabelWithSingleDigitVersion() {
         assertEquals("Version 1", ImprintFragment.formatVersionLabel("1"));
     }
 
     @Test
-    public void testFormatVersionLabelWithSemanticVersion() {
+    void testFormatVersionLabelWithSemanticVersion() {
         String result = ImprintFragment.formatVersionLabel("3.2.1");
         assertTrue(result.contains("3.2.1"));
     }
 
     @Test
-    public void testFormatVersionLabelResultIsNotNull() {
+    void testFormatVersionLabelResultIsNotNull() {
         assertNotNull(ImprintFragment.formatVersionLabel("1.0.0"));
     }
 
     @Test
-    public void testFormatVersionLabelResultIsNotNullForNullInput() {
+    void testFormatVersionLabelResultIsNotNullForNullInput() {
         assertNotNull(ImprintFragment.formatVersionLabel(null));
     }
 
     @Test
-    public void testFormatVersionLabelResultIsNotNullForEmptyInput() {
+    void testFormatVersionLabelResultIsNotNullForEmptyInput() {
         assertNotNull(ImprintFragment.formatVersionLabel(""));
     }
 }

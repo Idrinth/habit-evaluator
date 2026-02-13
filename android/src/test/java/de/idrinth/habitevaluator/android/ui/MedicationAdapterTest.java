@@ -1,7 +1,7 @@
 package de.idrinth.habitevaluator.android.ui;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,17 +9,17 @@ import java.util.List;
 import de.idrinth.habitevaluator.shared.model.Medication;
 import de.idrinth.habitevaluator.shared.model.MedicationProvisionType;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class MedicationAdapterTest {
+class MedicationAdapterTest {
 
     private List<Medication> medications;
     private TestDeleteListener deleteListener;
     private TestEditLinkListener editLinkListener;
     private MedicationAdapter adapter;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         medications = new ArrayList<>();
         deleteListener = new TestDeleteListener();
         editLinkListener = new TestEditLinkListener();
@@ -27,12 +27,12 @@ public class MedicationAdapterTest {
     }
 
     @Test
-    public void testEmptyAdapterItemCount() {
+    void testEmptyAdapterItemCount() {
         assertEquals(0, adapter.getItemCount());
     }
 
     @Test
-    public void testItemCountWithMedications() {
+    void testItemCountWithMedications() {
         medications.add(new Medication("Aspirin", MedicationProvisionType.PILL));
         medications.add(new Medication("Cough Syrup", MedicationProvisionType.LIQUID_ML));
         medications.add(new Medication("Eye Drops", MedicationProvisionType.LIQUID_DROPS));
@@ -40,14 +40,14 @@ public class MedicationAdapterTest {
     }
 
     @Test
-    public void testItemCountAfterAdding() {
+    void testItemCountAfterAdding() {
         assertEquals(0, adapter.getItemCount());
         medications.add(new Medication("Aspirin", MedicationProvisionType.PILL));
         assertEquals(1, adapter.getItemCount());
     }
 
     @Test
-    public void testItemCountAfterRemoving() {
+    void testItemCountAfterRemoving() {
         Medication med = new Medication("Aspirin", MedicationProvisionType.PILL);
         medications.add(med);
         assertEquals(1, adapter.getItemCount());
@@ -56,7 +56,7 @@ public class MedicationAdapterTest {
     }
 
     @Test
-    public void testItemCountAfterClearing() {
+    void testItemCountAfterClearing() {
         medications.add(new Medication("Aspirin", MedicationProvisionType.PILL));
         medications.add(new Medication("Ibuprofen", MedicationProvisionType.PILL));
         assertEquals(2, adapter.getItemCount());
@@ -65,28 +65,28 @@ public class MedicationAdapterTest {
     }
 
     @Test
-    public void testAdapterWithNullListeners() {
+    void testAdapterWithNullListeners() {
         MedicationAdapter nullAdapter = new MedicationAdapter(medications, null, null);
         medications.add(new Medication("Aspirin", MedicationProvisionType.PILL));
         assertEquals(1, nullAdapter.getItemCount());
     }
 
     @Test
-    public void testAdapterWithNullDeleteListenerOnly() {
+    void testAdapterWithNullDeleteListenerOnly() {
         MedicationAdapter partialAdapter = new MedicationAdapter(medications, null, editLinkListener);
         medications.add(new Medication("Aspirin", MedicationProvisionType.PILL));
         assertEquals(1, partialAdapter.getItemCount());
     }
 
     @Test
-    public void testAdapterWithNullEditLinkListenerOnly() {
+    void testAdapterWithNullEditLinkListenerOnly() {
         MedicationAdapter partialAdapter = new MedicationAdapter(medications, deleteListener, null);
         medications.add(new Medication("Aspirin", MedicationProvisionType.PILL));
         assertEquals(1, partialAdapter.getItemCount());
     }
 
     @Test
-    public void testAdapterBackedByOriginalList() {
+    void testAdapterBackedByOriginalList() {
         medications.add(new Medication("Aspirin", MedicationProvisionType.PILL));
         assertEquals(1, adapter.getItemCount());
         medications.add(new Medication("Ibuprofen", MedicationProvisionType.PILL));
@@ -96,7 +96,7 @@ public class MedicationAdapterTest {
     }
 
     @Test
-    public void testMedicationWithAllProvisionTypes() {
+    void testMedicationWithAllProvisionTypes() {
         medications.add(new Medication("Pills", MedicationProvisionType.PILL));
         medications.add(new Medication("Drops", MedicationProvisionType.LIQUID_DROPS));
         medications.add(new Medication("Liquid", MedicationProvisionType.LIQUID_ML));
@@ -104,7 +104,7 @@ public class MedicationAdapterTest {
     }
 
     @Test
-    public void testMedicationWithNullProvisionType() {
+    void testMedicationWithNullProvisionType() {
         Medication med = new Medication("Unknown", null);
         medications.add(med);
         assertEquals(1, adapter.getItemCount());

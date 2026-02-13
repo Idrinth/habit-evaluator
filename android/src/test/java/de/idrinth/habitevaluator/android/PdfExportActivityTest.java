@@ -1,25 +1,25 @@
 package de.idrinth.habitevaluator.android;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class PdfExportActivityTest {
+class PdfExportActivityTest {
 
     @Test
-    public void testTruncateLineReturnsSameStringWhenWithinLimit() {
+    void testTruncateLineReturnsSameStringWhenWithinLimit() {
         String input = "short line";
         assertEquals(input, PdfExportActivity.truncateLine(input, 80));
     }
 
     @Test
-    public void testTruncateLineReturnsExactLengthWhenAtLimit() {
+    void testTruncateLineReturnsExactLengthWhenAtLimit() {
         String input = "12345678901234567890"; // 20 chars
         assertEquals(input, PdfExportActivity.truncateLine(input, 20));
     }
 
     @Test
-    public void testTruncateLineTruncatesWhenOverLimit() {
+    void testTruncateLineTruncatesWhenOverLimit() {
         String input = "This is a very long line that should be truncated because it exceeds the limit set for it here";
         String result = PdfExportActivity.truncateLine(input, 30);
         assertEquals(30, result.length());
@@ -27,7 +27,7 @@ public class PdfExportActivityTest {
     }
 
     @Test
-    public void testTruncateLinePreservesContentBeforeEllipsis() {
+    void testTruncateLinePreservesContentBeforeEllipsis() {
         String input = "ABCDEFGHIJ"; // 10 chars
         String result = PdfExportActivity.truncateLine(input, 8);
         assertEquals("ABCDE...", result);
@@ -35,18 +35,18 @@ public class PdfExportActivityTest {
     }
 
     @Test
-    public void testTruncateLineWithEmptyString() {
+    void testTruncateLineWithEmptyString() {
         assertEquals("", PdfExportActivity.truncateLine("", 80));
     }
 
     @Test
-    public void testTruncateLineWithLargeLimit() {
+    void testTruncateLineWithLargeLimit() {
         String input = "hello";
         assertEquals(input, PdfExportActivity.truncateLine(input, 1000));
     }
 
     @Test
-    public void testTruncateLineWith80CharLimit() {
+    void testTruncateLineWith80CharLimit() {
         // Simulate the sleep/diary entry truncation behavior
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < 90; i++) {
@@ -59,7 +59,7 @@ public class PdfExportActivityTest {
     }
 
     @Test
-    public void testTruncateLineWith95CharLimit() {
+    void testTruncateLineWith95CharLimit() {
         // Simulate the correlation line truncation behavior
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < 100; i++) {
@@ -71,7 +71,7 @@ public class PdfExportActivityTest {
     }
 
     @Test
-    public void testTruncateLineWith30CharLimit() {
+    void testTruncateLineWith30CharLimit() {
         // Simulate the legend label truncation behavior
         String label = "Very long emotion pair label that exceeds thirty characters";
         String result = PdfExportActivity.truncateLine(label, 30);
@@ -80,7 +80,7 @@ public class PdfExportActivityTest {
     }
 
     @Test
-    public void testTruncateLineOneOverLimit() {
+    void testTruncateLineOneOverLimit() {
         String input = "123456"; // 6 chars
         String result = PdfExportActivity.truncateLine(input, 5);
         assertEquals("12...", result);

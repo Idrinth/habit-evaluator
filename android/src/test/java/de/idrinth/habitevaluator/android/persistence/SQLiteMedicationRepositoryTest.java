@@ -6,24 +6,24 @@ import android.database.sqlite.SQLiteDatabase;
 import de.idrinth.habitevaluator.shared.model.Medication;
 import de.idrinth.habitevaluator.shared.model.MedicationProvisionType;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 import static org.mockito.ArgumentMatchers.*;
 
-public class SQLiteMedicationRepositoryTest {
+class SQLiteMedicationRepositoryTest {
 
     private SQLiteHelper dbHelper;
     private SQLiteDatabase db;
     private SQLiteMedicationRepository repository;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         dbHelper = mock(SQLiteHelper.class);
         db = mock(SQLiteDatabase.class);
         when(dbHelper.getReadableDatabase()).thenReturn(db);
@@ -32,7 +32,7 @@ public class SQLiteMedicationRepositoryTest {
     }
 
     @Test
-    public void testSaveCallsInsert() {
+    void testSaveCallsInsert() {
         Medication medication = new Medication("Ibuprofen", MedicationProvisionType.PILL);
 
         repository.save(medication);
@@ -41,7 +41,7 @@ public class SQLiteMedicationRepositoryTest {
     }
 
     @Test
-    public void testFindByIdNotFound() {
+    void testFindByIdNotFound() {
         Cursor cursor = mock(Cursor.class);
         when(cursor.moveToFirst()).thenReturn(false);
         when(db.rawQuery(eq("SELECT * FROM medications WHERE id = ?"), eq(new String[]{"nonexistent"}))).thenReturn(cursor);
@@ -50,7 +50,7 @@ public class SQLiteMedicationRepositoryTest {
     }
 
     @Test
-    public void testFindByIdFound() {
+    void testFindByIdFound() {
         Cursor cursor = createMedicationCursor("m1", "Ibuprofen", "https://en.wikipedia.org/wiki/Ibuprofen", "PILL", null, null);
         when(db.rawQuery(eq("SELECT * FROM medications WHERE id = ?"), eq(new String[]{"m1"}))).thenReturn(cursor);
 
@@ -63,7 +63,7 @@ public class SQLiteMedicationRepositoryTest {
     }
 
     @Test
-    public void testFindByIdWithNullProvisionType() {
+    void testFindByIdWithNullProvisionType() {
         Cursor cursor = createMedicationCursor("m1", "Unknown Med", null, null, null, null);
         when(db.rawQuery(eq("SELECT * FROM medications WHERE id = ?"), eq(new String[]{"m1"}))).thenReturn(cursor);
 
@@ -74,7 +74,7 @@ public class SQLiteMedicationRepositoryTest {
     }
 
     @Test
-    public void testFindByIdWithUser() {
+    void testFindByIdWithUser() {
         Cursor cursor = createMedicationCursor("m1", "Ibuprofen", null, "PILL", "u1", "testuser");
         when(db.rawQuery(eq("SELECT * FROM medications WHERE id = ?"), eq(new String[]{"m1"}))).thenReturn(cursor);
 
@@ -86,7 +86,7 @@ public class SQLiteMedicationRepositoryTest {
     }
 
     @Test
-    public void testFindAllEmpty() {
+    void testFindAllEmpty() {
         Cursor cursor = createEmptyCursor();
         when(db.rawQuery(eq("SELECT * FROM medications"), isNull())).thenReturn(cursor);
 
@@ -94,14 +94,14 @@ public class SQLiteMedicationRepositoryTest {
     }
 
     @Test
-    public void testDeleteById() {
+    void testDeleteById() {
         repository.deleteById("m1");
 
         verify(db).delete(eq("medications"), eq("id = ?"), eq(new String[]{"m1"}));
     }
 
     @Test
-    public void testFindByUserIdEmpty() {
+    void testFindByUserIdEmpty() {
         Cursor cursor = createEmptyCursor();
         when(db.rawQuery(startsWith("SELECT * FROM medications WHERE user_id"), any())).thenReturn(cursor);
 
@@ -109,7 +109,7 @@ public class SQLiteMedicationRepositoryTest {
     }
 
     @Test
-    public void testFindByIdWithLiquidDrops() {
+    void testFindByIdWithLiquidDrops() {
         Cursor cursor = createMedicationCursor("m1", "Eye Drops", null, "LIQUID_DROPS", null, null);
         when(db.rawQuery(eq("SELECT * FROM medications WHERE id = ?"), eq(new String[]{"m1"}))).thenReturn(cursor);
 
@@ -120,7 +120,7 @@ public class SQLiteMedicationRepositoryTest {
     }
 
     @Test
-    public void testSaveReturnsMedication() {
+    void testSaveReturnsMedication() {
         Medication medication = new Medication("Test", MedicationProvisionType.PILL);
         Medication result = repository.save(medication);
         assertSame(medication, result);

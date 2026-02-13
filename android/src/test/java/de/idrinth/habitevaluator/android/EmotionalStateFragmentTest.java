@@ -1,6 +1,6 @@
 package de.idrinth.habitevaluator.android;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -10,19 +10,19 @@ import java.util.Map;
 import de.idrinth.habitevaluator.shared.model.EmotionEntry;
 import de.idrinth.habitevaluator.shared.model.EmotionPair;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class EmotionalStateFragmentTest {
+class EmotionalStateFragmentTest {
 
     @Test
-    public void testGroupEntriesByPairIdWithEmptyLists() {
+    void testGroupEntriesByPairIdWithEmptyLists() {
         Map<String, List<EmotionEntry>> result = EmotionalStateFragment.groupEntriesByPairId(
                 new ArrayList<>(), new ArrayList<>());
         assertTrue(result.isEmpty());
     }
 
     @Test
-    public void testGroupEntriesByPairIdWithPairsButNoEntries() {
+    void testGroupEntriesByPairIdWithPairsButNoEntries() {
         List<EmotionPair> pairs = new ArrayList<>();
         EmotionPair pair = new EmotionPair("Sad", "Happy");
         pairs.add(pair);
@@ -36,7 +36,7 @@ public class EmotionalStateFragmentTest {
     }
 
     @Test
-    public void testGroupEntriesByPairIdWithMatchingEntries() {
+    void testGroupEntriesByPairIdWithMatchingEntries() {
         EmotionPair pair = new EmotionPair("Sad", "Happy");
         List<EmotionPair> pairs = new ArrayList<>();
         pairs.add(pair);
@@ -55,7 +55,7 @@ public class EmotionalStateFragmentTest {
     }
 
     @Test
-    public void testGroupEntriesByPairIdSortsEntriesNewestFirst() {
+    void testGroupEntriesByPairIdSortsEntriesNewestFirst() {
         EmotionPair pair = new EmotionPair("Sad", "Happy");
         List<EmotionPair> pairs = new ArrayList<>();
         pairs.add(pair);
@@ -77,7 +77,7 @@ public class EmotionalStateFragmentTest {
     }
 
     @Test
-    public void testGroupEntriesByPairIdWithMultiplePairs() {
+    void testGroupEntriesByPairIdWithMultiplePairs() {
         EmotionPair pair1 = new EmotionPair("Sad", "Happy");
         EmotionPair pair2 = new EmotionPair("Anxious", "Calm");
         List<EmotionPair> pairs = new ArrayList<>();
@@ -99,7 +99,7 @@ public class EmotionalStateFragmentTest {
     }
 
     @Test
-    public void testGroupEntriesByPairIdIgnoresEntriesWithNullPair() {
+    void testGroupEntriesByPairIdIgnoresEntriesWithNullPair() {
         EmotionPair pair = new EmotionPair("Sad", "Happy");
         List<EmotionPair> pairs = new ArrayList<>();
         pairs.add(pair);
@@ -117,7 +117,7 @@ public class EmotionalStateFragmentTest {
     }
 
     @Test
-    public void testGroupEntriesByPairIdDoesNotIncludeUnmatchedEntries() {
+    void testGroupEntriesByPairIdDoesNotIncludeUnmatchedEntries() {
         EmotionPair pair1 = new EmotionPair("Sad", "Happy");
         EmotionPair pair2 = new EmotionPair("Anxious", "Calm");
         List<EmotionPair> pairs = new ArrayList<>();
