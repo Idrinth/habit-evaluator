@@ -129,6 +129,7 @@
     <string name="sleep_analysis_title">Analyse du sommeil</string>
     <string name="sleep_duration_graph_title">Durée quotidienne du sommeil (heures)</string>
     <string name="sleep_interruptions_graph_title">Interruptions quotidiennes du sommeil</string>
+    <string name="sleep_distribution_graph_title">Sleep Time Distribution</string>
     <string name="translation_settings">Paramètres de traduction</string>
     <string name="custom_translations_label">Permettre les traductions personnalisées pour les noms d\'habitudes et de catégories</string>
     <string name="custom_translations_enabled">Traductions personnalisées</string>
@@ -368,4 +369,5 @@
     <string name="module_backup">Backup</string>
     <string name="module_pdf_export">PDF Export</string>
     <string name="daily_entries_count">Today: %1$d/%2$d</string>
+    <string name="notification_permission_denied">Notification permission denied. Reminders will not work until permission is granted in app settings.</string>
 </resources>
