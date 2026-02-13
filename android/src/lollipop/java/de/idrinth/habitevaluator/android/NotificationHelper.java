@@ -1,14 +1,11 @@
 package de.idrinth.habitevaluator.android;
 
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
 import android.content.Context;
-import android.os.Build;
 
 /**
- * Lollipop flavor notification helper (API 21+).
- * Guards NotificationChannel creation behind an API 26 check since
- * this flavor supports devices that predate notification channels.
+ * Lollipop flavor notification helper (API 21–25).
+ * Notification channels do not exist before API 26, so channel
+ * creation is a no-op. Devices running API 26+ use the oreo flavor.
  */
 public final class NotificationHelper {
 
@@ -18,18 +15,7 @@ public final class NotificationHelper {
     }
 
     public static void ensureNotificationChannel(Context context) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel channel = new NotificationChannel(
-                    CHANNEL_ID,
-                    context.getString(R.string.reminder_channel_name),
-                    NotificationManager.IMPORTANCE_DEFAULT);
-            channel.setDescription(context.getString(R.string.reminder_channel_description));
-            NotificationManager manager = (NotificationManager)
-                    context.getSystemService(Context.NOTIFICATION_SERVICE);
-            if (manager != null) {
-                manager.createNotificationChannel(channel);
-            }
-        }
+        // No-op: notification channels were introduced in API 26 (Oreo).
     }
 
     public static NotificationPermissionHandler permissionHandler() {
