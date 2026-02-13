@@ -1,7 +1,7 @@
 package de.idrinth.habitevaluator.android.ui;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -10,42 +10,42 @@ import java.util.List;
 
 import de.idrinth.habitevaluator.shared.model.SleepEntry;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class SleepEntryAdapterTest {
+class SleepEntryAdapterTest {
 
     private List<SleepEntry> entries;
     private TestDeleteListener deleteListener;
     private SleepEntryAdapter adapter;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         entries = new ArrayList<>();
         deleteListener = new TestDeleteListener();
         adapter = new SleepEntryAdapter(entries, deleteListener);
     }
 
     @Test
-    public void testEmptyAdapterItemCount() {
+    void testEmptyAdapterItemCount() {
         assertEquals(0, adapter.getItemCount());
     }
 
     @Test
-    public void testItemCountWithEntries() {
+    void testItemCountWithEntries() {
         entries.add(createEntry(LocalTime.of(22, 0), LocalTime.of(6, 0)));
         entries.add(createEntry(LocalTime.of(23, 0), LocalTime.of(7, 0)));
         assertEquals(2, adapter.getItemCount());
     }
 
     @Test
-    public void testItemCountAfterAdding() {
+    void testItemCountAfterAdding() {
         assertEquals(0, adapter.getItemCount());
         entries.add(createEntry(LocalTime.of(22, 0), LocalTime.of(6, 0)));
         assertEquals(1, adapter.getItemCount());
     }
 
     @Test
-    public void testItemCountAfterRemoving() {
+    void testItemCountAfterRemoving() {
         SleepEntry entry = createEntry(LocalTime.of(22, 0), LocalTime.of(6, 0));
         entries.add(entry);
         assertEquals(1, adapter.getItemCount());
@@ -54,7 +54,7 @@ public class SleepEntryAdapterTest {
     }
 
     @Test
-    public void testItemCountAfterClearing() {
+    void testItemCountAfterClearing() {
         entries.add(createEntry(LocalTime.of(22, 0), LocalTime.of(6, 0)));
         entries.add(createEntry(LocalTime.of(23, 30), LocalTime.of(7, 30)));
         entries.add(createEntry(LocalTime.of(21, 0), LocalTime.of(5, 0)));
@@ -64,7 +64,7 @@ public class SleepEntryAdapterTest {
     }
 
     @Test
-    public void testAdapterWithNullDeleteListener() {
+    void testAdapterWithNullDeleteListener() {
         SleepEntryAdapter nullListenerAdapter = new SleepEntryAdapter(entries, null);
         entries.add(createEntry(LocalTime.of(22, 0), LocalTime.of(6, 0)));
         assertEquals(1, nullListenerAdapter.getItemCount());

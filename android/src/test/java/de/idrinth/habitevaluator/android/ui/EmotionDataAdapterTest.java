@@ -1,7 +1,7 @@
 package de.idrinth.habitevaluator.android.ui;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -12,37 +12,37 @@ import java.util.Map;
 import de.idrinth.habitevaluator.shared.model.EmotionEntry;
 import de.idrinth.habitevaluator.shared.model.EmotionPair;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class EmotionDataAdapterTest {
+class EmotionDataAdapterTest {
 
     private EmotionDataAdapter adapter;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         adapter = new EmotionDataAdapter(pair -> {}, pair -> {}, entry -> {});
     }
 
     @Test
-    public void testEmptyAdapterItemCount() {
+    void testEmptyAdapterItemCount() {
         assertEquals(0, adapter.getItemCount());
     }
 
     @Test
-    public void testAdapterWithNullListeners() {
+    void testAdapterWithNullListeners() {
         EmotionDataAdapter nullAdapter = new EmotionDataAdapter(null, null, null);
         assertEquals(0, nullAdapter.getItemCount());
     }
 
     @Test
-    public void testAdapterInitiallyHasNoItems() {
+    void testAdapterInitiallyHasNoItems() {
         EmotionDataAdapter freshAdapter = new EmotionDataAdapter(
                 pair -> {}, pair -> {}, entry -> {});
         assertEquals(0, freshAdapter.getItemCount());
     }
 
     @Test
-    public void testCreatePairHasExpectedFields() {
+    void testCreatePairHasExpectedFields() {
         EmotionPair pair = new EmotionPair();
         pair.setId("test-id");
         pair.setNegativeLabel("sad");
@@ -53,7 +53,7 @@ public class EmotionDataAdapterTest {
     }
 
     @Test
-    public void testCreateEntryHasExpectedFields() {
+    void testCreateEntryHasExpectedFields() {
         EmotionPair pair = new EmotionPair();
         pair.setId("pair-1");
         pair.setNegativeLabel("sad");
@@ -71,7 +71,7 @@ public class EmotionDataAdapterTest {
     }
 
     @Test
-    public void testEmotionEntryStrengthBounds() {
+    void testEmotionEntryStrengthBounds() {
         EmotionEntry entry = new EmotionEntry();
         entry.setStrength(10);
         assertEquals(10, entry.getStrength());
@@ -81,7 +81,7 @@ public class EmotionDataAdapterTest {
     }
 
     @Test
-    public void testEmotionEntryNotes() {
+    void testEmotionEntryNotes() {
         EmotionEntry entry = new EmotionEntry();
         entry.setNotes("test notes");
         assertEquals("test notes", entry.getNotes());
@@ -91,7 +91,7 @@ public class EmotionDataAdapterTest {
     }
 
     @Test
-    public void testEmotionPairToString() {
+    void testEmotionPairToString() {
         EmotionPair pair = new EmotionPair();
         pair.setNegativeLabel("sad");
         pair.setPositiveLabel("happy");
@@ -101,28 +101,28 @@ public class EmotionDataAdapterTest {
     }
 
     @Test
-    public void testEmotionEntryStrengthZero() {
+    void testEmotionEntryStrengthZero() {
         EmotionEntry entry = new EmotionEntry();
         entry.setStrength(0);
         assertEquals(0, entry.getStrength());
     }
 
     @Test
-    public void testEmotionEntryWithNullPair() {
+    void testEmotionEntryWithNullPair() {
         EmotionEntry entry = new EmotionEntry();
         entry.setEmotionPair(null);
         assertNull(entry.getEmotionPair());
     }
 
     @Test
-    public void testEmotionEntryWithNullRecordedAt() {
+    void testEmotionEntryWithNullRecordedAt() {
         EmotionEntry entry = new EmotionEntry();
         entry.setRecordedAt(null);
         assertNull(entry.getRecordedAt());
     }
 
     @Test
-    public void testEmotionPairWithNullLabels() {
+    void testEmotionPairWithNullLabels() {
         EmotionPair pair = new EmotionPair();
         pair.setNegativeLabel(null);
         pair.setPositiveLabel(null);
@@ -131,7 +131,7 @@ public class EmotionDataAdapterTest {
     }
 
     @Test
-    public void testEmotionPairWithEmptyLabels() {
+    void testEmotionPairWithEmptyLabels() {
         EmotionPair pair = new EmotionPair();
         pair.setNegativeLabel("");
         pair.setPositiveLabel("");
@@ -140,7 +140,7 @@ public class EmotionDataAdapterTest {
     }
 
     @Test
-    public void testMultipleAdapterInstancesAreIndependent() {
+    void testMultipleAdapterInstancesAreIndependent() {
         EmotionDataAdapter adapter1 = new EmotionDataAdapter(pair -> {}, pair -> {}, entry -> {});
         EmotionDataAdapter adapter2 = new EmotionDataAdapter(pair -> {}, pair -> {}, entry -> {});
         assertEquals(0, adapter1.getItemCount());
@@ -148,21 +148,21 @@ public class EmotionDataAdapterTest {
     }
 
     @Test
-    public void testEmotionEntryStrengthPositiveBoundary() {
+    void testEmotionEntryStrengthPositiveBoundary() {
         EmotionEntry entry = new EmotionEntry();
         entry.setStrength(10);
         assertEquals(10, entry.getStrength());
     }
 
     @Test
-    public void testEmotionEntryStrengthNegativeBoundary() {
+    void testEmotionEntryStrengthNegativeBoundary() {
         EmotionEntry entry = new EmotionEntry();
         entry.setStrength(-10);
         assertEquals(-10, entry.getStrength());
     }
 
     @Test
-    public void testEmotionPairIdCanBeOverridden() {
+    void testEmotionPairIdCanBeOverridden() {
         EmotionPair pair = new EmotionPair();
         assertNotNull(pair.getId());
         pair.setId("custom-id-123");
@@ -170,14 +170,14 @@ public class EmotionDataAdapterTest {
     }
 
     @Test
-    public void testEmotionEntryEmptyNotes() {
+    void testEmotionEntryEmptyNotes() {
         EmotionEntry entry = new EmotionEntry();
         entry.setNotes("");
         assertEquals("", entry.getNotes());
     }
 
     @Test
-    public void testEmotionEntryLongNotes() {
+    void testEmotionEntryLongNotes() {
         EmotionEntry entry = new EmotionEntry();
         String longNotes = "A".repeat(500);
         entry.setNotes(longNotes);

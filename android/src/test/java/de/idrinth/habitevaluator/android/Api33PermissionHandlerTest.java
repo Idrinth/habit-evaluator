@@ -1,31 +1,31 @@
 package de.idrinth.habitevaluator.android;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class Api33PermissionHandlerTest {
+class Api33PermissionHandlerTest {
 
     private Api33PermissionHandler handler;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         handler = new Api33PermissionHandler();
     }
 
     @Test
-    public void testPermissionNameReturnsPostNotifications() {
+    void testPermissionNameReturnsPostNotifications() {
         assertEquals("android.permission.POST_NOTIFICATIONS", handler.permissionName());
     }
 
     @Test
-    public void testPermissionNameIsNotNull() {
+    void testPermissionNameIsNotNull() {
         assertNotNull(handler.permissionName());
     }
 
     @Test
-    public void testImplementsNotificationPermissionHandler() {
+    void testImplementsNotificationPermissionHandler() {
         assertTrue(handler instanceof NotificationPermissionHandler);
     }
 }

@@ -5,24 +5,24 @@ import android.database.sqlite.SQLiteDatabase;
 
 import de.idrinth.habitevaluator.shared.model.EmotionPair;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 import static org.mockito.ArgumentMatchers.*;
 
-public class SQLiteEmotionPairRepositoryTest {
+class SQLiteEmotionPairRepositoryTest {
 
     private SQLiteHelper dbHelper;
     private SQLiteDatabase db;
     private SQLiteEmotionPairRepository repository;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         dbHelper = mock(SQLiteHelper.class);
         db = mock(SQLiteDatabase.class);
         when(dbHelper.getReadableDatabase()).thenReturn(db);
@@ -31,7 +31,7 @@ public class SQLiteEmotionPairRepositoryTest {
     }
 
     @Test
-    public void testSaveCallsInsert() {
+    void testSaveCallsInsert() {
         EmotionPair pair = new EmotionPair("Sad", "Happy");
 
         repository.save(pair);
@@ -40,7 +40,7 @@ public class SQLiteEmotionPairRepositoryTest {
     }
 
     @Test
-    public void testFindByIdNotFound() {
+    void testFindByIdNotFound() {
         Cursor cursor = mock(Cursor.class);
         when(cursor.moveToFirst()).thenReturn(false);
         when(db.rawQuery(eq("SELECT * FROM emotion_pairs WHERE id = ?"), eq(new String[]{"nonexistent"}))).thenReturn(cursor);
@@ -49,7 +49,7 @@ public class SQLiteEmotionPairRepositoryTest {
     }
 
     @Test
-    public void testFindByIdFound() {
+    void testFindByIdFound() {
         Cursor cursor = createPairCursor("p1", "Sad", "Happy", null, null);
         when(db.rawQuery(eq("SELECT * FROM emotion_pairs WHERE id = ?"), eq(new String[]{"p1"}))).thenReturn(cursor);
 
@@ -61,7 +61,7 @@ public class SQLiteEmotionPairRepositoryTest {
     }
 
     @Test
-    public void testFindByIdWithUser() {
+    void testFindByIdWithUser() {
         Cursor cursor = createPairCursor("p1", "Sad", "Happy", "u1", "testuser");
         when(db.rawQuery(eq("SELECT * FROM emotion_pairs WHERE id = ?"), eq(new String[]{"p1"}))).thenReturn(cursor);
 
@@ -74,7 +74,7 @@ public class SQLiteEmotionPairRepositoryTest {
     }
 
     @Test
-    public void testFindAllEmpty() {
+    void testFindAllEmpty() {
         Cursor cursor = createEmptyCursor();
         when(db.rawQuery(eq("SELECT * FROM emotion_pairs"), isNull())).thenReturn(cursor);
 
@@ -82,14 +82,14 @@ public class SQLiteEmotionPairRepositoryTest {
     }
 
     @Test
-    public void testDeleteById() {
+    void testDeleteById() {
         repository.deleteById("p1");
 
         verify(db).delete(eq("emotion_pairs"), eq("id = ?"), eq(new String[]{"p1"}));
     }
 
     @Test
-    public void testFindByUserIdEmpty() {
+    void testFindByUserIdEmpty() {
         Cursor cursor = createEmptyCursor();
         when(db.rawQuery(startsWith("SELECT * FROM emotion_pairs WHERE user_id"), any())).thenReturn(cursor);
 
@@ -97,7 +97,7 @@ public class SQLiteEmotionPairRepositoryTest {
     }
 
     @Test
-    public void testSaveReturnsEmotionPair() {
+    void testSaveReturnsEmotionPair() {
         EmotionPair pair = new EmotionPair("Anxious", "Calm");
         EmotionPair result = repository.save(pair);
         assertSame(pair, result);

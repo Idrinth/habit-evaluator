@@ -8,8 +8,8 @@ import de.idrinth.habitevaluator.shared.model.Habit;
 import de.idrinth.habitevaluator.shared.model.HabitEntry;
 import de.idrinth.habitevaluator.shared.model.User;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -18,18 +18,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 import static org.mockito.ArgumentMatchers.*;
 
-public class SQLiteHabitRepositoryTest {
+class SQLiteHabitRepositoryTest {
 
     private SQLiteHelper dbHelper;
     private SQLiteDatabase db;
     private SQLiteHabitRepository repository;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         dbHelper = mock(SQLiteHelper.class);
         db = mock(SQLiteDatabase.class);
         when(dbHelper.getReadableDatabase()).thenReturn(db);
@@ -38,7 +38,7 @@ public class SQLiteHabitRepositoryTest {
     }
 
     @Test
-    public void testSaveCallsInsertWithTransaction() {
+    void testSaveCallsInsertWithTransaction() {
         Habit habit = new Habit("Exercise", "Daily exercise");
         habit.setFrequencyType(FrequencyType.DAILY);
 
@@ -51,7 +51,7 @@ public class SQLiteHabitRepositoryTest {
     }
 
     @Test
-    public void testSaveDeletesAndReInsertsEntries() {
+    void testSaveDeletesAndReInsertsEntries() {
         Habit habit = new Habit("Exercise", "Daily exercise");
         HabitEntry entry = new HabitEntry();
         entry.setCompletedAt(LocalDateTime.of(2024, 1, 15, 10, 0));
@@ -66,7 +66,7 @@ public class SQLiteHabitRepositoryTest {
     }
 
     @Test
-    public void testSaveDeletesAndReInsertsTranslations() {
+    void testSaveDeletesAndReInsertsTranslations() {
         Habit habit = new Habit("Exercise", "Daily exercise");
         Map<String, String> nameTranslations = new HashMap<>();
         nameTranslations.put("de", "Ubung");
@@ -84,7 +84,7 @@ public class SQLiteHabitRepositoryTest {
     }
 
     @Test
-    public void testFindByIdNotFound() {
+    void testFindByIdNotFound() {
         Cursor cursor = mock(Cursor.class);
         when(cursor.moveToFirst()).thenReturn(false);
         when(db.rawQuery(eq("SELECT * FROM habits WHERE id = ?"), eq(new String[]{"nonexistent"}))).thenReturn(cursor);
@@ -95,7 +95,7 @@ public class SQLiteHabitRepositoryTest {
     }
 
     @Test
-    public void testFindByIdFound() {
+    void testFindByIdFound() {
         Cursor habitCursor = createHabitCursor("h1", "Exercise", "Daily exercise", "DAILY", null, null);
         when(db.rawQuery(eq("SELECT * FROM habits WHERE id = ?"), eq(new String[]{"h1"}))).thenReturn(habitCursor);
 
@@ -116,7 +116,7 @@ public class SQLiteHabitRepositoryTest {
     }
 
     @Test
-    public void testFindByIdWithUser() {
+    void testFindByIdWithUser() {
         Cursor habitCursor = createHabitCursor("h1", "Exercise", "Daily exercise", "DAILY", "u1", "testuser");
         when(db.rawQuery(eq("SELECT * FROM habits WHERE id = ?"), eq(new String[]{"h1"}))).thenReturn(habitCursor);
 
@@ -137,7 +137,7 @@ public class SQLiteHabitRepositoryTest {
     }
 
     @Test
-    public void testFindAllEmpty() {
+    void testFindAllEmpty() {
         Cursor cursor = createEmptyCursor();
         when(db.rawQuery(eq("SELECT * FROM habits"), isNull())).thenReturn(cursor);
 
@@ -147,7 +147,7 @@ public class SQLiteHabitRepositoryTest {
     }
 
     @Test
-    public void testDeleteByIdWithTransaction() {
+    void testDeleteByIdWithTransaction() {
         repository.deleteById("h1");
 
         verify(db).beginTransaction();
@@ -160,7 +160,7 @@ public class SQLiteHabitRepositoryTest {
     }
 
     @Test
-    public void testExistsByIdTrue() {
+    void testExistsByIdTrue() {
         Cursor cursor = mock(Cursor.class);
         when(cursor.moveToFirst()).thenReturn(true);
         when(db.rawQuery(eq("SELECT 1 FROM habits WHERE id = ?"), eq(new String[]{"h1"}))).thenReturn(cursor);
@@ -169,7 +169,7 @@ public class SQLiteHabitRepositoryTest {
     }
 
     @Test
-    public void testExistsByIdFalse() {
+    void testExistsByIdFalse() {
         Cursor cursor = mock(Cursor.class);
         when(cursor.moveToFirst()).thenReturn(false);
         when(db.rawQuery(eq("SELECT 1 FROM habits WHERE id = ?"), eq(new String[]{"h1"}))).thenReturn(cursor);
@@ -178,7 +178,7 @@ public class SQLiteHabitRepositoryTest {
     }
 
     @Test
-    public void testFindByUserIdEmpty() {
+    void testFindByUserIdEmpty() {
         Cursor cursor = createEmptyCursor();
         when(db.rawQuery(startsWith("SELECT * FROM habits WHERE user_id"), any())).thenReturn(cursor);
 
@@ -188,7 +188,7 @@ public class SQLiteHabitRepositoryTest {
     }
 
     @Test
-    public void testSaveReturnsHabit() {
+    void testSaveReturnsHabit() {
         Habit habit = new Habit("Exercise", "Daily exercise");
         Habit result = repository.save(habit);
         assertSame(habit, result);

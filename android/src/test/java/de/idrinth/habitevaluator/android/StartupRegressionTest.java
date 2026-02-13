@@ -1,21 +1,21 @@
 package de.idrinth.habitevaluator.android;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import de.idrinth.habitevaluator.android.ui.ScreenPagerAdapter;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Regression test: verifies invariants that, if violated, would cause the app
  * to crash on startup or shortly after. These are static-state and constant
  * checks that can run without an Android context.
  */
-public class StartupRegressionTest {
+class StartupRegressionTest {
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         // Reset mutable static state so tests are isolated
         MainActivity.setEditHabitId(null);
         MainActivity.setPointDevelopmentHabitId(null);
@@ -25,108 +25,108 @@ public class StartupRegressionTest {
     // ── Shared collection fields must never be null ─────────────────────────
 
     @Test
-    public void testSharedCategoriesIsNeverNull() {
+    void testSharedCategoriesIsNeverNull() {
         assertNotNull(
-                "sharedCategories must be initialized to a non-null list to prevent NPE in fragments",
                 MainActivity.getSharedCategories()
-        );
+        ,
+                "sharedCategories must be initialized to a non-null list to prevent NPE in fragments");
     }
 
     @Test
-    public void testSharedEmotionPairsIsNeverNull() {
+    void testSharedEmotionPairsIsNeverNull() {
         assertNotNull(
-                "sharedEmotionPairs must be initialized to a non-null list to prevent NPE in fragments",
                 MainActivity.getSharedEmotionPairs()
-        );
+        ,
+                "sharedEmotionPairs must be initialized to a non-null list to prevent NPE in fragments");
     }
 
     @Test
-    public void testSharedSleepEntriesIsNeverNull() {
+    void testSharedSleepEntriesIsNeverNull() {
         assertNotNull(
-                "sharedSleepEntries must be initialized to a non-null list to prevent NPE in fragments",
                 MainActivity.getSharedSleepEntries()
-        );
+        ,
+                "sharedSleepEntries must be initialized to a non-null list to prevent NPE in fragments");
     }
 
     @Test
-    public void testSharedMedicationsIsNeverNull() {
+    void testSharedMedicationsIsNeverNull() {
         assertNotNull(
-                "sharedMedications must be initialized to a non-null list to prevent NPE in fragments",
                 MainActivity.getSharedMedications()
-        );
+        ,
+                "sharedMedications must be initialized to a non-null list to prevent NPE in fragments");
     }
 
     // ── Navigation IDs default to null (not empty or garbage) ───────────────
 
     @Test
-    public void testEditHabitIdDefaultsToNull() {
+    void testEditHabitIdDefaultsToNull() {
         assertNull(
-                "editHabitId must default to null so navigation guards work correctly",
                 MainActivity.getEditHabitId()
-        );
+        ,
+                "editHabitId must default to null so navigation guards work correctly");
     }
 
     @Test
-    public void testPointDevelopmentHabitIdDefaultsToNull() {
+    void testPointDevelopmentHabitIdDefaultsToNull() {
         assertNull(
-                "pointDevelopmentHabitId must default to null",
                 MainActivity.getPointDevelopmentHabitId()
-        );
+        ,
+                "pointDevelopmentHabitId must default to null");
     }
 
     @Test
-    public void testRecordEmotionPairIdDefaultsToNull() {
+    void testRecordEmotionPairIdDefaultsToNull() {
         assertNull(
-                "recordEmotionPairId must default to null",
                 MainActivity.getRecordEmotionPairId()
-        );
+        ,
+                "recordEmotionPairId must default to null");
     }
 
     // ── Remote storage defaults to off ──────────────────────────────────────
 
     @Test
-    public void testRemoteStorageDefaultsFalse() {
+    void testRemoteStorageDefaultsFalse() {
         assertFalse(
-                "Remote storage must default to false so the app can start without network",
                 MainActivity.isSharedUsingRemoteStorage()
-        );
+        ,
+                "Remote storage must default to false so the app can start without network");
     }
 
     // ── saveAllHabits must not throw when repository is null ────────────────
 
     @Test
-    public void testSaveAllHabitsDoesNotThrowWithNullRepository() {
+    void testSaveAllHabitsDoesNotThrowWithNullRepository() {
         // Before onCreate runs, repositories are null. This method is called
         // from fragments and must handle that gracefully.
         MainActivity.saveAllHabits();
     }
 
     @Test
-    public void testRefreshSharedMedicationsDoesNotThrowWithNullRepository() {
+    void testRefreshSharedMedicationsDoesNotThrowWithNullRepository() {
         MainActivity.refreshSharedMedications();
     }
 
     // ── ScreenPagerAdapter page constants are valid ─────────────────────────
 
     @Test
-    public void testPageCountIsPositive() {
+    void testPageCountIsPositive() {
         assertTrue(
-                "PAGE_COUNT must be positive",
                 ScreenPagerAdapter.PAGE_COUNT > 0
-        );
+        ,
+                "PAGE_COUNT must be positive");
     }
 
     @Test
-    public void testHomePageIsWithinPageCount() {
+    void testHomePageIsWithinPageCount() {
         assertTrue(
-                "PAGE_HOME must be a valid index within PAGE_COUNT",
                 ScreenPagerAdapter.PAGE_HOME >= 0
                         && ScreenPagerAdapter.PAGE_HOME < ScreenPagerAdapter.PAGE_COUNT
-        );
+        ,
+                "PAGE_HOME must be a valid index within PAGE_COUNT");
     }
 
     @Test
-    public void testAllNavigablePageIndicesAreWithinRange() {
+    void testAllNavigablePageIndicesAreWithinRange() {
         // Every page constant referenced by navigation must be within [0, PAGE_COUNT)
         int[] allPages = {
                 ScreenPagerAdapter.PAGE_EDIT_HABITS,
@@ -150,15 +150,15 @@ public class StartupRegressionTest {
 
         for (int page : allPages) {
             assertTrue(
-                    "Page constant " + page + " must be >= 0 and < PAGE_COUNT ("
-                            + ScreenPagerAdapter.PAGE_COUNT + ")",
                     page >= 0 && page < ScreenPagerAdapter.PAGE_COUNT
-            );
+            ,
+                    "Page constant " + page + " must be >= 0 and < PAGE_COUNT ("
+                            + ScreenPagerAdapter.PAGE_COUNT + ")");
         }
     }
 
     @Test
-    public void testPageCountEqualsNumberOfPageConstants() {
+    void testPageCountEqualsNumberOfPageConstants() {
         // If someone adds a page constant but forgets to bump PAGE_COUNT,
         // createFragment will silently return a default HomeFragment
         // for that index — or worse, the ViewPager will crash.
@@ -183,13 +183,13 @@ public class StartupRegressionTest {
         };
 
         assertEquals(
-                "PAGE_COUNT must equal the total number of declared page constants",
                 ScreenPagerAdapter.PAGE_COUNT, allPages.length
-        );
+        ,
+                "PAGE_COUNT must equal the total number of declared page constants");
     }
 
     @Test
-    public void testPageConstantsAreContiguousFromZero() {
+    void testPageConstantsAreContiguousFromZero() {
         // The ViewPager2 iterates from 0..PAGE_COUNT-1, so pages must be
         // contiguous to avoid unmapped gaps that would hit the default case.
         int[] allPages = {
@@ -214,11 +214,11 @@ public class StartupRegressionTest {
 
         boolean[] seen = new boolean[ScreenPagerAdapter.PAGE_COUNT];
         for (int page : allPages) {
-            assertFalse("Duplicate page index: " + page, seen[page]);
+            assertFalse( seen[page],"Duplicate page index: " + page);
             seen[page] = true;
         }
         for (int i = 0; i < seen.length; i++) {
-            assertTrue("No page constant maps to index " + i, seen[i]);
+            assertTrue( seen[i],"No page constant maps to index " + i);
         }
     }
 }

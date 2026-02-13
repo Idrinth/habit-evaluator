@@ -1,78 +1,78 @@
 package de.idrinth.habitevaluator.android;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class AddEmotionPairFragmentTest {
+class AddEmotionPairFragmentTest {
 
     @Test
-    public void testRequiredLabelCountValue() {
+    void testRequiredLabelCountValue() {
         assertEquals(2, AddEmotionPairFragment.REQUIRED_LABEL_COUNT);
     }
 
     @Test
-    public void testAreLabelsValidWithBothLabels() {
+    void testAreLabelsValidWithBothLabels() {
         assertTrue(AddEmotionPairFragment.areLabelsValid("Sad", "Happy"));
     }
 
     @Test
-    public void testAreLabelsValidWithEmptyNegativeLabel() {
+    void testAreLabelsValidWithEmptyNegativeLabel() {
         assertFalse(AddEmotionPairFragment.areLabelsValid("", "Happy"));
     }
 
     @Test
-    public void testAreLabelsValidWithEmptyPositiveLabel() {
+    void testAreLabelsValidWithEmptyPositiveLabel() {
         assertFalse(AddEmotionPairFragment.areLabelsValid("Sad", ""));
     }
 
     @Test
-    public void testAreLabelsValidWithBothEmpty() {
+    void testAreLabelsValidWithBothEmpty() {
         assertFalse(AddEmotionPairFragment.areLabelsValid("", ""));
     }
 
     @Test
-    public void testAreLabelsValidWithNullNegativeLabel() {
+    void testAreLabelsValidWithNullNegativeLabel() {
         assertFalse(AddEmotionPairFragment.areLabelsValid(null, "Happy"));
     }
 
     @Test
-    public void testAreLabelsValidWithNullPositiveLabel() {
+    void testAreLabelsValidWithNullPositiveLabel() {
         assertFalse(AddEmotionPairFragment.areLabelsValid("Sad", null));
     }
 
     @Test
-    public void testAreLabelsValidWithBothNull() {
+    void testAreLabelsValidWithBothNull() {
         assertFalse(AddEmotionPairFragment.areLabelsValid(null, null));
     }
 
     @Test
-    public void testAreLabelsValidWithWhitespaceNegativeLabel() {
+    void testAreLabelsValidWithWhitespaceNegativeLabel() {
         assertFalse(AddEmotionPairFragment.areLabelsValid("   ", "Happy"));
     }
 
     @Test
-    public void testAreLabelsValidWithWhitespacePositiveLabel() {
+    void testAreLabelsValidWithWhitespacePositiveLabel() {
         assertFalse(AddEmotionPairFragment.areLabelsValid("Sad", "   "));
     }
 
     @Test
-    public void testAreLabelsValidWithBothWhitespace() {
+    void testAreLabelsValidWithBothWhitespace() {
         assertFalse(AddEmotionPairFragment.areLabelsValid("   ", "   "));
     }
 
     @Test
-    public void testAreLabelsValidWithSingleCharacterLabels() {
+    void testAreLabelsValidWithSingleCharacterLabels() {
         assertTrue(AddEmotionPairFragment.areLabelsValid("A", "B"));
     }
 
     @Test
-    public void testAreLabelsValidWithLeadingTrailingSpaces() {
+    void testAreLabelsValidWithLeadingTrailingSpaces() {
         assertTrue(AddEmotionPairFragment.areLabelsValid(" Sad ", " Happy "));
     }
 
     @Test
-    public void testAreLabelsValidWithIdenticalLabels() {
+    void testAreLabelsValidWithIdenticalLabels() {
         assertTrue(AddEmotionPairFragment.areLabelsValid("Same", "Same"));
     }
 }

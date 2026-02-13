@@ -1,18 +1,18 @@
 package de.idrinth.habitevaluator.android;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import de.idrinth.habitevaluator.shared.model.Habit;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class PointDevelopmentFragmentTest {
+class PointDevelopmentFragmentTest {
 
     @Test
-    public void testFindHabitByIdWithMatchingHabit() {
+    void testFindHabitByIdWithMatchingHabit() {
         List<Habit> habits = new ArrayList<>();
         Habit habit = new Habit("Exercise", "Daily exercise");
         String id = habit.getId();
@@ -22,7 +22,7 @@ public class PointDevelopmentFragmentTest {
     }
 
     @Test
-    public void testFindHabitByIdWithNoMatch() {
+    void testFindHabitByIdWithNoMatch() {
         List<Habit> habits = new ArrayList<>();
         Habit habit = new Habit("Exercise", "Daily exercise");
         habits.add(habit);
@@ -31,12 +31,12 @@ public class PointDevelopmentFragmentTest {
     }
 
     @Test
-    public void testFindHabitByIdWithNullList() {
+    void testFindHabitByIdWithNullList() {
         assertNull(PointDevelopmentFragment.findHabitById(null, "some-id"));
     }
 
     @Test
-    public void testFindHabitByIdWithNullId() {
+    void testFindHabitByIdWithNullId() {
         List<Habit> habits = new ArrayList<>();
         habits.add(new Habit("Exercise", "Daily exercise"));
 
@@ -44,17 +44,17 @@ public class PointDevelopmentFragmentTest {
     }
 
     @Test
-    public void testFindHabitByIdWithBothNull() {
+    void testFindHabitByIdWithBothNull() {
         assertNull(PointDevelopmentFragment.findHabitById(null, null));
     }
 
     @Test
-    public void testFindHabitByIdWithEmptyList() {
+    void testFindHabitByIdWithEmptyList() {
         assertNull(PointDevelopmentFragment.findHabitById(new ArrayList<>(), "some-id"));
     }
 
     @Test
-    public void testFindHabitByIdWithMultipleHabitsReturnsCorrectOne() {
+    void testFindHabitByIdWithMultipleHabitsReturnsCorrectOne() {
         List<Habit> habits = new ArrayList<>();
         Habit habit1 = new Habit("Exercise", "Daily exercise");
         Habit habit2 = new Habit("Reading", "Read 30 min");
@@ -67,7 +67,7 @@ public class PointDevelopmentFragmentTest {
     }
 
     @Test
-    public void testFindHabitByIdReturnsFirstMatchWhenDuplicateIds() {
+    void testFindHabitByIdReturnsFirstMatchWhenDuplicateIds() {
         List<Habit> habits = new ArrayList<>();
         Habit habit1 = new Habit("Exercise", "v1");
         Habit habit2 = new Habit("Reading", "v2");

@@ -5,24 +5,24 @@ import android.database.sqlite.SQLiteDatabase;
 
 import de.idrinth.habitevaluator.shared.model.FoodTag;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 import static org.mockito.ArgumentMatchers.*;
 
-public class SQLiteFoodTagRepositoryTest {
+class SQLiteFoodTagRepositoryTest {
 
     private SQLiteHelper dbHelper;
     private SQLiteDatabase db;
     private SQLiteFoodTagRepository repository;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         dbHelper = mock(SQLiteHelper.class);
         db = mock(SQLiteDatabase.class);
         when(dbHelper.getReadableDatabase()).thenReturn(db);
@@ -31,7 +31,7 @@ public class SQLiteFoodTagRepositoryTest {
     }
 
     @Test
-    public void testSaveCallsInsert() {
+    void testSaveCallsInsert() {
         FoodTag tag = new FoodTag("Vegetarian");
 
         repository.save(tag);
@@ -40,7 +40,7 @@ public class SQLiteFoodTagRepositoryTest {
     }
 
     @Test
-    public void testFindByIdNotFound() {
+    void testFindByIdNotFound() {
         Cursor cursor = mock(Cursor.class);
         when(cursor.moveToFirst()).thenReturn(false);
         when(db.rawQuery(eq("SELECT * FROM food_tags WHERE id = ?"), eq(new String[]{"nonexistent"}))).thenReturn(cursor);
@@ -49,7 +49,7 @@ public class SQLiteFoodTagRepositoryTest {
     }
 
     @Test
-    public void testFindByIdFound() {
+    void testFindByIdFound() {
         Cursor cursor = createTagCursor("t1", "Vegetarian", "vegetarian", null, null);
         when(db.rawQuery(eq("SELECT * FROM food_tags WHERE id = ?"), eq(new String[]{"t1"}))).thenReturn(cursor);
 
@@ -61,7 +61,7 @@ public class SQLiteFoodTagRepositoryTest {
     }
 
     @Test
-    public void testFindByIdWithUser() {
+    void testFindByIdWithUser() {
         Cursor cursor = createTagCursor("t1", "Vegetarian", "vegetarian", "u1", "testuser");
         when(db.rawQuery(eq("SELECT * FROM food_tags WHERE id = ?"), eq(new String[]{"t1"}))).thenReturn(cursor);
 
@@ -73,7 +73,7 @@ public class SQLiteFoodTagRepositoryTest {
     }
 
     @Test
-    public void testFindByUserIdEmpty() {
+    void testFindByUserIdEmpty() {
         Cursor cursor = createEmptyCursor();
         when(db.rawQuery(startsWith("SELECT * FROM food_tags WHERE user_id"), any())).thenReturn(cursor);
 
@@ -81,7 +81,7 @@ public class SQLiteFoodTagRepositoryTest {
     }
 
     @Test
-    public void testFindByNameLowerAndUserIdFound() {
+    void testFindByNameLowerAndUserIdFound() {
         Cursor cursor = createTagCursor("t1", "Vegetarian", "vegetarian", "u1", "testuser");
         when(db.rawQuery(
                 eq("SELECT * FROM food_tags WHERE name_lower = ? AND user_id = ?"),
@@ -95,7 +95,7 @@ public class SQLiteFoodTagRepositoryTest {
     }
 
     @Test
-    public void testFindByNameLowerAndUserIdNotFound() {
+    void testFindByNameLowerAndUserIdNotFound() {
         Cursor cursor = mock(Cursor.class);
         when(cursor.moveToFirst()).thenReturn(false);
         when(db.rawQuery(
@@ -107,28 +107,28 @@ public class SQLiteFoodTagRepositoryTest {
     }
 
     @Test
-    public void testDeleteById() {
+    void testDeleteById() {
         repository.deleteById("t1");
 
         verify(db).delete(eq("food_tags"), eq("id = ?"), eq(new String[]{"t1"}));
     }
 
     @Test
-    public void testLinkTagToFoodLog() {
+    void testLinkTagToFoodLog() {
         repository.linkTagToFoodLog("fl1", "t1");
 
         verify(db).insertWithOnConflict(eq("food_log_tags"), isNull(), any(), eq(4));
     }
 
     @Test
-    public void testUnlinkAllTagsFromFoodLog() {
+    void testUnlinkAllTagsFromFoodLog() {
         repository.unlinkAllTagsFromFoodLog("fl1");
 
         verify(db).delete(eq("food_log_tags"), eq("food_log_id = ?"), eq(new String[]{"fl1"}));
     }
 
     @Test
-    public void testFindTagsByFoodLogIdEmpty() {
+    void testFindTagsByFoodLogIdEmpty() {
         Cursor cursor = createEmptyCursor();
         when(db.rawQuery(startsWith("SELECT t.* FROM food_tags"), any())).thenReturn(cursor);
 
@@ -136,7 +136,7 @@ public class SQLiteFoodTagRepositoryTest {
     }
 
     @Test
-    public void testSaveReturnsTag() {
+    void testSaveReturnsTag() {
         FoodTag tag = new FoodTag("Vegan");
         FoodTag result = repository.save(tag);
         assertSame(tag, result);

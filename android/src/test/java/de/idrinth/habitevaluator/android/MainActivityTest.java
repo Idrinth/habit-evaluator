@@ -1,7 +1,7 @@
 package de.idrinth.habitevaluator.android;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,132 +10,132 @@ import de.idrinth.habitevaluator.shared.persistence.InMemoryHabitRepository;
 import de.idrinth.habitevaluator.shared.model.Habit;
 import de.idrinth.habitevaluator.shared.model.User;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class MainActivityTest {
+class MainActivityTest {
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         MainActivity.setEditHabitId(null);
         MainActivity.setPointDevelopmentHabitId(null);
         MainActivity.setRecordEmotionPairId(null);
     }
 
     @Test
-    public void testGetEditHabitIdDefaultsToNull() {
+    void testGetEditHabitIdDefaultsToNull() {
         assertNull(MainActivity.getEditHabitId());
     }
 
     @Test
-    public void testSetAndGetEditHabitId() {
+    void testSetAndGetEditHabitId() {
         MainActivity.setEditHabitId("habit-123");
         assertEquals("habit-123", MainActivity.getEditHabitId());
     }
 
     @Test
-    public void testSetEditHabitIdOverwritesPrevious() {
+    void testSetEditHabitIdOverwritesPrevious() {
         MainActivity.setEditHabitId("first");
         MainActivity.setEditHabitId("second");
         assertEquals("second", MainActivity.getEditHabitId());
     }
 
     @Test
-    public void testSetEditHabitIdToNull() {
+    void testSetEditHabitIdToNull() {
         MainActivity.setEditHabitId("some-id");
         MainActivity.setEditHabitId(null);
         assertNull(MainActivity.getEditHabitId());
     }
 
     @Test
-    public void testGetPointDevelopmentHabitIdDefaultsToNull() {
+    void testGetPointDevelopmentHabitIdDefaultsToNull() {
         assertNull(MainActivity.getPointDevelopmentHabitId());
     }
 
     @Test
-    public void testSetAndGetPointDevelopmentHabitId() {
+    void testSetAndGetPointDevelopmentHabitId() {
         MainActivity.setPointDevelopmentHabitId("habit-456");
         assertEquals("habit-456", MainActivity.getPointDevelopmentHabitId());
     }
 
     @Test
-    public void testSetPointDevelopmentHabitIdOverwritesPrevious() {
+    void testSetPointDevelopmentHabitIdOverwritesPrevious() {
         MainActivity.setPointDevelopmentHabitId("first");
         MainActivity.setPointDevelopmentHabitId("second");
         assertEquals("second", MainActivity.getPointDevelopmentHabitId());
     }
 
     @Test
-    public void testSetPointDevelopmentHabitIdToNull() {
+    void testSetPointDevelopmentHabitIdToNull() {
         MainActivity.setPointDevelopmentHabitId("some-id");
         MainActivity.setPointDevelopmentHabitId(null);
         assertNull(MainActivity.getPointDevelopmentHabitId());
     }
 
     @Test
-    public void testGetRecordEmotionPairIdDefaultsToNull() {
+    void testGetRecordEmotionPairIdDefaultsToNull() {
         assertNull(MainActivity.getRecordEmotionPairId());
     }
 
     @Test
-    public void testSetAndGetRecordEmotionPairId() {
+    void testSetAndGetRecordEmotionPairId() {
         MainActivity.setRecordEmotionPairId("pair-789");
         assertEquals("pair-789", MainActivity.getRecordEmotionPairId());
     }
 
     @Test
-    public void testSetRecordEmotionPairIdOverwritesPrevious() {
+    void testSetRecordEmotionPairIdOverwritesPrevious() {
         MainActivity.setRecordEmotionPairId("first");
         MainActivity.setRecordEmotionPairId("second");
         assertEquals("second", MainActivity.getRecordEmotionPairId());
     }
 
     @Test
-    public void testSetRecordEmotionPairIdToNull() {
+    void testSetRecordEmotionPairIdToNull() {
         MainActivity.setRecordEmotionPairId("some-id");
         MainActivity.setRecordEmotionPairId(null);
         assertNull(MainActivity.getRecordEmotionPairId());
     }
 
     @Test
-    public void testSaveAllHabitsDoesNotThrowWhenRepositoryIsNull() {
+    void testSaveAllHabitsDoesNotThrowWhenRepositoryIsNull() {
         // Static state has null repository by default — should return early without error
         MainActivity.saveAllHabits();
     }
 
     @Test
-    public void testRefreshSharedMedicationsDoesNotThrowWhenRepositoryIsNull() {
+    void testRefreshSharedMedicationsDoesNotThrowWhenRepositoryIsNull() {
         // Static state has null medication repository by default — should handle gracefully
         MainActivity.refreshSharedMedications();
     }
 
     @Test
-    public void testSharedCategoriesIsNeverNull() {
+    void testSharedCategoriesIsNeverNull() {
         assertNotNull(MainActivity.getSharedCategories());
     }
 
     @Test
-    public void testSharedEmotionPairsIsNeverNull() {
+    void testSharedEmotionPairsIsNeverNull() {
         assertNotNull(MainActivity.getSharedEmotionPairs());
     }
 
     @Test
-    public void testSharedSleepEntriesIsNeverNull() {
+    void testSharedSleepEntriesIsNeverNull() {
         assertNotNull(MainActivity.getSharedSleepEntries());
     }
 
     @Test
-    public void testSharedMedicationsIsNeverNull() {
+    void testSharedMedicationsIsNeverNull() {
         assertNotNull(MainActivity.getSharedMedications());
     }
 
     @Test
-    public void testIsSharedUsingRemoteStorageDefaultsFalse() {
+    void testIsSharedUsingRemoteStorageDefaultsFalse() {
         // Before any initialization, remote storage should be false
         assertFalse(MainActivity.isSharedUsingRemoteStorage());
     }
 
     @Test
-    public void testEditHabitIdIsIndependentOfPointDevelopmentHabitId() {
+    void testEditHabitIdIsIndependentOfPointDevelopmentHabitId() {
         MainActivity.setEditHabitId("edit-id");
         MainActivity.setPointDevelopmentHabitId("point-id");
         assertEquals("edit-id", MainActivity.getEditHabitId());
@@ -143,7 +143,7 @@ public class MainActivityTest {
     }
 
     @Test
-    public void testRecordEmotionPairIdIsIndependentOfOtherIds() {
+    void testRecordEmotionPairIdIsIndependentOfOtherIds() {
         MainActivity.setEditHabitId("edit-id");
         MainActivity.setPointDevelopmentHabitId("point-id");
         MainActivity.setRecordEmotionPairId("emotion-id");
@@ -153,19 +153,19 @@ public class MainActivityTest {
     }
 
     @Test
-    public void testSetEditHabitIdAcceptsEmptyString() {
+    void testSetEditHabitIdAcceptsEmptyString() {
         MainActivity.setEditHabitId("");
         assertEquals("", MainActivity.getEditHabitId());
     }
 
     @Test
-    public void testSetPointDevelopmentHabitIdAcceptsEmptyString() {
+    void testSetPointDevelopmentHabitIdAcceptsEmptyString() {
         MainActivity.setPointDevelopmentHabitId("");
         assertEquals("", MainActivity.getPointDevelopmentHabitId());
     }
 
     @Test
-    public void testSetRecordEmotionPairIdAcceptsEmptyString() {
+    void testSetRecordEmotionPairIdAcceptsEmptyString() {
         MainActivity.setRecordEmotionPairId("");
         assertEquals("", MainActivity.getRecordEmotionPairId());
     }

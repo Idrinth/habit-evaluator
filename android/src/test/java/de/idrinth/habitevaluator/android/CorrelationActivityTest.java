@@ -1,23 +1,23 @@
 package de.idrinth.habitevaluator.android;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import de.idrinth.habitevaluator.shared.model.EventCorrelation;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class CorrelationActivityTest {
+class CorrelationActivityTest {
 
     private static final String ALL = "All";
 
     private List<EventCorrelation> correlations;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         correlations = new ArrayList<>();
         correlations.add(new EventCorrelation("Habit: Eat Breakfast", "Sleep Hours", 0.471, 30));
         correlations.add(new EventCorrelation("Sleep Hours", "Emotion: fatigued — energetic", -0.226, 20));
@@ -26,13 +26,13 @@ public class CorrelationActivityTest {
     }
 
     @Test
-    public void testAllFiltersReturnEverything() {
+    void testAllFiltersReturnEverything() {
         List<EventCorrelation> result = CorrelationActivity.filterCorrelations(correlations, ALL, ALL, ALL);
         assertEquals(4, result.size());
     }
 
     @Test
-    public void testSourceFilterMatchesOnlyEventA() {
+    void testSourceFilterMatchesOnlyEventA() {
         List<EventCorrelation> result = CorrelationActivity.filterCorrelations(
                 correlations, ALL, "Sleep Hours", ALL);
         assertEquals(1, result.size());
@@ -41,7 +41,7 @@ public class CorrelationActivityTest {
     }
 
     @Test
-    public void testTargetFilterMatchesOnlyEventB() {
+    void testTargetFilterMatchesOnlyEventB() {
         List<EventCorrelation> result = CorrelationActivity.filterCorrelations(
                 correlations, ALL, ALL, "Sleep Hours");
         assertEquals(2, result.size());
@@ -51,21 +51,21 @@ public class CorrelationActivityTest {
     }
 
     @Test
-    public void testTargetFilterDoesNotMatchEventA() {
+    void testTargetFilterDoesNotMatchEventA() {
         List<EventCorrelation> result = CorrelationActivity.filterCorrelations(
                 correlations, ALL, ALL, "Habit: Eat Breakfast");
         assertTrue(result.isEmpty());
     }
 
     @Test
-    public void testSourceFilterDoesNotMatchEventB() {
+    void testSourceFilterDoesNotMatchEventB() {
         List<EventCorrelation> result = CorrelationActivity.filterCorrelations(
                 correlations, ALL, "Emotion: fatigued — energetic", ALL);
         assertTrue(result.isEmpty());
     }
 
     @Test
-    public void testBothFiltersApplied() {
+    void testBothFiltersApplied() {
         List<EventCorrelation> result = CorrelationActivity.filterCorrelations(
                 correlations, ALL, "Diary Points", "Sleep Hours");
         assertEquals(1, result.size());
@@ -74,14 +74,14 @@ public class CorrelationActivityTest {
     }
 
     @Test
-    public void testNoMatchesReturnsEmpty() {
+    void testNoMatchesReturnsEmpty() {
         List<EventCorrelation> result = CorrelationActivity.filterCorrelations(
                 correlations, ALL, "Nonexistent", "Also Missing");
         assertTrue(result.isEmpty());
     }
 
     @Test
-    public void testEmptyCorrelationsReturnsEmpty() {
+    void testEmptyCorrelationsReturnsEmpty() {
         List<EventCorrelation> result = CorrelationActivity.filterCorrelations(
                 new ArrayList<>(), ALL, ALL, "Sleep Hours");
         assertTrue(result.isEmpty());

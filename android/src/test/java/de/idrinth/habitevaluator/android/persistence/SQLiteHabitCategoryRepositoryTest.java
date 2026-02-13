@@ -6,26 +6,26 @@ import android.database.sqlite.SQLiteDatabase;
 import de.idrinth.habitevaluator.shared.model.HabitCategory;
 import de.idrinth.habitevaluator.shared.model.User;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 import static org.mockito.ArgumentMatchers.*;
 
-public class SQLiteHabitCategoryRepositoryTest {
+class SQLiteHabitCategoryRepositoryTest {
 
     private SQLiteHelper dbHelper;
     private SQLiteDatabase db;
     private SQLiteHabitCategoryRepository repository;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         dbHelper = mock(SQLiteHelper.class);
         db = mock(SQLiteDatabase.class);
         when(dbHelper.getReadableDatabase()).thenReturn(db);
@@ -34,7 +34,7 @@ public class SQLiteHabitCategoryRepositoryTest {
     }
 
     @Test
-    public void testSaveCallsInsertWithTransaction() {
+    void testSaveCallsInsertWithTransaction() {
         HabitCategory category = new HabitCategory();
         category.setName("Health");
         category.setDescription("Health-related habits");
@@ -49,7 +49,7 @@ public class SQLiteHabitCategoryRepositoryTest {
     }
 
     @Test
-    public void testSaveWithTranslations() {
+    void testSaveWithTranslations() {
         HabitCategory category = new HabitCategory();
         category.setName("Health");
         Map<String, String> nameTranslations = new HashMap<>();
@@ -68,7 +68,7 @@ public class SQLiteHabitCategoryRepositoryTest {
     }
 
     @Test
-    public void testFindByIdNotFound() {
+    void testFindByIdNotFound() {
         Cursor cursor = mock(Cursor.class);
         when(cursor.moveToFirst()).thenReturn(false);
         when(db.rawQuery(eq("SELECT * FROM habit_categories WHERE id = ?"), eq(new String[]{"nonexistent"}))).thenReturn(cursor);
@@ -79,7 +79,7 @@ public class SQLiteHabitCategoryRepositoryTest {
     }
 
     @Test
-    public void testFindByIdFound() {
+    void testFindByIdFound() {
         Cursor cursor = createCategoryCursor("c1", "Health", "Health habits", "#FF0000", null, null);
         when(db.rawQuery(eq("SELECT * FROM habit_categories WHERE id = ?"), eq(new String[]{"c1"}))).thenReturn(cursor);
 
@@ -97,7 +97,7 @@ public class SQLiteHabitCategoryRepositoryTest {
     }
 
     @Test
-    public void testFindByIdWithUser() {
+    void testFindByIdWithUser() {
         Cursor cursor = createCategoryCursor("c1", "Health", "Health habits", "#FF0000", "u1", "testuser");
         when(db.rawQuery(eq("SELECT * FROM habit_categories WHERE id = ?"), eq(new String[]{"c1"}))).thenReturn(cursor);
 
@@ -115,7 +115,7 @@ public class SQLiteHabitCategoryRepositoryTest {
     }
 
     @Test
-    public void testFindAllEmpty() {
+    void testFindAllEmpty() {
         Cursor cursor = createEmptyCursor();
         when(db.rawQuery(eq("SELECT * FROM habit_categories"), isNull())).thenReturn(cursor);
 
@@ -125,7 +125,7 @@ public class SQLiteHabitCategoryRepositoryTest {
     }
 
     @Test
-    public void testDeleteByIdWithTransaction() {
+    void testDeleteByIdWithTransaction() {
         repository.deleteById("c1");
 
         verify(db).beginTransaction();
@@ -137,7 +137,7 @@ public class SQLiteHabitCategoryRepositoryTest {
     }
 
     @Test
-    public void testExistsByIdTrue() {
+    void testExistsByIdTrue() {
         Cursor cursor = mock(Cursor.class);
         when(cursor.moveToFirst()).thenReturn(true);
         when(db.rawQuery(eq("SELECT 1 FROM habit_categories WHERE id = ?"), eq(new String[]{"c1"}))).thenReturn(cursor);
@@ -146,7 +146,7 @@ public class SQLiteHabitCategoryRepositoryTest {
     }
 
     @Test
-    public void testExistsByIdFalse() {
+    void testExistsByIdFalse() {
         Cursor cursor = mock(Cursor.class);
         when(cursor.moveToFirst()).thenReturn(false);
         when(db.rawQuery(eq("SELECT 1 FROM habit_categories WHERE id = ?"), eq(new String[]{"c1"}))).thenReturn(cursor);
@@ -155,7 +155,7 @@ public class SQLiteHabitCategoryRepositoryTest {
     }
 
     @Test
-    public void testFindByUserIdEmpty() {
+    void testFindByUserIdEmpty() {
         Cursor cursor = createEmptyCursor();
         when(db.rawQuery(startsWith("SELECT * FROM habit_categories WHERE user_id"), any())).thenReturn(cursor);
 
@@ -165,7 +165,7 @@ public class SQLiteHabitCategoryRepositoryTest {
     }
 
     @Test
-    public void testSaveReturnsCategory() {
+    void testSaveReturnsCategory() {
         HabitCategory category = new HabitCategory();
         category.setName("Health");
         HabitCategory result = repository.save(category);

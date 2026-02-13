@@ -1,7 +1,7 @@
 package de.idrinth.habitevaluator.android.ui;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,15 +12,15 @@ import de.idrinth.habitevaluator.shared.model.Habit;
 import de.idrinth.habitevaluator.shared.model.HabitCategory;
 import de.idrinth.habitevaluator.shared.model.ScoringRule;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class EditHabitAdapterTest {
+class EditHabitAdapterTest {
 
     private List<Habit> habits;
     private List<HabitCategory> categories;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         habits = new ArrayList<>();
         categories = new ArrayList<>();
         HabitCategory cat = new HabitCategory();
@@ -30,13 +30,13 @@ public class EditHabitAdapterTest {
     }
 
     @Test
-    public void testEmptyAdapterItemCount() {
+    void testEmptyAdapterItemCount() {
         EditHabitAdapter adapter = new EditHabitAdapter(habits, false, categories, "en");
         assertEquals(0, adapter.getItemCount());
     }
 
     @Test
-    public void testItemCountWithHabits() {
+    void testItemCountWithHabits() {
         habits.add(createHabit("Exercise", "Daily exercise", "cat-1"));
         habits.add(createHabit("Reading", "Read a book", "cat-1"));
         habits.add(createHabit("Meditate", "Morning meditation", "cat-1"));
@@ -45,7 +45,7 @@ public class EditHabitAdapterTest {
     }
 
     @Test
-    public void testItemCountAfterAdding() {
+    void testItemCountAfterAdding() {
         EditHabitAdapter adapter = new EditHabitAdapter(habits, false, categories, "en");
         assertEquals(0, adapter.getItemCount());
         habits.add(createHabit("Exercise", "Daily exercise", "cat-1"));
@@ -53,7 +53,7 @@ public class EditHabitAdapterTest {
     }
 
     @Test
-    public void testItemCountAfterRemoving() {
+    void testItemCountAfterRemoving() {
         Habit habit = createHabit("Exercise", "Daily exercise", "cat-1");
         habits.add(habit);
         EditHabitAdapter adapter = new EditHabitAdapter(habits, false, categories, "en");
@@ -63,7 +63,7 @@ public class EditHabitAdapterTest {
     }
 
     @Test
-    public void testItemCountAfterClearing() {
+    void testItemCountAfterClearing() {
         habits.add(createHabit("Exercise", "Daily exercise", "cat-1"));
         habits.add(createHabit("Reading", "Read books", "cat-1"));
         EditHabitAdapter adapter = new EditHabitAdapter(habits, false, categories, "en");
@@ -73,7 +73,7 @@ public class EditHabitAdapterTest {
     }
 
     @Test
-    public void testEditedValuesCreatedForEachHabit() {
+    void testEditedValuesCreatedForEachHabit() {
         habits.add(createHabit("Exercise", "Daily exercise", "cat-1"));
         habits.add(createHabit("Reading", "Read books", "cat-1"));
         EditHabitAdapter adapter = new EditHabitAdapter(habits, false, categories, "en");
@@ -82,7 +82,7 @@ public class EditHabitAdapterTest {
     }
 
     @Test
-    public void testEditedValuesContainCorrectHabitIds() {
+    void testEditedValuesContainCorrectHabitIds() {
         Habit habit = createHabit("Exercise", "Daily exercise", "cat-1");
         habits.add(habit);
         EditHabitAdapter adapter = new EditHabitAdapter(habits, false, categories, "en");
@@ -91,7 +91,7 @@ public class EditHabitAdapterTest {
     }
 
     @Test
-    public void testEditedValuesReflectHabitTargetFrequency() {
+    void testEditedValuesReflectHabitTargetFrequency() {
         Habit habit = createHabit("Exercise", "Daily exercise", "cat-1");
         habit.setTargetFrequency(5);
         habits.add(habit);
@@ -102,7 +102,7 @@ public class EditHabitAdapterTest {
     }
 
     @Test
-    public void testEditedValuesReflectHabitMaxEntriesPerDay() {
+    void testEditedValuesReflectHabitMaxEntriesPerDay() {
         Habit habit = createHabit("Exercise", "Daily exercise", "cat-1");
         habit.setMaxEntriesPerDay(3);
         habits.add(habit);
@@ -113,7 +113,7 @@ public class EditHabitAdapterTest {
     }
 
     @Test
-    public void testEditedValuesReflectPositiveScoring() {
+    void testEditedValuesReflectPositiveScoring() {
         Habit habit = createHabit("Exercise", "Daily exercise", "cat-1");
         habit.setPositiveScoring(true);
         habits.add(habit);
@@ -124,7 +124,7 @@ public class EditHabitAdapterTest {
     }
 
     @Test
-    public void testEditedValuesReflectNegativeScoring() {
+    void testEditedValuesReflectNegativeScoring() {
         Habit habit = createHabit("Exercise", "Daily exercise", "cat-1");
         habit.setPositiveScoring(false);
         habits.add(habit);
@@ -135,7 +135,7 @@ public class EditHabitAdapterTest {
     }
 
     @Test
-    public void testEditedValuesReflectFrequencyType() {
+    void testEditedValuesReflectFrequencyType() {
         Habit habit = createHabit("Exercise", "Daily exercise", "cat-1");
         habit.setFrequencyType(FrequencyType.WEEKLY);
         habits.add(habit);
@@ -146,7 +146,7 @@ public class EditHabitAdapterTest {
     }
 
     @Test
-    public void testEditedValuesReflectCategoryId() {
+    void testEditedValuesReflectCategoryId() {
         Habit habit = createHabit("Exercise", "Daily exercise", "cat-1");
         habits.add(habit);
         EditHabitAdapter adapter = new EditHabitAdapter(habits, false, categories, "en");
@@ -156,7 +156,7 @@ public class EditHabitAdapterTest {
     }
 
     @Test
-    public void testEditedValuesWithScoringRule() {
+    void testEditedValuesWithScoringRule() {
         Habit habit = createHabit("Exercise", "Daily exercise", "cat-1");
         ScoringRule rule = new ScoringRule();
         rule.setThresholdFor1Point(2);
@@ -175,7 +175,7 @@ public class EditHabitAdapterTest {
     }
 
     @Test
-    public void testEditedValuesWithNullScoringRuleUsesDefaults() {
+    void testEditedValuesWithNullScoringRuleUsesDefaults() {
         Habit habit = createHabit("Exercise", "Daily exercise", "cat-1");
         habit.setScoringRule(null);
         habits.add(habit);
@@ -189,7 +189,7 @@ public class EditHabitAdapterTest {
     }
 
     @Test
-    public void testTranslationsDisabled() {
+    void testTranslationsDisabled() {
         Habit habit = createHabit("Exercise", "Daily exercise", "cat-1");
         habit.getNameTranslations().put("de", "Sport");
         habits.add(habit);
@@ -200,7 +200,7 @@ public class EditHabitAdapterTest {
     }
 
     @Test
-    public void testTranslationsEnabled() {
+    void testTranslationsEnabled() {
         Habit habit = createHabit("Exercise", "Daily exercise", "cat-1");
         habit.getNameTranslations().put("de", "Sport");
         habit.getDescriptionTranslations().put("de", "Täglicher Sport");
@@ -213,7 +213,7 @@ public class EditHabitAdapterTest {
     }
 
     @Test
-    public void testTranslationsEnabledMultipleLanguages() {
+    void testTranslationsEnabledMultipleLanguages() {
         Habit habit = createHabit("Exercise", "Daily exercise", "cat-1");
         habit.getNameTranslations().put("de", "Sport");
         habit.getNameTranslations().put("es", "Ejercicio");
@@ -228,7 +228,7 @@ public class EditHabitAdapterTest {
     }
 
     @Test
-    public void testMultipleCategories() {
+    void testMultipleCategories() {
         HabitCategory cat2 = new HabitCategory();
         cat2.setId("cat-2");
         cat2.setName("Productivity");
@@ -242,13 +242,13 @@ public class EditHabitAdapterTest {
     }
 
     @Test
-    public void testNullDisplayLanguage() {
+    void testNullDisplayLanguage() {
         EditHabitAdapter adapter = new EditHabitAdapter(habits, false, categories, null);
         assertEquals(0, adapter.getItemCount());
     }
 
     @Test
-    public void testEmptyCategories() {
+    void testEmptyCategories() {
         categories.clear();
         habits.add(createHabit("Exercise", "Daily exercise", null));
         EditHabitAdapter adapter = new EditHabitAdapter(habits, false, categories, "en");
@@ -256,7 +256,7 @@ public class EditHabitAdapterTest {
     }
 
     @Test
-    public void testEditedValuesReflectMonthlyFrequencyType() {
+    void testEditedValuesReflectMonthlyFrequencyType() {
         Habit habit = createHabit("Exercise", "Daily exercise", "cat-1");
         habit.setFrequencyType(FrequencyType.MONTHLY);
         habits.add(habit);
@@ -267,7 +267,7 @@ public class EditHabitAdapterTest {
     }
 
     @Test
-    public void testEditedValuesWithHighTargetFrequency() {
+    void testEditedValuesWithHighTargetFrequency() {
         Habit habit = createHabit("Exercise", "Daily exercise", "cat-1");
         habit.setTargetFrequency(100);
         habits.add(habit);
@@ -278,7 +278,7 @@ public class EditHabitAdapterTest {
     }
 
     @Test
-    public void testEditedValuesWithHighMaxEntriesPerDay() {
+    void testEditedValuesWithHighMaxEntriesPerDay() {
         Habit habit = createHabit("Exercise", "Daily exercise", "cat-1");
         habit.setMaxEntriesPerDay(50);
         habits.add(habit);
@@ -289,7 +289,7 @@ public class EditHabitAdapterTest {
     }
 
     @Test
-    public void testEditedValuesWithZeroTargetFrequency() {
+    void testEditedValuesWithZeroTargetFrequency() {
         Habit habit = createHabit("Exercise", "Daily exercise", "cat-1");
         habit.setTargetFrequency(0);
         habits.add(habit);
@@ -300,7 +300,7 @@ public class EditHabitAdapterTest {
     }
 
     @Test
-    public void testEditedValuesHaveIndependentMaps() {
+    void testEditedValuesHaveIndependentMaps() {
         Habit habit1 = createHabit("Exercise", "Daily exercise", "cat-1");
         habit1.getNameTranslations().put("de", "Sport");
         Habit habit2 = createHabit("Reading", "Read books", "cat-1");
@@ -318,7 +318,7 @@ public class EditHabitAdapterTest {
     }
 
     @Test
-    public void testEditedValuesWithNullCategoryId() {
+    void testEditedValuesWithNullCategoryId() {
         Habit habit = createHabit("Exercise", "Daily exercise", null);
         habits.add(habit);
         EditHabitAdapter adapter = new EditHabitAdapter(habits, false, categories, "en");
@@ -328,7 +328,7 @@ public class EditHabitAdapterTest {
     }
 
     @Test
-    public void testEditedValuesTranslationsEnabledNoTranslationsOnHabit() {
+    void testEditedValuesTranslationsEnabledNoTranslationsOnHabit() {
         Habit habit = createHabit("Exercise", "Daily exercise", "cat-1");
         habits.add(habit);
         EditHabitAdapter adapter = new EditHabitAdapter(habits, true, categories, "en");
@@ -339,7 +339,7 @@ public class EditHabitAdapterTest {
     }
 
     @Test
-    public void testEditedValuesTranslationsEnabledWithEnglishTranslation() {
+    void testEditedValuesTranslationsEnabledWithEnglishTranslation() {
         Habit habit = createHabit("Exercise", "Daily exercise", "cat-1");
         habit.getNameTranslations().put("en", "Exercise EN");
         habit.getDescriptionTranslations().put("en", "Daily exercise EN");
@@ -352,7 +352,7 @@ public class EditHabitAdapterTest {
     }
 
     @Test
-    public void testEditedValuesIgnoresUnsupportedLanguage() {
+    void testEditedValuesIgnoresUnsupportedLanguage() {
         Habit habit = createHabit("Exercise", "Daily exercise", "cat-1");
         habit.getNameTranslations().put("ja", "Japanese translation");
         habits.add(habit);
@@ -363,7 +363,7 @@ public class EditHabitAdapterTest {
     }
 
     @Test
-    public void testEditedValuesMapIsModifiable() {
+    void testEditedValuesMapIsModifiable() {
         Habit habit = createHabit("Exercise", "Daily exercise", "cat-1");
         habits.add(habit);
         EditHabitAdapter adapter = new EditHabitAdapter(habits, false, categories, "en");
@@ -377,7 +377,7 @@ public class EditHabitAdapterTest {
     }
 
     @Test
-    public void testMultipleHabitsWithDifferentScoringRules() {
+    void testMultipleHabitsWithDifferentScoringRules() {
         Habit habit1 = createHabit("Exercise", "Daily exercise", "cat-1");
         ScoringRule rule1 = new ScoringRule();
         rule1.setThresholdFor1Point(1);
@@ -410,7 +410,7 @@ public class EditHabitAdapterTest {
     }
 
     @Test
-    public void testCategoryDisplayNameMappingWithDisplayLanguage() {
+    void testCategoryDisplayNameMappingWithDisplayLanguage() {
         HabitCategory cat2 = new HabitCategory();
         cat2.setId("cat-2");
         cat2.setName("Fitness");

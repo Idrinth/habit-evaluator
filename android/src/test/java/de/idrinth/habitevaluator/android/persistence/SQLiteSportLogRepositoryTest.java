@@ -5,26 +5,26 @@ import android.database.sqlite.SQLiteDatabase;
 
 import de.idrinth.habitevaluator.shared.model.SportLog;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 import static org.mockito.ArgumentMatchers.*;
 
-public class SQLiteSportLogRepositoryTest {
+class SQLiteSportLogRepositoryTest {
 
     private SQLiteHelper dbHelper;
     private SQLiteDatabase db;
     private SQLiteSportLogRepository repository;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         dbHelper = mock(SQLiteHelper.class);
         db = mock(SQLiteDatabase.class);
         when(dbHelper.getReadableDatabase()).thenReturn(db);
@@ -33,7 +33,7 @@ public class SQLiteSportLogRepositoryTest {
     }
 
     @Test
-    public void testSaveCallsInsert() {
+    void testSaveCallsInsert() {
         SportLog entry = new SportLog("Running", 5.0, "km", LocalTime.of(8, 0), LocalTime.of(9, 0));
 
         repository.save(entry);
@@ -42,7 +42,7 @@ public class SQLiteSportLogRepositoryTest {
     }
 
     @Test
-    public void testFindByIdNotFound() {
+    void testFindByIdNotFound() {
         Cursor cursor = mock(Cursor.class);
         when(cursor.moveToFirst()).thenReturn(false);
         when(db.rawQuery(eq("SELECT * FROM sport_logs WHERE id = ?"), eq(new String[]{"nonexistent"}))).thenReturn(cursor);
@@ -51,7 +51,7 @@ public class SQLiteSportLogRepositoryTest {
     }
 
     @Test
-    public void testFindByIdFound() {
+    void testFindByIdFound() {
         Cursor cursor = createSportLogCursor("s1", "Running", 5.5, "km", "08:00", "09:00", "2024-06-15", "Morning run", null, null);
         when(db.rawQuery(eq("SELECT * FROM sport_logs WHERE id = ?"), eq(new String[]{"s1"}))).thenReturn(cursor);
 
@@ -68,7 +68,7 @@ public class SQLiteSportLogRepositoryTest {
     }
 
     @Test
-    public void testFindByIdWithUser() {
+    void testFindByIdWithUser() {
         Cursor cursor = createSportLogCursor("s1", "Running", 5.0, "km", "08:00", "09:00", "2024-06-15", null, "u1", "testuser");
         when(db.rawQuery(eq("SELECT * FROM sport_logs WHERE id = ?"), eq(new String[]{"s1"}))).thenReturn(cursor);
 
@@ -80,7 +80,7 @@ public class SQLiteSportLogRepositoryTest {
     }
 
     @Test
-    public void testFindAllEmpty() {
+    void testFindAllEmpty() {
         Cursor cursor = createEmptyCursor();
         when(db.rawQuery(eq("SELECT * FROM sport_logs"), isNull())).thenReturn(cursor);
 
@@ -88,14 +88,14 @@ public class SQLiteSportLogRepositoryTest {
     }
 
     @Test
-    public void testDeleteById() {
+    void testDeleteById() {
         repository.deleteById("s1");
 
         verify(db).delete(eq("sport_logs"), eq("id = ?"), eq(new String[]{"s1"}));
     }
 
     @Test
-    public void testExistsByIdTrue() {
+    void testExistsByIdTrue() {
         Cursor cursor = mock(Cursor.class);
         when(cursor.moveToFirst()).thenReturn(true);
         when(db.rawQuery(eq("SELECT 1 FROM sport_logs WHERE id = ?"), eq(new String[]{"s1"}))).thenReturn(cursor);
@@ -104,7 +104,7 @@ public class SQLiteSportLogRepositoryTest {
     }
 
     @Test
-    public void testExistsByIdFalse() {
+    void testExistsByIdFalse() {
         Cursor cursor = mock(Cursor.class);
         when(cursor.moveToFirst()).thenReturn(false);
         when(db.rawQuery(eq("SELECT 1 FROM sport_logs WHERE id = ?"), eq(new String[]{"s1"}))).thenReturn(cursor);
@@ -113,7 +113,7 @@ public class SQLiteSportLogRepositoryTest {
     }
 
     @Test
-    public void testFindByUserIdEmpty() {
+    void testFindByUserIdEmpty() {
         Cursor cursor = createEmptyCursor();
         when(db.rawQuery(startsWith("SELECT * FROM sport_logs WHERE user_id"), any())).thenReturn(cursor);
 
@@ -121,7 +121,7 @@ public class SQLiteSportLogRepositoryTest {
     }
 
     @Test
-    public void testSaveReturnsEntry() {
+    void testSaveReturnsEntry() {
         SportLog entry = new SportLog("Running", 5.0, "km", LocalTime.of(8, 0), LocalTime.of(9, 0));
         SportLog result = repository.save(entry);
         assertSame(entry, result);

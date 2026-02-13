@@ -5,26 +5,26 @@ import android.database.sqlite.SQLiteDatabase;
 
 import de.idrinth.habitevaluator.shared.model.SleepEntry;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 import static org.mockito.ArgumentMatchers.*;
 
-public class SQLiteSleepEntryRepositoryTest {
+class SQLiteSleepEntryRepositoryTest {
 
     private SQLiteHelper dbHelper;
     private SQLiteDatabase db;
     private SQLiteSleepEntryRepository repository;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         dbHelper = mock(SQLiteHelper.class);
         db = mock(SQLiteDatabase.class);
         when(dbHelper.getReadableDatabase()).thenReturn(db);
@@ -33,7 +33,7 @@ public class SQLiteSleepEntryRepositoryTest {
     }
 
     @Test
-    public void testSaveCallsInsert() {
+    void testSaveCallsInsert() {
         SleepEntry entry = new SleepEntry();
         entry.setFromTime(LocalTime.of(23, 0));
         entry.setUntilTime(LocalTime.of(7, 0));
@@ -45,7 +45,7 @@ public class SQLiteSleepEntryRepositoryTest {
     }
 
     @Test
-    public void testFindByIdNotFound() {
+    void testFindByIdNotFound() {
         Cursor cursor = mock(Cursor.class);
         when(cursor.moveToFirst()).thenReturn(false);
         when(db.rawQuery(eq("SELECT * FROM sleep_entries WHERE id = ?"), eq(new String[]{"nonexistent"}))).thenReturn(cursor);
@@ -54,7 +54,7 @@ public class SQLiteSleepEntryRepositoryTest {
     }
 
     @Test
-    public void testFindByIdFound() {
+    void testFindByIdFound() {
         Cursor cursor = createSleepCursor("s1", "23:00", "07:00", "2024-06-15", "Good sleep", null, null);
         when(db.rawQuery(eq("SELECT * FROM sleep_entries WHERE id = ?"), eq(new String[]{"s1"}))).thenReturn(cursor);
 
@@ -68,7 +68,7 @@ public class SQLiteSleepEntryRepositoryTest {
     }
 
     @Test
-    public void testFindByIdWithUser() {
+    void testFindByIdWithUser() {
         Cursor cursor = createSleepCursor("s1", "23:00", "07:00", "2024-06-15", null, "u1", "testuser");
         when(db.rawQuery(eq("SELECT * FROM sleep_entries WHERE id = ?"), eq(new String[]{"s1"}))).thenReturn(cursor);
 
@@ -81,7 +81,7 @@ public class SQLiteSleepEntryRepositoryTest {
     }
 
     @Test
-    public void testFindAllEmpty() {
+    void testFindAllEmpty() {
         Cursor cursor = createEmptyCursor();
         when(db.rawQuery(eq("SELECT * FROM sleep_entries"), isNull())).thenReturn(cursor);
 
@@ -89,14 +89,14 @@ public class SQLiteSleepEntryRepositoryTest {
     }
 
     @Test
-    public void testDeleteById() {
+    void testDeleteById() {
         repository.deleteById("s1");
 
         verify(db).delete(eq("sleep_entries"), eq("id = ?"), eq(new String[]{"s1"}));
     }
 
     @Test
-    public void testExistsByIdTrue() {
+    void testExistsByIdTrue() {
         Cursor cursor = mock(Cursor.class);
         when(cursor.moveToFirst()).thenReturn(true);
         when(db.rawQuery(eq("SELECT 1 FROM sleep_entries WHERE id = ?"), eq(new String[]{"s1"}))).thenReturn(cursor);
@@ -105,7 +105,7 @@ public class SQLiteSleepEntryRepositoryTest {
     }
 
     @Test
-    public void testExistsByIdFalse() {
+    void testExistsByIdFalse() {
         Cursor cursor = mock(Cursor.class);
         when(cursor.moveToFirst()).thenReturn(false);
         when(db.rawQuery(eq("SELECT 1 FROM sleep_entries WHERE id = ?"), eq(new String[]{"s1"}))).thenReturn(cursor);
@@ -114,7 +114,7 @@ public class SQLiteSleepEntryRepositoryTest {
     }
 
     @Test
-    public void testFindByUserIdEmpty() {
+    void testFindByUserIdEmpty() {
         Cursor cursor = createEmptyCursor();
         when(db.rawQuery(startsWith("SELECT * FROM sleep_entries WHERE user_id"), any())).thenReturn(cursor);
 
@@ -122,7 +122,7 @@ public class SQLiteSleepEntryRepositoryTest {
     }
 
     @Test
-    public void testSaveReturnsEntry() {
+    void testSaveReturnsEntry() {
         SleepEntry entry = new SleepEntry();
         SleepEntry result = repository.save(entry);
         assertSame(entry, result);

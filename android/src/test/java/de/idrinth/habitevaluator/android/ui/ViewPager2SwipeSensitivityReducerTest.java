@@ -1,28 +1,28 @@
 package de.idrinth.habitevaluator.android.ui;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class ViewPager2SwipeSensitivityReducerTest {
+class ViewPager2SwipeSensitivityReducerTest {
 
     @Test
-    public void testReduceWithNullViewPagerDoesNotThrow() {
+    void testReduceWithNullViewPagerDoesNotThrow() {
         ViewPager2SwipeSensitivityReducer.reduce(null, 2);
     }
 
     @Test
-    public void testReduceWithZeroMultiplierDoesNotThrow() {
+    void testReduceWithZeroMultiplierDoesNotThrow() {
         ViewPager2SwipeSensitivityReducer.reduce(null, 0);
     }
 
     @Test
-    public void testReduceWithNegativeMultiplierDoesNotThrow() {
+    void testReduceWithNegativeMultiplierDoesNotThrow() {
         ViewPager2SwipeSensitivityReducer.reduce(null, -1);
     }
 
     @Test
-    public void testReduceWithNullAndValidMultiplierDoesNotThrow() {
+    void testReduceWithNullAndValidMultiplierDoesNotThrow() {
         ViewPager2SwipeSensitivityReducer.reduce(null, 4);
     }
 }

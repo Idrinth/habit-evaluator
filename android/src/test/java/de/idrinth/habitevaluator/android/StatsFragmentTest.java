@@ -1,74 +1,74 @@
 package de.idrinth.habitevaluator.android;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class StatsFragmentTest {
+class StatsFragmentTest {
 
     @Test
-    public void testDaysConstant() {
+    void testDaysConstant() {
         assertEquals(30, StatsFragment.DAYS);
     }
 
     @Test
-    public void testLabelPatternNotNull() {
+    void testLabelPatternNotNull() {
         assertNotNull(StatsFragment.LABEL_PATTERN);
     }
 
     @Test
-    public void testLabelFormatNotNull() {
+    void testLabelFormatNotNull() {
         assertNotNull(StatsFragment.LABEL_FORMAT);
     }
 
     @Test
-    public void testLabelFormatProducesExpectedOutput() {
+    void testLabelFormatProducesExpectedOutput() {
         LocalDate date = LocalDate.of(2025, 3, 15);
         assertEquals("03/15", StatsFragment.LABEL_FORMAT.format(date));
     }
 
     @Test
-    public void testLabelFormatWithDecember() {
+    void testLabelFormatWithDecember() {
         LocalDate date = LocalDate.of(2025, 12, 1);
         assertEquals("12/01", StatsFragment.LABEL_FORMAT.format(date));
     }
 
     @Test
-    public void testLabelFormatWithJanuary() {
+    void testLabelFormatWithJanuary() {
         LocalDate date = LocalDate.of(2025, 1, 31);
         assertEquals("01/31", StatsFragment.LABEL_FORMAT.format(date));
     }
 
     @Test
-    public void testCalculateAverageWithPositiveValues() {
+    void testCalculateAverageWithPositiveValues() {
         assertEquals(5.0f, StatsFragment.calculateAverage(15.0f, 3), 0.001f);
     }
 
     @Test
-    public void testCalculateAverageWithZeroCount() {
+    void testCalculateAverageWithZeroCount() {
         assertEquals(0.0f, StatsFragment.calculateAverage(100.0f, 0), 0.001f);
     }
 
     @Test
-    public void testCalculateAverageWithZeroTotal() {
+    void testCalculateAverageWithZeroTotal() {
         assertEquals(0.0f, StatsFragment.calculateAverage(0.0f, 5), 0.001f);
     }
 
     @Test
-    public void testCalculateAverageWithOneItem() {
+    void testCalculateAverageWithOneItem() {
         assertEquals(42.0f, StatsFragment.calculateAverage(42.0f, 1), 0.001f);
     }
 
     @Test
-    public void testCalculateAverageWithFractionalResult() {
+    void testCalculateAverageWithFractionalResult() {
         assertEquals(3.333f, StatsFragment.calculateAverage(10.0f, 3), 0.01f);
     }
 
     @Test
-    public void testGenerateDateLabelsForSingleDay() {
+    void testGenerateDateLabelsForSingleDay() {
         LocalDate date = LocalDate.of(2025, 6, 15);
         List<String> labels = StatsFragment.generateDateLabels(date, date);
         assertEquals(1, labels.size());
@@ -76,7 +76,7 @@ public class StatsFragmentTest {
     }
 
     @Test
-    public void testGenerateDateLabelsForThreeDays() {
+    void testGenerateDateLabelsForThreeDays() {
         LocalDate start = LocalDate.of(2025, 6, 13);
         LocalDate end = LocalDate.of(2025, 6, 15);
         List<String> labels = StatsFragment.generateDateLabels(start, end);
@@ -87,7 +87,7 @@ public class StatsFragmentTest {
     }
 
     @Test
-    public void testGenerateDateLabelsSpanningMonthBoundary() {
+    void testGenerateDateLabelsSpanningMonthBoundary() {
         LocalDate start = LocalDate.of(2025, 1, 30);
         LocalDate end = LocalDate.of(2025, 2, 2);
         List<String> labels = StatsFragment.generateDateLabels(start, end);
@@ -99,7 +99,7 @@ public class StatsFragmentTest {
     }
 
     @Test
-    public void testGenerateDateLabelsFor30Days() {
+    void testGenerateDateLabelsFor30Days() {
         LocalDate end = LocalDate.of(2025, 6, 30);
         LocalDate start = end.minusDays(StatsFragment.DAYS - 1);
         List<String> labels = StatsFragment.generateDateLabels(start, end);
@@ -107,7 +107,7 @@ public class StatsFragmentTest {
     }
 
     @Test
-    public void testGenerateDateLabelsStartAfterEndReturnsEmpty() {
+    void testGenerateDateLabelsStartAfterEndReturnsEmpty() {
         LocalDate start = LocalDate.of(2025, 6, 15);
         LocalDate end = LocalDate.of(2025, 6, 14);
         List<String> labels = StatsFragment.generateDateLabels(start, end);

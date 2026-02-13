@@ -2,39 +2,39 @@ package de.idrinth.habitevaluator.android;
 
 import android.content.Context;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-public class PreApi33PermissionHandlerTest {
+class PreApi33PermissionHandlerTest {
 
     private PreApi33PermissionHandler handler;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         handler = new PreApi33PermissionHandler();
     }
 
     @Test
-    public void testHasPermissionAlwaysReturnsTrue() {
+    void testHasPermissionAlwaysReturnsTrue() {
         Context context = mock(Context.class);
         assertTrue(handler.hasPermission(context));
     }
 
     @Test
-    public void testHasPermissionReturnsTrueWithNullContext() {
+    void testHasPermissionReturnsTrueWithNullContext() {
         assertTrue(handler.hasPermission(null));
     }
 
     @Test
-    public void testPermissionNameReturnsNull() {
+    void testPermissionNameReturnsNull() {
         assertNull(handler.permissionName());
     }
 
     @Test
-    public void testImplementsNotificationPermissionHandler() {
+    void testImplementsNotificationPermissionHandler() {
         assertTrue(handler instanceof NotificationPermissionHandler);
     }
 }

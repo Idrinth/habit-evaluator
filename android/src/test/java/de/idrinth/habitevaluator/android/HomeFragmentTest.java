@@ -1,18 +1,18 @@
 package de.idrinth.habitevaluator.android;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import de.idrinth.habitevaluator.shared.model.Habit;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class HomeFragmentTest {
+class HomeFragmentTest {
 
     @Test
-    public void testIsCategoryUsedWithMatchingCategory() {
+    void testIsCategoryUsedWithMatchingCategory() {
         List<Habit> habits = new ArrayList<>();
         Habit habit = new Habit("Test", "desc");
         habit.setCategoryId("cat-1");
@@ -22,7 +22,7 @@ public class HomeFragmentTest {
     }
 
     @Test
-    public void testIsCategoryUsedWithNoMatchingCategory() {
+    void testIsCategoryUsedWithNoMatchingCategory() {
         List<Habit> habits = new ArrayList<>();
         Habit habit = new Habit("Test", "desc");
         habit.setCategoryId("cat-2");
@@ -32,17 +32,17 @@ public class HomeFragmentTest {
     }
 
     @Test
-    public void testIsCategoryUsedWithEmptyList() {
+    void testIsCategoryUsedWithEmptyList() {
         assertFalse(HomeFragment.isCategoryUsed("cat-1", new ArrayList<>()));
     }
 
     @Test
-    public void testIsCategoryUsedWithNullList() {
+    void testIsCategoryUsedWithNullList() {
         assertFalse(HomeFragment.isCategoryUsed("cat-1", null));
     }
 
     @Test
-    public void testIsCategoryUsedWithNullCategoryId() {
+    void testIsCategoryUsedWithNullCategoryId() {
         List<Habit> habits = new ArrayList<>();
         Habit habit = new Habit("Test", "desc");
         habit.setCategoryId("cat-1");
@@ -52,7 +52,7 @@ public class HomeFragmentTest {
     }
 
     @Test
-    public void testIsCategoryUsedWithEmptyCategoryId() {
+    void testIsCategoryUsedWithEmptyCategoryId() {
         List<Habit> habits = new ArrayList<>();
         Habit habit = new Habit("Test", "desc");
         habit.setCategoryId("cat-1");
@@ -62,7 +62,7 @@ public class HomeFragmentTest {
     }
 
     @Test
-    public void testIsCategoryUsedWithMultipleHabitsOneMatch() {
+    void testIsCategoryUsedWithMultipleHabitsOneMatch() {
         List<Habit> habits = new ArrayList<>();
         Habit habit1 = new Habit("Test1", "desc1");
         habit1.setCategoryId("cat-1");
@@ -78,7 +78,7 @@ public class HomeFragmentTest {
     }
 
     @Test
-    public void testIsCategoryUsedWithMultipleHabitsSameCategory() {
+    void testIsCategoryUsedWithMultipleHabitsSameCategory() {
         List<Habit> habits = new ArrayList<>();
         Habit habit1 = new Habit("Test1", "desc1");
         habit1.setCategoryId("cat-1");
@@ -91,7 +91,7 @@ public class HomeFragmentTest {
     }
 
     @Test
-    public void testIsCategoryUsedWithHabitWithNullCategoryId() {
+    void testIsCategoryUsedWithHabitWithNullCategoryId() {
         List<Habit> habits = new ArrayList<>();
         Habit habit = new Habit("Test", "desc");
         // categoryId is null by default
@@ -101,12 +101,12 @@ public class HomeFragmentTest {
     }
 
     @Test
-    public void testIsCategoryUsedNullCategoryAndNullList() {
+    void testIsCategoryUsedNullCategoryAndNullList() {
         assertFalse(HomeFragment.isCategoryUsed(null, null));
     }
 
     @Test
-    public void testIsCategoryUsedEmptyCategoryAndNullList() {
+    void testIsCategoryUsedEmptyCategoryAndNullList() {
         assertFalse(HomeFragment.isCategoryUsed("", null));
     }
 }
