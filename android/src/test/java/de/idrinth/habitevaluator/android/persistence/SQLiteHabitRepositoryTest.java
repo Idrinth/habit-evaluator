@@ -194,6 +194,143 @@ class SQLiteHabitRepositoryTest {
         assertSame(habit, result);
     }
 
+    @Test
+    void testSaveWithScoringRule() {
+        Habit habit = new Habit("Exercise", "Daily exercise");
+        de.idrinth.habitevaluator.shared.model.ScoringRule rule = new de.idrinth.habitevaluator.shared.model.ScoringRule();
+        rule.setId("rule1");
+        rule.setName("Default Rule");
+        habit.setScoringRule(rule);
+
+        repository.save(habit);
+
+        verify(db).insertWithOnConflict(eq("habits"), isNull(), any(), eq(5));
+        verify(db).setTransactionSuccessful();
+    }
+
+    @Test
+    void testSaveWithNullFrequencyTypeDefaultsToDaily() {
+        Habit habit = new Habit("Exercise", "Daily exercise");
+        habit.setFrequencyType(null);
+
+        repository.save(habit);
+
+        verify(db).insertWithOnConflict(eq("habits"), isNull(), any(), eq(5));
+    }
+
+    @Test
+    void testSaveWithWeeklyFrequencyType() {
+        Habit habit = new Habit("Exercise", "Weekly exercise");
+        habit.setFrequencyType(FrequencyType.WEEKLY);
+
+        repository.save(habit);
+
+        verify(db).insertWithOnConflict(eq("habits"), isNull(), any(), eq(5));
+    }
+
+    @Test
+    void testSaveWithNullEntries() {
+        Habit habit = new Habit("Exercise", "Daily exercise");
+        habit.setEntries(null);
+
+        repository.save(habit);
+
+        verify(db).delete(eq("habit_entries"), eq("habit_id = ?"), eq(new String[]{habit.getId()}));
+        // No insertWithOnConflict for entries since entries is null
+    }
+
+    @Test
+    void testFindByIdWithScoringRule() {
+        Cursor habitCursor = createHabitCursor("h1", "Exercise", "Daily exercise", "DAILY", null, null);
+        // Override scoring_rule_id and scoring_rule_name to be non-null
+        when(habitCursor.isNull(9)).thenReturn(false);
+        when(habitCursor.isNull(10)).thenReturn(false);
+        when(habitCursor.getString(9)).thenReturn("rule1");
+        when(habitCursor.getString(10)).thenReturn("Default Rule");
+        when(db.rawQuery(eq("SELECT * FROM habits WHERE id = ?"), eq(new String[]{"h1"}))).thenReturn(habitCursor);
+
+        Cursor entryCursor = createEmptyCursor();
+        when(db.rawQuery(startsWith("SELECT * FROM habit_entries"), any())).thenReturn(entryCursor);
+
+        Cursor nameTrans = createEmptyCursor();
+        Cursor descTrans = createEmptyCursor();
+        when(db.rawQuery(contains("habit_name_translations"), any())).thenReturn(nameTrans);
+        when(db.rawQuery(contains("habit_description_translations"), any())).thenReturn(descTrans);
+
+        Optional<Habit> result = repository.findById("h1");
+
+        assertTrue(result.isPresent());
+        assertNotNull(result.get().getScoringRule());
+        assertEquals("rule1", result.get().getScoringRule().getId());
+        assertEquals("Default Rule", result.get().getScoringRule().getName());
+    }
+
+    @Test
+    void testFindByIdWithEntries() {
+        Cursor habitCursor = createHabitCursor("h1", "Exercise", "Daily exercise", "DAILY", null, null);
+        when(db.rawQuery(eq("SELECT * FROM habits WHERE id = ?"), eq(new String[]{"h1"}))).thenReturn(habitCursor);
+
+        // Create entry cursor with one entry
+        Cursor entryCursor = mock(Cursor.class);
+        when(entryCursor.moveToNext()).thenReturn(true, false);
+        when(entryCursor.getColumnIndexOrThrow("id")).thenReturn(0);
+        when(entryCursor.getColumnIndexOrThrow("completed_at")).thenReturn(1);
+        when(entryCursor.getColumnIndexOrThrow("notes")).thenReturn(2);
+        when(entryCursor.getColumnIndexOrThrow("value")).thenReturn(3);
+        when(entryCursor.isNull(anyInt())).thenReturn(true);
+        when(entryCursor.isNull(0)).thenReturn(false);
+        when(entryCursor.isNull(1)).thenReturn(false);
+        when(entryCursor.getString(0)).thenReturn("e1");
+        when(entryCursor.getString(1)).thenReturn("2024-01-15T10:00:00");
+        when(db.rawQuery(startsWith("SELECT * FROM habit_entries"), any())).thenReturn(entryCursor);
+
+        Cursor nameTrans = createEmptyCursor();
+        Cursor descTrans = createEmptyCursor();
+        when(db.rawQuery(contains("habit_name_translations"), any())).thenReturn(nameTrans);
+        when(db.rawQuery(contains("habit_description_translations"), any())).thenReturn(descTrans);
+
+        Optional<Habit> result = repository.findById("h1");
+
+        assertTrue(result.isPresent());
+        assertEquals(1, result.get().getEntries().size());
+        assertEquals("e1", result.get().getEntries().get(0).getId());
+    }
+
+    @Test
+    void testFindByIdWithTranslations() {
+        Cursor habitCursor = createHabitCursor("h1", "Exercise", "Daily exercise", "DAILY", null, null);
+        when(db.rawQuery(eq("SELECT * FROM habits WHERE id = ?"), eq(new String[]{"h1"}))).thenReturn(habitCursor);
+
+        Cursor entryCursor = createEmptyCursor();
+        when(db.rawQuery(startsWith("SELECT * FROM habit_entries"), any())).thenReturn(entryCursor);
+
+        // Create translation cursor with one translation
+        Cursor nameTrans = mock(Cursor.class);
+        when(nameTrans.moveToNext()).thenReturn(true, false);
+        when(nameTrans.getColumnIndexOrThrow("language")).thenReturn(0);
+        when(nameTrans.getColumnIndexOrThrow("translated_name")).thenReturn(1);
+        when(nameTrans.getString(0)).thenReturn("de");
+        when(nameTrans.getString(1)).thenReturn("Ubung");
+
+        Cursor descTrans = mock(Cursor.class);
+        when(descTrans.moveToNext()).thenReturn(true, false);
+        when(descTrans.getColumnIndexOrThrow("language")).thenReturn(0);
+        when(descTrans.getColumnIndexOrThrow("translated_description")).thenReturn(1);
+        when(descTrans.getString(0)).thenReturn("de");
+        when(descTrans.getString(1)).thenReturn("Tagliche Ubung");
+
+        when(db.rawQuery(contains("habit_name_translations"), any())).thenReturn(nameTrans);
+        when(db.rawQuery(contains("habit_description_translations"), any())).thenReturn(descTrans);
+
+        Optional<Habit> result = repository.findById("h1");
+
+        assertTrue(result.isPresent());
+        assertNotNull(result.get().getNameTranslations());
+        assertEquals("Ubung", result.get().getNameTranslations().get("de"));
+        assertNotNull(result.get().getDescriptionTranslations());
+        assertEquals("Tagliche Ubung", result.get().getDescriptionTranslations().get("de"));
+    }
+
     private Cursor createHabitCursor(String id, String name, String description, String frequencyType, String userId, String userName) {
         Cursor cursor = mock(Cursor.class);
         when(cursor.moveToFirst()).thenReturn(true);

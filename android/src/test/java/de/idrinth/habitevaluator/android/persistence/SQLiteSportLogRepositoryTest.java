@@ -127,6 +127,126 @@ class SQLiteSportLogRepositoryTest {
         assertSame(entry, result);
     }
 
+    @Test
+    void testFindAllWithMultipleEntries() {
+        Cursor cursor = mock(Cursor.class);
+        when(cursor.moveToNext()).thenReturn(true, true, false);
+
+        when(cursor.getColumnIndexOrThrow("id")).thenReturn(0);
+        when(cursor.getColumnIndexOrThrow("name")).thenReturn(1);
+        when(cursor.getColumnIndexOrThrow("measurement")).thenReturn(2);
+        when(cursor.getColumnIndexOrThrow("measurement_unit")).thenReturn(3);
+        when(cursor.getColumnIndexOrThrow("start_time")).thenReturn(4);
+        when(cursor.getColumnIndexOrThrow("end_time")).thenReturn(5);
+        when(cursor.getColumnIndexOrThrow("date")).thenReturn(6);
+        when(cursor.getColumnIndexOrThrow("created_at")).thenReturn(7);
+        when(cursor.getColumnIndexOrThrow("notes")).thenReturn(8);
+        when(cursor.getColumnIndexOrThrow("user_id")).thenReturn(9);
+        when(cursor.getColumnIndexOrThrow("user_name")).thenReturn(10);
+
+        when(cursor.isNull(anyInt())).thenReturn(true);
+        when(cursor.isNull(0)).thenReturn(false);
+        when(cursor.isNull(1)).thenReturn(false);
+        when(cursor.isNull(6)).thenReturn(false);
+        when(cursor.isNull(7)).thenReturn(false);
+
+        when(cursor.getString(0)).thenReturn("s1", "s2");
+        when(cursor.getString(1)).thenReturn("Running", "Swimming");
+        when(cursor.getString(6)).thenReturn("2024-06-15");
+        when(cursor.getString(7)).thenReturn("2024-06-15T10:00:00");
+
+        when(db.rawQuery(eq("SELECT * FROM sport_logs"), isNull())).thenReturn(cursor);
+
+        List<SportLog> result = repository.findAll();
+        assertEquals(2, result.size());
+    }
+
+    @Test
+    void testFindByUserIdWithResults() {
+        Cursor cursor = mock(Cursor.class);
+        when(cursor.moveToNext()).thenReturn(true, false);
+
+        when(cursor.getColumnIndexOrThrow("id")).thenReturn(0);
+        when(cursor.getColumnIndexOrThrow("name")).thenReturn(1);
+        when(cursor.getColumnIndexOrThrow("measurement")).thenReturn(2);
+        when(cursor.getColumnIndexOrThrow("measurement_unit")).thenReturn(3);
+        when(cursor.getColumnIndexOrThrow("start_time")).thenReturn(4);
+        when(cursor.getColumnIndexOrThrow("end_time")).thenReturn(5);
+        when(cursor.getColumnIndexOrThrow("date")).thenReturn(6);
+        when(cursor.getColumnIndexOrThrow("created_at")).thenReturn(7);
+        when(cursor.getColumnIndexOrThrow("notes")).thenReturn(8);
+        when(cursor.getColumnIndexOrThrow("user_id")).thenReturn(9);
+        when(cursor.getColumnIndexOrThrow("user_name")).thenReturn(10);
+
+        when(cursor.isNull(anyInt())).thenReturn(true);
+        when(cursor.isNull(0)).thenReturn(false);
+        when(cursor.isNull(1)).thenReturn(false);
+        when(cursor.isNull(6)).thenReturn(false);
+        when(cursor.isNull(7)).thenReturn(false);
+        when(cursor.isNull(9)).thenReturn(false);
+        when(cursor.isNull(10)).thenReturn(false);
+
+        when(cursor.getString(0)).thenReturn("s1");
+        when(cursor.getString(1)).thenReturn("Running");
+        when(cursor.getString(6)).thenReturn("2024-06-15");
+        when(cursor.getString(7)).thenReturn("2024-06-15T10:00:00");
+        when(cursor.getString(9)).thenReturn("u1");
+        when(cursor.getString(10)).thenReturn("testuser");
+
+        when(db.rawQuery(startsWith("SELECT * FROM sport_logs WHERE user_id"), any())).thenReturn(cursor);
+
+        List<SportLog> result = repository.findByUserId("u1");
+        assertEquals(1, result.size());
+        assertEquals("Running", result.get(0).getName());
+        assertNotNull(result.get(0).getUser());
+    }
+
+    @Test
+    void testFindByIdWithNullTimesAndMeasurement() {
+        Cursor cursor = mock(Cursor.class);
+        when(cursor.moveToFirst()).thenReturn(true);
+
+        when(cursor.getColumnIndexOrThrow("id")).thenReturn(0);
+        when(cursor.getColumnIndexOrThrow("name")).thenReturn(1);
+        when(cursor.getColumnIndexOrThrow("measurement")).thenReturn(2);
+        when(cursor.getColumnIndexOrThrow("measurement_unit")).thenReturn(3);
+        when(cursor.getColumnIndexOrThrow("start_time")).thenReturn(4);
+        when(cursor.getColumnIndexOrThrow("end_time")).thenReturn(5);
+        when(cursor.getColumnIndexOrThrow("date")).thenReturn(6);
+        when(cursor.getColumnIndexOrThrow("created_at")).thenReturn(7);
+        when(cursor.getColumnIndexOrThrow("notes")).thenReturn(8);
+        when(cursor.getColumnIndexOrThrow("user_id")).thenReturn(9);
+        when(cursor.getColumnIndexOrThrow("user_name")).thenReturn(10);
+
+        when(cursor.isNull(anyInt())).thenReturn(true);
+        when(cursor.isNull(0)).thenReturn(false);
+        when(cursor.isNull(1)).thenReturn(false);
+
+        when(cursor.getString(0)).thenReturn("s1");
+        when(cursor.getString(1)).thenReturn("Running");
+
+        when(db.rawQuery(eq("SELECT * FROM sport_logs WHERE id = ?"), eq(new String[]{"s1"}))).thenReturn(cursor);
+
+        Optional<SportLog> result = repository.findById("s1");
+        assertTrue(result.isPresent());
+        assertEquals("Running", result.get().getName());
+        assertNull(result.get().getStartTime());
+        assertNull(result.get().getEndTime());
+        assertNull(result.get().getNotes());
+        assertNull(result.get().getUser());
+    }
+
+    @Test
+    void testSaveWithNullTimesDoesNotThrow() {
+        SportLog entry = new SportLog();
+        entry.setName("Walking");
+        entry.setStartTime(null);
+        entry.setEndTime(null);
+
+        repository.save(entry);
+        verify(db).insertWithOnConflict(eq("sport_logs"), isNull(), any(), eq(5));
+    }
+
     private Cursor createSportLogCursor(String id, String name, double measurement, String measurementUnit, String startTime, String endTime, String date, String notes, String userId, String userName) {
         Cursor cursor = mock(Cursor.class);
         when(cursor.moveToFirst()).thenReturn(true);
