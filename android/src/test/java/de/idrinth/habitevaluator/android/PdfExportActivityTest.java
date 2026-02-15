@@ -86,4 +86,57 @@ class PdfExportActivityTest {
         assertEquals("12...", result);
         assertEquals(5, result.length());
     }
+
+    @Test
+    void testTruncateLineWithUnicodeCharacters() {
+        String input = "Tägliche Gewohnheit bewerten und überprüfen";
+        String result = PdfExportActivity.truncateLine(input, 20);
+        assertEquals(20, result.length());
+        assertTrue(result.endsWith("..."));
+    }
+
+    @Test
+    void testTruncateLineWithExactlyThreeCharsLimit() {
+        String input = "ABCDEF";
+        String result = PdfExportActivity.truncateLine(input, 3);
+        assertEquals("...", result);
+        assertEquals(3, result.length());
+    }
+
+    @Test
+    void testTruncateLinePreservesOriginalWhenShorter() {
+        String input = "Hi";
+        assertSame(input, PdfExportActivity.truncateLine(input, 100));
+    }
+
+    @Test
+    void testTruncateLineWithSpacesInContent() {
+        String input = "This is a test string with spaces that should be truncated";
+        String result = PdfExportActivity.truncateLine(input, 25);
+        assertEquals(25, result.length());
+        assertTrue(result.endsWith("..."));
+    }
+
+    @Test
+    void testTruncateLineConsistentBehavior() {
+        String input = "This is a string that exceeds the limit";
+        String result1 = PdfExportActivity.truncateLine(input, 20);
+        String result2 = PdfExportActivity.truncateLine(input, 20);
+        assertEquals(result1, result2);
+    }
+
+    @Test
+    void testTruncateLineEllipsisIsExactlyThreeDots() {
+        String input = "ABCDEFGHIJKLMNOP";
+        String result = PdfExportActivity.truncateLine(input, 10);
+        assertTrue(result.endsWith("..."));
+        assertFalse(result.endsWith("...."));
+    }
+
+    @Test
+    void testTruncateLineTwoOverLimit() {
+        String input = "1234567"; // 7 chars
+        String result = PdfExportActivity.truncateLine(input, 5);
+        assertEquals("12...", result);
+    }
 }

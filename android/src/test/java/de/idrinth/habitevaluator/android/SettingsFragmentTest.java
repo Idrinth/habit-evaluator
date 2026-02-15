@@ -210,4 +210,71 @@ class SettingsFragmentTest {
         assertFalse(SettingsFragment.areRemoteFieldsComplete(
                 "https://example.com", "   ", "pass"));
     }
+
+    @Test
+    void testAreRemoteFieldsCompleteWithWhitespacePassword() {
+        // Password is not trimmed in the implementation, so whitespace is accepted
+        assertTrue(SettingsFragment.areRemoteFieldsComplete(
+                "https://example.com", "user", "   "));
+    }
+
+    @Test
+    void testAreRemoteFieldsCompleteWithAllWhitespace() {
+        // URL and username are trimmed, so whitespace-only fails for them
+        assertFalse(SettingsFragment.areRemoteFieldsComplete("   ", "   ", "   "));
+    }
+
+    @Test
+    void testParseTimeStringWithLeadingZeros() {
+        int[] result = SettingsFragment.parseTimeString("08:05");
+        assertEquals(8, result[0]);
+        assertEquals(5, result[1]);
+    }
+
+    @Test
+    void testIsBackupPasswordValidWithLongPassword() {
+        String longPassword = "a".repeat(100);
+        assertTrue(SettingsFragment.isBackupPasswordValid(longPassword, longPassword));
+    }
+
+    @Test
+    void testIsBackupPasswordValidCaseSensitive() {
+        assertFalse(SettingsFragment.isBackupPasswordValid("Password", "password"));
+    }
+
+    @Test
+    void testIsBackupPasswordValidWithSpecialCharacters() {
+        String special = "p@$$w0rd!#%";
+        assertTrue(SettingsFragment.isBackupPasswordValid(special, special));
+    }
+
+    @Test
+    void testParseTimeStringInvalidAlwaysReturnsTwoElements() {
+        int[] result = SettingsFragment.parseTimeString("invalid");
+        assertEquals(2, result.length);
+    }
+
+    @Test
+    void testParseTimeStringNullAlwaysReturnsTwoElements() {
+        int[] result = SettingsFragment.parseTimeString(null);
+        assertEquals(2, result.length);
+    }
+
+    @Test
+    void testAreRemoteFieldsCompleteWithMinimalValidValues() {
+        assertTrue(SettingsFragment.areRemoteFieldsComplete("h", "u", "p"));
+    }
+
+    @Test
+    void testParseTimeStringNoonTime() {
+        int[] result = SettingsFragment.parseTimeString("12:00");
+        assertEquals(12, result[0]);
+        assertEquals(0, result[1]);
+    }
+
+    @Test
+    void testIsBackupPasswordValidWithUnicodeCharacters() {
+        String unicode = "пароль123";
+        assertTrue(SettingsFragment.isBackupPasswordValid(unicode, unicode));
+    }
 }

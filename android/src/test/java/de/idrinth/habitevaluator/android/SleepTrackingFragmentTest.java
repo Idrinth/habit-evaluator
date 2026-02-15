@@ -74,4 +74,54 @@ class SleepTrackingFragmentTest {
     void testDatePatternMatchesDiaryFragmentPattern() {
         assertEquals(DiaryFragment.DATE_PATTERN, SleepTrackingFragment.DATE_PATTERN);
     }
+
+    @Test
+    void testTimeFormatRoundTrip() {
+        LocalTime original = LocalTime.of(14, 30);
+        String formatted = SleepTrackingFragment.TIME_FORMAT.format(original);
+        LocalTime parsed = LocalTime.parse(formatted, SleepTrackingFragment.TIME_FORMAT);
+        assertEquals(original, parsed);
+    }
+
+    @Test
+    void testDateFormatRoundTrip() {
+        LocalDate original = LocalDate.of(2025, 6, 15);
+        String formatted = SleepTrackingFragment.DATE_FORMAT.format(original);
+        LocalDate parsed = LocalDate.parse(formatted, SleepTrackingFragment.DATE_FORMAT);
+        assertEquals(original, parsed);
+    }
+
+    @Test
+    void testTimeFormatEndOfDay() {
+        LocalTime time = LocalTime.of(23, 59);
+        assertEquals("23:59", SleepTrackingFragment.TIME_FORMAT.format(time));
+    }
+
+    @Test
+    void testTimeFormatNoon() {
+        LocalTime time = LocalTime.of(12, 0);
+        assertEquals("12:00", SleepTrackingFragment.TIME_FORMAT.format(time));
+    }
+
+    @Test
+    void testDateFormatEndOfYear() {
+        LocalDate date = LocalDate.of(2025, 12, 31);
+        assertEquals("2025-12-31", SleepTrackingFragment.DATE_FORMAT.format(date));
+    }
+
+    @Test
+    void testDateFormatStartOfYear() {
+        LocalDate date = LocalDate.of(2025, 1, 1);
+        assertEquals("2025-01-01", SleepTrackingFragment.DATE_FORMAT.format(date));
+    }
+
+    @Test
+    void testTimePatternMatchesSportLogPattern() {
+        assertEquals(SportLogFragment.TIME_PATTERN, SleepTrackingFragment.TIME_PATTERN);
+    }
+
+    @Test
+    void testDatePatternMatchesSportLogPattern() {
+        assertEquals(SportLogFragment.DATE_PATTERN, SleepTrackingFragment.DATE_PATTERN);
+    }
 }

@@ -169,4 +169,70 @@ class MainActivityTest {
         MainActivity.setRecordEmotionPairId("");
         assertEquals("", MainActivity.getRecordEmotionPairId());
     }
+
+    @Test
+    void testSetEditHabitIdAcceptsLongString() {
+        String longId = "a".repeat(200);
+        MainActivity.setEditHabitId(longId);
+        assertEquals(longId, MainActivity.getEditHabitId());
+    }
+
+    @Test
+    void testSetPointDevelopmentHabitIdAcceptsUUID() {
+        String uuid = "550e8400-e29b-41d4-a716-446655440000";
+        MainActivity.setPointDevelopmentHabitId(uuid);
+        assertEquals(uuid, MainActivity.getPointDevelopmentHabitId());
+    }
+
+    @Test
+    void testSetRecordEmotionPairIdAcceptsUUID() {
+        String uuid = "123e4567-e89b-12d3-a456-426614174000";
+        MainActivity.setRecordEmotionPairId(uuid);
+        assertEquals(uuid, MainActivity.getRecordEmotionPairId());
+    }
+
+    @Test
+    void testRapidEditHabitIdChanges() {
+        for (int i = 0; i < 50; i++) {
+            String id = "id-" + i;
+            MainActivity.setEditHabitId(id);
+            assertEquals(id, MainActivity.getEditHabitId());
+        }
+    }
+
+    @Test
+    void testNullResetForAllIds() {
+        MainActivity.setEditHabitId("test");
+        MainActivity.setPointDevelopmentHabitId("test");
+        MainActivity.setRecordEmotionPairId("test");
+
+        MainActivity.setEditHabitId(null);
+        MainActivity.setPointDevelopmentHabitId(null);
+        MainActivity.setRecordEmotionPairId(null);
+
+        assertNull(MainActivity.getEditHabitId());
+        assertNull(MainActivity.getPointDevelopmentHabitId());
+        assertNull(MainActivity.getRecordEmotionPairId());
+    }
+
+    @Test
+    void testSaveAllHabitsMultipleCallsDoNotThrow() {
+        MainActivity.saveAllHabits();
+        MainActivity.saveAllHabits();
+        MainActivity.saveAllHabits();
+    }
+
+    @Test
+    void testRefreshSharedMedicationsMultipleCallsDoNotThrow() {
+        MainActivity.refreshSharedMedications();
+        MainActivity.refreshSharedMedications();
+        MainActivity.refreshSharedMedications();
+    }
+
+    @Test
+    void testSetEditHabitIdWithSpecialCharacters() {
+        String specialId = "habit-!@#$%^&*()";
+        MainActivity.setEditHabitId(specialId);
+        assertEquals(specialId, MainActivity.getEditHabitId());
+    }
 }

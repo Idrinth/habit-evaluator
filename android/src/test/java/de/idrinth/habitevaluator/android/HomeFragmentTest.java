@@ -109,4 +109,50 @@ class HomeFragmentTest {
     void testIsCategoryUsedEmptyCategoryAndNullList() {
         assertFalse(HomeFragment.isCategoryUsed("", null));
     }
+
+    @Test
+    void testIsCategoryUsedWithLargeList() {
+        List<Habit> habits = new ArrayList<>();
+        for (int i = 0; i < 100; i++) {
+            Habit habit = new Habit("Habit " + i, "desc " + i);
+            habit.setCategoryId("cat-" + i);
+            habits.add(habit);
+        }
+        assertTrue(HomeFragment.isCategoryUsed("cat-50", habits));
+        assertFalse(HomeFragment.isCategoryUsed("cat-200", habits));
+    }
+
+    @Test
+    void testIsCategoryUsedWithLastItemMatching() {
+        List<Habit> habits = new ArrayList<>();
+        for (int i = 0; i < 10; i++) {
+            Habit habit = new Habit("Habit " + i, "desc " + i);
+            habit.setCategoryId("cat-" + i);
+            habits.add(habit);
+        }
+        assertTrue(HomeFragment.isCategoryUsed("cat-9", habits));
+    }
+
+    @Test
+    void testIsCategoryUsedWithFirstItemMatching() {
+        List<Habit> habits = new ArrayList<>();
+        for (int i = 0; i < 10; i++) {
+            Habit habit = new Habit("Habit " + i, "desc " + i);
+            habit.setCategoryId("cat-" + i);
+            habits.add(habit);
+        }
+        assertTrue(HomeFragment.isCategoryUsed("cat-0", habits));
+    }
+
+    @Test
+    void testIsCategoryUsedWithMixedNullAndSetCategories() {
+        List<Habit> habits = new ArrayList<>();
+        Habit habit1 = new Habit("Test1", "desc1");
+        habits.add(habit1);
+        Habit habit2 = new Habit("Test2", "desc2");
+        habit2.setCategoryId("cat-1");
+        habits.add(habit2);
+
+        assertTrue(HomeFragment.isCategoryUsed("cat-1", habits));
+    }
 }

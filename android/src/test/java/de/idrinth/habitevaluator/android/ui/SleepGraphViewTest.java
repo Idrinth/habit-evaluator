@@ -186,6 +186,116 @@ class SleepGraphViewTest {
         }
     }
 
+    @Test
+    void testCalculateTrendLineWithDecreasingValues() throws Exception {
+        SleepGraphView view = new SleepGraphView(null);
+        setValues(view, Arrays.asList(9.0f, 7.0f, 5.0f, 3.0f));
+
+        double[] trend = invokeCalculateTrendLine(view);
+        assertTrue(trend[0] < 0, "Slope should be negative for decreasing data");
+    }
+
+    @Test
+    void testCalculateTrendLineWithFlatValues() throws Exception {
+        SleepGraphView view = new SleepGraphView(null);
+        setValues(view, Arrays.asList(7.0f, 7.0f, 7.0f, 7.0f));
+
+        double[] trend = invokeCalculateTrendLine(view);
+        assertEquals(0, trend[0], 0.001, "Slope should be zero for flat data");
+        assertEquals(7.0, trend[1], 0.001, "Intercept should be the constant value");
+    }
+
+    @Test
+    void testCalculateTrendLineReturnsArrayOfLengthTwo() throws Exception {
+        SleepGraphView view = new SleepGraphView(null);
+        setValues(view, Arrays.asList(5.0f, 6.0f, 7.0f));
+
+        double[] trend = invokeCalculateTrendLine(view);
+        assertEquals(2, trend.length);
+    }
+
+    @Test
+    void testGetTrendYAtZero() throws Exception {
+        SleepGraphView view = new SleepGraphView(null);
+        double[] trend = {2.0, 3.0};
+
+        Method method = SleepGraphView.class.getDeclaredMethod("getTrendY", double[].class, int.class);
+        method.setAccessible(true);
+        double result = (double) method.invoke(view, trend, 0);
+
+        assertEquals(3.0, result, 0.001);
+    }
+
+    @Test
+    void testGetTrendYWithNegativeSlope() throws Exception {
+        SleepGraphView view = new SleepGraphView(null);
+        double[] trend = {-1.0, 10.0};
+
+        Method method = SleepGraphView.class.getDeclaredMethod("getTrendY", double[].class, int.class);
+        method.setAccessible(true);
+        double result = (double) method.invoke(view, trend, 3);
+
+        assertEquals(7.0, result, 0.001);
+    }
+
+    @Test
+    void testLightenColorWithFullFactor() throws Exception {
+        Method method = SleepGraphView.class.getDeclaredMethod("lightenColor", int.class, float.class);
+        method.setAccessible(true);
+
+        int color = 0xFF000000;
+        int result = (int) method.invoke(null, color, 1.0f);
+        assertEquals(0xFF, (result >> 16) & 0xFF, "Full lightening of black should be white");
+        assertEquals(0xFF, (result >> 8) & 0xFF, "Full lightening of black should be white");
+        assertEquals(0xFF, result & 0xFF, "Full lightening of black should be white");
+    }
+
+    @Test
+    void testLightenColorWithRedChannel() throws Exception {
+        Method method = SleepGraphView.class.getDeclaredMethod("lightenColor", int.class, float.class);
+        method.setAccessible(true);
+
+        int red = 0xFFFF0000;
+        int result = (int) method.invoke(null, red, 0.5f);
+        assertEquals(0xFF, (result >> 16) & 0xFF, "Red at 255 should stay 255");
+        assertEquals(127, (result >> 8) & 0xFF, "Green should lighten from 0");
+        assertEquals(127, result & 0xFF, "Blue should lighten from 0");
+    }
+
+    @Test
+    void testSetDataStoresAverageValue() throws Exception {
+        SleepGraphView view = new SleepGraphView(null);
+        view.setData(Arrays.asList("Mon"), Arrays.asList(8.0f), 7.5f);
+
+        Field field = SleepGraphView.class.getDeclaredField("averageValue");
+        field.setAccessible(true);
+        float avg = field.getFloat(view);
+        assertEquals(7.5f, avg, 0.001f);
+    }
+
+    @Test
+    void testSetDataStoresLabels() throws Exception {
+        SleepGraphView view = new SleepGraphView(null);
+        view.setData(Arrays.asList("Mon", "Tue"), Arrays.asList(7.0f, 8.0f), 7.5f);
+
+        Field field = SleepGraphView.class.getDeclaredField("labels");
+        field.setAccessible(true);
+        @SuppressWarnings("unchecked")
+        List<String> labels = (List<String>) field.get(view);
+        assertEquals(2, labels.size());
+        assertEquals("Mon", labels.get(0));
+    }
+
+    @Test
+    void testCalculateTrendLineWithSingleNonZeroValue() throws Exception {
+        SleepGraphView view = new SleepGraphView(null);
+        setValues(view, Arrays.asList(0f, 0f, 8.0f, 0f));
+
+        double[] trend = invokeCalculateTrendLine(view);
+        assertEquals(0, trend[0], 0.001, "Slope should be zero with single data point");
+        assertEquals(8.0, trend[1], 0.001, "Intercept should be the single value");
+    }
+
     private double[] invokeCalculateTrendLine(SleepGraphView view) throws Exception {
         Method method = SleepGraphView.class.getDeclaredMethod("calculateTrendLine");
         method.setAccessible(true);
