@@ -187,7 +187,7 @@ class SQLiteHelperTest {
         SQLiteHelper helper = SQLiteHelper.getInstance(context);
         SQLiteDatabase db = mock(SQLiteDatabase.class);
 
-        helper.onUpgrade(db, 7, 7);
+        helper.onUpgrade(db, 8, 8);
 
         verify(db, never()).execSQL(anyString());
     }
