@@ -149,6 +149,52 @@ class H2DiaryEntryRepositoryTest extends H2RepositoryTestBase {
     }
 
     @Test
+    void testFindEntriesNeedingMigrationReturnsLegacyEntries() {
+        DiaryEntry legacyEntry = new DiaryEntry("Legacy event", EventSignificance.NORMAL);
+        legacyEntry.setUser(testUser);
+        diaryRepository.save(legacyEntry);
+
+        List<DiaryEntry> needingMigration = diaryRepository.findEntriesNeedingMigration(testUser.getId());
+        assertEquals(1, needingMigration.size());
+        assertEquals("Legacy event", needingMigration.get(0).getDescription());
+    }
+
+    @Test
+    void testFindEntriesNeedingMigrationExcludesEntriesWithNullLegacyDescription() {
+        DiaryEntry entry = new DiaryEntry();
+        entry.setLegacyDescription(null);
+        entry.setSignificance(EventSignificance.MINOR);
+        entry.setUser(testUser);
+        diaryRepository.save(entry);
+
+        List<DiaryEntry> result = diaryRepository.findEntriesNeedingMigration(testUser.getId());
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    void testFindEntriesNeedingMigrationReturnsEmptyForNonExistentUser() {
+        DiaryEntry entry = new DiaryEntry("Legacy event", EventSignificance.NORMAL);
+        entry.setUser(testUser);
+        diaryRepository.save(entry);
+
+        List<DiaryEntry> result = diaryRepository.findEntriesNeedingMigration("nonexistent-user-id");
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    void testFindEntriesNeedingMigrationMultipleEntries() {
+        DiaryEntry entry1 = new DiaryEntry("Legacy 1", EventSignificance.MINOR);
+        entry1.setUser(testUser);
+        DiaryEntry entry2 = new DiaryEntry("Legacy 2", EventSignificance.MAJOR);
+        entry2.setUser(testUser);
+        diaryRepository.save(entry1);
+        diaryRepository.save(entry2);
+
+        List<DiaryEntry> result = diaryRepository.findEntriesNeedingMigration(testUser.getId());
+        assertEquals(2, result.size());
+    }
+
+    @Test
     void testEventDatePersisted() {
         LocalDate specificDate = LocalDate.of(2024, 6, 15);
         DiaryEntry entry = new DiaryEntry("Test event", EventSignificance.MAJOR, specificDate);

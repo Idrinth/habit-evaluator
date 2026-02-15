@@ -594,6 +594,598 @@ class MainControllerTest extends JavaFXControllerTestBase {
         assertEquals(1, copy.getEntries().size());
     }
 
+    @Test
+    void testApplyFilterShowsAllHabitsWhenAllCategoriesSelected() throws Exception {
+        Habit habit1 = new Habit("Exercise", "Daily exercise");
+        habit1.setUser(testUser);
+        Habit habit2 = new Habit("Read", "Daily reading");
+        habit2.setUser(testUser);
+
+        ObservableList<Habit> habits = FXCollections.observableArrayList(habit1, habit2);
+        setField(controller, "habits", habits);
+
+        categoryFilterComboBox.setItems(FXCollections.observableArrayList("All categories", "Fitness"));
+        categoryFilterComboBox.getSelectionModel().selectFirst();
+
+        Method applyFilter = MainController.class.getDeclaredMethod("applyFilter");
+        applyFilter.setAccessible(true);
+        applyFilter.invoke(controller);
+
+        ObservableList<Habit> filteredHabits = (ObservableList<Habit>) getFieldValue(controller, "filteredHabits");
+        assertEquals(2, filteredHabits.size());
+    }
+
+    @Test
+    void testApplyFilterShowsAllHabitsWhenNullSelection() throws Exception {
+        Habit habit = new Habit("Exercise", "Daily exercise");
+        habit.setUser(testUser);
+
+        ObservableList<Habit> habits = FXCollections.observableArrayList(habit);
+        setField(controller, "habits", habits);
+
+        categoryFilterComboBox.setItems(FXCollections.observableArrayList("All categories"));
+        categoryFilterComboBox.getSelectionModel().clearSelection();
+
+        Method applyFilter = MainController.class.getDeclaredMethod("applyFilter");
+        applyFilter.setAccessible(true);
+        applyFilter.invoke(controller);
+
+        ObservableList<Habit> filteredHabits = (ObservableList<Habit>) getFieldValue(controller, "filteredHabits");
+        assertEquals(1, filteredHabits.size());
+    }
+
+    @Test
+    void testApplyFilterShowsOnlyUncategorizedHabits() throws Exception {
+        Habit categorized = new Habit("Exercise", "Daily exercise");
+        categorized.setUser(testUser);
+        categorized.setCategoryId("some-category-id");
+
+        Habit uncategorized = new Habit("Read", "Daily reading");
+        uncategorized.setUser(testUser);
+        uncategorized.setCategoryId(null);
+
+        Habit emptyCategory = new Habit("Walk", "Walking");
+        emptyCategory.setUser(testUser);
+        emptyCategory.setCategoryId("");
+
+        ObservableList<Habit> habits = FXCollections.observableArrayList(categorized, uncategorized, emptyCategory);
+        setField(controller, "habits", habits);
+
+        categoryFilterComboBox.setItems(FXCollections.observableArrayList("All categories", "Fitness", "Uncategorized"));
+        categoryFilterComboBox.getSelectionModel().select("Uncategorized");
+
+        Method applyFilter = MainController.class.getDeclaredMethod("applyFilter");
+        applyFilter.setAccessible(true);
+        applyFilter.invoke(controller);
+
+        ObservableList<Habit> filteredHabits = (ObservableList<Habit>) getFieldValue(controller, "filteredHabits");
+        assertEquals(2, filteredHabits.size());
+    }
+
+    @Test
+    void testApplyFilterShowsOnlyMatchingCategory() throws Exception {
+        HabitCategory category = new HabitCategory("Fitness", "Fitness category", "#FF0000");
+        category.setUser(testUser);
+
+        Habit matching = new Habit("Exercise", "Daily exercise");
+        matching.setUser(testUser);
+        matching.setCategoryId(category.getId());
+
+        Habit nonMatching = new Habit("Read", "Daily reading");
+        nonMatching.setUser(testUser);
+        nonMatching.setCategoryId("other-id");
+
+        ObservableList<Habit> habits = FXCollections.observableArrayList(matching, nonMatching);
+        setField(controller, "habits", habits);
+
+        java.util.Map<String, String> categoryNameToId = new java.util.LinkedHashMap<>();
+        categoryNameToId.put("Fitness", category.getId());
+        setField(controller, "categoryNameToId", categoryNameToId);
+
+        categoryFilterComboBox.setItems(FXCollections.observableArrayList("All categories", "Fitness", "Uncategorized"));
+        categoryFilterComboBox.getSelectionModel().select("Fitness");
+
+        Method applyFilter = MainController.class.getDeclaredMethod("applyFilter");
+        applyFilter.setAccessible(true);
+        applyFilter.invoke(controller);
+
+        ObservableList<Habit> filteredHabits = (ObservableList<Habit>) getFieldValue(controller, "filteredHabits");
+        assertEquals(1, filteredHabits.size());
+        assertEquals("Exercise", filteredHabits.get(0).getName());
+    }
+
+    @Test
+    void testPopulateCategoryComboBoxes() throws Exception {
+        HabitCategory cat1 = new HabitCategory("Fitness", "Fitness desc", "#FF0000");
+        cat1.setUser(testUser);
+        HabitCategory cat2 = new HabitCategory("Health", "Health desc", "#00FF00");
+        cat2.setUser(testUser);
+
+        List<HabitCategory> categoryList = new ArrayList<>();
+        categoryList.add(cat1);
+        categoryList.add(cat2);
+        setField(controller, "categoryList", categoryList);
+
+        Method populate = MainController.class.getDeclaredMethod("populateCategoryComboBoxes");
+        populate.setAccessible(true);
+        populate.invoke(controller);
+
+        ObservableList<String> items = categoryFilterComboBox.getItems();
+        assertEquals(4, items.size());
+        assertEquals("All categories", items.get(0));
+        assertEquals("Fitness", items.get(1));
+        assertEquals("Health", items.get(2));
+        assertEquals("Uncategorized", items.get(3));
+    }
+
+    @Test
+    void testPopulateCategoryComboBoxesWithEmptyList() throws Exception {
+        setField(controller, "categoryList", new ArrayList<>());
+
+        Method populate = MainController.class.getDeclaredMethod("populateCategoryComboBoxes");
+        populate.setAccessible(true);
+        populate.invoke(controller);
+
+        ObservableList<String> items = categoryFilterComboBox.getItems();
+        assertEquals(2, items.size());
+        assertEquals("All categories", items.get(0));
+        assertEquals("Uncategorized", items.get(1));
+    }
+
+    @Test
+    void testClearPointCharts() throws Exception {
+        dailyPointsChart.getData().add(new javafx.scene.chart.XYChart.Series<>());
+        runningAvgChart.getData().add(new javafx.scene.chart.XYChart.Series<>());
+        cumulativeChart.getData().add(new javafx.scene.chart.XYChart.Series<>());
+        chartTotalLabel.setText("Total: 42 pts");
+        chartAverageLabel.setText("Avg: 6.0 pts");
+
+        Method clearCharts = MainController.class.getDeclaredMethod("clearPointCharts");
+        clearCharts.setAccessible(true);
+        clearCharts.invoke(controller);
+
+        assertEquals("Total: -", chartTotalLabel.getText());
+        assertEquals("Avg: -", chartAverageLabel.getText());
+        assertTrue(dailyPointsChart.getData().isEmpty());
+        assertTrue(runningAvgChart.getData().isEmpty());
+        assertTrue(cumulativeChart.getData().isEmpty());
+    }
+
+    @Test
+    void testUpdatePointChartsForWeekView() throws Exception {
+        Habit habit = new Habit("Exercise", "Daily exercise");
+        habit.setUser(testUser);
+        setField(controller, "chartShowingWeek", true);
+
+        Method updateCharts = MainController.class.getDeclaredMethod("updatePointCharts", Habit.class);
+        updateCharts.setAccessible(true);
+        updateCharts.invoke(controller, habit);
+
+        assertTrue(chartTotalLabel.getText().startsWith("Total: "));
+        assertTrue(chartAverageLabel.getText().startsWith("Avg: "));
+        assertEquals(1, dailyPointsChart.getData().size());
+        assertEquals(1, runningAvgChart.getData().size());
+        assertEquals(1, cumulativeChart.getData().size());
+        assertEquals(7, dailyPointsChart.getData().get(0).getData().size());
+    }
+
+    @Test
+    void testUpdatePointChartsForMonthView() throws Exception {
+        Habit habit = new Habit("Exercise", "Daily exercise");
+        habit.setUser(testUser);
+        setField(controller, "chartShowingWeek", false);
+
+        Method updateCharts = MainController.class.getDeclaredMethod("updatePointCharts", Habit.class);
+        updateCharts.setAccessible(true);
+        updateCharts.invoke(controller, habit);
+
+        assertTrue(chartTotalLabel.getText().startsWith("Total: "));
+        assertTrue(chartAverageLabel.getText().startsWith("Avg: "));
+        assertEquals(1, dailyPointsChart.getData().size());
+        assertTrue(dailyPointsChart.getData().get(0).getData().size() >= 28);
+    }
+
+    @Test
+    void testGetClientVersion() throws Exception {
+        Method getVersion = MainController.class.getDeclaredMethod("getClientVersion");
+        getVersion.setAccessible(true);
+        String version = (String) getVersion.invoke(controller);
+
+        assertNotNull(version);
+        assertFalse(version.isEmpty());
+    }
+
+    @Test
+    void testHandleSaveEditedHabitsUpdatesTarget() throws Exception {
+        Habit habit = new Habit("Exercise", "Daily exercise");
+        habit.setUser(testUser);
+        habit.setTargetFrequency(3);
+        habitRepository.save(habit);
+
+        ObservableList<Habit> habits = FXCollections.observableArrayList(habit);
+        setField(controller, "habits", habits);
+
+        java.util.Map<String, TextField> editTargetFields = new java.util.HashMap<>();
+        TextField targetField = new TextField("5");
+        editTargetFields.put(habit.getId(), targetField);
+        setField(controller, "editTargetFields", editTargetFields);
+        setField(controller, "editMaxEntriesFields", new java.util.HashMap<>());
+        setField(controller, "editPositiveScoringBoxes", new java.util.HashMap<>());
+        setField(controller, "editThreshold1Fields", new java.util.HashMap<>());
+        setField(controller, "editThreshold2Fields", new java.util.HashMap<>());
+        setField(controller, "editThreshold4Fields", new java.util.HashMap<>());
+        setField(controller, "editThreshold8Fields", new java.util.HashMap<>());
+        setField(controller, "editNameTranslationFields", new java.util.HashMap<>());
+        setField(controller, "editDescTranslationFields", new java.util.HashMap<>());
+
+        Method handleSave = MainController.class.getDeclaredMethod("handleSaveEditedHabits");
+        handleSave.setAccessible(true);
+        handleSave.invoke(controller);
+
+        assertEquals(5, habit.getTargetFrequency());
+        assertTrue(editMessage.getText().contains("1 habit(s) saved"));
+        assertTrue(editMessage.getStyle().contains("green"));
+    }
+
+    @Test
+    void testHandleSaveEditedHabitsIgnoresInvalidTarget() throws Exception {
+        Habit habit = new Habit("Exercise", "Daily exercise");
+        habit.setUser(testUser);
+        habit.setTargetFrequency(3);
+        habitRepository.save(habit);
+
+        ObservableList<Habit> habits = FXCollections.observableArrayList(habit);
+        setField(controller, "habits", habits);
+
+        java.util.Map<String, TextField> editTargetFields = new java.util.HashMap<>();
+        TextField targetField = new TextField("abc");
+        editTargetFields.put(habit.getId(), targetField);
+        setField(controller, "editTargetFields", editTargetFields);
+        setField(controller, "editMaxEntriesFields", new java.util.HashMap<>());
+        setField(controller, "editPositiveScoringBoxes", new java.util.HashMap<>());
+        setField(controller, "editThreshold1Fields", new java.util.HashMap<>());
+        setField(controller, "editThreshold2Fields", new java.util.HashMap<>());
+        setField(controller, "editThreshold4Fields", new java.util.HashMap<>());
+        setField(controller, "editThreshold8Fields", new java.util.HashMap<>());
+        setField(controller, "editNameTranslationFields", new java.util.HashMap<>());
+        setField(controller, "editDescTranslationFields", new java.util.HashMap<>());
+
+        Method handleSave = MainController.class.getDeclaredMethod("handleSaveEditedHabits");
+        handleSave.setAccessible(true);
+        handleSave.invoke(controller);
+
+        assertEquals(3, habit.getTargetFrequency());
+        assertTrue(editMessage.getText().contains("0 habit(s) saved"));
+    }
+
+    @Test
+    void testHandleSaveEditedHabitsUpdatesMaxEntriesPerDay() throws Exception {
+        Habit habit = new Habit("Water", "Drink water");
+        habit.setUser(testUser);
+        habit.setMaxEntriesPerDay(5);
+        habitRepository.save(habit);
+
+        ObservableList<Habit> habits = FXCollections.observableArrayList(habit);
+        setField(controller, "habits", habits);
+
+        java.util.Map<String, TextField> editMaxEntriesFields = new java.util.HashMap<>();
+        editMaxEntriesFields.put(habit.getId(), new TextField("10"));
+        setField(controller, "editTargetFields", new java.util.HashMap<>());
+        setField(controller, "editMaxEntriesFields", editMaxEntriesFields);
+        setField(controller, "editPositiveScoringBoxes", new java.util.HashMap<>());
+        setField(controller, "editThreshold1Fields", new java.util.HashMap<>());
+        setField(controller, "editThreshold2Fields", new java.util.HashMap<>());
+        setField(controller, "editThreshold4Fields", new java.util.HashMap<>());
+        setField(controller, "editThreshold8Fields", new java.util.HashMap<>());
+        setField(controller, "editNameTranslationFields", new java.util.HashMap<>());
+        setField(controller, "editDescTranslationFields", new java.util.HashMap<>());
+
+        Method handleSave = MainController.class.getDeclaredMethod("handleSaveEditedHabits");
+        handleSave.setAccessible(true);
+        handleSave.invoke(controller);
+
+        assertEquals(10, habit.getMaxEntriesPerDay());
+    }
+
+    @Test
+    void testHandleSaveEditedHabitsUpdatesPositiveScoring() throws Exception {
+        Habit habit = new Habit("Exercise", "Daily exercise");
+        habit.setUser(testUser);
+        habit.setPositiveScoring(true);
+        habitRepository.save(habit);
+
+        ObservableList<Habit> habits = FXCollections.observableArrayList(habit);
+        setField(controller, "habits", habits);
+
+        java.util.Map<String, javafx.scene.control.CheckBox> editPositiveScoringBoxes = new java.util.HashMap<>();
+        javafx.scene.control.CheckBox posBox = new javafx.scene.control.CheckBox();
+        posBox.setSelected(false);
+        editPositiveScoringBoxes.put(habit.getId(), posBox);
+        setField(controller, "editTargetFields", new java.util.HashMap<>());
+        setField(controller, "editMaxEntriesFields", new java.util.HashMap<>());
+        setField(controller, "editPositiveScoringBoxes", editPositiveScoringBoxes);
+        setField(controller, "editThreshold1Fields", new java.util.HashMap<>());
+        setField(controller, "editThreshold2Fields", new java.util.HashMap<>());
+        setField(controller, "editThreshold4Fields", new java.util.HashMap<>());
+        setField(controller, "editThreshold8Fields", new java.util.HashMap<>());
+        setField(controller, "editNameTranslationFields", new java.util.HashMap<>());
+        setField(controller, "editDescTranslationFields", new java.util.HashMap<>());
+
+        Method handleSave = MainController.class.getDeclaredMethod("handleSaveEditedHabits");
+        handleSave.setAccessible(true);
+        handleSave.invoke(controller);
+
+        assertFalse(habit.isPositiveScoring());
+    }
+
+    @Test
+    void testHandleSaveEditedHabitsUpdatesScoringThresholds() throws Exception {
+        Habit habit = new Habit("Exercise", "Daily exercise");
+        habit.setUser(testUser);
+        habitRepository.save(habit);
+
+        ObservableList<Habit> habits = FXCollections.observableArrayList(habit);
+        setField(controller, "habits", habits);
+
+        java.util.Map<String, TextField> t1Fields = new java.util.HashMap<>();
+        java.util.Map<String, TextField> t2Fields = new java.util.HashMap<>();
+        java.util.Map<String, TextField> t4Fields = new java.util.HashMap<>();
+        java.util.Map<String, TextField> t8Fields = new java.util.HashMap<>();
+        t1Fields.put(habit.getId(), new TextField("2"));
+        t2Fields.put(habit.getId(), new TextField("3"));
+        t4Fields.put(habit.getId(), new TextField("5"));
+        t8Fields.put(habit.getId(), new TextField("10"));
+        setField(controller, "editTargetFields", new java.util.HashMap<>());
+        setField(controller, "editMaxEntriesFields", new java.util.HashMap<>());
+        setField(controller, "editPositiveScoringBoxes", new java.util.HashMap<>());
+        setField(controller, "editThreshold1Fields", t1Fields);
+        setField(controller, "editThreshold2Fields", t2Fields);
+        setField(controller, "editThreshold4Fields", t4Fields);
+        setField(controller, "editThreshold8Fields", t8Fields);
+        setField(controller, "editNameTranslationFields", new java.util.HashMap<>());
+        setField(controller, "editDescTranslationFields", new java.util.HashMap<>());
+
+        Method handleSave = MainController.class.getDeclaredMethod("handleSaveEditedHabits");
+        handleSave.setAccessible(true);
+        handleSave.invoke(controller);
+
+        assertNotNull(habit.getScoringRule());
+        assertEquals(2, habit.getScoringRule().getThresholdFor1Point());
+        assertEquals(3, habit.getScoringRule().getThresholdFor2Points());
+        assertEquals(5, habit.getScoringRule().getThresholdFor4Points());
+        assertEquals(10, habit.getScoringRule().getThresholdFor8Points());
+    }
+
+    @Test
+    void testHandleSaveEditedHabitsRejectsInvalidThresholdOrder() throws Exception {
+        Habit habit = new Habit("Exercise", "Daily exercise");
+        habit.setUser(testUser);
+        habitRepository.save(habit);
+
+        ObservableList<Habit> habits = FXCollections.observableArrayList(habit);
+        setField(controller, "habits", habits);
+
+        java.util.Map<String, TextField> t1Fields = new java.util.HashMap<>();
+        java.util.Map<String, TextField> t2Fields = new java.util.HashMap<>();
+        java.util.Map<String, TextField> t4Fields = new java.util.HashMap<>();
+        java.util.Map<String, TextField> t8Fields = new java.util.HashMap<>();
+        t1Fields.put(habit.getId(), new TextField("5"));
+        t2Fields.put(habit.getId(), new TextField("3"));
+        t4Fields.put(habit.getId(), new TextField("2"));
+        t8Fields.put(habit.getId(), new TextField("1"));
+        setField(controller, "editTargetFields", new java.util.HashMap<>());
+        setField(controller, "editMaxEntriesFields", new java.util.HashMap<>());
+        setField(controller, "editPositiveScoringBoxes", new java.util.HashMap<>());
+        setField(controller, "editThreshold1Fields", t1Fields);
+        setField(controller, "editThreshold2Fields", t2Fields);
+        setField(controller, "editThreshold4Fields", t4Fields);
+        setField(controller, "editThreshold8Fields", t8Fields);
+        setField(controller, "editNameTranslationFields", new java.util.HashMap<>());
+        setField(controller, "editDescTranslationFields", new java.util.HashMap<>());
+
+        Method handleSave = MainController.class.getDeclaredMethod("handleSaveEditedHabits");
+        handleSave.setAccessible(true);
+        handleSave.invoke(controller);
+
+        assertNull(habit.getScoringRule());
+        assertTrue(editMessage.getText().contains("0 habit(s) saved"));
+    }
+
+    @Test
+    void testUpdateDiarySuggestions() throws Exception {
+        DiaryEntry entry1 = new DiaryEntry("Morning run", EventSignificance.NORMAL);
+        entry1.setUser(testUser);
+        DiaryEntry entry2 = new DiaryEntry("Team meeting", EventSignificance.MINOR);
+        entry2.setUser(testUser);
+        diaryEntryRepository.save(entry1);
+        diaryEntryRepository.save(entry2);
+
+        Method updateSuggestions = MainController.class.getDeclaredMethod("updateDiarySuggestions");
+        updateSuggestions.setAccessible(true);
+        updateSuggestions.invoke(controller);
+
+        List<String> diarySuggestions = (List<String>) getFieldValue(controller, "diarySuggestions");
+        assertEquals(2, diarySuggestions.size());
+    }
+
+    @Test
+    void testUpdateDiarySuggestionsWithNullRepository() throws Exception {
+        setField(controller, "diaryEntryRepository", null);
+
+        Method updateSuggestions = MainController.class.getDeclaredMethod("updateDiarySuggestions");
+        updateSuggestions.setAccessible(true);
+        updateSuggestions.invoke(controller);
+
+        List<String> diarySuggestions = (List<String>) getFieldValue(controller, "diarySuggestions");
+        assertTrue(diarySuggestions.isEmpty());
+    }
+
+    @Test
+    void testLoadDiaryEntries() throws Exception {
+        DiaryEntry entry = new DiaryEntry("Morning run", EventSignificance.NORMAL);
+        entry.setUser(testUser);
+        diaryEntryRepository.save(entry);
+
+        Method loadDiary = MainController.class.getDeclaredMethod("loadDiaryEntries");
+        loadDiary.setAccessible(true);
+        loadDiary.invoke(controller);
+
+        List<DiaryEntry> diaryEntries = (List<DiaryEntry>) getFieldValue(controller, "diaryEntries");
+        assertEquals(1, diaryEntries.size());
+    }
+
+    @Test
+    void testLoadDiaryEntriesWithNullRepository() throws Exception {
+        setField(controller, "diaryEntryRepository", null);
+
+        Method loadDiary = MainController.class.getDeclaredMethod("loadDiaryEntries");
+        loadDiary.setAccessible(true);
+        loadDiary.invoke(controller);
+
+        List<DiaryEntry> diaryEntries = (List<DiaryEntry>) getFieldValue(controller, "diaryEntries");
+        assertTrue(diaryEntries.isEmpty());
+    }
+
+    @Test
+    void testHandleAddDiaryEntryWithNullDateUsesToday() throws Exception {
+        diaryDescriptionField.setText("Test event");
+        diaryDatePicker.setValue(null);
+        diarySignificanceComboBox.setItems(FXCollections.observableArrayList(
+                "Minor (1pt)", "Normal (2pt)", "Major (4pt)"));
+        diarySignificanceComboBox.getSelectionModel().select(1);
+
+        Method handleAdd = MainController.class.getDeclaredMethod("handleAddDiaryEntry");
+        handleAdd.setAccessible(true);
+        handleAdd.invoke(controller);
+
+        assertEquals(1, diaryEntryRepository.findAll().size());
+        assertEquals(LocalDate.now(), diaryEntryRepository.findAll().get(0).getEventDate());
+    }
+
+    @Test
+    void testHandleCompleteHabitDoesNotExceedDailyLimit() throws Exception {
+        Habit habit = new Habit("Exercise", "Daily exercise");
+        habit.setUser(testUser);
+        habit.setMaxEntriesPerDay(1);
+
+        HabitEntry existingEntry = new HabitEntry(habit.getId());
+        habit.addEntry(existingEntry);
+        habitRepository.save(habit);
+        weekToggle.setSelected(true);
+        setField(controller, "chartShowingWeek", true);
+
+        habitListView.getItems().add(habit);
+        habitListView.getSelectionModel().selectFirst();
+
+        Method handleComplete = MainController.class.getDeclaredMethod("handleCompleteHabit");
+        handleComplete.setAccessible(true);
+        handleComplete.invoke(controller);
+
+        assertEquals(1, habit.getEntries().size());
+    }
+
+    @Test
+    void testShutdownInLocalModeDoesNotThrow() throws Exception {
+        setField(controller, "localBackupRepository", null);
+        setField(controller, "localBackupUser", null);
+
+        assertDoesNotThrow(() -> controller.shutdown());
+    }
+
+    @Test
+    void testLoadCategoriesWithRepositoryAndUser() throws Exception {
+        HabitCategory cat = new HabitCategory("Fitness", "Fitness desc", "#FF0000");
+        cat.setUser(testUser);
+        categoryRepository.save(cat);
+
+        Method loadCategories = MainController.class.getDeclaredMethod("loadCategories");
+        loadCategories.setAccessible(true);
+        loadCategories.invoke(controller);
+
+        List<HabitCategory> categoryList = (List<HabitCategory>) getFieldValue(controller, "categoryList");
+        assertEquals(1, categoryList.size());
+        assertEquals("Fitness", categoryList.get(0).getName());
+    }
+
+    @Test
+    void testLoadCategoriesSortsAlphabetically() throws Exception {
+        HabitCategory catB = new HabitCategory("Zzz", "Zzz desc", "#FF0000");
+        catB.setUser(testUser);
+        HabitCategory catA = new HabitCategory("Aaa", "Aaa desc", "#00FF00");
+        catA.setUser(testUser);
+        categoryRepository.save(catB);
+        categoryRepository.save(catA);
+
+        Method loadCategories = MainController.class.getDeclaredMethod("loadCategories");
+        loadCategories.setAccessible(true);
+        loadCategories.invoke(controller);
+
+        List<HabitCategory> categoryList = (List<HabitCategory>) getFieldValue(controller, "categoryList");
+        assertEquals(2, categoryList.size());
+        assertEquals("Aaa", categoryList.get(0).getName());
+        assertEquals("Zzz", categoryList.get(1).getName());
+    }
+
+    @Test
+    void testDisplayHabitDetailsForNegativeHabit() throws Exception {
+        Habit habit = new Habit("Smoking", "Avoid smoking");
+        habit.setUser(testUser);
+        habit.setPositiveScoring(false);
+        weekToggle.setSelected(true);
+        setField(controller, "chartShowingWeek", true);
+
+        Method displayDetails = MainController.class.getDeclaredMethod("displayHabitDetails", Habit.class);
+        displayDetails.setAccessible(true);
+        displayDetails.invoke(controller, habit);
+
+        assertTrue(streakLabel.getText().startsWith("Current Streak: "));
+        assertTrue(completionRateLabel.getText().startsWith("Completion Rate: "));
+    }
+
+    @Test
+    void testRefreshEditHabitsWithHabitHavingDescription() throws Exception {
+        Habit habit = new Habit("Exercise", "A detailed description");
+        habit.setUser(testUser);
+        ObservableList<Habit> habits = FXCollections.observableArrayList(habit);
+        setField(controller, "habits", habits);
+
+        Method refreshEdit = MainController.class.getDeclaredMethod("refreshEditHabits");
+        refreshEdit.setAccessible(true);
+        refreshEdit.invoke(controller);
+
+        assertEquals(1, editHabitsContainer.getChildren().size());
+        assertTrue(editHabitsContainer.getChildren().get(0) instanceof VBox);
+    }
+
+    @Test
+    void testRefreshEditHabitsWithHabitWithoutDescription() throws Exception {
+        Habit habit = new Habit("Exercise", null);
+        habit.setUser(testUser);
+        ObservableList<Habit> habits = FXCollections.observableArrayList(habit);
+        setField(controller, "habits", habits);
+
+        Method refreshEdit = MainController.class.getDeclaredMethod("refreshEditHabits");
+        refreshEdit.setAccessible(true);
+        refreshEdit.invoke(controller);
+
+        assertEquals(1, editHabitsContainer.getChildren().size());
+    }
+
+    @SuppressWarnings("unchecked")
+    private Object getFieldValue(Object target, String fieldName) throws Exception {
+        Class<?> clazz = target.getClass();
+        while (clazz != null) {
+            try {
+                java.lang.reflect.Field field = clazz.getDeclaredField(fieldName);
+                field.setAccessible(true);
+                return field.get(target);
+            } catch (NoSuchFieldException e) {
+                clazz = clazz.getSuperclass();
+            }
+        }
+        throw new NoSuchFieldException(fieldName);
+    }
+
     private static class StubHabitRepository implements HabitRepository {
         private final List<Habit> habits = new ArrayList<>();
 

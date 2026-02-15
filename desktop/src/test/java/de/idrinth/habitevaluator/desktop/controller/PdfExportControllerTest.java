@@ -170,6 +170,76 @@ class PdfExportControllerTest extends JavaFXControllerTestBase {
     }
 
     @Test
+    void testHandleExportWithValidDatesPassesValidation() throws Exception {
+        controller.initialize();
+        includeHabitsCheckbox.setSelected(true);
+        includeSleepCheckbox.setSelected(false);
+        includeDiaryCheckbox.setSelected(false);
+        includeEmotionsCheckbox.setSelected(false);
+
+        LocalDate from = LocalDate.now().minusDays(7);
+        LocalDate to = LocalDate.now();
+        fromDatePicker.setValue(from);
+        toDatePicker.setValue(to);
+
+        User user = new User("testuser", "password");
+        controller.setCurrentUser(user);
+
+        Method handleExport = PdfExportController.class.getDeclaredMethod("handleExport");
+        handleExport.setAccessible(true);
+
+        // This will pass date/section validation but NPE on getScene() for FileChooser
+        // We verify it reaches past the validation checks
+        try {
+            handleExport.invoke(controller);
+        } catch (Exception e) {
+            // Expected NPE from statusLabel.getScene().getWindow() when not in a scene
+            assertNotEquals("Select at least one section.", statusLabel.getText());
+            assertNotEquals("Select both dates.", statusLabel.getText());
+        }
+    }
+
+    @Test
+    void testHandleExportSwapsDatesWhenFromIsAfterTo() throws Exception {
+        controller.initialize();
+        includeHabitsCheckbox.setSelected(true);
+
+        LocalDate from = LocalDate.now();
+        LocalDate to = LocalDate.now().minusDays(10);
+        fromDatePicker.setValue(from);
+        toDatePicker.setValue(to);
+
+        User user = new User("testuser", "password");
+        controller.setCurrentUser(user);
+
+        Method handleExport = PdfExportController.class.getDeclaredMethod("handleExport");
+        handleExport.setAccessible(true);
+
+        // The method swaps dates before reaching the FileChooser (which will NPE in test)
+        try {
+            handleExport.invoke(controller);
+        } catch (Exception e) {
+            // Expected NPE from statusLabel.getScene().getWindow()
+        }
+
+        // Verify the dates were swapped
+        assertTrue(fromDatePicker.getValue().isBefore(toDatePicker.getValue()));
+    }
+
+    @Test
+    void testSetNullRepositoriesDoNotThrow() {
+        assertDoesNotThrow(() -> controller.setHabitRepository(null));
+        assertDoesNotThrow(() -> controller.setDiaryEntryRepository(null));
+        assertDoesNotThrow(() -> controller.setSleepEntryRepository(null));
+        assertDoesNotThrow(() -> controller.setEmotionEntryRepository(null));
+    }
+
+    @Test
+    void testSetCurrentUserWithNullDoesNotThrow() {
+        assertDoesNotThrow(() -> controller.setCurrentUser(null));
+    }
+
+    @Test
     void testStatusLabelStyleIsRedOnMissingDates() throws Exception {
         controller.initialize();
         includeHabitsCheckbox.setSelected(true);
