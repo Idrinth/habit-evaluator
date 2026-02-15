@@ -17,6 +17,7 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -175,6 +176,73 @@ class AddHabitControllerTest extends JavaFXControllerTestBase {
         assertTrue(items.contains("Monthly"));
     }
 
+    @Test
+    void testSetStorageConfigWithNullHidesTranslations() {
+        controller.setStorageConfig(null);
+
+        VBox translationsContainer = getTranslationsContainer();
+        assertFalse(translationsContainer.isVisible());
+        assertFalse(translationsContainer.isManaged());
+    }
+
+    @Test
+    void testCreateCategoryWithLocalRepository() throws Exception {
+        StubHabitCategoryRepository categoryRepository = new StubHabitCategoryRepository();
+        controller.setCategoryRepository(categoryRepository);
+
+        java.lang.reflect.Method createCategory = AddHabitController.class.getDeclaredMethod("createCategory", String.class);
+        createCategory.setAccessible(true);
+        createCategory.invoke(controller, "Fitness");
+
+        assertEquals(1, categoryRepository.findAll().size());
+        assertEquals("Fitness", categoryRepository.findAll().get(0).getName());
+    }
+
+    @Test
+    void testCreateCategoryAddsToComboBox() throws Exception {
+        StubHabitCategoryRepository categoryRepository = new StubHabitCategoryRepository();
+        controller.setCategoryRepository(categoryRepository);
+        controller.setCategoryList(Collections.emptyList());
+
+        java.lang.reflect.Method createCategory = AddHabitController.class.getDeclaredMethod("createCategory", String.class);
+        createCategory.setAccessible(true);
+        createCategory.invoke(controller, "Health");
+
+        assertTrue(categoryComboBox.getItems().contains("Health"));
+    }
+
+    @Test
+    void testCreateCategoryWithNullRepositoriesDoesNotThrow() throws Exception {
+        controller.setCategoryRepository(null);
+        controller.setApiClient(null);
+
+        java.lang.reflect.Method createCategory = AddHabitController.class.getDeclaredMethod("createCategory", String.class);
+        createCategory.setAccessible(true);
+        assertDoesNotThrow(() -> createCategory.invoke(controller, "Test"));
+    }
+
+    @Test
+    void testPopulateCategoryComboBoxSetsCategoryNameToIdMapping() throws Exception {
+        HabitCategory cat = new HabitCategory("Health", "Health desc", "#00FF00");
+        controller.setCategoryList(List.of(cat));
+
+        java.lang.reflect.Field field = AddHabitController.class.getDeclaredField("categoryNameToId");
+        field.setAccessible(true);
+        @SuppressWarnings("unchecked")
+        Map<String, String> mapping = (Map<String, String>) field.get(controller);
+        assertEquals(cat.getId(), mapping.get("Health"));
+    }
+
+    private VBox getTranslationsContainer() {
+        try {
+            java.lang.reflect.Field field = AddHabitController.class.getDeclaredField("translationsContainer");
+            field.setAccessible(true);
+            return (VBox) field.get(controller);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     /**
      * Minimal stub for HabitRepository that stores habits in memory.
      */
@@ -211,6 +279,42 @@ class AddHabitControllerTest extends JavaFXControllerTestBase {
         public List<Habit> findByUserId(String userId) {
             return habits.stream().filter(h -> h.getUser() != null
                     && h.getUser().getId().equals(userId)).toList();
+        }
+    }
+
+    private static class StubHabitCategoryRepository implements HabitCategoryRepository {
+        private final List<HabitCategory> categories = new ArrayList<>();
+
+        @Override
+        public HabitCategory save(HabitCategory category) {
+            categories.add(category);
+            return category;
+        }
+
+        @Override
+        public Optional<HabitCategory> findById(String id) {
+            return categories.stream().filter(c -> c.getId().equals(id)).findFirst();
+        }
+
+        @Override
+        public List<HabitCategory> findAll() {
+            return new ArrayList<>(categories);
+        }
+
+        @Override
+        public void deleteById(String id) {
+            categories.removeIf(c -> c.getId().equals(id));
+        }
+
+        @Override
+        public boolean existsById(String id) {
+            return categories.stream().anyMatch(c -> c.getId().equals(id));
+        }
+
+        @Override
+        public List<HabitCategory> findByUserId(String userId) {
+            return new ArrayList<>(categories.stream().filter(c -> c.getUser() != null
+                    && c.getUser().getId().equals(userId)).toList());
         }
     }
 }

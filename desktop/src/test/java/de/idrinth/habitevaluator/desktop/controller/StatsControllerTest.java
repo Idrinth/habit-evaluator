@@ -258,6 +258,119 @@ class StatsControllerTest extends JavaFXControllerTestBase {
     }
 
     @Test
+    void testLoadDataWithMultipleHabitsAggregatesPoints() {
+        User user = new User("testuser", "password");
+        Habit habit1 = new Habit("Exercise", "Daily exercise");
+        habit1.setUser(user);
+        HabitEntry entry1 = new HabitEntry();
+        entry1.setCompletedAt(LocalDateTime.now());
+        habit1.addEntry(entry1);
+
+        Habit habit2 = new Habit("Read", "Daily reading");
+        habit2.setUser(user);
+        HabitEntry entry2 = new HabitEntry();
+        entry2.setCompletedAt(LocalDateTime.now());
+        habit2.addEntry(entry2);
+
+        List<Habit> habits = new ArrayList<>();
+        habits.add(habit1);
+        habits.add(habit2);
+
+        controller.setCurrentUser(user);
+        controller.setHabits(habits);
+        controller.loadData();
+
+        assertFalse(habitPointsChart.getData().isEmpty());
+        assertEquals(30, habitPointsChart.getData().get(0).getData().size());
+    }
+
+    @Test
+    void testLoadDataWithMultipleSleepEntriesPopulatesChart() {
+        User user = new User("testuser", "password");
+
+        SleepEntry entry1 = new SleepEntry(LocalTime.of(22, 0), LocalTime.of(6, 0), LocalDate.now());
+        entry1.setUser(user);
+        SleepEntry entry2 = new SleepEntry(LocalTime.of(23, 0), LocalTime.of(7, 0), LocalDate.now().minusDays(1));
+        entry2.setUser(user);
+        sleepEntryRepository.save(entry1);
+        sleepEntryRepository.save(entry2);
+
+        controller.setCurrentUser(user);
+        controller.setHabits(new ArrayList<>());
+        controller.loadData();
+
+        assertFalse(sleepDurationChart.getData().isEmpty());
+        assertFalse(sleepEntriesChart.getData().isEmpty());
+    }
+
+    @Test
+    void testLoadDataWithMidnightCrossingSleepEntry() {
+        User user = new User("testuser", "password");
+
+        SleepEntry entry = new SleepEntry(LocalTime.of(23, 30), LocalTime.of(7, 0), LocalDate.now());
+        entry.setUser(user);
+        sleepEntryRepository.save(entry);
+
+        controller.setCurrentUser(user);
+        controller.setHabits(new ArrayList<>());
+        controller.loadData();
+
+        assertFalse(sleepDurationChart.getData().isEmpty());
+    }
+
+    @Test
+    void testLoadDataWithMultipleEmotionPairs() {
+        User user = new User("testuser", "password");
+
+        EmotionPair pair1 = new EmotionPair("Sad", "Happy");
+        pair1.setUser(user);
+        EmotionEntry entry1 = new EmotionEntry(pair1, 5, LocalDateTime.now(), "Good");
+        entry1.setUser(user);
+
+        EmotionPair pair2 = new EmotionPair("Anxious", "Calm");
+        pair2.setUser(user);
+        EmotionEntry entry2 = new EmotionEntry(pair2, -3, LocalDateTime.now(), "Stressed");
+        entry2.setUser(user);
+
+        emotionEntryRepository.save(entry1);
+        emotionEntryRepository.save(entry2);
+
+        controller.setCurrentUser(user);
+        controller.setHabits(new ArrayList<>());
+        controller.loadData();
+
+        assertEquals(2, emotionPairsChart.getData().size());
+    }
+
+    @Test
+    void testLoadDataWithNoEmotionEntries() {
+        User user = new User("testuser", "password");
+
+        controller.setCurrentUser(user);
+        controller.setHabits(new ArrayList<>());
+        controller.loadData();
+
+        assertTrue(emotionPairsChart.getData().isEmpty());
+    }
+
+    @Test
+    void testLoadDataWithMultipleDiaryEntries() {
+        User user = new User("testuser", "password");
+        DiaryEntry entry1 = new DiaryEntry("Event 1", EventSignificance.MINOR, LocalDate.now());
+        entry1.setUser(user);
+        DiaryEntry entry2 = new DiaryEntry("Event 2", EventSignificance.MAJOR, LocalDate.now().minusDays(1));
+        entry2.setUser(user);
+        diaryEntryRepository.save(entry1);
+        diaryEntryRepository.save(entry2);
+
+        controller.setCurrentUser(user);
+        controller.setHabits(new ArrayList<>());
+        controller.loadData();
+
+        assertFalse(diaryPointsChart.getData().isEmpty());
+    }
+
+    @Test
     void testHabitChartHas30DataPoints() {
         User user = new User("testuser", "password");
         controller.setCurrentUser(user);
