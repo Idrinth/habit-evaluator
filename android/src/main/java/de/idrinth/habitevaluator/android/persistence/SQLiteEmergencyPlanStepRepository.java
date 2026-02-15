@@ -38,6 +38,30 @@ public class SQLiteEmergencyPlanStepRepository implements EmergencyPlanStepRepos
     }
 
     @Override
+    public void saveAll(List<EmergencyPlanStep> steps) {
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        db.beginTransaction();
+        try {
+            for (EmergencyPlanStep step : steps) {
+                ContentValues values = new ContentValues();
+                values.put("id", step.getId());
+                values.put("question", step.getQuestion());
+                values.put("action", step.getAction());
+                values.put("phone_number", step.getPhoneNumber());
+                values.put("step_order", step.getStepOrder());
+                if (step.getUser() != null) {
+                    values.put("user_id", step.getUser().getId());
+                    values.put("user_name", step.getUser().getUsername());
+                }
+                db.insertWithOnConflict("emergency_plan_steps", null, values, SQLiteDatabase.CONFLICT_REPLACE);
+            }
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
+        }
+    }
+
+    @Override
     public Optional<EmergencyPlanStep> findById(String id) {
         SQLiteDatabase db = dbHelper.getReadableDatabase();
         try (Cursor cursor = db.rawQuery("SELECT * FROM emergency_plan_steps WHERE id = ?", new String[]{id})) {

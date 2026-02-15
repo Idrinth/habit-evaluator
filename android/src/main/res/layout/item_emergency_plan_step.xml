@@ -54,7 +54,7 @@
                 android:layout_height="32dp"
                 android:layout_marginStart="4dp"
                 android:src="@android:drawable/ic_menu_delete"
-                android:contentDescription="@string/emergency_plan_step_deleted"
+                android:contentDescription="@string/emergency_plan_delete_step"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:scaleType="centerInside" />
         </LinearLayout>

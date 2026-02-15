@@ -67,6 +67,7 @@ class SQLiteHelperTest {
         verify(db, atLeastOnce()).execSQL(contains("CREATE TABLE food_log_tags"));
         verify(db, atLeastOnce()).execSQL(contains("CREATE TABLE medications"));
         verify(db, atLeastOnce()).execSQL(contains("CREATE TABLE medication_logs"));
+        verify(db, atLeastOnce()).execSQL(contains("CREATE TABLE emergency_plan_steps"));
     }
 
     @Test
@@ -100,17 +101,18 @@ class SQLiteHelperTest {
         verify(db, atLeastOnce()).execSQL(contains("CREATE INDEX idx_diary_entries_user_id"));
         verify(db, atLeastOnce()).execSQL(contains("CREATE INDEX idx_sleep_entries_user_id"));
         verify(db, atLeastOnce()).execSQL(contains("CREATE INDEX idx_emotion_pairs_user_id"));
+        verify(db, atLeastOnce()).execSQL(contains("CREATE INDEX idx_emergency_plan_steps_user_id"));
     }
 
     @Test
-    void testOnUpgradeFromVersion1To7() {
+    void testOnUpgradeFromVersion1To8() {
         android.content.Context context = mock(android.content.Context.class);
         when(context.getApplicationContext()).thenReturn(context);
 
         SQLiteHelper helper = SQLiteHelper.getInstance(context);
         SQLiteDatabase db = mock(SQLiteDatabase.class);
 
-        helper.onUpgrade(db, 1, 7);
+        helper.onUpgrade(db, 1, 8);
 
         // Version 2: diary_entries gets start_time and end_time
         verify(db).execSQL(contains("ALTER TABLE diary_entries ADD COLUMN start_time"));
@@ -124,6 +126,28 @@ class SQLiteHelperTest {
         // Version 7: medications
         verify(db, atLeastOnce()).execSQL(contains("CREATE TABLE IF NOT EXISTS medications"));
         verify(db, atLeastOnce()).execSQL(contains("CREATE TABLE IF NOT EXISTS medication_logs"));
+        // Version 8: emergency_plan_steps
+        verify(db, atLeastOnce()).execSQL(contains("CREATE TABLE IF NOT EXISTS emergency_plan_steps"));
+    }
+
+    @Test
+    void testOnUpgradeFromVersion7To8() {
+        android.content.Context context = mock(android.content.Context.class);
+        when(context.getApplicationContext()).thenReturn(context);
+
+        SQLiteHelper helper = SQLiteHelper.getInstance(context);
+        SQLiteDatabase db = mock(SQLiteDatabase.class);
+
+        helper.onUpgrade(db, 7, 8);
+
+        // Should NOT run migrations for versions <= 7
+        verify(db, never()).execSQL(contains("ALTER TABLE diary_entries ADD COLUMN start_time"));
+        verify(db, never()).execSQL(contains("CREATE TABLE IF NOT EXISTS sport_logs"));
+        verify(db, never()).execSQL(contains("CREATE TABLE IF NOT EXISTS medications"));
+
+        // Should run version 8 migration
+        verify(db).execSQL(contains("CREATE TABLE IF NOT EXISTS emergency_plan_steps"));
+        verify(db).execSQL(contains("CREATE INDEX IF NOT EXISTS idx_emergency_plan_steps_user_id"));
     }
 
     @Test

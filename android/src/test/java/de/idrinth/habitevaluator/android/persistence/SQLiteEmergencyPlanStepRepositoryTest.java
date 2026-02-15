@@ -8,6 +8,7 @@ import de.idrinth.habitevaluator.shared.model.EmergencyPlanStep;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.Arrays;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -43,6 +44,32 @@ class SQLiteEmergencyPlanStepRepositoryTest {
         EmergencyPlanStep step = new EmergencyPlanStep("Question?", "Action", 0);
         EmergencyPlanStep result = repository.save(step);
         assertSame(step, result);
+    }
+
+    @Test
+    void testSaveAllUsesTransaction() {
+        EmergencyPlanStep step1 = new EmergencyPlanStep("Q1?", "A1", 0);
+        EmergencyPlanStep step2 = new EmergencyPlanStep("Q2?", "A2", 1);
+
+        repository.saveAll(Arrays.asList(step1, step2));
+
+        verify(db).beginTransaction();
+        verify(db, times(2)).insertWithOnConflict(eq("emergency_plan_steps"), isNull(), any(), eq(5));
+        verify(db).setTransactionSuccessful();
+        verify(db).endTransaction();
+    }
+
+    @Test
+    void testSaveAllEndsTransactionOnFailure() {
+        EmergencyPlanStep step = new EmergencyPlanStep("Q?", "A", 0);
+        doThrow(new RuntimeException("DB error")).when(db)
+                .insertWithOnConflict(eq("emergency_plan_steps"), isNull(), any(), eq(5));
+
+        assertThrows(RuntimeException.class, () -> repository.saveAll(Arrays.asList(step)));
+
+        verify(db).beginTransaction();
+        verify(db, never()).setTransactionSuccessful();
+        verify(db).endTransaction();
     }
 
     @Test

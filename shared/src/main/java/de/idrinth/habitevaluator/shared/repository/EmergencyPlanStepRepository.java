@@ -12,6 +12,8 @@ public interface EmergencyPlanStepRepository {
 
     EmergencyPlanStep save(EmergencyPlanStep step);
 
+    void saveAll(List<EmergencyPlanStep> steps);
+
     Optional<EmergencyPlanStep> findById(String id);
 
     List<EmergencyPlanStep> findAll();

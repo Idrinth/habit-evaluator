@@ -370,4 +370,26 @@
     <string name="module_pdf_export">Export PDF</string>
     <string name="daily_entries_count">Aujourd\'hui: %1$d/%2$d</string>
     <string name="notification_permission_denied">Permission de notification refusée. Les rappels ne fonctionneront pas tant que la permission n\'est pas accordée dans les paramètres de l\'application.</string>
+    <string name="emergency_plan_title">Plan d\'urgence</string>
+    <string name="emergency_plan_add_step">Ajouter une étape</string>
+    <string name="emergency_plan_question_hint">Question Oui/Non (ex. Avez-vous mis plus de 30 min à sortir du lit ?)</string>
+    <string name="emergency_plan_action_hint">Action si oui (ex. Nourrir Munnin)</string>
+    <string name="emergency_plan_phone_hint">Numéro de téléphone (facultatif)</string>
+    <string name="emergency_plan_step_added">Étape ajoutée</string>
+    <string name="emergency_plan_step_deleted">Étape supprimée</string>
+    <string name="emergency_plan_question_required">Veuillez saisir une question</string>
+    <string name="emergency_plan_action_required">Veuillez saisir une action</string>
+    <string name="emergency_plan_toggle_form">Basculer le formulaire d\'ajout</string>
+    <string name="emergency_plan_your_steps">Vos étapes</string>
+    <string name="emergency_plan_call">Appeler</string>
+    <string name="emergency_plan_copy_number">Copier le numéro</string>
+    <string name="emergency_plan_number_copied">Numéro de téléphone copié</string>
+    <string name="emergency_plan_no_dialer">Aucune application téléphone disponible</string>
+    <string name="emergency_plan_step_label">Étape %d</string>
+    <string name="emergency_plan_action_label">Action : %s</string>
+    <string name="emergency_plan_move_up">Monter</string>
+    <string name="emergency_plan_move_down">Descendre</string>
+    <string name="emergency_plan_delete_step">Supprimer l\'étape</string>
+    <string name="nav_emergency_plan">Urgence</string>
+    <string name="diary_navigation_emergency_plan_description">Créez un plan étape par étape avec des questions et des actions pour les situations difficiles</string>
 </resources>

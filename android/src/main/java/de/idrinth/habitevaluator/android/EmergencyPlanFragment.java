@@ -17,6 +17,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import de.idrinth.habitevaluator.android.databinding.FragmentEmergencyPlanBinding;
@@ -157,8 +158,7 @@ public class EmergencyPlanFragment extends Fragment implements EmergencyPlanStep
         int orderB = b.getStepOrder();
         a.setStepOrder(orderB);
         b.setStepOrder(orderA);
-        repository.save(a);
-        repository.save(b);
+        repository.saveAll(Arrays.asList(a, b));
     }
 
     @Override
