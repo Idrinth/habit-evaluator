@@ -135,6 +135,135 @@ class SQLiteFoodLogRepositoryTest {
         assertSame(entry, result);
     }
 
+    @Test
+    void testFindAllWithMultipleEntries() {
+        Cursor cursor = mock(Cursor.class);
+        when(cursor.moveToNext()).thenReturn(true, true, false);
+
+        when(cursor.getColumnIndexOrThrow("id")).thenReturn(0);
+        when(cursor.getColumnIndexOrThrow("carbohydrates")).thenReturn(1);
+        when(cursor.getColumnIndexOrThrow("kcal")).thenReturn(2);
+        when(cursor.getColumnIndexOrThrow("date_time")).thenReturn(3);
+        when(cursor.getColumnIndexOrThrow("food_items")).thenReturn(4);
+        when(cursor.getColumnIndexOrThrow("created_at")).thenReturn(5);
+        when(cursor.getColumnIndexOrThrow("notes")).thenReturn(6);
+        when(cursor.getColumnIndexOrThrow("user_id")).thenReturn(7);
+        when(cursor.getColumnIndexOrThrow("user_name")).thenReturn(8);
+
+        when(cursor.isNull(anyInt())).thenReturn(true);
+        when(cursor.isNull(0)).thenReturn(false);
+        when(cursor.isNull(3)).thenReturn(false);
+        when(cursor.isNull(4)).thenReturn(false);
+        when(cursor.isNull(5)).thenReturn(false);
+
+        when(cursor.getString(0)).thenReturn("f1", "f2");
+        when(cursor.getString(3)).thenReturn("2024-06-15T12:00:00");
+        when(cursor.getString(4)).thenReturn("Rice", "Pasta");
+        when(cursor.getString(5)).thenReturn("2024-06-15T10:00:00");
+
+        when(db.rawQuery(eq("SELECT * FROM food_logs"), isNull())).thenReturn(cursor);
+
+        List<FoodLog> result = repository.findAll();
+        assertEquals(2, result.size());
+    }
+
+    @Test
+    void testFindByUserIdWithResults() {
+        Cursor cursor = mock(Cursor.class);
+        when(cursor.moveToNext()).thenReturn(true, false);
+
+        when(cursor.getColumnIndexOrThrow("id")).thenReturn(0);
+        when(cursor.getColumnIndexOrThrow("carbohydrates")).thenReturn(1);
+        when(cursor.getColumnIndexOrThrow("kcal")).thenReturn(2);
+        when(cursor.getColumnIndexOrThrow("date_time")).thenReturn(3);
+        when(cursor.getColumnIndexOrThrow("food_items")).thenReturn(4);
+        when(cursor.getColumnIndexOrThrow("created_at")).thenReturn(5);
+        when(cursor.getColumnIndexOrThrow("notes")).thenReturn(6);
+        when(cursor.getColumnIndexOrThrow("user_id")).thenReturn(7);
+        when(cursor.getColumnIndexOrThrow("user_name")).thenReturn(8);
+
+        when(cursor.isNull(anyInt())).thenReturn(true);
+        when(cursor.isNull(0)).thenReturn(false);
+        when(cursor.isNull(3)).thenReturn(false);
+        when(cursor.isNull(4)).thenReturn(false);
+        when(cursor.isNull(5)).thenReturn(false);
+        when(cursor.isNull(7)).thenReturn(false);
+        when(cursor.isNull(8)).thenReturn(false);
+
+        when(cursor.getString(0)).thenReturn("f1");
+        when(cursor.getString(3)).thenReturn("2024-06-15T12:00:00");
+        when(cursor.getString(4)).thenReturn("Rice");
+        when(cursor.getString(5)).thenReturn("2024-06-15T10:00:00");
+        when(cursor.getString(7)).thenReturn("u1");
+        when(cursor.getString(8)).thenReturn("testuser");
+
+        when(db.rawQuery(startsWith("SELECT * FROM food_logs WHERE user_id"), any())).thenReturn(cursor);
+
+        List<FoodLog> result = repository.findByUserId("u1");
+        assertEquals(1, result.size());
+        assertNotNull(result.get(0).getUser());
+        assertEquals("u1", result.get(0).getUser().getId());
+    }
+
+    @Test
+    void testSaveWithNullFieldsDoesNotThrow() {
+        FoodLog entry = new FoodLog();
+        entry.setCarbohydrates(null);
+        entry.setKcal(null);
+        entry.setFoodItems("Snack");
+
+        repository.save(entry);
+        verify(db).insertWithOnConflict(eq("food_logs"), isNull(), any(), eq(5));
+    }
+
+    @Test
+    void testSaveWithUserAttached() {
+        FoodLog entry = new FoodLog(25.0, 300, LocalDateTime.of(2024, 6, 15, 12, 0), "Rice");
+        de.idrinth.habitevaluator.shared.model.User user = new de.idrinth.habitevaluator.shared.model.User();
+        user.setId("u1");
+        user.setUsername("testuser");
+        entry.setUser(user);
+
+        repository.save(entry);
+        verify(db).insertWithOnConflict(eq("food_logs"), isNull(), any(), eq(5));
+    }
+
+    @Test
+    void testFindByIdWithNullDateTimeFromCursor() {
+        // When date_time and created_at are null in the cursor,
+        // the FoodLog constructor's defaults (LocalDateTime.now()) remain.
+        Cursor cursor = mock(Cursor.class);
+        when(cursor.moveToFirst()).thenReturn(true);
+
+        when(cursor.getColumnIndexOrThrow("id")).thenReturn(0);
+        when(cursor.getColumnIndexOrThrow("carbohydrates")).thenReturn(1);
+        when(cursor.getColumnIndexOrThrow("kcal")).thenReturn(2);
+        when(cursor.getColumnIndexOrThrow("date_time")).thenReturn(3);
+        when(cursor.getColumnIndexOrThrow("food_items")).thenReturn(4);
+        when(cursor.getColumnIndexOrThrow("created_at")).thenReturn(5);
+        when(cursor.getColumnIndexOrThrow("notes")).thenReturn(6);
+        when(cursor.getColumnIndexOrThrow("user_id")).thenReturn(7);
+        when(cursor.getColumnIndexOrThrow("user_name")).thenReturn(8);
+
+        when(cursor.isNull(anyInt())).thenReturn(true);
+        when(cursor.isNull(0)).thenReturn(false);
+        when(cursor.isNull(4)).thenReturn(false);
+
+        when(cursor.getString(0)).thenReturn("f1");
+        when(cursor.getString(4)).thenReturn("Snack");
+
+        when(db.rawQuery(eq("SELECT * FROM food_logs WHERE id = ?"), eq(new String[]{"f1"}))).thenReturn(cursor);
+
+        Optional<FoodLog> result = repository.findById("f1");
+        assertTrue(result.isPresent());
+        assertEquals("f1", result.get().getId());
+        assertEquals("Snack", result.get().getFoodItems());
+        assertNull(result.get().getCarbohydrates());
+        assertNull(result.get().getKcal());
+        assertNull(result.get().getNotes());
+        assertNull(result.get().getUser());
+    }
+
     private Cursor createFoodLogCursor(String id, Double carbohydrates, Integer kcal, String dateTime, String foodItems, String notes, String userId, String userName) {
         Cursor cursor = mock(Cursor.class);
         when(cursor.moveToFirst()).thenReturn(true);

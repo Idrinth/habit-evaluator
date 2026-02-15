@@ -2,6 +2,8 @@ package de.idrinth.habitevaluator.android.ui;
 
 import org.junit.jupiter.api.Test;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -137,5 +139,126 @@ class EmotionScatterChartViewTest {
 
         assertEquals(1, pair1.entries.size());
         assertEquals(2, pair2.entries.size());
+    }
+
+    @Test
+    void testSetDataWithNullPairs() {
+        EmotionScatterChartView view = new EmotionScatterChartView(null);
+        view.setData(null);
+    }
+
+    @Test
+    void testSetDataWithEmptyPairs() {
+        EmotionScatterChartView view = new EmotionScatterChartView(null);
+        view.setData(new ArrayList<>());
+    }
+
+    @Test
+    void testSetDataGeneratesHourLabels() throws Exception {
+        EmotionScatterChartView view = new EmotionScatterChartView(null);
+        List<EmotionScatterChartView.ScatterPair> pairs = new ArrayList<>();
+        pairs.add(new EmotionScatterChartView.ScatterPair("Test", new ArrayList<>()));
+        view.setData(pairs);
+
+        Field labelsField = EmotionScatterChartView.class.getDeclaredField("labels");
+        labelsField.setAccessible(true);
+        @SuppressWarnings("unchecked")
+        List<String> labels = (List<String>) labelsField.get(view);
+        assertEquals(5, labels.size());
+        assertEquals("00:00", labels.get(0));
+        assertEquals("06:00", labels.get(1));
+        assertEquals("12:00", labels.get(2));
+        assertEquals("18:00", labels.get(3));
+        assertEquals("24:00", labels.get(4));
+    }
+
+    @Test
+    void testSetDataStoresPairs() throws Exception {
+        EmotionScatterChartView view = new EmotionScatterChartView(null);
+        List<EmotionScatterChartView.ScatterPair> pairs = new ArrayList<>();
+        pairs.add(new EmotionScatterChartView.ScatterPair("Pair A", new ArrayList<>()));
+        pairs.add(new EmotionScatterChartView.ScatterPair("Pair B", new ArrayList<>()));
+        view.setData(pairs);
+
+        Field pairsField = EmotionScatterChartView.class.getDeclaredField("pairs");
+        pairsField.setAccessible(true);
+        @SuppressWarnings("unchecked")
+        List<EmotionScatterChartView.ScatterPair> stored =
+                (List<EmotionScatterChartView.ScatterPair>) pairsField.get(view);
+        assertEquals(2, stored.size());
+        assertEquals("Pair A", stored.get(0).pairLabel);
+        assertEquals("Pair B", stored.get(1).pairLabel);
+    }
+
+    @Test
+    void testGetLegendHeightWithNoPairs() throws Exception {
+        EmotionScatterChartView view = new EmotionScatterChartView(null);
+        view.setData(new ArrayList<>());
+
+        Method method = EmotionScatterChartView.class.getDeclaredMethod("getLegendHeight");
+        method.setAccessible(true);
+        float height = (float) method.invoke(view);
+        assertEquals(0f, height, 0.001f);
+    }
+
+    @Test
+    void testGetLegendHeightWithOnePair() throws Exception {
+        EmotionScatterChartView view = new EmotionScatterChartView(null);
+        List<EmotionScatterChartView.ScatterPair> pairs = new ArrayList<>();
+        pairs.add(new EmotionScatterChartView.ScatterPair("P1", new ArrayList<>()));
+        view.setData(pairs);
+
+        Method method = EmotionScatterChartView.class.getDeclaredMethod("getLegendHeight");
+        method.setAccessible(true);
+        float height = (float) method.invoke(view);
+        assertEquals(40f, height, 0.001f);
+    }
+
+    @Test
+    void testGetLegendHeightWithFourPairs() throws Exception {
+        EmotionScatterChartView view = new EmotionScatterChartView(null);
+        List<EmotionScatterChartView.ScatterPair> pairs = new ArrayList<>();
+        for (int i = 0; i < 4; i++) {
+            pairs.add(new EmotionScatterChartView.ScatterPair("P" + i, new ArrayList<>()));
+        }
+        view.setData(pairs);
+
+        Method method = EmotionScatterChartView.class.getDeclaredMethod("getLegendHeight");
+        method.setAccessible(true);
+        float height = (float) method.invoke(view);
+        assertEquals(64f, height, 0.001f);
+    }
+
+    @Test
+    void testConstructorWithTwoArgs() {
+        EmotionScatterChartView view = new EmotionScatterChartView(null, null);
+        assertNotNull(view);
+    }
+
+    @Test
+    void testConstructorWithThreeArgs() {
+        EmotionScatterChartView view = new EmotionScatterChartView(null, null, 0);
+        assertNotNull(view);
+    }
+
+    @Test
+    void testSetDataReplacesPreviousPairs() throws Exception {
+        EmotionScatterChartView view = new EmotionScatterChartView(null);
+        List<EmotionScatterChartView.ScatterPair> first = new ArrayList<>();
+        first.add(new EmotionScatterChartView.ScatterPair("Old", new ArrayList<>()));
+        view.setData(first);
+
+        List<EmotionScatterChartView.ScatterPair> second = new ArrayList<>();
+        second.add(new EmotionScatterChartView.ScatterPair("New1", new ArrayList<>()));
+        second.add(new EmotionScatterChartView.ScatterPair("New2", new ArrayList<>()));
+        view.setData(second);
+
+        Field pairsField = EmotionScatterChartView.class.getDeclaredField("pairs");
+        pairsField.setAccessible(true);
+        @SuppressWarnings("unchecked")
+        List<EmotionScatterChartView.ScatterPair> stored =
+                (List<EmotionScatterChartView.ScatterPair>) pairsField.get(view);
+        assertEquals(2, stored.size());
+        assertEquals("New1", stored.get(0).pairLabel);
     }
 }
