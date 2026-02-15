@@ -370,4 +370,26 @@
     <string name="module_pdf_export">PDF Export</string>
     <string name="daily_entries_count">Today: %1$d/%2$d</string>
     <string name="notification_permission_denied">Notification permission denied. Reminders will not work until permission is granted in app settings.</string>
+    <string name="emergency_plan_title">Emergency Plan</string>
+    <string name="emergency_plan_add_step">Add Step</string>
+    <string name="emergency_plan_question_hint">Yes/No question (e.g. Did it take you more than 30min to get out of bed?)</string>
+    <string name="emergency_plan_action_hint">Action to take if yes (e.g. Feed Munnin)</string>
+    <string name="emergency_plan_phone_hint">Phone number (optional)</string>
+    <string name="emergency_plan_step_added">Step added</string>
+    <string name="emergency_plan_step_deleted">Step deleted</string>
+    <string name="emergency_plan_question_required">Please enter a question</string>
+    <string name="emergency_plan_action_required">Please enter an action</string>
+    <string name="emergency_plan_toggle_form">Toggle add step form</string>
+    <string name="emergency_plan_your_steps">Your Steps</string>
+    <string name="emergency_plan_call">Call</string>
+    <string name="emergency_plan_copy_number">Copy number</string>
+    <string name="emergency_plan_number_copied">Phone number copied</string>
+    <string name="emergency_plan_no_dialer">No phone app available</string>
+    <string name="emergency_plan_step_label">Step %d</string>
+    <string name="emergency_plan_action_label">Action: %s</string>
+    <string name="emergency_plan_move_up">Move up</string>
+    <string name="emergency_plan_move_down">Move down</string>
+    <string name="emergency_plan_delete_step">Delete step</string>
+    <string name="nav_emergency_plan">Emergency</string>
+    <string name="diary_navigation_emergency_plan_description">Create a step-by-step plan with questions and actions for difficult situations</string>
 </resources>
