@@ -7,7 +7,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class SQLiteHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "habit_evaluator.db";
-    private static final int DATABASE_VERSION = 7;
+    private static final int DATABASE_VERSION = 8;
     private static SQLiteHelper instance;
 
     private SQLiteHelper(Context context) {
@@ -222,6 +222,17 @@ public class SQLiteHelper extends SQLiteOpenHelper {
                 + ")");
         db.execSQL("CREATE INDEX idx_medication_logs_user_id ON medication_logs(user_id)");
         db.execSQL("CREATE INDEX idx_medication_logs_medication_id ON medication_logs(medication_id)");
+
+        db.execSQL("CREATE TABLE emergency_plan_steps ("
+                + "id TEXT PRIMARY KEY,"
+                + "question TEXT NOT NULL,"
+                + "action TEXT NOT NULL,"
+                + "phone_number TEXT,"
+                + "step_order INTEGER NOT NULL,"
+                + "user_id TEXT,"
+                + "user_name TEXT"
+                + ")");
+        db.execSQL("CREATE INDEX idx_emergency_plan_steps_user_id ON emergency_plan_steps(user_id)");
     }
 
     @Override
@@ -319,6 +330,18 @@ public class SQLiteHelper extends SQLiteOpenHelper {
                     + ")");
             db.execSQL("CREATE INDEX IF NOT EXISTS idx_medication_logs_user_id ON medication_logs(user_id)");
             db.execSQL("CREATE INDEX IF NOT EXISTS idx_medication_logs_medication_id ON medication_logs(medication_id)");
+        }
+        if (oldVersion < 8) {
+            db.execSQL("CREATE TABLE IF NOT EXISTS emergency_plan_steps ("
+                    + "id TEXT PRIMARY KEY,"
+                    + "question TEXT NOT NULL,"
+                    + "action TEXT NOT NULL,"
+                    + "phone_number TEXT,"
+                    + "step_order INTEGER NOT NULL,"
+                    + "user_id TEXT,"
+                    + "user_name TEXT"
+                    + ")");
+            db.execSQL("CREATE INDEX IF NOT EXISTS idx_emergency_plan_steps_user_id ON emergency_plan_steps(user_id)");
         }
     }
 

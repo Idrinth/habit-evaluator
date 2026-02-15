@@ -13,9 +13,9 @@
         android:icon="@drawable/ic_sleep"
         android:title="@string/sleep_tracking" />
     <item
-        android:id="@+id/nav_stats"
-        android:icon="@drawable/ic_chart"
-        android:title="@string/nav_stats" />
+        android:id="@+id/nav_emergency_plan"
+        android:icon="@drawable/ic_emergency"
+        android:title="@string/nav_emergency_plan" />
     <item
         android:id="@+id/nav_emotions"
         android:icon="@drawable/ic_emotion"

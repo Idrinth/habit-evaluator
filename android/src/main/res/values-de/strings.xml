@@ -370,4 +370,26 @@
     <string name="module_pdf_export">PDF-Export</string>
     <string name="daily_entries_count">Heute: %1$d/%2$d</string>
     <string name="notification_permission_denied">Benachrichtigungsberechtigung verweigert. Erinnerungen funktionieren erst, wenn die Berechtigung in den App-Einstellungen erteilt wird.</string>
+    <string name="emergency_plan_title">Notfallplan</string>
+    <string name="emergency_plan_add_step">Schritt hinzufügen</string>
+    <string name="emergency_plan_question_hint">Ja/Nein-Frage (z.B. Hat es länger als 30 Min. gedauert, aus dem Bett zu kommen?)</string>
+    <string name="emergency_plan_action_hint">Aktion bei Ja (z.B. Munnin füttern)</string>
+    <string name="emergency_plan_phone_hint">Telefonnummer (optional)</string>
+    <string name="emergency_plan_step_added">Schritt hinzugefügt</string>
+    <string name="emergency_plan_step_deleted">Schritt gelöscht</string>
+    <string name="emergency_plan_question_required">Bitte geben Sie eine Frage ein</string>
+    <string name="emergency_plan_action_required">Bitte geben Sie eine Aktion ein</string>
+    <string name="emergency_plan_toggle_form">Formular zum Hinzufügen umschalten</string>
+    <string name="emergency_plan_your_steps">Ihre Schritte</string>
+    <string name="emergency_plan_call">Anrufen</string>
+    <string name="emergency_plan_copy_number">Nummer kopieren</string>
+    <string name="emergency_plan_number_copied">Telefonnummer kopiert</string>
+    <string name="emergency_plan_no_dialer">Keine Telefon-App verfügbar</string>
+    <string name="emergency_plan_step_label">Schritt %d</string>
+    <string name="emergency_plan_action_label">Aktion: %s</string>
+    <string name="emergency_plan_move_up">Nach oben</string>
+    <string name="emergency_plan_move_down">Nach unten</string>
+    <string name="emergency_plan_delete_step">Schritt löschen</string>
+    <string name="nav_emergency_plan">Notfall</string>
+    <string name="diary_navigation_emergency_plan_description">Erstellen Sie einen schrittweisen Plan mit Fragen und Aktionen für schwierige Situationen</string>
 </resources>

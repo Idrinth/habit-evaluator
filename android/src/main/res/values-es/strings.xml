@@ -370,4 +370,26 @@
     <string name="module_pdf_export">Exportar PDF</string>
     <string name="daily_entries_count">Hoy: %1$d/%2$d</string>
     <string name="notification_permission_denied">Permiso de notificaciones denegado. Los recordatorios no funcionarán hasta que se conceda el permiso en los ajustes de la aplicación.</string>
+    <string name="emergency_plan_title">Plan de emergencia</string>
+    <string name="emergency_plan_add_step">Añadir paso</string>
+    <string name="emergency_plan_question_hint">Pregunta Sí/No (ej. ¿Tardaste más de 30 min en levantarte de la cama?)</string>
+    <string name="emergency_plan_action_hint">Acción si es sí (ej. Alimentar a Munnin)</string>
+    <string name="emergency_plan_phone_hint">Número de teléfono (opcional)</string>
+    <string name="emergency_plan_step_added">Paso añadido</string>
+    <string name="emergency_plan_step_deleted">Paso eliminado</string>
+    <string name="emergency_plan_question_required">Por favor, introduzca una pregunta</string>
+    <string name="emergency_plan_action_required">Por favor, introduzca una acción</string>
+    <string name="emergency_plan_toggle_form">Alternar formulario de paso</string>
+    <string name="emergency_plan_your_steps">Sus pasos</string>
+    <string name="emergency_plan_call">Llamar</string>
+    <string name="emergency_plan_copy_number">Copiar número</string>
+    <string name="emergency_plan_number_copied">Número de teléfono copiado</string>
+    <string name="emergency_plan_no_dialer">No hay aplicación de teléfono disponible</string>
+    <string name="emergency_plan_step_label">Paso %d</string>
+    <string name="emergency_plan_action_label">Acción: %s</string>
+    <string name="emergency_plan_move_up">Subir</string>
+    <string name="emergency_plan_move_down">Bajar</string>
+    <string name="emergency_plan_delete_step">Eliminar paso</string>
+    <string name="nav_emergency_plan">Emergencia</string>
+    <string name="diary_navigation_emergency_plan_description">Crea un plan paso a paso con preguntas y acciones para situaciones difíciles</string>
 </resources>
