@@ -267,6 +267,7 @@ public class MainActivity extends AppCompatActivity {
         initializeStorage();
         setupViewPager();
         setupBottomNavigation();
+        setupStatsButton();
         setupSettingsButton();
         setupImprintButton();
         performDailyBackupIfEnabled();
@@ -409,12 +410,7 @@ public class MainActivity extends AppCompatActivity {
                         }
                         break;
                     case ScreenPagerAdapter.PAGE_EMERGENCY_PLAN:
-                        if (isProgrammaticNavigation) {
-                            isProgrammaticNavigation = false;
-                            binding.bottomNavigation.setSelectedItemId(R.id.nav_diary);
-                        } else {
-                            binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_DIARY, false);
-                        }
+                        binding.bottomNavigation.setSelectedItemId(R.id.nav_emergency_plan);
                         break;
                     case ScreenPagerAdapter.PAGE_HOME:
                         binding.bottomNavigation.setSelectedItemId(R.id.nav_home);
@@ -426,7 +422,11 @@ public class MainActivity extends AppCompatActivity {
                         binding.bottomNavigation.setSelectedItemId(R.id.nav_sleep);
                         break;
                     case ScreenPagerAdapter.PAGE_STATS:
-                        binding.bottomNavigation.setSelectedItemId(R.id.nav_stats);
+                        if (isProgrammaticNavigation) {
+                            isProgrammaticNavigation = false;
+                        } else {
+                            binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_HOME, false);
+                        }
                         break;
                     case ScreenPagerAdapter.PAGE_EMOTIONAL_STATE:
                         binding.bottomNavigation.setSelectedItemId(R.id.nav_emotions);
@@ -453,8 +453,8 @@ public class MainActivity extends AppCompatActivity {
             } else if (id == R.id.nav_sleep) {
                 binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_SLEEP, true);
                 return true;
-            } else if (id == R.id.nav_stats) {
-                binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_STATS, true);
+            } else if (id == R.id.nav_emergency_plan) {
+                binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_EMERGENCY_PLAN, true);
                 return true;
             }
             return false;
@@ -462,6 +462,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+
+    private void setupStatsButton() {
+        binding.statsButton.setOnClickListener(v -> {
+            isProgrammaticNavigation = true;
+            binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_STATS, true);
+        });
+    }
 
     private void setupSettingsButton() {
         binding.settingsButton.setOnClickListener(v -> {
@@ -546,7 +553,7 @@ public class MainActivity extends AppCompatActivity {
         android.view.Menu menu = binding.bottomNavigation.getMenu();
         menu.findItem(R.id.nav_diary).setVisible(diaryVisible);
         menu.findItem(R.id.nav_sleep).setVisible(sleepVisible);
-        menu.findItem(R.id.nav_stats).setVisible(statisticsVisible);
+        binding.statsButton.setVisibility(statisticsVisible ? android.view.View.VISIBLE : android.view.View.GONE);
         menu.findItem(R.id.nav_emotions).setVisible(emotionsVisible);
     }
 

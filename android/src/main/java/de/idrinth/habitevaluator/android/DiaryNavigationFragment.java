@@ -13,9 +13,9 @@ import de.idrinth.habitevaluator.android.databinding.FragmentDiaryNavigationBind
 
 public class DiaryNavigationFragment extends Fragment {
 
-    static final int NAVIGATION_CARD_COUNT = 6;
+    static final int NAVIGATION_CARD_COUNT = 5;
     static final String[] NAVIGATION_TARGETS = {
-            "positivityDiary", "sportLog", "foodLog", "medicationLog", "medicationList", "emergencyPlan"
+            "positivityDiary", "sportLog", "foodLog", "medicationLog", "medicationList"
     };
 
     private FragmentDiaryNavigationBinding binding;
@@ -71,12 +71,6 @@ public class DiaryNavigationFragment extends Fragment {
         binding.medicationListCard.setOnClickListener(v -> {
             if (getActivity() instanceof MainActivity) {
                 ((MainActivity) getActivity()).navigateToMedicationList();
-            }
-        });
-
-        binding.emergencyPlanCard.setOnClickListener(v -> {
-            if (getActivity() instanceof MainActivity) {
-                ((MainActivity) getActivity()).navigateToEmergencyPlan();
             }
         });
     }

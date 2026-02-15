@@ -93,12 +93,12 @@ class BottomNavigationRegressionTest {
     void testBottomNavItemCountMatchesNavigationHandlerCount() {
         // The setupBottomNavigation handler in MainActivity maps exactly 5 nav IDs to pages:
         // nav_home -> PAGE_HOME, nav_diary -> PAGE_DIARY, nav_sleep -> PAGE_SLEEP,
-        // nav_stats -> PAGE_STATS, nav_emotions -> PAGE_EMOTIONAL_STATE
+        // nav_emergency_plan -> PAGE_EMERGENCY_PLAN, nav_emotions -> PAGE_EMOTIONAL_STATE
         int[] bottomNavPages = {
                 ScreenPagerAdapter.PAGE_HOME,
                 ScreenPagerAdapter.PAGE_DIARY,
                 ScreenPagerAdapter.PAGE_SLEEP,
-                ScreenPagerAdapter.PAGE_STATS,
+                ScreenPagerAdapter.PAGE_EMERGENCY_PLAN,
                 ScreenPagerAdapter.PAGE_EMOTIONAL_STATE
         };
 
