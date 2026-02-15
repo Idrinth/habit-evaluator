@@ -91,4 +91,58 @@ class FoodLogFragmentTest {
     void testTimePatternMatchesDiaryFragmentPattern() {
         assertEquals(DiaryFragment.TIME_PATTERN, FoodLogFragment.TIME_PATTERN);
     }
+
+    @Test
+    void testDateFormatRoundTrip() {
+        LocalDate original = LocalDate.of(2025, 11, 3);
+        String formatted = FoodLogFragment.DATE_FORMAT.format(original);
+        LocalDate parsed = LocalDate.parse(formatted, FoodLogFragment.DATE_FORMAT);
+        assertEquals(original, parsed);
+    }
+
+    @Test
+    void testTimeFormatRoundTrip() {
+        LocalTime original = LocalTime.of(19, 15);
+        String formatted = FoodLogFragment.TIME_FORMAT.format(original);
+        LocalTime parsed = LocalTime.parse(formatted, FoodLogFragment.TIME_FORMAT);
+        assertEquals(original, parsed);
+    }
+
+    @Test
+    void testDtDisplayFormatRoundTrip() {
+        LocalDateTime original = LocalDateTime.of(2025, 4, 10, 7, 30);
+        String formatted = FoodLogFragment.DT_DISPLAY_FORMAT.format(original);
+        LocalDateTime parsed = LocalDateTime.parse(formatted, FoodLogFragment.DT_DISPLAY_FORMAT);
+        assertEquals(original, parsed);
+    }
+
+    @Test
+    void testDtDisplayFormatWithNoon() {
+        LocalDateTime dateTime = LocalDateTime.of(2025, 6, 15, 12, 0);
+        assertEquals("2025-06-15 12:00", FoodLogFragment.DT_DISPLAY_FORMAT.format(dateTime));
+    }
+
+    @Test
+    void testDtDisplayPatternContainsDateAndTimeParts() {
+        assertTrue(FoodLogFragment.DT_DISPLAY_PATTERN.contains("yyyy"));
+        assertTrue(FoodLogFragment.DT_DISPLAY_PATTERN.contains("HH"));
+        assertTrue(FoodLogFragment.DT_DISPLAY_PATTERN.contains("mm"));
+    }
+
+    @Test
+    void testDtDisplayPatternMatchesMedicationLogPattern() {
+        assertEquals(MedicationLogFragment.DT_DISPLAY_PATTERN, FoodLogFragment.DT_DISPLAY_PATTERN);
+    }
+
+    @Test
+    void testDateFormatStartOfYear() {
+        LocalDate date = LocalDate.of(2025, 1, 1);
+        assertEquals("2025-01-01", FoodLogFragment.DATE_FORMAT.format(date));
+    }
+
+    @Test
+    void testTimeFormatMidnight() {
+        LocalTime time = LocalTime.of(0, 0);
+        assertEquals("00:00", FoodLogFragment.TIME_FORMAT.format(time));
+    }
 }

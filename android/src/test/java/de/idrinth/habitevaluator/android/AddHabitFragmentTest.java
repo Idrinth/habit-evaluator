@@ -56,4 +56,35 @@ class AddHabitFragmentTest {
             assertEquals(expected[i], AddHabitFragment.mapPositionToFrequencyType(i));
         }
     }
+
+    @Test
+    void testMapPositionToFrequencyTypeLargeNegative() {
+        assertNull(AddHabitFragment.mapPositionToFrequencyType(-100));
+    }
+
+    @Test
+    void testMapPositionToFrequencyTypeIntMaxValue() {
+        assertNull(AddHabitFragment.mapPositionToFrequencyType(Integer.MAX_VALUE));
+    }
+
+    @Test
+    void testMapPositionToFrequencyTypeThreeReturnsNull() {
+        assertNull(AddHabitFragment.mapPositionToFrequencyType(3));
+    }
+
+    @Test
+    void testMapPositionToFrequencyTypeDailyIsPositionZero() {
+        assertEquals(FrequencyType.DAILY, AddHabitFragment.mapPositionToFrequencyType(0));
+    }
+
+    @Test
+    void testMapPositionToFrequencyTypeCoversAllEnumValues() {
+        int mappedCount = 0;
+        for (int i = 0; i < 100; i++) {
+            if (AddHabitFragment.mapPositionToFrequencyType(i) != null) {
+                mappedCount++;
+            }
+        }
+        assertEquals(FrequencyType.values().length, mappedCount);
+    }
 }

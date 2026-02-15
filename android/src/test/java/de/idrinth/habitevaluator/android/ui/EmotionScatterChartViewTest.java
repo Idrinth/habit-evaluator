@@ -261,4 +261,140 @@ class EmotionScatterChartViewTest {
         assertEquals(2, stored.size());
         assertEquals("New1", stored.get(0).pairLabel);
     }
+
+    @Test
+    void testGetLegendHeightWithThreePairs() throws Exception {
+        EmotionScatterChartView view = new EmotionScatterChartView(null);
+        List<EmotionScatterChartView.ScatterPair> pairs = new ArrayList<>();
+        for (int i = 0; i < 3; i++) {
+            pairs.add(new EmotionScatterChartView.ScatterPair("P" + i, new ArrayList<>()));
+        }
+        view.setData(pairs);
+
+        Method method = EmotionScatterChartView.class.getDeclaredMethod("getLegendHeight");
+        method.setAccessible(true);
+        float height = (float) method.invoke(view);
+        // 3 pairs: (3 + 2) / 3 = 1 row => 1 * 24 + 16 = 40
+        assertEquals(40f, height, 0.001f);
+    }
+
+    @Test
+    void testGetLegendHeightWithTenPairs() throws Exception {
+        EmotionScatterChartView view = new EmotionScatterChartView(null);
+        List<EmotionScatterChartView.ScatterPair> pairs = new ArrayList<>();
+        for (int i = 0; i < 10; i++) {
+            pairs.add(new EmotionScatterChartView.ScatterPair("P" + i, new ArrayList<>()));
+        }
+        view.setData(pairs);
+
+        Method method = EmotionScatterChartView.class.getDeclaredMethod("getLegendHeight");
+        method.setAccessible(true);
+        float height = (float) method.invoke(view);
+        // 10 pairs: (10 + 2) / 3 = 4 rows => 4 * 24 + 16 = 112
+        assertEquals(112f, height, 0.001f);
+    }
+
+    @Test
+    void testScatterEntryWithFractionalHour() {
+        EmotionScatterChartView.ScatterEntry entry =
+                new EmotionScatterChartView.ScatterEntry(10.75f, 3.5f);
+        assertEquals(10.75f, entry.hourOfDay, 0.001f);
+        assertEquals(3.5f, entry.strength, 0.001f);
+    }
+
+    @Test
+    void testScatterPairWithManyEntries() {
+        List<EmotionScatterChartView.ScatterEntry> entries = new ArrayList<>();
+        for (int i = 0; i < 100; i++) {
+            entries.add(new EmotionScatterChartView.ScatterEntry(
+                    i % 24, (i % 21) - 10));
+        }
+        EmotionScatterChartView.ScatterPair pair =
+                new EmotionScatterChartView.ScatterPair("Many entries", entries);
+        assertEquals(100, pair.entries.size());
+    }
+
+    @Test
+    void testScatterPairWithEmptyLabel() {
+        EmotionScatterChartView.ScatterPair pair =
+                new EmotionScatterChartView.ScatterPair("", new ArrayList<>());
+        assertEquals("", pair.pairLabel);
+    }
+
+    @Test
+    void testSetDataNullDefaultsToEmptyPairsList() throws Exception {
+        EmotionScatterChartView view = new EmotionScatterChartView(null);
+        view.setData(null);
+
+        Field pairsField = EmotionScatterChartView.class.getDeclaredField("pairs");
+        pairsField.setAccessible(true);
+        @SuppressWarnings("unchecked")
+        List<EmotionScatterChartView.ScatterPair> stored =
+                (List<EmotionScatterChartView.ScatterPair>) pairsField.get(view);
+        assertNotNull(stored);
+        assertTrue(stored.isEmpty());
+    }
+
+    @Test
+    void testPairColorsAreAllOpaque() throws Exception {
+        Field field = EmotionScatterChartView.class.getDeclaredField("PAIR_COLORS");
+        field.setAccessible(true);
+        int[] colors = (int[]) field.get(null);
+        for (int color : colors) {
+            int alpha = (color >> 24) & 0xFF;
+            assertEquals(0xFF, alpha, "Each color should be fully opaque");
+        }
+    }
+
+    @Test
+    void testPairColorsHasTenEntries() throws Exception {
+        Field field = EmotionScatterChartView.class.getDeclaredField("PAIR_COLORS");
+        field.setAccessible(true);
+        int[] colors = (int[]) field.get(null);
+        assertEquals(10, colors.length);
+    }
+
+    @Test
+    void testPairColorsAreAllUnique() throws Exception {
+        Field field = EmotionScatterChartView.class.getDeclaredField("PAIR_COLORS");
+        field.setAccessible(true);
+        int[] colors = (int[]) field.get(null);
+        for (int i = 0; i < colors.length; i++) {
+            for (int j = i + 1; j < colors.length; j++) {
+                assertNotEquals(colors[i], colors[j],
+                        "Colors at index " + i + " and " + j + " should be unique");
+            }
+        }
+    }
+
+    @Test
+    void testSetDataAlwaysGeneratesFiveLabels() throws Exception {
+        EmotionScatterChartView view = new EmotionScatterChartView(null);
+        List<EmotionScatterChartView.ScatterPair> pairs = new ArrayList<>();
+        for (int i = 0; i < 5; i++) {
+            pairs.add(new EmotionScatterChartView.ScatterPair("P" + i, new ArrayList<>()));
+        }
+        view.setData(pairs);
+
+        Field labelsField = EmotionScatterChartView.class.getDeclaredField("labels");
+        labelsField.setAccessible(true);
+        @SuppressWarnings("unchecked")
+        List<String> labels = (List<String>) labelsField.get(view);
+        assertEquals(5, labels.size());
+    }
+
+    @Test
+    void testPaddingConstantsArePositive() throws Exception {
+        assertFieldPositive("PADDING_LEFT");
+        assertFieldPositive("PADDING_RIGHT");
+        assertFieldPositive("PADDING_TOP");
+        assertFieldPositive("PADDING_BOTTOM");
+    }
+
+    private void assertFieldPositive(String fieldName) throws Exception {
+        Field field = EmotionScatterChartView.class.getDeclaredField(fieldName);
+        field.setAccessible(true);
+        float value = field.getFloat(null);
+        assertTrue(value > 0, fieldName + " should be positive");
+    }
 }

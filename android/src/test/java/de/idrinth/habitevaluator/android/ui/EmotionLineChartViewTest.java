@@ -221,4 +221,119 @@ class EmotionLineChartViewTest {
             }
         }
     }
+
+    @Test
+    void testGetLegendHeightWithSixPairs() throws Exception {
+        EmotionLineChartView view = new EmotionLineChartView(null);
+        List<String> names = Arrays.asList("P1", "P2", "P3", "P4", "P5", "P6");
+        view.setData(Arrays.asList("Mon"), names, new ArrayList<>());
+
+        Method method = EmotionLineChartView.class.getDeclaredMethod("getLegendHeight");
+        method.setAccessible(true);
+        float height = (float) method.invoke(view);
+        // 6 pairs: (6 + 2) / 3 = 2 rows => 2 * 24 + 16 = 64
+        assertEquals(64f, height, 0.001f);
+    }
+
+    @Test
+    void testGetLegendHeightWithTenPairs() throws Exception {
+        EmotionLineChartView view = new EmotionLineChartView(null);
+        List<String> names = new ArrayList<>();
+        for (int i = 0; i < 10; i++) {
+            names.add("Pair " + i);
+        }
+        view.setData(Arrays.asList("Mon"), names, new ArrayList<>());
+
+        Method method = EmotionLineChartView.class.getDeclaredMethod("getLegendHeight");
+        method.setAccessible(true);
+        float height = (float) method.invoke(view);
+        // 10 pairs: (10 + 2) / 3 = 4 rows => 4 * 24 + 16 = 112
+        assertEquals(112f, height, 0.001f);
+    }
+
+    @Test
+    void testSetDataWithNullLabelsDefaultsToEmptyList() throws Exception {
+        EmotionLineChartView view = new EmotionLineChartView(null);
+        view.setData(null, Arrays.asList("P1"), new ArrayList<>());
+
+        Field labelsField = EmotionLineChartView.class.getDeclaredField("labels");
+        labelsField.setAccessible(true);
+        @SuppressWarnings("unchecked")
+        List<String> labels = (List<String>) labelsField.get(view);
+        assertNotNull(labels);
+        assertTrue(labels.isEmpty());
+    }
+
+    @Test
+    void testSetDataWithNullPairNamesDefaultsToEmptyList() throws Exception {
+        EmotionLineChartView view = new EmotionLineChartView(null);
+        view.setData(Arrays.asList("Mon"), null, new ArrayList<>());
+
+        Field pairNamesField = EmotionLineChartView.class.getDeclaredField("pairNames");
+        pairNamesField.setAccessible(true);
+        @SuppressWarnings("unchecked")
+        List<String> names = (List<String>) pairNamesField.get(view);
+        assertNotNull(names);
+        assertTrue(names.isEmpty());
+    }
+
+    @Test
+    void testSetDataWithNullDailyValuesDefaultsToEmptyList() throws Exception {
+        EmotionLineChartView view = new EmotionLineChartView(null);
+        view.setData(Arrays.asList("Mon"), Arrays.asList("P1"), null);
+
+        Field valuesField = EmotionLineChartView.class.getDeclaredField("pairDailyValues");
+        valuesField.setAccessible(true);
+        @SuppressWarnings("unchecked")
+        List<List<Float>> values = (List<List<Float>>) valuesField.get(view);
+        assertNotNull(values);
+        assertTrue(values.isEmpty());
+    }
+
+    @Test
+    void testPairColorsMatchScatterChartColors() throws Exception {
+        Field lineField = EmotionLineChartView.class.getDeclaredField("PAIR_COLORS");
+        lineField.setAccessible(true);
+        int[] lineColors = (int[]) lineField.get(null);
+
+        Field scatterField = EmotionScatterChartView.class.getDeclaredField("PAIR_COLORS");
+        scatterField.setAccessible(true);
+        int[] scatterColors = (int[]) scatterField.get(null);
+
+        assertEquals(lineColors.length, scatterColors.length,
+                "Line chart and scatter chart should have same number of pair colors");
+        for (int i = 0; i < lineColors.length; i++) {
+            assertEquals(lineColors[i], scatterColors[i],
+                    "Color at index " + i + " should match between charts");
+        }
+    }
+
+    @Test
+    void testGetLegendHeightWithTwoPairs() throws Exception {
+        EmotionLineChartView view = new EmotionLineChartView(null);
+        view.setData(Arrays.asList("Mon"), Arrays.asList("P1", "P2"), new ArrayList<>());
+
+        Method method = EmotionLineChartView.class.getDeclaredMethod("getLegendHeight");
+        method.setAccessible(true);
+        float height = (float) method.invoke(view);
+        // 2 pairs: (2 + 2) / 3 = 1 row => 1 * 24 + 16 = 40
+        assertEquals(40f, height, 0.001f);
+    }
+
+    @Test
+    void testSetDataWithMultiplePairValues() throws Exception {
+        EmotionLineChartView view = new EmotionLineChartView(null);
+        List<List<Float>> values = new ArrayList<>();
+        values.add(Arrays.asList(1.0f, 2.0f, 3.0f));
+        values.add(Arrays.asList(-1.0f, 0.0f, 1.0f));
+        view.setData(Arrays.asList("A", "B", "C"), Arrays.asList("P1", "P2"), values);
+
+        Field valuesField = EmotionLineChartView.class.getDeclaredField("pairDailyValues");
+        valuesField.setAccessible(true);
+        @SuppressWarnings("unchecked")
+        List<List<Float>> stored = (List<List<Float>>) valuesField.get(view);
+        assertEquals(2, stored.size());
+        assertEquals(3, stored.get(0).size());
+        assertEquals(3, stored.get(1).size());
+    }
 }

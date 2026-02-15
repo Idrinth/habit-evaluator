@@ -113,4 +113,80 @@ class StatsFragmentTest {
         List<String> labels = StatsFragment.generateDateLabels(start, end);
         assertTrue(labels.isEmpty());
     }
+
+    @Test
+    void testCalculateAverageWithLargeTotal() {
+        assertEquals(1000.0f, StatsFragment.calculateAverage(10000.0f, 10), 0.001f);
+    }
+
+    @Test
+    void testCalculateAverageWithSmallFractionalValues() {
+        assertEquals(0.1f, StatsFragment.calculateAverage(0.3f, 3), 0.01f);
+    }
+
+    @Test
+    void testCalculateAverageWithNegativeTotal() {
+        assertEquals(-5.0f, StatsFragment.calculateAverage(-10.0f, 2), 0.001f);
+    }
+
+    @Test
+    void testCalculateAverageWithNegativeCount() {
+        // Negative count returns 0 (treated same as zero count)
+        float result = StatsFragment.calculateAverage(10.0f, -2);
+        assertEquals(0.0f, result, 0.001f);
+    }
+
+    @Test
+    void testGenerateDateLabelsSpanningYearBoundary() {
+        LocalDate start = LocalDate.of(2024, 12, 30);
+        LocalDate end = LocalDate.of(2025, 1, 2);
+        List<String> labels = StatsFragment.generateDateLabels(start, end);
+        assertEquals(4, labels.size());
+        assertEquals("12/30", labels.get(0));
+        assertEquals("12/31", labels.get(1));
+        assertEquals("01/01", labels.get(2));
+        assertEquals("01/02", labels.get(3));
+    }
+
+    @Test
+    void testGenerateDateLabelsSpanningLeapDay() {
+        LocalDate start = LocalDate.of(2024, 2, 28);
+        LocalDate end = LocalDate.of(2024, 3, 1);
+        List<String> labels = StatsFragment.generateDateLabels(start, end);
+        assertEquals(3, labels.size());
+        assertEquals("02/28", labels.get(0));
+        assertEquals("02/29", labels.get(1));
+        assertEquals("03/01", labels.get(2));
+    }
+
+    @Test
+    void testLabelPatternIsMMdd() {
+        assertEquals("MM/dd", StatsFragment.LABEL_PATTERN);
+    }
+
+    @Test
+    void testLabelFormatWithFebruary() {
+        LocalDate date = LocalDate.of(2025, 2, 14);
+        assertEquals("02/14", StatsFragment.LABEL_FORMAT.format(date));
+    }
+
+    @Test
+    void testGenerateDateLabelsAllLabelsHaveSlash() {
+        LocalDate start = LocalDate.of(2025, 6, 1);
+        LocalDate end = LocalDate.of(2025, 6, 10);
+        List<String> labels = StatsFragment.generateDateLabels(start, end);
+        for (String label : labels) {
+            assertTrue(label.contains("/"), "Each label should contain a slash separator");
+        }
+    }
+
+    @Test
+    void testGenerateDateLabelsAllLabelsHaveFiveCharacters() {
+        LocalDate start = LocalDate.of(2025, 6, 1);
+        LocalDate end = LocalDate.of(2025, 6, 10);
+        List<String> labels = StatsFragment.generateDateLabels(start, end);
+        for (String label : labels) {
+            assertEquals(5, label.length(), "Each label should be in MM/dd format (5 chars)");
+        }
+    }
 }

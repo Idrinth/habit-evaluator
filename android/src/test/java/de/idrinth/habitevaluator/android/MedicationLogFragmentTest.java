@@ -46,4 +46,33 @@ class MedicationLogFragmentTest {
     void testDtDisplayPatternMatchesFoodLogFragmentPattern() {
         assertEquals(FoodLogFragment.DT_DISPLAY_PATTERN, MedicationLogFragment.DT_DISPLAY_PATTERN);
     }
+
+    @Test
+    void testDtDisplayFormatRoundTrip() {
+        LocalDateTime original = LocalDateTime.of(2025, 9, 22, 14, 45);
+        String formatted = MedicationLogFragment.DT_DISPLAY_FORMAT.format(original);
+        LocalDateTime parsed = LocalDateTime.parse(formatted, MedicationLogFragment.DT_DISPLAY_FORMAT);
+        assertEquals(original, parsed);
+    }
+
+    @Test
+    void testDtDisplayFormatNoon() {
+        LocalDateTime dateTime = LocalDateTime.of(2025, 6, 15, 12, 0);
+        assertEquals("2025-06-15 12:00", MedicationLogFragment.DT_DISPLAY_FORMAT.format(dateTime));
+    }
+
+    @Test
+    void testDtDisplayFormatLeapYearDate() {
+        LocalDateTime dateTime = LocalDateTime.of(2024, 2, 29, 8, 30);
+        assertEquals("2024-02-29 08:30", MedicationLogFragment.DT_DISPLAY_FORMAT.format(dateTime));
+    }
+
+    @Test
+    void testDtDisplayPatternContainsDateAndTimeParts() {
+        assertTrue(MedicationLogFragment.DT_DISPLAY_PATTERN.contains("yyyy"));
+        assertTrue(MedicationLogFragment.DT_DISPLAY_PATTERN.contains("MM"));
+        assertTrue(MedicationLogFragment.DT_DISPLAY_PATTERN.contains("dd"));
+        assertTrue(MedicationLogFragment.DT_DISPLAY_PATTERN.contains("HH"));
+        assertTrue(MedicationLogFragment.DT_DISPLAY_PATTERN.contains("mm"));
+    }
 }
