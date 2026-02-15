@@ -591,7 +591,8 @@ public class MainActivity extends AppCompatActivity {
         de.idrinth.habitevaluator.android.persistence.SQLiteFoodTagRepository foodTagRepo = new de.idrinth.habitevaluator.android.persistence.SQLiteFoodTagRepository(dbHelper);
         de.idrinth.habitevaluator.android.persistence.SQLiteMedicationRepository medicationRepo = new de.idrinth.habitevaluator.android.persistence.SQLiteMedicationRepository(dbHelper);
         de.idrinth.habitevaluator.android.persistence.SQLiteMedicationLogRepository medicationLogRepo = new de.idrinth.habitevaluator.android.persistence.SQLiteMedicationLogRepository(dbHelper, medicationRepo);
-        de.idrinth.habitevaluator.android.persistence.SQLiteEmergencyPlanStepRepository emergencyPlanStepRepo = new de.idrinth.habitevaluator.android.persistence.SQLiteEmergencyPlanStepRepository(dbHelper);
+        de.idrinth.habitevaluator.android.persistence.SQLiteEmergencyPlanActionRepository emergencyPlanActionRepo = new de.idrinth.habitevaluator.android.persistence.SQLiteEmergencyPlanActionRepository(dbHelper);
+        de.idrinth.habitevaluator.android.persistence.SQLiteEmergencyPlanStepRepository emergencyPlanStepRepo = new de.idrinth.habitevaluator.android.persistence.SQLiteEmergencyPlanStepRepository(dbHelper, emergencyPlanActionRepo);
 
         currentUser = getOrCreateLocalUser();
         sharedHabitRepository = habitRepository;
@@ -672,7 +673,8 @@ public class MainActivity extends AppCompatActivity {
         de.idrinth.habitevaluator.android.persistence.SQLiteFoodTagRepository foodTagRepo = new de.idrinth.habitevaluator.android.persistence.SQLiteFoodTagRepository(dbHelper);
         de.idrinth.habitevaluator.android.persistence.SQLiteMedicationRepository medicationRepo = new de.idrinth.habitevaluator.android.persistence.SQLiteMedicationRepository(dbHelper);
         de.idrinth.habitevaluator.android.persistence.SQLiteMedicationLogRepository medicationLogRepo = new de.idrinth.habitevaluator.android.persistence.SQLiteMedicationLogRepository(dbHelper, medicationRepo);
-        de.idrinth.habitevaluator.android.persistence.SQLiteEmergencyPlanStepRepository emergencyPlanStepRepo = new de.idrinth.habitevaluator.android.persistence.SQLiteEmergencyPlanStepRepository(dbHelper);
+        de.idrinth.habitevaluator.android.persistence.SQLiteEmergencyPlanActionRepository emergencyPlanActionRepo = new de.idrinth.habitevaluator.android.persistence.SQLiteEmergencyPlanActionRepository(dbHelper);
+        de.idrinth.habitevaluator.android.persistence.SQLiteEmergencyPlanStepRepository emergencyPlanStepRepo = new de.idrinth.habitevaluator.android.persistence.SQLiteEmergencyPlanStepRepository(dbHelper, emergencyPlanActionRepo);
         sharedSleepEntryRepository = sleepEntryRepository;
         sharedDiaryEntryRepository = diaryEntryRepo;
         sharedDiaryReferenceRepository = diaryRefRepo;
