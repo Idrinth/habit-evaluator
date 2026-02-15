@@ -4,8 +4,10 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
+import de.idrinth.habitevaluator.shared.model.EmergencyPlanAction;
 import de.idrinth.habitevaluator.shared.model.EmergencyPlanStep;
 import de.idrinth.habitevaluator.shared.model.User;
+import de.idrinth.habitevaluator.shared.repository.EmergencyPlanActionRepository;
 import de.idrinth.habitevaluator.shared.repository.EmergencyPlanStepRepository;
 
 import java.util.ArrayList;
@@ -15,9 +17,11 @@ import java.util.Optional;
 public class SQLiteEmergencyPlanStepRepository implements EmergencyPlanStepRepository {
 
     private final SQLiteHelper dbHelper;
+    private final EmergencyPlanActionRepository actionRepository;
 
-    public SQLiteEmergencyPlanStepRepository(SQLiteHelper dbHelper) {
+    public SQLiteEmergencyPlanStepRepository(SQLiteHelper dbHelper, EmergencyPlanActionRepository actionRepository) {
         this.dbHelper = dbHelper;
+        this.actionRepository = actionRepository;
     }
 
     @Override
@@ -26,14 +30,20 @@ public class SQLiteEmergencyPlanStepRepository implements EmergencyPlanStepRepos
         ContentValues values = new ContentValues();
         values.put("id", step.getId());
         values.put("question", step.getQuestion());
-        values.put("action", step.getAction());
-        values.put("phone_number", step.getPhoneNumber());
         values.put("step_order", step.getStepOrder());
         if (step.getUser() != null) {
             values.put("user_id", step.getUser().getId());
             values.put("user_name", step.getUser().getUsername());
         }
         db.insertWithOnConflict("emergency_plan_steps", null, values, SQLiteDatabase.CONFLICT_REPLACE);
+
+        // Save actions: delete existing then re-save
+        actionRepository.deleteByStepId(step.getId());
+        for (EmergencyPlanAction action : step.getActions()) {
+            action.setStep(step);
+            actionRepository.save(action);
+        }
+
         return step;
     }
 
@@ -46,14 +56,18 @@ public class SQLiteEmergencyPlanStepRepository implements EmergencyPlanStepRepos
                 ContentValues values = new ContentValues();
                 values.put("id", step.getId());
                 values.put("question", step.getQuestion());
-                values.put("action", step.getAction());
-                values.put("phone_number", step.getPhoneNumber());
                 values.put("step_order", step.getStepOrder());
                 if (step.getUser() != null) {
                     values.put("user_id", step.getUser().getId());
                     values.put("user_name", step.getUser().getUsername());
                 }
                 db.insertWithOnConflict("emergency_plan_steps", null, values, SQLiteDatabase.CONFLICT_REPLACE);
+
+                actionRepository.deleteByStepId(step.getId());
+                for (EmergencyPlanAction action : step.getActions()) {
+                    action.setStep(step);
+                    actionRepository.save(action);
+                }
             }
             db.setTransactionSuccessful();
         } finally {
@@ -66,7 +80,9 @@ public class SQLiteEmergencyPlanStepRepository implements EmergencyPlanStepRepos
         SQLiteDatabase db = dbHelper.getReadableDatabase();
         try (Cursor cursor = db.rawQuery("SELECT * FROM emergency_plan_steps WHERE id = ?", new String[]{id})) {
             if (cursor.moveToFirst()) {
-                return Optional.of(readFromCursor(cursor));
+                EmergencyPlanStep step = readFromCursor(cursor);
+                loadActions(step);
+                return Optional.of(step);
             }
         }
         return Optional.empty();
@@ -78,7 +94,9 @@ public class SQLiteEmergencyPlanStepRepository implements EmergencyPlanStepRepos
         SQLiteDatabase db = dbHelper.getReadableDatabase();
         try (Cursor cursor = db.rawQuery("SELECT * FROM emergency_plan_steps ORDER BY step_order", null)) {
             while (cursor.moveToNext()) {
-                result.add(readFromCursor(cursor));
+                EmergencyPlanStep step = readFromCursor(cursor);
+                loadActions(step);
+                result.add(step);
             }
         }
         return result;
@@ -86,6 +104,7 @@ public class SQLiteEmergencyPlanStepRepository implements EmergencyPlanStepRepos
 
     @Override
     public void deleteById(String id) {
+        actionRepository.deleteByStepId(id);
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         db.delete("emergency_plan_steps", "id = ?", new String[]{id});
     }
@@ -96,18 +115,26 @@ public class SQLiteEmergencyPlanStepRepository implements EmergencyPlanStepRepos
         SQLiteDatabase db = dbHelper.getReadableDatabase();
         try (Cursor cursor = db.rawQuery("SELECT * FROM emergency_plan_steps WHERE user_id = ? ORDER BY step_order", new String[]{userId})) {
             while (cursor.moveToNext()) {
-                result.add(readFromCursor(cursor));
+                EmergencyPlanStep step = readFromCursor(cursor);
+                loadActions(step);
+                result.add(step);
             }
         }
         return result;
+    }
+
+    private void loadActions(EmergencyPlanStep step) {
+        List<EmergencyPlanAction> actions = actionRepository.findByStepId(step.getId());
+        for (EmergencyPlanAction action : actions) {
+            action.setStep(step);
+        }
+        step.setActions(actions);
     }
 
     private EmergencyPlanStep readFromCursor(Cursor cursor) {
         EmergencyPlanStep step = new EmergencyPlanStep();
         step.setId(getString(cursor, "id"));
         step.setQuestion(getString(cursor, "question"));
-        step.setAction(getString(cursor, "action"));
-        step.setPhoneNumber(getString(cursor, "phone_number"));
 
         int orderIdx = cursor.getColumnIndexOrThrow("step_order");
         step.setStepOrder(cursor.getInt(orderIdx));

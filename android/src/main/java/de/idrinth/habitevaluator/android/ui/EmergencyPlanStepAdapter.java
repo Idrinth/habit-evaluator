@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.List;
 
 import de.idrinth.habitevaluator.android.R;
+import de.idrinth.habitevaluator.shared.model.EmergencyPlanAction;
 import de.idrinth.habitevaluator.shared.model.EmergencyPlanStep;
 
 public class EmergencyPlanStepAdapter extends RecyclerView.Adapter<EmergencyPlanStepAdapter.ViewHolder> {
@@ -49,24 +50,43 @@ public class EmergencyPlanStepAdapter extends RecyclerView.Adapter<EmergencyPlan
         holder.stepNumber.setText(
                 holder.itemView.getContext().getString(R.string.emergency_plan_step_label, position + 1));
         holder.stepQuestion.setText(step.getQuestion());
-        holder.stepAction.setText(
-                holder.itemView.getContext().getString(R.string.emergency_plan_action_label, step.getAction()));
 
-        if (step.getPhoneNumber() != null && !step.getPhoneNumber().isEmpty()) {
-            holder.phoneContainer.setVisibility(View.VISIBLE);
-            holder.stepPhoneNumber.setText(step.getPhoneNumber());
-            holder.callButton.setOnClickListener(v -> {
-                if (listener != null) {
-                    listener.onCallPhone(step.getPhoneNumber());
+        // Clear previous action views and populate with current actions
+        holder.actionsContainer.removeAllViews();
+        List<EmergencyPlanAction> actions = step.getActions();
+        if (actions != null) {
+            for (EmergencyPlanAction action : actions) {
+                View actionView = LayoutInflater.from(holder.itemView.getContext())
+                        .inflate(R.layout.item_emergency_plan_action, holder.actionsContainer, false);
+
+                TextView actionText = actionView.findViewById(R.id.actionText);
+                actionText.setText(holder.itemView.getContext().getString(
+                        R.string.emergency_plan_action_label, action.getActionText()));
+
+                LinearLayout phoneContainer = actionView.findViewById(R.id.actionPhoneContainer);
+                if (action.getPhoneNumber() != null && !action.getPhoneNumber().isEmpty()) {
+                    phoneContainer.setVisibility(View.VISIBLE);
+                    TextView phoneNumber = actionView.findViewById(R.id.actionPhoneNumber);
+                    phoneNumber.setText(action.getPhoneNumber());
+
+                    Button callButton = actionView.findViewById(R.id.actionCallButton);
+                    callButton.setOnClickListener(v -> {
+                        if (listener != null) {
+                            listener.onCallPhone(action.getPhoneNumber());
+                        }
+                    });
+                    Button copyButton = actionView.findViewById(R.id.actionCopyButton);
+                    copyButton.setOnClickListener(v -> {
+                        if (listener != null) {
+                            listener.onCopyPhone(action.getPhoneNumber());
+                        }
+                    });
+                } else {
+                    phoneContainer.setVisibility(View.GONE);
                 }
-            });
-            holder.copyButton.setOnClickListener(v -> {
-                if (listener != null) {
-                    listener.onCopyPhone(step.getPhoneNumber());
-                }
-            });
-        } else {
-            holder.phoneContainer.setVisibility(View.GONE);
+
+                holder.actionsContainer.addView(actionView);
+            }
         }
 
         holder.moveUpButton.setVisibility(position > 0 ? View.VISIBLE : View.INVISIBLE);
@@ -97,11 +117,7 @@ public class EmergencyPlanStepAdapter extends RecyclerView.Adapter<EmergencyPlan
     static class ViewHolder extends RecyclerView.ViewHolder {
         final TextView stepNumber;
         final TextView stepQuestion;
-        final TextView stepAction;
-        final LinearLayout phoneContainer;
-        final TextView stepPhoneNumber;
-        final Button callButton;
-        final Button copyButton;
+        final LinearLayout actionsContainer;
         final ImageButton moveUpButton;
         final ImageButton moveDownButton;
         final ImageButton deleteStepButton;
@@ -110,11 +126,7 @@ public class EmergencyPlanStepAdapter extends RecyclerView.Adapter<EmergencyPlan
             super(itemView);
             stepNumber = itemView.findViewById(R.id.stepNumber);
             stepQuestion = itemView.findViewById(R.id.stepQuestion);
-            stepAction = itemView.findViewById(R.id.stepAction);
-            phoneContainer = itemView.findViewById(R.id.phoneContainer);
-            stepPhoneNumber = itemView.findViewById(R.id.stepPhoneNumber);
-            callButton = itemView.findViewById(R.id.callButton);
-            copyButton = itemView.findViewById(R.id.copyButton);
+            actionsContainer = itemView.findViewById(R.id.actionsContainer);
             moveUpButton = itemView.findViewById(R.id.moveUpButton);
             moveDownButton = itemView.findViewById(R.id.moveDownButton);
             deleteStepButton = itemView.findViewById(R.id.deleteStepButton);

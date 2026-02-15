@@ -374,6 +374,10 @@
     <string name="emergency_plan_add_step">Ajouter une étape</string>
     <string name="emergency_plan_question_hint">Question Oui/Non (ex. Avez-vous mis plus de 30 min à sortir du lit ?)</string>
     <string name="emergency_plan_action_hint">Action si oui (ex. Nourrir Munnin)</string>
+    <string name="emergency_plan_actions_label">Actions</string>
+    <string name="emergency_plan_add_action">+ Ajouter une autre action</string>
+    <string name="emergency_plan_remove_action">Supprimer l\'action</string>
+    <string name="emergency_plan_no_steps">Aucune étape définie</string>
     <string name="emergency_plan_phone_hint">Numéro de téléphone (facultatif)</string>
     <string name="emergency_plan_step_added">Étape ajoutée</string>
     <string name="emergency_plan_step_deleted">Étape supprimée</string>
@@ -392,4 +396,11 @@
     <string name="emergency_plan_delete_step">Supprimer l\'étape</string>
     <string name="nav_emergency_plan">Urgence</string>
     <string name="diary_navigation_emergency_plan_description">Créez un plan étape par étape avec des questions et des actions pour les situations difficiles</string>
+    <string name="emergency_dialogue_start">Démarrer le dialogue</string>
+    <string name="emergency_dialogue_yes">Oui</string>
+    <string name="emergency_dialogue_no">Non</string>
+    <string name="emergency_dialogue_next">Suivant</string>
+    <string name="emergency_dialogue_finish">Terminer</string>
+    <string name="emergency_dialogue_progress">Question %1$d sur %2$d</string>
+    <string name="emergency_dialogue_complete">Vous avez terminé toutes les étapes.</string>
 </resources>

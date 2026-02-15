@@ -7,7 +7,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class SQLiteHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "habit_evaluator.db";
-    private static final int DATABASE_VERSION = 8;
+    private static final int DATABASE_VERSION = 9;
     private static SQLiteHelper instance;
 
     private SQLiteHelper(Context context) {
@@ -226,13 +226,21 @@ public class SQLiteHelper extends SQLiteOpenHelper {
         db.execSQL("CREATE TABLE emergency_plan_steps ("
                 + "id TEXT PRIMARY KEY,"
                 + "question TEXT NOT NULL,"
-                + "action TEXT NOT NULL,"
-                + "phone_number TEXT,"
                 + "step_order INTEGER NOT NULL,"
                 + "user_id TEXT,"
                 + "user_name TEXT"
                 + ")");
         db.execSQL("CREATE INDEX idx_emergency_plan_steps_user_id ON emergency_plan_steps(user_id)");
+
+        db.execSQL("CREATE TABLE emergency_plan_actions ("
+                + "id TEXT PRIMARY KEY,"
+                + "action_text TEXT NOT NULL,"
+                + "phone_number TEXT,"
+                + "action_order INTEGER NOT NULL,"
+                + "step_id TEXT,"
+                + "FOREIGN KEY (step_id) REFERENCES emergency_plan_steps(id) ON DELETE CASCADE"
+                + ")");
+        db.execSQL("CREATE INDEX idx_emergency_plan_actions_step_id ON emergency_plan_actions(step_id)");
     }
 
     @Override
@@ -341,6 +349,35 @@ public class SQLiteHelper extends SQLiteOpenHelper {
                     + "user_id TEXT,"
                     + "user_name TEXT"
                     + ")");
+            db.execSQL("CREATE INDEX IF NOT EXISTS idx_emergency_plan_steps_user_id ON emergency_plan_steps(user_id)");
+        }
+        if (oldVersion < 9) {
+            // Create the new actions table
+            db.execSQL("CREATE TABLE IF NOT EXISTS emergency_plan_actions ("
+                    + "id TEXT PRIMARY KEY,"
+                    + "action_text TEXT NOT NULL,"
+                    + "phone_number TEXT,"
+                    + "action_order INTEGER NOT NULL,"
+                    + "step_id TEXT,"
+                    + "FOREIGN KEY (step_id) REFERENCES emergency_plan_steps(id) ON DELETE CASCADE"
+                    + ")");
+            db.execSQL("CREATE INDEX IF NOT EXISTS idx_emergency_plan_actions_step_id ON emergency_plan_actions(step_id)");
+            // Migrate existing action/phone_number data from steps into the new actions table
+            db.execSQL("INSERT INTO emergency_plan_actions (id, action_text, phone_number, action_order, step_id) "
+                    + "SELECT lower(hex(randomblob(4)) || '-' || hex(randomblob(2)) || '-' || hex(randomblob(2)) || '-' || hex(randomblob(2)) || '-' || hex(randomblob(6))), "
+                    + "action, phone_number, 0, id FROM emergency_plan_steps WHERE action IS NOT NULL");
+            // Recreate emergency_plan_steps without the action and phone_number columns
+            db.execSQL("CREATE TABLE IF NOT EXISTS emergency_plan_steps_new ("
+                    + "id TEXT PRIMARY KEY,"
+                    + "question TEXT NOT NULL,"
+                    + "step_order INTEGER NOT NULL,"
+                    + "user_id TEXT,"
+                    + "user_name TEXT"
+                    + ")");
+            db.execSQL("INSERT INTO emergency_plan_steps_new (id, question, step_order, user_id, user_name) "
+                    + "SELECT id, question, step_order, user_id, user_name FROM emergency_plan_steps");
+            db.execSQL("DROP TABLE emergency_plan_steps");
+            db.execSQL("ALTER TABLE emergency_plan_steps_new RENAME TO emergency_plan_steps");
             db.execSQL("CREATE INDEX IF NOT EXISTS idx_emergency_plan_steps_user_id ON emergency_plan_steps(user_id)");
         }
     }

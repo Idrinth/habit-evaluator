@@ -2,6 +2,9 @@ package de.idrinth.habitevaluator.shared.model;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class EmergencyPlanStepTest {
@@ -14,22 +17,13 @@ class EmergencyPlanStepTest {
     }
 
     @Test
-    void testThreeArgConstructor() {
-        EmergencyPlanStep step = new EmergencyPlanStep("Are you tired?", "Take a nap", 0);
+    void testTwoArgConstructor() {
+        EmergencyPlanStep step = new EmergencyPlanStep("Are you tired?", 0);
         assertEquals("Are you tired?", step.getQuestion());
-        assertEquals("Take a nap", step.getAction());
         assertEquals(0, step.getStepOrder());
-        assertNull(step.getPhoneNumber());
         assertNotNull(step.getId());
-    }
-
-    @Test
-    void testFourArgConstructor() {
-        EmergencyPlanStep step = new EmergencyPlanStep("Need help?", "Call support", "+491234567890", 1);
-        assertEquals("Need help?", step.getQuestion());
-        assertEquals("Call support", step.getAction());
-        assertEquals("+491234567890", step.getPhoneNumber());
-        assertEquals(1, step.getStepOrder());
+        assertNotNull(step.getActions());
+        assertTrue(step.getActions().isEmpty());
     }
 
     @Test
@@ -44,27 +38,6 @@ class EmergencyPlanStepTest {
         EmergencyPlanStep step = new EmergencyPlanStep();
         step.setQuestion("Did it take more than 30min to get out of bed?");
         assertEquals("Did it take more than 30min to get out of bed?", step.getQuestion());
-    }
-
-    @Test
-    void testSetAction() {
-        EmergencyPlanStep step = new EmergencyPlanStep();
-        step.setAction("Feed Munnin");
-        assertEquals("Feed Munnin", step.getAction());
-    }
-
-    @Test
-    void testSetPhoneNumber() {
-        EmergencyPlanStep step = new EmergencyPlanStep();
-        step.setPhoneNumber("+49123456");
-        assertEquals("+49123456", step.getPhoneNumber());
-    }
-
-    @Test
-    void testSetPhoneNumberNull() {
-        EmergencyPlanStep step = new EmergencyPlanStep("Q", "A", "+49123", 0);
-        step.setPhoneNumber(null);
-        assertNull(step.getPhoneNumber());
     }
 
     @Test
@@ -86,6 +59,47 @@ class EmergencyPlanStepTest {
     void testUserDefaultNull() {
         EmergencyPlanStep step = new EmergencyPlanStep();
         assertNull(step.getUser());
+    }
+
+    @Test
+    void testActionsDefaultEmpty() {
+        EmergencyPlanStep step = new EmergencyPlanStep();
+        assertNotNull(step.getActions());
+        assertTrue(step.getActions().isEmpty());
+    }
+
+    @Test
+    void testSetActions() {
+        EmergencyPlanStep step = new EmergencyPlanStep();
+        List<EmergencyPlanAction> actions = new ArrayList<>();
+        actions.add(new EmergencyPlanAction("Action 1", 0));
+        actions.add(new EmergencyPlanAction("Action 2", 1));
+        step.setActions(actions);
+        assertEquals(2, step.getActions().size());
+    }
+
+    @Test
+    void testAddAction() {
+        EmergencyPlanStep step = new EmergencyPlanStep("Question?", 0);
+        EmergencyPlanAction action = new EmergencyPlanAction("Feed Munnin", 0);
+        step.addAction(action);
+
+        assertEquals(1, step.getActions().size());
+        assertSame(action, step.getActions().get(0));
+        assertSame(step, action.getStep());
+    }
+
+    @Test
+    void testAddMultipleActions() {
+        EmergencyPlanStep step = new EmergencyPlanStep("Question?", 0);
+        EmergencyPlanAction action1 = new EmergencyPlanAction("Action 1", 0);
+        EmergencyPlanAction action2 = new EmergencyPlanAction("Action 2", "+49123", 1);
+        step.addAction(action1);
+        step.addAction(action2);
+
+        assertEquals(2, step.getActions().size());
+        assertSame(step, action1.getStep());
+        assertSame(step, action2.getStep());
     }
 
     @Test

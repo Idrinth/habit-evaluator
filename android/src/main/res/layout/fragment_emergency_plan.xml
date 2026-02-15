@@ -18,6 +18,16 @@
             android:textStyle="bold"
             android:layout_marginBottom="16dp" />
 
+        <!-- Start Dialogue Button -->
+        <Button
+            android:id="@+id/startDialogueButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/emergency_dialogue_start"
+            android:layout_marginBottom="16dp"
+            android:visibility="gone"
+            style="@style/Widget.MaterialComponents.Button" />
+
         <!-- Add Step Section -->
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
@@ -73,21 +83,27 @@
                         android:layout_marginTop="8dp"
                         android:layout_marginBottom="8dp" />
 
-                    <EditText
-                        android:id="@+id/actionInput"
-                        android:layout_width="match_parent"
+                    <TextView
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:hint="@string/emergency_plan_action_hint"
-                        android:inputType="text"
-                        android:layout_marginBottom="8dp" />
+                        android:text="@string/emergency_plan_actions_label"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:layout_marginBottom="4dp" />
 
-                    <EditText
-                        android:id="@+id/phoneInput"
+                    <LinearLayout
+                        android:id="@+id/actionInputsContainer"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:hint="@string/emergency_plan_phone_hint"
-                        android:inputType="phone"
-                        android:layout_marginBottom="8dp" />
+                        android:orientation="vertical" />
+
+                    <Button
+                        android:id="@+id/addActionRowButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/emergency_plan_add_action"
+                        android:layout_marginBottom="8dp"
+                        style="?android:attr/buttonBarButtonStyle" />
 
                     <Button
                         android:id="@+id/addStepButton"
