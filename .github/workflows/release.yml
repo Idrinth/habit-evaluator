@@ -132,7 +132,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ steps.version.outputs.VERSION }}
-          files: android/build/outputs/apk/${{ matrix.flavor }}Release/*.apk
+          files: android/build/outputs/apk/${{ matrix.flavor }}/release/*.apk
 
       - name: Upload AAB release assets (${{ matrix.flavor }})
         uses: softprops/action-gh-release@v2
