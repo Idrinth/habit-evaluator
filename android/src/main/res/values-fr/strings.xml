@@ -374,6 +374,10 @@
     <string name="emergency_plan_add_step">Add Step</string>
     <string name="emergency_plan_question_hint">Yes/No question (e.g. Did it take you more than 30min to get out of bed?)</string>
     <string name="emergency_plan_action_hint">Action to take if yes (e.g. Feed Munnin)</string>
+    <string name="emergency_plan_actions_label">Actions</string>
+    <string name="emergency_plan_add_action">+ Add another action</string>
+    <string name="emergency_plan_remove_action">Remove action</string>
+    <string name="emergency_plan_no_steps">No steps defined yet</string>
     <string name="emergency_plan_phone_hint">Phone number (optional)</string>
     <string name="emergency_plan_step_added">Step added</string>
     <string name="emergency_plan_step_deleted">Step deleted</string>
@@ -392,4 +396,11 @@
     <string name="emergency_plan_delete_step">Delete step</string>
     <string name="nav_emergency_plan">Emergency</string>
     <string name="diary_navigation_emergency_plan_description">Create a step-by-step plan with questions and actions for difficult situations</string>
+    <string name="emergency_dialogue_start">Start Dialogue</string>
+    <string name="emergency_dialogue_yes">Yes</string>
+    <string name="emergency_dialogue_no">No</string>
+    <string name="emergency_dialogue_next">Next</string>
+    <string name="emergency_dialogue_finish">Finish</string>
+    <string name="emergency_dialogue_progress">Question %1$d of %2$d</string>
+    <string name="emergency_dialogue_complete">You have completed all steps.</string>
 </resources>
