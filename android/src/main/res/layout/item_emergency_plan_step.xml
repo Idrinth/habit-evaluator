@@ -30,9 +30,9 @@
 
             <ImageButton
                 android:id="@+id/moveUpButton"
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                android:layout_marginStart="4dp"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:padding="8dp"
                 android:src="@android:drawable/arrow_up_float"
                 android:contentDescription="@string/emergency_plan_move_up"
                 android:background="?attr/selectableItemBackgroundBorderless"
@@ -40,9 +40,9 @@
 
             <ImageButton
                 android:id="@+id/moveDownButton"
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                android:layout_marginStart="4dp"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:padding="8dp"
                 android:src="@android:drawable/arrow_down_float"
                 android:contentDescription="@string/emergency_plan_move_down"
                 android:background="?attr/selectableItemBackgroundBorderless"
@@ -50,9 +50,9 @@
 
             <ImageButton
                 android:id="@+id/deleteStepButton"
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                android:layout_marginStart="4dp"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:padding="8dp"
                 android:src="@android:drawable/ic_menu_delete"
                 android:contentDescription="@string/emergency_plan_delete_step"
                 android:background="?attr/selectableItemBackgroundBorderless"

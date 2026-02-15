@@ -104,12 +104,13 @@ public class EmergencyPlanFragment extends Fragment implements EmergencyPlanStep
         }
 
         User user = MainActivity.getSharedLocalUser();
-        step.setUser(user);
-
         EmergencyPlanStepRepository repository = MainActivity.getSharedEmergencyPlanStepRepository();
-        if (repository != null) {
-            repository.save(step);
+        if (user == null || repository == null) {
+            Toast.makeText(requireContext(), R.string.fill_all_fields, Toast.LENGTH_SHORT).show();
+            return;
         }
+        step.setUser(user);
+        repository.save(step);
 
         binding.questionInput.setText("");
         binding.actionInput.setText("");
