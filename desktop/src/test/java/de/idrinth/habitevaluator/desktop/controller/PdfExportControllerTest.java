@@ -194,9 +194,11 @@ class PdfExportControllerTest extends JavaFXControllerTestBase {
             handleExport.invoke(controller);
         } catch (Exception e) {
             // Expected NPE from statusLabel.getScene().getWindow() when not in a scene
-            assertNotEquals("Select at least one section.", statusLabel.getText());
-            assertNotEquals("Select both dates.", statusLabel.getText());
         }
+
+        // Assertions must run regardless of whether an exception was thrown
+        assertNotEquals("Select at least one section.", statusLabel.getText());
+        assertNotEquals("Select both dates.", statusLabel.getText());
     }
 
     @Test
