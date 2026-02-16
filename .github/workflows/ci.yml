@@ -194,7 +194,14 @@ jobs:
           script: |
             adb install android/build/outputs/apk/oreo/debug/*.apk
             mkdir -p android/build/maestro-coverage
-            for test_file in android/.maestro/*.yaml; do maestro test "$test_file" || true; adb shell am broadcast -a de.idrinth.habitevaluator.android.DUMP_COVERAGE --es coverageFile "/sdcard/coverage_$(basename "$test_file" .yaml).ec"; sleep 1; adb pull "/sdcard/coverage_$(basename "$test_file" .yaml).ec" "android/build/maestro-coverage/" 2>/dev/null || true; done
+            MAESTRO_FAILED=0
+            for test_file in android/.maestro/*.yaml; do
+              maestro test "$test_file" || MAESTRO_FAILED=1
+              adb shell am broadcast -a de.idrinth.habitevaluator.android.DUMP_COVERAGE --es coverageFile "/sdcard/coverage_$(basename "$test_file" .yaml).ec"
+              sleep 1
+              adb pull "/sdcard/coverage_$(basename "$test_file" .yaml).ec" "android/build/maestro-coverage/" 2>/dev/null || true
+            done
+            exit $MAESTRO_FAILED
 
       - name: Generate Maestro coverage report
         run: ./gradlew :android:jacocoMaestroReport
@@ -451,7 +458,7 @@ jobs:
 
   android-release:
     runs-on: ubuntu-latest
-    needs: [android, check-signing]
+    needs: [android, android-maestro, check-signing]
     if: needs.check-signing.outputs.has-secrets == 'true'
     strategy:
       matrix:
