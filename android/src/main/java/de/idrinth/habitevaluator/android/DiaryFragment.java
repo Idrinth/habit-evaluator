@@ -76,8 +76,8 @@ public class DiaryFragment extends Fragment {
 
     private void setupRecyclerView() {
         adapter = new DiaryEntryAdapter(displayedEntries, this::deleteDiaryEntry);
-        binding.diaryRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
-        binding.diaryRecyclerView.setAdapter(adapter);
+        binding.diaryEntriesRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
+        binding.diaryEntriesRecyclerView.setAdapter(adapter);
     }
 
     private void deleteDiaryEntry(DiaryEntry entry) {
