@@ -1,6 +1,8 @@
 package de.idrinth.habitevaluator.android;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -61,7 +63,17 @@ public class StatsFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+        applyModuleVisibility();
         updateCharts();
+    }
+
+    private void applyModuleVisibility() {
+        SharedPreferences prefs = requireContext().getSharedPreferences(
+                SettingsActivity.PREFS_NAME, Context.MODE_PRIVATE);
+        boolean pdfExportVisible = prefs.getBoolean(
+                SettingsActivity.KEY_MODULE_PDF_EXPORT_VISIBLE, true);
+        binding.exportPdfButton.setVisibility(
+                pdfExportVisible ? View.VISIBLE : View.GONE);
     }
 
     private void updateCharts() {
