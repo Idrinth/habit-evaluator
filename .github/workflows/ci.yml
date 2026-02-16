@@ -278,8 +278,10 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Build
+      - name: Build with coverage instrumentation
         run: npm run build
+        env:
+          VITE_COVERAGE: 'true'
 
       - name: Run Cypress E2E tests
         run: npx start-server-and-test 'npm run preview' http://localhost:4173 'npx cypress run'
@@ -290,8 +292,23 @@ jobs:
           name: ${{ matrix.project }}-build
           path: ${{ matrix.project }}/build/
 
+      - name: Upload E2E coverage report
+        uses: actions/upload-artifact@v6
+        if: always()
+        with:
+          name: ${{ matrix.project }}-e2e-coverage-report
+          path: ${{ matrix.project }}/coverage-cypress/
+
+      - name: Coveralls - ${{ matrix.project }} E2E
+        uses: coverallsapp/github-action@v2
+        if: always()
+        with:
+          flag-name: ${{ matrix.project }}-e2e
+          parallel: true
+          file: ${{ matrix.project }}/coverage-cypress/lcov.info
+
   coveralls-finish:
-    needs: [java, android, website-test, homepage-test]
+    needs: [java, android, website-test, homepage-test, e2e]
     if: always()
     runs-on: ubuntu-latest
     steps:
@@ -299,7 +316,7 @@ jobs:
         uses: coverallsapp/github-action@v2
         with:
           parallel-finished: true
-          carryforward: "shared,webserver,desktop,android,website,homepage"
+          carryforward: "shared,webserver,desktop,android,website,homepage,website-e2e,homepage-e2e"
 
   desktop-deb:
     needs: java

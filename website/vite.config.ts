@@ -1,5 +1,6 @@
 import { sveltekit } from '@sveltejs/kit/vite';
 import { defineConfig } from 'vitest/config';
+import istanbul from 'vite-plugin-istanbul';
 import { readFileSync } from 'fs';
 
 const pkg = JSON.parse(readFileSync('package.json', 'utf-8'));
@@ -8,7 +9,16 @@ export default defineConfig({
 	define: {
 		__APP_VERSION__: JSON.stringify(pkg.version)
 	},
-	plugins: [sveltekit()],
+	plugins: [
+		sveltekit(),
+		istanbul({
+			include: 'src/*',
+			exclude: ['node_modules', 'cypress', 'src/tests'],
+			extension: ['.ts', '.svelte'],
+			requireEnv: true,
+			forceBuildInstrument: true
+		})
+	],
 	server: {
 		proxy: {
 			'/api': {

@@ -1,0 +1,7 @@
+{
+  "report-dir": "coverage-cypress",
+  "reporter": ["text", "lcov"],
+  "all": false,
+  "include": ["src/**/*.ts", "src/**/*.svelte"],
+  "exclude": ["src/tests/**", "cypress/**"]
+}
