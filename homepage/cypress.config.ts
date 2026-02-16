@@ -1,4 +1,5 @@
 import { defineConfig } from 'cypress';
+import codeCoverageTask from '@cypress/code-coverage/task';
 
 export default defineConfig({
 	e2e: {
@@ -6,6 +7,10 @@ export default defineConfig({
 		supportFile: 'cypress/support/e2e.ts',
 		specPattern: 'cypress/e2e/**/*.cy.ts',
 		video: false,
-		screenshotOnRunFailure: false
+		screenshotOnRunFailure: false,
+		setupNodeEvents(on, config) {
+			codeCoverageTask(on, config);
+			return config;
+		}
 	}
 });

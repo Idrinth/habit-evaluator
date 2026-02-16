@@ -1,8 +1,18 @@
 import { sveltekit } from '@sveltejs/kit/vite';
 import { defineConfig } from 'vitest/config';
+import istanbul from 'vite-plugin-istanbul';
 
 export default defineConfig({
-	plugins: [sveltekit()],
+	plugins: [
+		sveltekit(),
+		istanbul({
+			include: 'src/*',
+			exclude: ['node_modules', 'cypress', 'src/tests'],
+			extension: ['.ts', '.svelte'],
+			requireEnv: true,
+			forceBuildInstrument: true
+		})
+	],
 	test: {
 		include: ['src/**/*.test.ts'],
 		environment: 'jsdom',

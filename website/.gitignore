@@ -4,3 +4,6 @@ build
 cypress/videos
 cypress/screenshots
 cypress/downloads
+coverage
+coverage-cypress
+.nyc_output
