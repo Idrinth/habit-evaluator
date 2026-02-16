@@ -249,6 +249,7 @@ public class MainActivity extends AppCompatActivity {
     private SleepEntryRepository sleepEntryRepository;
     private List<SleepEntry> sleepEntries = new ArrayList<>();
     private boolean isProgrammaticNavigation = false;
+    private boolean isSyncingBottomNav = false;
     private final BackupService backupServiceInstance = new BackupService();
 
     @Override
@@ -317,6 +318,7 @@ public class MainActivity extends AppCompatActivity {
         binding.viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
             @Override
             public void onPageSelected(int position) {
+                isSyncingBottomNav = true;
                 switch (position) {
                     case ScreenPagerAdapter.PAGE_EDIT_HABITS:
                         if (isProgrammaticNavigation) {
@@ -417,6 +419,11 @@ public class MainActivity extends AppCompatActivity {
                         break;
                     case ScreenPagerAdapter.PAGE_DIARY:
                         binding.bottomNavigation.setSelectedItemId(R.id.nav_diary);
+                        androidx.fragment.app.Fragment diaryFrag = getSupportFragmentManager()
+                                .findFragmentByTag("f" + ScreenPagerAdapter.PAGE_DIARY);
+                        if (diaryFrag instanceof DiaryNavigationFragment) {
+                            ((DiaryNavigationFragment) diaryFrag).scrollToTop();
+                        }
                         break;
                     case ScreenPagerAdapter.PAGE_SLEEP:
                         binding.bottomNavigation.setSelectedItemId(R.id.nav_sleep);
@@ -432,6 +439,7 @@ public class MainActivity extends AppCompatActivity {
                         binding.bottomNavigation.setSelectedItemId(R.id.nav_emotions);
                         break;
                 }
+                isSyncingBottomNav = false;
             }
         });
     }
@@ -460,6 +468,9 @@ public class MainActivity extends AppCompatActivity {
             return false;
         });
         binding.bottomNavigation.setOnItemReselectedListener(item -> {
+            if (isSyncingBottomNav) {
+                return;
+            }
             int id = item.getItemId();
             if (id == R.id.nav_home) {
                 binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_HOME, true);
