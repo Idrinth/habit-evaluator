@@ -21,7 +21,9 @@ name: "Complete navigation flow through all pages without crash"
 - assertVisible: "Sport Log"
 - assertVisible: "Food Log"
 - assertVisible: "Medication Log"
-- assertVisible: "Your Medications"
+- scrollUntilVisible:
+    element:
+      text: "Your Medications"
 
 # Sleep
 - tapOn:
