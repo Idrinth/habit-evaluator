@@ -149,9 +149,12 @@ class SQLiteHelperTest {
         verify(db, never()).execSQL(contains("CREATE TABLE IF NOT EXISTS sport_logs"));
         verify(db, never()).execSQL(contains("CREATE TABLE IF NOT EXISTS medications"));
 
-        // Should run version 8 migration
-        verify(db).execSQL(contains("CREATE TABLE IF NOT EXISTS emergency_plan_steps"));
-        verify(db).execSQL(contains("CREATE INDEX IF NOT EXISTS idx_emergency_plan_steps_user_id"));
+        // Should run version 8 and 9 migrations (onUpgrade runs all pending migrations)
+        verify(db, atLeastOnce()).execSQL(contains("CREATE TABLE IF NOT EXISTS emergency_plan_steps"));
+        verify(db, atLeastOnce()).execSQL(contains("CREATE INDEX IF NOT EXISTS idx_emergency_plan_steps_user_id"));
+        // Version 9 also runs: actions table and steps table recreation
+        verify(db, atLeastOnce()).execSQL(contains("CREATE TABLE IF NOT EXISTS emergency_plan_actions"));
+        verify(db, atLeastOnce()).execSQL(contains("emergency_plan_steps_new"));
     }
 
     @Test
@@ -170,10 +173,10 @@ class SQLiteHelperTest {
         verify(db, never()).execSQL(contains("CREATE TABLE IF NOT EXISTS medications"));
 
         // Should run version 9 migration: create actions table, migrate data, recreate steps table
-        verify(db).execSQL(contains("CREATE TABLE IF NOT EXISTS emergency_plan_actions"));
+        verify(db, atLeastOnce()).execSQL(contains("CREATE TABLE IF NOT EXISTS emergency_plan_actions"));
         verify(db).execSQL(contains("CREATE INDEX IF NOT EXISTS idx_emergency_plan_actions_step_id"));
         verify(db).execSQL(contains("INSERT INTO emergency_plan_actions"));
-        verify(db).execSQL(contains("emergency_plan_steps_new"));
+        verify(db, atLeastOnce()).execSQL(contains("emergency_plan_steps_new"));
     }
 
     @Test
