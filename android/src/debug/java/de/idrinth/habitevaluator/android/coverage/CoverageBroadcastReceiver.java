@@ -13,8 +13,9 @@ import java.lang.reflect.Method;
 
 /**
  * Debug-only broadcast receiver that dumps JaCoCo execution data to the app's
- * external files directory, which requires no storage permissions and is
- * accessible via adb pull on all API levels.
+ * internal files directory, accessible via {@code adb exec-out run-as <package>}
+ * on debuggable builds across all API levels (including API 30+ where scoped
+ * storage restricts adb pull from external storage).
  * Triggered via: adb shell am broadcast -a de.idrinth.habitevaluator.android.DUMP_COVERAGE
  *                --es coverageFile coverage.ec
  */
@@ -29,12 +30,12 @@ public class CoverageBroadcastReceiver extends BroadcastReceiver {
         if (coverageFileName == null || coverageFileName.isEmpty()) {
             coverageFileName = DEFAULT_COVERAGE_FILENAME;
         }
-        File externalDir = context.getExternalFilesDir(null);
-        if (externalDir == null) {
-            Log.e(TAG, "External files directory not available");
+        File internalDir = context.getFilesDir();
+        if (internalDir == null) {
+            Log.e(TAG, "Internal files directory not available");
             return;
         }
-        File coverageFile = new File(externalDir, coverageFileName);
+        File coverageFile = new File(internalDir, coverageFileName);
         dumpCoverage(coverageFile);
     }
 
