@@ -15,7 +15,9 @@ name: "Bottom navigation tabs are reachable"
 - assertVisible: "Sport Log"
 - assertVisible: "Food Log"
 - assertVisible: "Medication Log"
-- assertVisible: "Your Medications"
+- scrollUntilVisible:
+    element:
+      text: "Your Medications"
 
 # Sleep tab
 - tapOn:
