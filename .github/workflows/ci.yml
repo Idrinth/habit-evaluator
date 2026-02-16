@@ -194,15 +194,7 @@ jobs:
           script: |
             adb install android/build/outputs/apk/oreo/debug/*.apk
             mkdir -p android/build/maestro-coverage
-            for test_file in android/.maestro/*.yaml; do
-              maestro test "$test_file" || true
-              adb shell am broadcast \
-                -a de.idrinth.habitevaluator.android.DUMP_COVERAGE \
-                --es coverageFile "/sdcard/coverage_$(basename "$test_file" .yaml).ec"
-              sleep 1
-              adb pull "/sdcard/coverage_$(basename "$test_file" .yaml).ec" \
-                "android/build/maestro-coverage/" 2>/dev/null || true
-            done
+            for test_file in android/.maestro/*.yaml; do maestro test "$test_file" || true; adb shell am broadcast -a de.idrinth.habitevaluator.android.DUMP_COVERAGE --es coverageFile "/sdcard/coverage_$(basename "$test_file" .yaml).ec"; sleep 1; adb pull "/sdcard/coverage_$(basename "$test_file" .yaml).ec" "android/build/maestro-coverage/" 2>/dev/null || true; done
 
       - name: Generate Maestro coverage report
         run: ./gradlew :android:jacocoMaestroReport
