@@ -120,7 +120,10 @@ name: "Complete navigation flow through all pages without crash"
     id: "addHabitButton"
 - tapOn:
     id: "addHabitButton"
-- assertVisible: "Add Habit"
+- scrollUntilVisible:
+    element:
+      text: "Add Habit"
+    timeout: 10000
 
 # Add Emotion Pair from Emotions
 - tapOn: "Emotions"

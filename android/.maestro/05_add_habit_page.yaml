@@ -8,8 +8,13 @@ name: "Add Habit page is reachable"
 
 # Home tab should show Add Habit button
 - assertVisible: "Home"
+- assertVisible:
+    id: "addHabitButton"
 - tapOn:
     id: "addHabitButton"
-- assertVisible: "Add Habit"
+- scrollUntilVisible:
+    element:
+      text: "Add Habit"
+    timeout: 10000
 - assertVisible:
     id: "habitNameInput"

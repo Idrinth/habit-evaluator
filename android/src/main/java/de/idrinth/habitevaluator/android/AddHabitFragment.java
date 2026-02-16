@@ -45,6 +45,7 @@ public class AddHabitFragment extends Fragment {
     private FragmentAddHabitBinding binding;
     private List<HabitCategory> categoryList = new ArrayList<>();
     private final Map<String, String> categoryDisplayNameToId = new LinkedHashMap<>();
+    private boolean ignoreCategorySelection;
 
     @Nullable
     @Override
@@ -115,6 +116,7 @@ public class AddHabitFragment extends Fragment {
         ArrayAdapter<String> createAdapter = new ArrayAdapter<>(requireContext(),
                 android.R.layout.simple_spinner_item, categoryNames);
         createAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        ignoreCategorySelection = true;
         binding.categorySpinner.setAdapter(createAdapter);
         if (!categoryList.isEmpty()) {
             binding.categorySpinner.setSelection(1);
@@ -122,6 +124,10 @@ public class AddHabitFragment extends Fragment {
         binding.categorySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if (ignoreCategorySelection) {
+                    ignoreCategorySelection = false;
+                    return;
+                }
                 String selected = (String) parent.getItemAtPosition(position);
                 if (getString(R.string.new_category).equals(selected)) {
                     showNewCategoryDialog();
