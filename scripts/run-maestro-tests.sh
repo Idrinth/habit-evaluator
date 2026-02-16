@@ -18,7 +18,12 @@ EC_FILE="android/build/maestro-coverage/coverage_$1.ec"
 # Use base64 encoding for extraction to avoid binary data corruption
 # through the adb exec-out pipe (raw binary piping can lose or mangle
 # bytes containing null or control characters on some adb versions).
-ENCODED=$(adb exec-out run-as "$PACKAGE" base64 "files/coverage_$1.ec" 2>/dev/null)
+# Filter output: strip \r (injected by some adb versions) and drop any
+# non-base64 lines (e.g. linker warnings, run-as messages) that the
+# device may emit to stdout before the actual data.
+ENCODED=$(adb exec-out run-as "$PACKAGE" base64 "files/coverage_$1.ec" 2>/dev/null \
+  | tr -d '\r' \
+  | grep -E '^[A-Za-z0-9+/=]+$')
 
 if [ -n "$ENCODED" ]; then
     echo "$ENCODED" | base64 -d > "$EC_FILE" 2>/dev/null
