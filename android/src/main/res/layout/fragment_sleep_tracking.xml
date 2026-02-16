@@ -9,7 +9,7 @@
         android:id="@+id/sleepTrackingTitle"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="@string/sleep_tracking"
+        android:text="@string/sleep_tracking_title"
         android:textSize="22sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toStartOf="@id/viewAnalysisButton"
