@@ -6,7 +6,7 @@ A privacy-focused, multi-platform habit tracker for analyzing and evaluating hab
 **Version:** 0.1.0-SNAPSHOT
 **License:** MIT (Bjorn Buttner)
 **Java:** 17
-**Build System:** Gradle 8.5 (wrapper)
+**Build System:** Gradle 9.3.1 (wrapper)
 
 ## Project Structure
 
@@ -26,7 +26,7 @@ habit-evaluator/
 ├── compose.yml          # Docker Compose (MariaDB + webserver + website + homepage + nginx)
 ├── crowdin.yml          # Crowdin localization configuration
 ├── CONTRIBUTING.md      # Contribution guidelines
-└── gradle/wrapper/      # Gradle 8.5 wrapper
+└── gradle/wrapper/      # Gradle 9.3.1 wrapper
 ```
 
 ## Modules
@@ -35,9 +35,9 @@ habit-evaluator/
 
 Core library consumed by all platform modules. Uses JPMS (`module-info.java`) and opens model package to Hibernate for reflection and backup package to GSON for serialization.
 
-- **Models:** `Habit`, `HabitEntry`, `User`, `HabitCategory`, `Evaluation`, `ScoringRule`, `WeeklyScore`, `HabitScore`, `PredictedWeeklyScore`, `PredictedHabitScore`, `MagicLink`, `FrequencyType` (enum: DAILY/WEEKLY/MONTHLY), `DiaryEntry`, `DiaryReference`, `EventSignificance` (enum: MINOR/NORMAL/MAJOR), `SleepEntry`, `SleepStats`, `SleepDistribution`, `EmotionEntry`, `EmotionPair`, `EmotionStrengthFormatter`, `EventCorrelation`, `ReminderSettings`, `FoodLog`, `FoodTag`, `SportLog`, `SportLogStats`, `Medication`, `MedicationLog`, `MedicationProvisionType` (enum: PILL/LIQUID_DROPS/LIQUID_ML), `MeetingEntry`, `ModuleVisibility`
+- **Models:** `Habit`, `HabitEntry`, `User`, `HabitCategory`, `Evaluation`, `ScoringRule`, `WeeklyScore`, `HabitScore`, `PredictedWeeklyScore`, `PredictedHabitScore`, `MagicLink`, `FrequencyType` (enum: DAILY/WEEKLY/MONTHLY), `DiaryEntry`, `DiaryReference`, `EventSignificance` (enum: MINOR/NORMAL/MAJOR), `SleepEntry`, `SleepStats`, `SleepDistribution`, `EmotionEntry`, `EmotionPair`, `EmotionStrengthFormatter`, `EventCorrelation`, `ReminderSettings`, `FoodLog`, `FoodTag`, `SportLog`, `SportLogStats`, `Medication`, `MedicationLog`, `MedicationProvisionType` (enum: PILL/LIQUID_DROPS/LIQUID_ML), `MeetingEntry`, `ModuleVisibility`, `EmergencyPlanStep` (question-based steps with ordering), `EmergencyPlanAction` (actions with optional phone numbers)
 - **Services:** `HabitEvaluatorService` (streaks, completion rates, on-track detection, avoidance streaks for negative habits), `HabitScoringService` (point scoring with thresholds 0/1/2/4/8, weekly aggregation, predicted scores), `DiaryService` (day/week/month points, weekly averages, monthly trends, daily averages), `SleepEvaluationService` (sleep stats: avg/min/max hours, weekly/monthly aggregation, overlap detection), `EventCorrelationService` (time-weighted Pearson correlations with proximity boost across habits, diary, sleep, and emotions over past year; returns top 10 by absolute strength), `SportLogService` (sport log statistics and analysis), `DefaultDataInitializer` (42 default habits, 10 categories, 10 emotion pairs with i18n)
-- **Repositories (interfaces):** `HabitRepository`, `UserRepository`, `HabitCategoryRepository`, `ScoringRuleRepository`, `MagicLinkRepository`, `DiaryEntryRepository`, `DiaryReferenceRepository`, `SleepEntryRepository`, `EmotionEntryRepository`, `EmotionPairRepository`, `ReminderSettingsRepository`, `FoodLogRepository`, `FoodTagRepository`, `SportLogRepository`, `MedicationRepository`, `MedicationLogRepository`, `MeetingEntryRepository`, `ModuleVisibilityRepository`
+- **Repositories (interfaces):** `HabitRepository`, `UserRepository`, `HabitCategoryRepository`, `ScoringRuleRepository`, `MagicLinkRepository`, `DiaryEntryRepository`, `DiaryReferenceRepository`, `SleepEntryRepository`, `EmotionEntryRepository`, `EmotionPairRepository`, `ReminderSettingsRepository`, `FoodLogRepository`, `FoodTagRepository`, `SportLogRepository`, `MedicationRepository`, `MedicationLogRepository`, `MeetingEntryRepository`, `ModuleVisibilityRepository`, `EmergencyPlanStepRepository`, `EmergencyPlanActionRepository`
 - **Persistence (shared implementations):** FileSystem repositories (JSON-based via GSON): `FileSystemHabitRepository`, `FileSystemHabitCategoryRepository`, `FileSystemDiaryEntryRepository`, `FileSystemDiaryReferenceRepository`, `FileSystemSleepEntryRepository`, `FileSystemEmotionPairRepository`, `FileSystemEmotionEntryRepository`; In-memory: `InMemoryHabitRepository`, `InMemoryHabitCategoryRepository`
 - **Localization:** `Localizer` service — YAML-based i18n loaded from classpath `localization/{lang}.yml`. Resolution: module.key (requested lang) -> module.key (English) -> general.key (requested lang) -> general.key (English) -> literal fallback. Uses concurrent caching. `ResourceStreamProvider` for classpath resource loading.
 - **API client:** `ApiClient` (with `maskBugfixVersion()` for version compatibility), `RemoteHabitRepository`, `RemoteUserRepository`, `StorageConfig` (with ThemeMode enum: SYSTEM/LIGHT/DARK), `SyncData`, `SyncService`, `CircuitBreaker` for resilient client-server communication and bidirectional sync, `VersionMismatchException`
@@ -79,14 +79,14 @@ JavaFX 21.0.2 application with JPMS module system.
 Android application (SDK 35, min 21/26/33).
 
 - **Namespace:** `de.idrinth.habitevaluator.android`
-- **Activities:** `MainActivity` (launcher with bottom navigation and fragment tabs), `SettingsActivity`, `PdfExportActivity`, `SleepAnalysisActivity`, `CorrelationActivity`
-- **Fragments:** `HomeFragment`, `EditHabitsFragment`, `AddHabitFragment`, `DiaryFragment`, `DiaryNavigationFragment`, `SleepTrackingFragment`, `StatsFragment`, `PointDevelopmentFragment`, `EmotionalStateFragment`, `RecordEmotionEntryFragment`, `AddEmotionPairFragment`, `ImprintFragment`, `SettingsFragment`, `FoodLogFragment`, `SportLogFragment`, `MedicationListFragment`, `MedicationLogFragment`
-- **UI Adapters:** `HabitAdapter`, `EditHabitAdapter`, `DiaryEntryAdapter`, `SleepEntryAdapter`, `EmotionPairAdapter`, `EmotionDataAdapter`, `FoodLogAdapter`, `SportLogAdapter`, `MedicationAdapter`, `MedicationLogAdapter`, `ScreenPagerAdapter`
+- **Activities:** `MainActivity` (launcher with bottom navigation and fragment tabs), `SettingsActivity`, `PdfExportActivity`, `SleepAnalysisActivity`, `CorrelationActivity`, `EmergencyDialogueActivity` (step-by-step emergency plan walkthrough)
+- **Fragments:** `HomeFragment`, `EditHabitsFragment`, `AddHabitFragment`, `DiaryFragment`, `DiaryNavigationFragment`, `SleepTrackingFragment`, `StatsFragment`, `PointDevelopmentFragment`, `EmotionalStateFragment`, `RecordEmotionEntryFragment`, `AddEmotionPairFragment`, `ImprintFragment`, `SettingsFragment`, `FoodLogFragment`, `SportLogFragment`, `MedicationListFragment`, `MedicationLogFragment`, `EmergencyPlanFragment` (emergency plan step management)
+- **UI Adapters:** `HabitAdapter`, `EditHabitAdapter`, `DiaryEntryAdapter`, `SleepEntryAdapter`, `EmotionPairAdapter`, `EmotionDataAdapter`, `FoodLogAdapter`, `SportLogAdapter`, `MedicationAdapter`, `MedicationLogAdapter`, `ScreenPagerAdapter`, `EmergencyPlanStepAdapter`
 - **Chart Views:** `PointChartView`, `SleepGraphView`, `EmotionLineChartView`, `EmotionScatterChartView` (custom Android views)
 - **Utilities:** `FontSizeHelper`, `ViewPager2SwipeSensitivityReducer`, `GsonSerializers`
 - **Reminders:** `ReminderScheduler`, `ReminderReceiver` (broadcast receiver for boot-completed and reminder intents)
 - **Permission Handlers:** `Api33PermissionHandler` (Android 13+), `PreApi33PermissionHandler`, `NotificationPermissionHandler`
-- **Persistence (SQLite):** `SQLiteHabitRepository`, `SQLiteHabitCategoryRepository`, `SQLiteDiaryEntryRepository`, `SQLiteDiaryReferenceRepository`, `SQLiteSleepEntryRepository`, `SQLiteEmotionPairRepository`, `SQLiteEmotionEntryRepository`, `SQLiteFoodLogRepository`, `SQLiteFoodTagRepository`, `SQLiteSportLogRepository`, `SQLiteMedicationRepository`, `SQLiteMedicationLogRepository`, `SQLiteHelper`
+- **Persistence (SQLite):** `SQLiteHabitRepository`, `SQLiteHabitCategoryRepository`, `SQLiteDiaryEntryRepository`, `SQLiteDiaryReferenceRepository`, `SQLiteSleepEntryRepository`, `SQLiteEmotionPairRepository`, `SQLiteEmotionEntryRepository`, `SQLiteFoodLogRepository`, `SQLiteFoodTagRepository`, `SQLiteSportLogRepository`, `SQLiteMedicationRepository`, `SQLiteMedicationLogRepository`, `SQLiteEmergencyPlanStepRepository`, `SQLiteEmergencyPlanActionRepository`, `SQLiteHelper`
 - **Migration:** `JsonToSqliteMigration` (migrates from legacy FileSystem to SQLite)
 - **Permissions:** INTERNET, POST_NOTIFICATIONS, RECEIVE_BOOT_COMPLETED, SCHEDULE_EXACT_ALARM (API ≤32)
 - **Build Flavors:** `lollipop` (minSdk 21), `oreo` (minSdk 26), `tiramisu` (minSdk 33) with Core Library Desugaring
@@ -220,6 +220,8 @@ All entities use UUID string IDs (`@Id @Column(length = 36)`).
 - **medication_logs** — id, medication_id (FK), dose (double), taken_at, notes (500), created_at, user_id (FK)
 - **meeting_entries** — id, place, attendants (1000), start_time, end_time, date, created_at, user_id (FK)
 - **module_visibility** — id, user_id (FK, unique, OneToOne), diary_visible, sleep_visible, emotions_visible, points_visible, statistics_visible, food_log_visible, sport_log_visible, medication_visible, backup_visible, pdf_export_visible (all default true)
+- **emergency_plan_steps** — id, question (500), step_order, user_id (FK)
+- **emergency_plan_actions** — id, action_text (500), phone_number (50, nullable), action_order, step_id (FK to emergency_plan_steps)
 
 **Unique constraints:** Habit (name + categoryId + userId), User (username)
 **Cascade:** User -> habits (delete), Habit -> entries (delete), User -> diary_entries (delete), User -> sleep_entries (delete)
@@ -435,14 +437,14 @@ export ANDROID_HOME=/opt/android-sdk
 kill $LOCAL_PROXY_PID 2>/dev/null
 ```
 
-**Note:** The Gradle wrapper download (`gradle-8.14.3-bin.zip`) also needs network access. If the wrapper fails to download through the proxy, download it manually with curl (which respects `http_proxy`/`https_proxy` env vars) into the wrapper cache directory:
+**Note:** The Gradle wrapper download (`gradle-9.3.1-bin.zip`) also needs network access. If the wrapper fails to download through the proxy, download it manually with curl (which respects `http_proxy`/`https_proxy` env vars) into the wrapper cache directory:
 
 ```bash
 # Find the wrapper cache dir (created after the first failed attempt)
 WRAPPER_DIR=$(ls -d ~/.gradle/wrapper/dists/gradle-*/*/gradle-*.zip.lck 2>/dev/null | head -1 | xargs dirname)
-curl -fsSL -o "$WRAPPER_DIR/gradle-8.14.3-bin.zip" \
-  "https://services.gradle.org/distributions/gradle-8.14.3-bin.zip"
-cd "$WRAPPER_DIR" && unzip -q gradle-8.14.3-bin.zip && rm -f *.lck *.part
+curl -fsSL -o "$WRAPPER_DIR/gradle-9.3.1-bin.zip" \
+  "https://services.gradle.org/distributions/gradle-9.3.1-bin.zip"
+cd "$WRAPPER_DIR" && unzip -q gradle-9.3.1-bin.zip && rm -f *.lck *.part
 ```
 
 ## Testing
@@ -451,29 +453,33 @@ cd "$WRAPPER_DIR" && unzip -q gradle-8.14.3-bin.zip && rm -f *.lck *.part
 **Frontend Framework:** Vitest 4.0.18, Testing Library (Svelte/user-event), jsdom 28.0.0, Cypress 15.10.0 (E2E)
 
 **Test locations:**
-- `shared/src/test/java/` — 68 test classes:
+- `shared/src/test/java/` — 74 test classes:
   - **Service tests (8):** `HabitEvaluatorServiceTest`, `HabitScoringServiceTest`, `HabitScoringServicePredictionTest`, `DiaryServiceTest`, `SleepEvaluationServiceTest`, `EventCorrelationServiceTest`, `SportLogServiceTest`, `DefaultDataInitializerTest`
-  - **Model tests (32):** `HabitTest`, `HabitEntryTest`, `UserTest`, `HabitCategoryTest`, `ScoringRuleTest`, `WeeklyScoreTest`, `HabitScoreTest`, `PredictedHabitScoreTest`, `PredictedWeeklyScoreTest`, `EvaluationTest`, `MagicLinkTest`, `FrequencyTypeTest`, `DiaryEntryTest`, `DiaryReferenceTest`, `SleepEntryTest`, `SleepStatsTest`, `SleepDistributionTest`, `EmotionEntryTest`, `EmotionPairTest`, `EmotionStrengthFormatterTest`, `EventSignificanceTest`, `EventCorrelationTest`, `ReminderSettingsTest`, `FoodLogTest`, `FoodTagTest`, `SportLogTest`, `SportLogStatsTest`, `MedicationTest`, `MedicationLogTest`, `MedicationProvisionTypeTest`, `MeetingEntryTest`, `ModuleVisibilityTest`
+  - **Model tests (34):** `HabitTest`, `HabitEntryTest`, `UserTest`, `HabitCategoryTest`, `ScoringRuleTest`, `WeeklyScoreTest`, `HabitScoreTest`, `PredictedHabitScoreTest`, `PredictedWeeklyScoreTest`, `EvaluationTest`, `MagicLinkTest`, `FrequencyTypeTest`, `DiaryEntryTest`, `DiaryReferenceTest`, `SleepEntryTest`, `SleepStatsTest`, `SleepDistributionTest`, `EmotionEntryTest`, `EmotionPairTest`, `EmotionStrengthFormatterTest`, `EventSignificanceTest`, `EventCorrelationTest`, `ReminderSettingsTest`, `FoodLogTest`, `FoodTagTest`, `SportLogTest`, `SportLogStatsTest`, `MedicationTest`, `MedicationLogTest`, `MedicationProvisionTypeTest`, `MeetingEntryTest`, `ModuleVisibilityTest`, `EmergencyPlanStepTest`, `EmergencyPlanActionTest`
   - **API/Sync tests (8):** `ApiClientTest`, `SyncDataTest`, `SyncServiceTest`, `StorageConfigTest`, `CircuitBreakerTest`, `RemoteHabitRepositoryTest`, `RemoteUserRepositoryTest`, `VersionMismatchExceptionTest`
   - **Backup tests (7):** `BackupServiceTest`, `HezBackupServiceTest`, `BackupEncryptionServiceTest`, `BackupDataTest`, `BackupExceptionTest`, `MergeResultTest`, `RestoreOptionsTest`
   - **Persistence tests (9):** `FileSystemHabitRepositoryTest`, `FileSystemHabitCategoryRepositoryTest`, `FileSystemDiaryEntryRepositoryTest`, `FileSystemDiaryReferenceRepositoryTest`, `FileSystemSleepEntryRepositoryTest`, `FileSystemEmotionPairRepositoryTest`, `FileSystemEmotionEntryRepositoryTest`, `InMemoryHabitRepositoryTest`, `InMemoryHabitCategoryRepositoryTest`
   - **Localization tests (3):** `LocalizerTest`, `TranslationCompletenessTest`, `ResourceStreamProviderTest`
-  - **Other tests:** `GsonSerializersTest`, `DiaryReferenceRepositoryTest`, `DateRangeUtilsTest`, `PdfDataAggregatorTest`, `ReminderScheduleCalculatorTest`
-- `webserver/src/test/java/` — 45 test classes:
+  - **Other tests (5):** `GsonSerializersTest`, `DiaryReferenceRepositoryTest`, `DateRangeUtilsTest`, `PdfDataAggregatorTest`, `ReminderScheduleCalculatorTest`
+- `webserver/src/test/java/` — 64 test classes:
   - **Controller tests (21):** `AuthControllerTest`, `HabitControllerTest`, `CategoryControllerTest`, `DiaryControllerTest`, `SleepEntryControllerTest`, `EmotionPairControllerTest`, `ScoringRuleControllerTest`, `MagicLinkControllerTest`, `ReminderSettingsControllerTest`, `StatsControllerTest`, `SyncControllerTest`, `PdfExportControllerTest`, `DefaultDataControllerTest`, `BackupControllerTest`, `SecurityConfigTest`, `FoodLogControllerTest`, `SportLogControllerTest`, `MedicationControllerTest`, `MeetingControllerTest`, `ModuleVisibilityControllerTest`, `VersionControllerTest`
-  - **Repository tests (18):** `JpaHabitRepositoryTest`, `JpaUserRepositoryTest`, `JpaDiaryEntryRepositoryTest`, `JpaDiaryReferenceRepositoryTest`, `JpaMagicLinkRepositoryTest`, `JpaScoringRuleRepositoryTest`, `JpaSleepEntryRepositoryTest`, `JpaEmotionEntryRepositoryTest`, `JpaEmotionPairRepositoryTest`, `JpaReminderSettingsRepositoryTest`, `JpaHabitCategoryRepositoryTest`, `JpaFoodLogRepositoryTest`, `JpaFoodTagRepositoryTest`, `JpaSportLogRepositoryTest`, `JpaMedicationRepositoryTest`, `JpaMedicationLogRepositoryTest`, `JpaMeetingEntryRepositoryTest`, `JpaModuleVisibilityRepositoryTest`
-  - **Config tests (2):** `RequestIdFilterTest`, `DataInitializerTest`
+  - **JPA repository tests (18):** `JpaHabitRepositoryTest`, `JpaUserRepositoryTest`, `JpaDiaryEntryRepositoryTest`, `JpaDiaryReferenceRepositoryTest`, `JpaMagicLinkRepositoryTest`, `JpaScoringRuleRepositoryTest`, `JpaSleepEntryRepositoryTest`, `JpaEmotionEntryRepositoryTest`, `JpaEmotionPairRepositoryTest`, `JpaReminderSettingsRepositoryTest`, `JpaHabitCategoryRepositoryTest`, `JpaFoodLogRepositoryTest`, `JpaFoodTagRepositoryTest`, `JpaSportLogRepositoryTest`, `JpaMedicationRepositoryTest`, `JpaMedicationLogRepositoryTest`, `JpaMeetingEntryRepositoryTest`, `JpaModuleVisibilityRepositoryTest`
+  - **Database repository tests (18):** `DatabaseHabitRepositoryTest`, `DatabaseUserRepositoryTest`, `DatabaseDiaryEntryRepositoryTest`, `DatabaseDiaryReferenceRepositoryTest`, `DatabaseMagicLinkRepositoryTest`, `DatabaseScoringRuleRepositoryTest`, `DatabaseSleepEntryRepositoryTest`, `DatabaseEmotionEntryRepositoryTest`, `DatabaseEmotionPairRepositoryTest`, `DatabaseReminderSettingsRepositoryTest`, `DatabaseHabitCategoryRepositoryTest`, `DatabaseFoodLogRepositoryTest`, `DatabaseFoodTagRepositoryTest`, `DatabaseSportLogRepositoryTest`, `DatabaseMedicationRepositoryTest`, `DatabaseMedicationLogRepositoryTest`, `DatabaseMeetingEntryRepositoryTest`, `DatabaseModuleVisibilityRepositoryTest`
+  - **Config tests (3):** `RequestIdFilterTest`, `DataInitializerTest`, `AppConfigTest`
   - **DTO tests (2):** `LoginRequestTest`, `LoginResponseTest`
   - **Other (2):** `HabitEvaluatorWebApplicationTest`, `OpenApiGeneratorTest`
-- `desktop/src/test/java/` — 24 test classes:
-  - **Repository tests (12):** `H2RepositoryTestBase` (shared base), `H2HabitRepositoryTest`, `H2HabitCategoryRepositoryTest`, `H2UserRepositoryTest`, `H2DiaryEntryRepositoryTest`, `H2DiaryReferenceRepositoryTest`, `H2SleepEntryRepositoryTest`, `H2EmotionPairRepositoryTest`, `H2EmotionEntryRepositoryTest`, `H2FoodLogRepositoryTest`, `H2FoodTagRepositoryTest`, `H2SportLogRepositoryTest`
-  - **Controller tests (11):** `JavaFXControllerTestBase` (shared base), `MainControllerTest`, `AddHabitControllerTest`, `SettingsDialogControllerTest`, `SyncDialogControllerTest`, `StatsControllerTest`, `SleepTrackingControllerTest`, `EmotionEntryControllerTest`, `EmotionPairControllerTest`, `PdfExportControllerTest`, `ImprintControllerTest`
-  - **Service tests (1):** `ReminderServiceTest`
-- `android/src/test/java/` — 46 test classes:
-  - **Activity/Fragment tests (22):** `MainActivityTest`, `HomeFragmentTest`, `EditHabitsFragmentTest`, `AddHabitFragmentTest`, `DiaryFragmentTest`, `DiaryNavigationFragmentTest`, `SleepTrackingFragmentTest`, `StatsFragmentTest`, `PointDevelopmentFragmentTest`, `EmotionalStateFragmentTest`, `RecordEmotionEntryFragmentTest`, `AddEmotionPairFragmentTest`, `ImprintFragmentTest`, `SettingsActivityTest`, `SettingsFragmentTest`, `PdfExportActivityTest`, `SleepAnalysisActivityTest`, `CorrelationActivityTest`, `FoodLogFragmentTest`, `SportLogFragmentTest`, `MedicationListFragmentTest`, `MedicationLogFragmentTest`
-  - **Adapter tests (11):** `HabitAdapterTest`, `EditHabitAdapterTest`, `DiaryEntryAdapterTest`, `SleepEntryAdapterTest`, `EmotionPairAdapterTest`, `EmotionDataAdapterTest`, `FoodLogAdapterTest`, `SportLogAdapterTest`, `MedicationAdapterTest`, `MedicationLogAdapterTest`, `ScreenPagerAdapterTest`
-  - **Utility tests (1):** `FontSizeHelperTest`
-  - **Persistence tests (12):** `SQLiteHabitRepositoryTest`, `SQLiteHabitCategoryRepositoryTest`, `SQLiteDiaryEntryRepositoryTest`, `SQLiteDiaryReferenceRepositoryTest`, `SQLiteSleepEntryRepositoryTest`, `SQLiteEmotionPairRepositoryTest`, `SQLiteEmotionEntryRepositoryTest`, `SQLiteFoodLogRepositoryTest`, `SQLiteFoodTagRepositoryTest`, `SQLiteSportLogRepositoryTest`, `SQLiteMedicationRepositoryTest`, `SQLiteMedicationLogRepositoryTest`
+- `desktop/src/test/java/` — 25 test classes:
+  - **Repository tests (13):** `H2HabitRepositoryTest`, `H2HabitCategoryRepositoryTest`, `H2UserRepositoryTest`, `H2DiaryEntryRepositoryTest`, `H2DiaryReferenceRepositoryTest`, `H2SleepEntryRepositoryTest`, `H2EmotionPairRepositoryTest`, `H2EmotionEntryRepositoryTest`, `H2FoodLogRepositoryTest`, `H2FoodTagRepositoryTest`, `H2SportLogRepositoryTest`, `PersistenceManagerTest`, `JpaTransactionHelperTest`
+  - **Controller tests (10):** `MainControllerTest`, `AddHabitControllerTest`, `SettingsDialogControllerTest`, `SyncDialogControllerTest`, `StatsControllerTest`, `SleepTrackingControllerTest`, `EmotionEntryControllerTest`, `EmotionPairControllerTest`, `PdfExportControllerTest`, `ImprintControllerTest`
+  - **Other (2):** `ReminderServiceTest`, `HabitEvaluatorDesktopAppTest`
+  - **Test base classes (2):** `H2RepositoryTestBase`, `JavaFXControllerTestBase`
+- `android/src/test/java/` — 66+ test classes:
+  - **Activity tests (6):** `MainActivityTest`, `SettingsActivityTest`, `PdfExportActivityTest`, `SleepAnalysisActivityTest`, `CorrelationActivityTest`, `EmergencyDialogueActivityTest`
+  - **Fragment tests (19):** `HomeFragmentTest`, `EditHabitsFragmentTest`, `AddHabitFragmentTest`, `DiaryFragmentTest`, `DiaryNavigationFragmentTest`, `SleepTrackingFragmentTest`, `StatsFragmentTest`, `PointDevelopmentFragmentTest`, `EmotionalStateFragmentTest`, `RecordEmotionEntryFragmentTest`, `AddEmotionPairFragmentTest`, `ImprintFragmentTest`, `SettingsFragmentTest`, `FoodLogFragmentTest`, `SportLogFragmentTest`, `MedicationListFragmentTest`, `MedicationLogFragmentTest`, `EmergencyPlanFragmentTest`, `StartupRegressionTest`
+  - **Adapter/View tests (19):** `HabitAdapterTest`, `EditHabitAdapterTest`, `DiaryEntryAdapterTest`, `SleepEntryAdapterTest`, `EmotionPairAdapterTest`, `EmotionDataAdapterTest`, `FoodLogAdapterTest`, `SportLogAdapterTest`, `MedicationAdapterTest`, `MedicationLogAdapterTest`, `ScreenPagerAdapterTest`, `PointChartViewTest`, `SleepGraphViewTest`, `EmotionLineChartViewTest`, `EmotionScatterChartViewTest`, `SleepDistributionViewTest`, `ViewPager2SwipeSensitivityReducerTest`, `AdapterDataConsistencyTest`, `BottomNavigationRegressionTest`
+  - **Persistence tests (14):** `SQLiteHabitRepositoryTest`, `SQLiteHabitCategoryRepositoryTest`, `SQLiteDiaryEntryRepositoryTest`, `SQLiteDiaryReferenceRepositoryTest`, `SQLiteSleepEntryRepositoryTest`, `SQLiteEmotionPairRepositoryTest`, `SQLiteEmotionEntryRepositoryTest`, `SQLiteFoodLogRepositoryTest`, `SQLiteFoodTagRepositoryTest`, `SQLiteSportLogRepositoryTest`, `SQLiteMedicationRepositoryTest`, `SQLiteMedicationLogRepositoryTest`, `SQLiteEmergencyPlanStepRepositoryTest`, `SQLiteEmergencyPlanActionRepositoryTest`
+  - **Utility/Other tests (7+):** `FontSizeHelperTest`, `ReminderSchedulerTest`, `ReminderReceiverTest`, `PreApi33PermissionHandlerTest`, `Api33PermissionHandlerTest`, `NotificationHelperTest`, `JsonToSqliteMigrationTest`
+- `android/.maestro/` — 13 Maestro UI test files (see Maestro Testing section)
 - `website/src/` — 6 test files:
   - `lib/api.test.ts`, `lib/config.test.ts`, `lib/i18n.test.ts`, `routes/login/login.test.ts`, `routes/diary/diary.test.ts`, `routes/categories/add/categories-add.test.ts`
 - `shared/src/test/resources/test-localization/` — German and English YAML test fixtures
@@ -486,11 +492,44 @@ cd "$WRAPPER_DIR" && unzip -q gradle-8.14.3-bin.zip && rm -f *.lck *.part
 - Desktop tests use shared `H2RepositoryTestBase` for JPA setup and `JavaFXControllerTestBase` for controller tests
 - Android tests use JUnit 4 with Mockito 5.11.0
 
+### Maestro UI Tests (Android)
+
+Maestro UI test files at `android/.maestro/` for automated Android emulator testing:
+
+1. `01_first_start_and_home.yaml` — First launch and home screen
+2. `02_bottom_nav_tabs.yaml` — Bottom navigation tab switching
+3. `03_toolbar_buttons.yaml` — Toolbar button interactions
+4. `04_diary_sub_pages.yaml` — Diary section sub-pages
+5. `05_add_habit_page.yaml` — Add habit workflow
+6. `06_add_emotion_pair_page.yaml` — Add emotion pair workflow
+7. `07_sleep_analysis_page.yaml` — Sleep analysis screen
+8. `08_settings_sections.yaml` — Settings sections navigation
+9. `09_imprint_content.yaml` — Imprint/about content
+10. `10_stats_page.yaml` — Statistics dashboard
+11. `11_emergency_plan_page.yaml` — Emergency plan management
+12. `12_sleep_tracking_page.yaml` — Sleep tracking interactions
+13. `13_full_navigation_flow.yaml` — End-to-end navigation flow
+
+Maestro tests run in CI on an Android 30 emulator with KVM acceleration and generate JaCoCo coverage reports.
+
 ## CI/CD
 
 GitHub Actions workflows at `.github/workflows/`:
 
-- **ci.yml** — Primary CI: triggers on push/PR to `the-one`, JDK 17 (Temurin), `./gradlew build`, JaCoCo coverage reports (shared + webserver), parallel jobs for desktop packaging (.deb) and desktop JAR, Android builds for all three flavors (lollipop, oreo, tiramisu), Node.js 22 for website/homepage checks and tests
+- **ci.yml** — Primary CI pipeline: triggers on push/PR to `the-one`. Contains 13 jobs:
+  - **java** — JDK 17 (Temurin), builds shared/webserver/desktop, JaCoCo coverage, Coveralls upload
+  - **android** — JDK 17, debug APKs for all three flavors (lollipop, oreo, tiramisu), unit tests, JaCoCo coverage, Coveralls upload
+  - **android-maestro** — Maestro UI tests on Android emulator (API 30) with coverage collection
+  - **frontend-check** — Matrix job for website and homepage `svelte-check` type checking (Node.js 22)
+  - **website-test** — Website unit tests with coverage, Coveralls upload
+  - **homepage-test** — Homepage unit tests with coverage, Coveralls upload
+  - **e2e** — Matrix Cypress E2E tests for website and homepage with coverage (uses `VITE_COVERAGE=true`)
+  - **desktop-deb** — Linux .deb packaging via jpackage (depends on java)
+  - **desktop-exe** — Windows .exe packaging via jpackage (depends on java)
+  - **check-signing** — Checks for Android keystore secrets availability
+  - **android-release** — Matrix job for signed APK + AAB per flavor (conditional on secrets)
+  - **docker** — Matrix Docker builds to GHCR for webserver, website, homepage (conditional on push, depends on java + e2e + frontend-check)
+  - **coveralls-finish** — Finalizes parallel Coveralls reporting
 - **release.yml** — Release automation: artifact builds (Linux .deb, Windows .exe, Android APK for lollipop/oreo/tiramisu flavors, AAB), Docker builds to GHCR (webserver, website, homepage), signing with environment variables
 - **release-auto-draft.yml** — Automatic draft release creation with semantic versioning
 - **semver-label.yml** — Validates PR semver labels (major/minor/patch)
@@ -507,12 +546,12 @@ GitHub Actions workflows at `.github/workflows/`:
 **Package naming:** `de.idrinth.habitevaluator.[module].[layer]`
 
 **Naming patterns:**
-- Entities: PascalCase (`Habit`, `HabitEntry`, `User`, `DiaryEntry`, `DiaryReference`, `SleepEntry`, `EmotionEntry`, `EmotionPair`, `ReminderSettings`, `FoodLog`, `FoodTag`, `SportLog`, `Medication`, `MedicationLog`, `MeetingEntry`, `ModuleVisibility`)
+- Entities: PascalCase (`Habit`, `HabitEntry`, `User`, `DiaryEntry`, `DiaryReference`, `SleepEntry`, `EmotionEntry`, `EmotionPair`, `ReminderSettings`, `FoodLog`, `FoodTag`, `SportLog`, `Medication`, `MedicationLog`, `MeetingEntry`, `ModuleVisibility`, `EmergencyPlanStep`, `EmergencyPlanAction`)
 - Services: `*Service` (`HabitEvaluatorService`, `DiaryService`, `SleepEvaluationService`, `EventCorrelationService`, `SportLogService`, `BackupService`, `SyncService`, `ReminderService`)
 - Repositories: `*Repository` (interface), `Database*Repository` (Spring Data wrapper), `H2*Repository` (desktop), `FileSystem*Repository` (shared, JSON-based), `SQLite*Repository` (Android), `InMemory*Repository` (shared, testing)
 - Controllers: `*Controller` (`HabitController`, `AuthController`, `CategoryController`, `StatsController`, `PdfExportController`, `BackupController`, `ReminderSettingsController`, `FoodLogController`, `SportLogController`, `MedicationController`, `MeetingController`, `ModuleVisibilityController`, `VersionController`)
-- Fragments (Android): `*Fragment` (`DiaryFragment`, `SleepTrackingFragment`, `EditHabitsFragment`, `EmotionalStateFragment`, `StatsFragment`, `FoodLogFragment`, `SportLogFragment`, `MedicationListFragment`, `MedicationLogFragment`, `DiaryNavigationFragment`)
-- Adapters (Android): `*Adapter` (`HabitAdapter`, `DiaryEntryAdapter`, `SleepEntryAdapter`, `EmotionPairAdapter`, `FoodLogAdapter`, `SportLogAdapter`, `MedicationAdapter`, `MedicationLogAdapter`)
+- Fragments (Android): `*Fragment` (`DiaryFragment`, `SleepTrackingFragment`, `EditHabitsFragment`, `EmotionalStateFragment`, `StatsFragment`, `FoodLogFragment`, `SportLogFragment`, `MedicationListFragment`, `MedicationLogFragment`, `DiaryNavigationFragment`, `EmergencyPlanFragment`)
+- Adapters (Android): `*Adapter` (`HabitAdapter`, `DiaryEntryAdapter`, `SleepEntryAdapter`, `EmotionPairAdapter`, `FoodLogAdapter`, `SportLogAdapter`, `MedicationAdapter`, `MedicationLogAdapter`, `EmergencyPlanStepAdapter`)
 - Chart Views (Android): `*View` / `*ChartView` (`PointChartView`, `SleepGraphView`, `EmotionLineChartView`, `EmotionScatterChartView`)
 - Methods: camelCase (`evaluate`, `calculateTargetEntries`, `isExpired`)
 
@@ -533,6 +572,7 @@ GitHub Actions workflows at `.github/workflows/`:
 - ModuleVisibility for per-user UI section toggling (all visible by default)
 - RequestIdFilter for CSRF/replay protection on state-changing API requests
 - Version masking via `ApiClient.maskBugfixVersion()` for client-server compatibility checks
+- Emergency Plan: step-based crisis intervention with ordered questions and associated actions (phone numbers for crisis contacts); currently Android-only with shared models/interfaces
 
 **Library documentation:** When adding or updating third-party libraries, their name, version, and license must be documented in the Project legal (info) page of the respective project part (website, homepage, desktop, android).
 
