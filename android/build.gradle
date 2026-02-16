@@ -195,8 +195,21 @@ tasks.register('jacocoMaestroReport', JacocoReport) {
 
     classDirectories.setFrom(debugTree)
     sourceDirectories.setFrom(files('src/main/java'))
-    executionData.setFrom(fileTree(
-        dir: layout.buildDirectory.dir("maestro-coverage"),
-        includes: ['**/*.ec']
-    ))
+    executionData.setFrom(
+        fileTree(
+            dir: layout.buildDirectory.dir("maestro-coverage"),
+            includes: ['**/*.ec']
+        ).filter { file ->
+            // Validate JaCoCo execution data magic bytes (0x01 0xC0 0xC0)
+            if (file.length() < 5) return false
+            def stream = file.newInputStream()
+            try {
+                return stream.read() == 0x01 && stream.read() == 0xC0 && stream.read() == 0xC0
+            } catch (Exception ignored) {
+                return false
+            } finally {
+                stream.close()
+            }
+        }
+    )
 }
