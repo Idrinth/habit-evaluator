@@ -47,6 +47,11 @@ name: "Diary navigation cards lead to sub-pages"
 - tapOn: "Diary"
 
 # Medication List sub-page
+- scrollUntilVisible:
+    element:
+      id: "medicationListCard"
+    direction: DOWN
+    timeout: 5000
 - tapOn:
     id: "medicationListCard"
 - assertVisible: "Your Medications"
