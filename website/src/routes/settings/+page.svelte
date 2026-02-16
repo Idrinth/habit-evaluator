@@ -255,6 +255,8 @@
 		width: 4rem;
 	}
 	.save-button {
+		position: sticky;
+		bottom: 1rem;
 		padding: 0.5rem 1.5rem;
 		background: var(--color-primary, #4a90d9);
 		color: white;
