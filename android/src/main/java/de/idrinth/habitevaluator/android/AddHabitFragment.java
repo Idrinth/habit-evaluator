@@ -58,7 +58,7 @@ public class AddHabitFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         setupFrequencyTypeSpinner();
-        binding.addHabitButton.setOnClickListener(v -> addHabit());
+        binding.submitHabitButton.setOnClickListener(v -> addHabit());
     }
 
     @Override
