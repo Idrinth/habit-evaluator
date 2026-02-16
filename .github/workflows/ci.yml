@@ -234,18 +234,7 @@ jobs:
           force-avd-creation: false
           emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim
           disable-animations: true
-          script: |
-            adb install android/build/outputs/apk/oreo/debug/*.apk
-            mkdir -p android/build/maestro-coverage
-            MAESTRO_EXIT=0
-            maestro test "android/.maestro/${{ matrix.test-file }}.yaml" || MAESTRO_EXIT=$?
-            adb shell am broadcast -a de.idrinth.habitevaluator.android.DUMP_COVERAGE --es coverageFile "/sdcard/coverage_${{ matrix.test-file }}.ec" || true
-            sleep 1
-            adb pull "/sdcard/coverage_${{ matrix.test-file }}.ec" "android/build/maestro-coverage/" 2>/dev/null || true
-            if [ "$MAESTRO_EXIT" -ne 0 ]; then
-              echo "::error::Maestro test ${{ matrix.test-file }} failed with exit code $MAESTRO_EXIT"
-            fi
-            exit $MAESTRO_EXIT
+          script: ./scripts/run-maestro-tests.sh {{ matrix.test-file }}
 
       - name: Upload coverage data
         uses: actions/upload-artifact@v6
