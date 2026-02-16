@@ -75,6 +75,12 @@ public class DiaryNavigationFragment extends Fragment {
         });
     }
 
+    void scrollToTop() {
+        if (binding != null) {
+            binding.getRoot().scrollTo(0, 0);
+        }
+    }
+
     @Override
     public void onDestroyView() {
         super.onDestroyView();

@@ -46,12 +46,13 @@ name: "Settings page renders all sections"
     timeout: 5000
 - assertVisible: "Module Visibility"
 
-# Scroll to reminder settings
+# Scroll to reminder settings (needs more time due to 10 module visibility switches above)
 - scrollUntilVisible:
     element:
       text: "Reminder Settings"
     direction: DOWN
-    timeout: 5000
+    timeout: 15000
+    speed: 60
 - assertVisible: "Reminder Settings"
 
 # Scroll to backup settings

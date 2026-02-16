@@ -45,6 +45,13 @@ name: "Complete navigation flow through all pages without crash"
 # Stats
 - tapOn:
     id: "statsButton"
+- scrollUntilVisible:
+    element:
+      id: "exportPdfButton"
+    direction: DOWN
+    speed: 60
+    timeout: 10000
+    visibilityPercentage: 50
 - assertVisible:
     id: "exportPdfButton"
 
@@ -96,6 +103,11 @@ name: "Complete navigation flow through all pages without crash"
 - tapOn: "Diary"
 
 # Medication List
+- scrollUntilVisible:
+    element:
+      id: "medicationListCard"
+    direction: DOWN
+    timeout: 5000
 - tapOn:
     id: "medicationListCard"
 - assertVisible: "Your Medications"

@@ -9,6 +9,13 @@ name: "Toolbar buttons navigate to Stats, Settings, and Imprint"
 # Stats page via toolbar button
 - tapOn:
     id: "statsButton"
+- scrollUntilVisible:
+    element:
+      id: "exportPdfButton"
+    direction: DOWN
+    speed: 60
+    timeout: 10000
+    visibilityPercentage: 50
 - assertVisible:
     id: "exportPdfButton"
 
