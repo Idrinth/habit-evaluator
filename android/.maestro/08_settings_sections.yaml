@@ -38,12 +38,13 @@ name: "Settings page renders all sections"
 # Verify font size section
 - assertVisible: "Font Size Settings"
 
-# Scroll to module visibility
+# Scroll to module visibility (needs more time due to font size radio group and translation settings above)
 - scrollUntilVisible:
     element:
       text: "Module Visibility"
     direction: DOWN
-    timeout: 5000
+    timeout: 10000
+    speed: 60
 - assertVisible: "Module Visibility"
 
 # Scroll to reminder settings (needs more time due to 10 module visibility switches above)
