@@ -433,6 +433,9 @@ public class MainActivity extends AppCompatActivity {
         applyModuleVisibility();
         binding.bottomNavigation.setSelectedItemId(R.id.nav_home);
         binding.bottomNavigation.setOnItemSelectedListener(item -> {
+            if (isSyncingBottomNav) {
+                return true;
+            }
             int id = item.getItemId();
             if (id == R.id.nav_home) {
                 binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_HOME, true);
