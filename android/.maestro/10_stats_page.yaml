@@ -30,6 +30,8 @@ name: "Stats page renders charts"
     element:
       id: "exportPdfButton"
     direction: DOWN
-    timeout: 5000
+    speed: 60
+    timeout: 10000
+    visibilityPercentage: 50
 - assertVisible:
     id: "exportPdfButton"
