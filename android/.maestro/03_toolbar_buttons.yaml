@@ -1,0 +1,27 @@
+appId: de.idrinth.habitevaluator.android
+name: "Toolbar buttons navigate to Stats, Settings, and Imprint"
+---
+- launchApp:
+    clearState: true
+- assertVisible: "Welcome to Habit Evaluator"
+- tapOn: "I understand"
+
+# Stats page via toolbar button
+- tapOn:
+    id: "statsButton"
+- assertVisible:
+    id: "exportPdfButton"
+
+# Settings page via toolbar button
+- tapOn:
+    id: "settingsButton"
+- assertVisible: "Storage Settings"
+- assertVisible: "Theme Settings"
+- assertVisible: "Save Settings"
+
+# Imprint page via toolbar button
+- tapOn:
+    id: "imprintButton"
+- assertVisible: "Project legal"
+- assertVisible: "License"
+- assertVisible: "Data Protection"

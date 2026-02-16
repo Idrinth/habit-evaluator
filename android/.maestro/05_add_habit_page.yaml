@@ -1,0 +1,15 @@
+appId: de.idrinth.habitevaluator.android
+name: "Add Habit page is reachable"
+---
+- launchApp:
+    clearState: true
+- assertVisible: "Welcome to Habit Evaluator"
+- tapOn: "I understand"
+
+# Home tab should show Add Habit button
+- assertVisible: "Home"
+- tapOn:
+    id: "addHabitButton"
+- assertVisible: "Add Habit"
+- assertVisible:
+    id: "habitNameInput"

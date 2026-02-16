@@ -1,0 +1,119 @@
+appId: de.idrinth.habitevaluator.android
+name: "Complete navigation flow through all pages without crash"
+---
+- launchApp:
+    clearState: true
+
+# Dismiss first-start dialog
+- assertVisible: "Welcome to Habit Evaluator"
+- tapOn: "I understand"
+
+# === Bottom Navigation Tabs ===
+
+# Home (default)
+- assertVisible: "Home"
+- assertVisible:
+    id: "addHabitButton"
+
+# Diary hub
+- tapOn: "Diary"
+- assertVisible: "Positive Events"
+- assertVisible: "Sport Log"
+- assertVisible: "Food Log"
+- assertVisible: "Medication Log"
+- assertVisible: "Your Medications"
+
+# Sleep
+- tapOn:
+    text: "Sleep"
+    index: 0
+- assertVisible: "Sleep Tracking"
+
+# Emergency
+- tapOn: "Emergency"
+- assertVisible: "Emergency Plan"
+
+# Emotions
+- tapOn: "Emotions"
+- assertVisible:
+    id: "emotionalStateTitle"
+
+# === Toolbar Buttons ===
+
+# Stats
+- tapOn:
+    id: "statsButton"
+- assertVisible:
+    id: "exportPdfButton"
+
+# Settings
+- tapOn:
+    id: "settingsButton"
+- assertVisible: "Storage Settings"
+- assertVisible: "Save Settings"
+
+# Imprint
+- tapOn:
+    id: "imprintButton"
+- assertVisible: "Project legal"
+
+# === Diary Sub-Pages ===
+
+# Go to Diary hub first
+- tapOn: "Diary"
+- assertVisible:
+    id: "positivityDiaryCard"
+
+# Positive Events
+- tapOn:
+    id: "positivityDiaryCard"
+- assertVisible: "Positive Events"
+- tapOn: "Diary"
+
+# Sport Log
+- tapOn:
+    id: "sportLogCard"
+- assertVisible: "Sport Log"
+- tapOn: "Diary"
+
+# Food Log
+- tapOn:
+    id: "foodLogCard"
+- assertVisible: "Food Log"
+- tapOn: "Diary"
+
+# Medication Log
+- tapOn:
+    id: "medicationLogCard"
+- assertVisible: "Medication Log"
+- tapOn: "Diary"
+
+# Medication List
+- tapOn:
+    id: "medicationListCard"
+- assertVisible: "Your Medications"
+
+# === Sub-Pages from Fragments ===
+
+# Add Habit from Home
+- tapOn: "Home"
+- tapOn:
+    id: "addHabitButton"
+- assertVisible: "Add Habit"
+
+# Add Emotion Pair from Emotions
+- tapOn: "Emotions"
+- tapOn:
+    id: "addEmotionPairButton"
+- assertVisible: "Add Emotion Pair"
+
+# Sleep Analysis from Sleep
+- tapOn:
+    text: "Sleep"
+    index: 0
+- tapOn:
+    id: "viewAnalysisButton"
+- assertVisible: "Sleep Analysis"
+# Go back from activity
+- back
+- assertVisible: "Sleep Tracking"
