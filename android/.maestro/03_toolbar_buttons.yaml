@@ -17,6 +17,11 @@ name: "Toolbar buttons navigate to Stats, Settings, and Imprint"
     id: "settingsButton"
 - assertVisible: "Storage Settings"
 - assertVisible: "Theme Settings"
+- scrollUntilVisible:
+    element:
+      text: "Save Settings"
+    direction: DOWN
+    timeout: 5000
 - assertVisible: "Save Settings"
 
 # Imprint page via toolbar button

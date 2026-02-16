@@ -52,6 +52,11 @@ name: "Complete navigation flow through all pages without crash"
 - tapOn:
     id: "settingsButton"
 - assertVisible: "Storage Settings"
+- scrollUntilVisible:
+    element:
+      text: "Save Settings"
+    direction: DOWN
+    timeout: 5000
 - assertVisible: "Save Settings"
 
 # Imprint
