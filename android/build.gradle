@@ -76,6 +76,10 @@ android {
         buildConfig true
     }
 
+    testCoverage {
+        jacocoVersion = '0.8.11'
+    }
+
     testOptions {
         unitTests.all {
             useJUnitPlatform()
