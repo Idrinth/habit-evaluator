@@ -41,22 +41,23 @@ public class CoverageBroadcastReceiver extends BroadcastReceiver {
 
     private void dumpCoverage(File coverageFile) {
         try {
-            Class<?> rtClass = Class.forName("org.jacoco.agent.rt.RT");
-            Method getAgentMethod = rtClass.getMethod("getAgent");
-            Object agent = getAgentMethod.invoke(null);
-
-            Method getExecutionDataMethod = agent.getClass()
-                    .getMethod("getExecutionData", boolean.class);
-            byte[] data = (byte[]) getExecutionDataMethod.invoke(agent, false);
+            // AGP uses offline instrumentation, so coverage data is stored in
+            // org.jacoco.agent.rt.internal.Offline, not accessible via RT.getAgent().
+            // Offline.getExecutionData(boolean) is a static method available since
+            // JaCoCo 0.8.8 that returns serialized execution data directly.
+            Class<?> offlineClass = Class.forName("org.jacoco.agent.rt.internal.Offline");
+            Method getExecutionDataMethod = offlineClass.getMethod("getExecutionData", boolean.class);
+            byte[] data = (byte[]) getExecutionDataMethod.invoke(null, false);
 
             try (OutputStream out = new FileOutputStream(coverageFile)) {
                 out.write(data);
             }
-            Log.d(TAG, "Coverage data written to " + coverageFile.getAbsolutePath());
+            Log.d(TAG, "Coverage data written to " + coverageFile.getAbsolutePath()
+                    + " (" + data.length + " bytes)");
         } catch (ClassNotFoundException e) {
-            Log.w(TAG, "JaCoCo agent not available — app may not be instrumented");
+            Log.w(TAG, "JaCoCo Offline class not available — app may not be instrumented");
         } catch (ReflectiveOperationException e) {
-            Log.e(TAG, "Failed to invoke JaCoCo agent", e);
+            Log.e(TAG, "Failed to invoke JaCoCo Offline.getExecutionData()", e);
         } catch (IOException e) {
             Log.e(TAG, "Failed to write coverage data to " + coverageFile.getAbsolutePath(), e);
         }
