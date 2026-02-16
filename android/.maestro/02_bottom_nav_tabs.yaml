@@ -1,0 +1,37 @@
+appId: de.idrinth.habitevaluator.android
+name: "Bottom navigation tabs are reachable"
+---
+- launchApp:
+    clearState: true
+- assertVisible: "Welcome to Habit Evaluator"
+- tapOn: "I understand"
+
+# Home tab (default)
+- assertVisible: "Home"
+
+# Diary tab
+- tapOn: "Diary"
+- assertVisible: "Positive Events"
+- assertVisible: "Sport Log"
+- assertVisible: "Food Log"
+- assertVisible: "Medication Log"
+- assertVisible: "Your Medications"
+
+# Sleep tab
+- tapOn:
+    text: "Sleep"
+    index: 0
+- assertVisible: "Sleep Tracking"
+
+# Emergency tab
+- tapOn: "Emergency"
+- assertVisible: "Emergency Plan"
+
+# Emotions tab
+- tapOn: "Emotions"
+- assertVisible:
+    id: "emotionalStateTitle"
+
+# Back to Home
+- tapOn: "Home"
+- assertVisible: "Home"

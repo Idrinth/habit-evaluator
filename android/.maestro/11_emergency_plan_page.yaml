@@ -1,0 +1,24 @@
+appId: de.idrinth.habitevaluator.android
+name: "Emergency Plan page renders correctly"
+---
+- launchApp:
+    clearState: true
+- assertVisible: "Welcome to Habit Evaluator"
+- tapOn: "I understand"
+
+# Navigate to Emergency tab
+- tapOn: "Emergency"
+
+# Verify page content
+- assertVisible: "Emergency Plan"
+- assertVisible:
+    id: "stepsRecyclerView"
+- assertVisible:
+    id: "toggleFormButton"
+
+# Expand the add step form
+- tapOn:
+    id: "toggleFormButton"
+- assertVisible:
+    id: "questionInput"
+- assertVisible: "Add Step"

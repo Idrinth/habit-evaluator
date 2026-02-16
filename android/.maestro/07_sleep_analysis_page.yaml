@@ -1,0 +1,18 @@
+appId: de.idrinth.habitevaluator.android
+name: "Sleep Analysis page is reachable"
+---
+- launchApp:
+    clearState: true
+- assertVisible: "Welcome to Habit Evaluator"
+- tapOn: "I understand"
+
+# Navigate to Sleep tab
+- tapOn:
+    text: "Sleep"
+    index: 0
+- assertVisible: "Sleep Tracking"
+
+# Tap View Analysis button
+- tapOn:
+    id: "viewAnalysisButton"
+- assertVisible: "Sleep Analysis"

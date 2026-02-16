@@ -1,0 +1,17 @@
+appId: de.idrinth.habitevaluator.android
+name: "Add Emotion Pair page is reachable"
+---
+- launchApp:
+    clearState: true
+- assertVisible: "Welcome to Habit Evaluator"
+- tapOn: "I understand"
+
+# Navigate to Emotions tab
+- tapOn: "Emotions"
+- assertVisible:
+    id: "emotionalStateTitle"
+
+# Tap add emotion pair button
+- tapOn:
+    id: "addEmotionPairButton"
+- assertVisible: "Add Emotion Pair"

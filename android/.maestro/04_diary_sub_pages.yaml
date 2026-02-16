@@ -1,0 +1,52 @@
+appId: de.idrinth.habitevaluator.android
+name: "Diary navigation cards lead to sub-pages"
+---
+- launchApp:
+    clearState: true
+- assertVisible: "Welcome to Habit Evaluator"
+- tapOn: "I understand"
+
+# Navigate to Diary tab
+- tapOn: "Diary"
+- assertVisible: "Positive Events"
+
+# Positive Events sub-page
+- tapOn:
+    id: "positivityDiaryCard"
+- assertVisible: "Positive Events"
+- assertVisible:
+    id: "diaryEntriesRecyclerView"
+
+# Back to Diary hub
+- tapOn: "Diary"
+- assertVisible:
+    id: "positivityDiaryCard"
+
+# Sport Log sub-page
+- tapOn:
+    id: "sportLogCard"
+- assertVisible: "Sport Log"
+
+# Back to Diary hub
+- tapOn: "Diary"
+
+# Food Log sub-page
+- tapOn:
+    id: "foodLogCard"
+- assertVisible: "Food Log"
+
+# Back to Diary hub
+- tapOn: "Diary"
+
+# Medication Log sub-page
+- tapOn:
+    id: "medicationLogCard"
+- assertVisible: "Medication Log"
+
+# Back to Diary hub
+- tapOn: "Diary"
+
+# Medication List sub-page
+- tapOn:
+    id: "medicationListCard"
+- assertVisible: "Your Medications"
