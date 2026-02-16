@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="28" />
+
+    <application>
+        <receiver
+            android:name=".coverage.CoverageBroadcastReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="de.idrinth.habitevaluator.android.DUMP_COVERAGE" />
+            </intent-filter>
+        </receiver>
+    </application>
+</manifest>
