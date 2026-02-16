@@ -52,6 +52,7 @@ android {
     buildTypes {
         debug {
             enableUnitTestCoverage true
+            enableAndroidTestCoverage true
         }
         release {
             minifyEnabled true
@@ -164,5 +165,35 @@ tasks.register('jacocoTestReport', JacocoReport) {
             'outputs/unit_test_code_coverage/oreoDebugUnitTest/testOreoDebugUnitTest.exec',
             'outputs/unit_test_code_coverage/tiramisuDebugUnitTest/testTiramisuDebugUnitTest.exec'
         ]
+    ))
+}
+
+tasks.register('jacocoMaestroReport', JacocoReport) {
+    reports {
+        xml.required = true
+        html.required = true
+        csv.required = false
+    }
+
+    def fileFilter = [
+        '**/R.class',
+        '**/R$*.class',
+        '**/BuildConfig.*',
+        '**/Manifest*.*',
+        '**/*Test*.*',
+        'android/**/*.*',
+        '**/coverage/**/*.*'
+    ]
+
+    def debugTree = fileTree(
+        dir: layout.buildDirectory.dir("intermediates/javac/oreoDebug/compileOreoDebugJavaWithJavac/classes"),
+        excludes: fileFilter
+    )
+
+    classDirectories.setFrom(debugTree)
+    sourceDirectories.setFrom(files('src/main/java'))
+    executionData.setFrom(fileTree(
+        dir: layout.buildDirectory.dir("maestro-coverage"),
+        includes: ['**/*.ec']
     ))
 }
