@@ -234,7 +234,7 @@ jobs:
           force-avd-creation: false
           emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim
           disable-animations: true
-          script: ./scripts/run-maestro-tests.sh {{ matrix.test-file }}
+          script: ./scripts/run-maestro-tests.sh ${{ matrix.test-file }}
 
       - name: Upload coverage data
         uses: actions/upload-artifact@v6
