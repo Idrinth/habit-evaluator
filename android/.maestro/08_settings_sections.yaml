@@ -18,6 +18,13 @@ name: "Settings page renders all sections"
 - assertVisible: "Theme Settings"
 - assertVisible: "System default"
 
+# Scroll to language section
+- scrollUntilVisible:
+    element:
+      text: "Language Settings"
+    direction: DOWN
+    timeout: 5000
+
 # Verify language section
 - assertVisible: "Language Settings"
 
