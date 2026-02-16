@@ -108,6 +108,7 @@
     <string name="diary_start_time_hint">Start time (optional)</string>
     <string name="diary_end_time_hint">End time (optional)</string>
     <string name="sleep_tracking">Schlaf</string>
+    <string name="sleep_tracking_title">Sleep Tracking</string>
     <string name="sleep_from_hint">Von (HH:MM)</string>
     <string name="sleep_until_hint">Bis (HH:MM)</string>
     <string name="sleep_notes_hint">Notizen (optional)</string>
