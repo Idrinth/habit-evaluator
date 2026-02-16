@@ -579,7 +579,7 @@ jobs:
         uses: actions/upload-artifact@v6
         with:
           name: habit-evaluator-android-${{ matrix.flavor }}
-          path: android/build/outputs/apk/${{ matrix.flavor }}Release/*.apk
+          path: android/build/outputs/apk/${{ matrix.flavor }}/release/*.apk
 
       - name: Upload AAB (${{ matrix.flavor }})
         uses: actions/upload-artifact@v6
