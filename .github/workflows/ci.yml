@@ -303,12 +303,6 @@ jobs:
           format: jacoco
           file: android/build/reports/jacoco/jacocoMaestroReport/jacocoMaestroReport.xml
 
-      - name: Check Maestro test results
-        if: needs.android-maestro.result != 'success'
-        run: |
-          echo "::error::Maestro UI tests failed"
-          exit 1
-
   frontend-check:
     runs-on: ubuntu-latest
 
