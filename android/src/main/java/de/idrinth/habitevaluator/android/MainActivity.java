@@ -459,6 +459,20 @@ public class MainActivity extends AppCompatActivity {
             }
             return false;
         });
+        binding.bottomNavigation.setOnItemReselectedListener(item -> {
+            int id = item.getItemId();
+            if (id == R.id.nav_home) {
+                binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_HOME, true);
+            } else if (id == R.id.nav_diary) {
+                binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_DIARY, true);
+            } else if (id == R.id.nav_emotions) {
+                binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_EMOTIONAL_STATE, true);
+            } else if (id == R.id.nav_sleep) {
+                binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_SLEEP, true);
+            } else if (id == R.id.nav_emergency_plan) {
+                binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_EMERGENCY_PLAN, true);
+            }
+        });
     }
 
 
