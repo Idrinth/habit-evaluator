@@ -105,12 +105,28 @@
                         android:layout_marginBottom="8dp"
                         style="?android:attr/buttonBarButtonStyle" />
 
-                    <Button
-                        android:id="@+id/addStepButton"
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="@string/emergency_plan_add_step"
-                        style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
+                        android:orientation="horizontal">
+
+                        <Button
+                            android:id="@+id/cancelEditButton"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/emergency_plan_cancel_edit"
+                            android:visibility="gone"
+                            style="?android:attr/buttonBarButtonStyle" />
+
+                        <Button
+                            android:id="@+id/addStepButton"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/emergency_plan_add_step"
+                            style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
+                    </LinearLayout>
                 </LinearLayout>
             </LinearLayout>
         </androidx.cardview.widget.CardView>

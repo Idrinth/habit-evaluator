@@ -39,6 +39,7 @@ public class EmergencyPlanFragment extends Fragment implements EmergencyPlanStep
     private List<EmergencyPlanStep> steps;
     private boolean formVisible = false;
     private final List<ActionInputRow> actionInputRows = new ArrayList<>();
+    private EmergencyPlanStep editingStep = null;
 
     @Nullable
     @Override
@@ -56,9 +57,10 @@ public class EmergencyPlanFragment extends Fragment implements EmergencyPlanStep
 
         setupRecyclerView();
         setupToggleForm();
-        binding.addStepButton.setOnClickListener(v -> addStep());
+        binding.addStepButton.setOnClickListener(v -> saveStep());
         binding.addActionRowButton.setOnClickListener(v -> addActionInputRow());
         binding.startDialogueButton.setOnClickListener(v -> startDialogue());
+        binding.cancelEditButton.setOnClickListener(v -> cancelEdit());
         addActionInputRow();
         loadSteps();
     }
@@ -116,7 +118,7 @@ public class EmergencyPlanFragment extends Fragment implements EmergencyPlanStep
         binding.actionInputsContainer.addView(row);
     }
 
-    private void addStep() {
+    private void saveStep() {
         String question = binding.questionInput.getText() != null
                 ? binding.questionInput.getText().toString().trim() : "";
         if (question.isEmpty()) {
@@ -146,26 +148,37 @@ public class EmergencyPlanFragment extends Fragment implements EmergencyPlanStep
             return;
         }
 
-        int nextOrder = steps.isEmpty() ? 0 : steps.get(steps.size() - 1).getStepOrder() + 1;
-        EmergencyPlanStep step = new EmergencyPlanStep(question, nextOrder);
-        for (EmergencyPlanAction action : actions) {
-            step.addAction(action);
-        }
-
         User user = MainActivity.getSharedLocalUser();
         EmergencyPlanStepRepository repository = MainActivity.getSharedEmergencyPlanStepRepository();
         if (user == null || repository == null) {
             Toast.makeText(requireContext(), R.string.fill_all_fields, Toast.LENGTH_SHORT).show();
             return;
         }
-        step.setUser(user);
-        repository.save(step);
+
+        if (editingStep != null) {
+            editingStep.setQuestion(question);
+            editingStep.setActions(new ArrayList<>());
+            for (EmergencyPlanAction action : actions) {
+                editingStep.addAction(action);
+            }
+            repository.save(editingStep);
+            editingStep = null;
+            setEditMode(false);
+            Toast.makeText(requireContext(), R.string.emergency_plan_step_updated, Toast.LENGTH_SHORT).show();
+        } else {
+            int nextOrder = steps.isEmpty() ? 0 : steps.get(steps.size() - 1).getStepOrder() + 1;
+            EmergencyPlanStep step = new EmergencyPlanStep(question, nextOrder);
+            for (EmergencyPlanAction action : actions) {
+                step.addAction(action);
+            }
+            step.setUser(user);
+            repository.save(step);
+            Toast.makeText(requireContext(), R.string.emergency_plan_step_added, Toast.LENGTH_SHORT).show();
+        }
 
         // Clear form
         binding.questionInput.setText("");
         clearActionInputRows();
-
-        Toast.makeText(requireContext(), R.string.emergency_plan_step_added, Toast.LENGTH_SHORT).show();
         loadSteps();
     }
 
@@ -173,6 +186,59 @@ public class EmergencyPlanFragment extends Fragment implements EmergencyPlanStep
         actionInputRows.clear();
         binding.actionInputsContainer.removeAllViews();
         addActionInputRow();
+    }
+
+    @Override
+    public void onEditStep(EmergencyPlanStep step) {
+        editingStep = step;
+        setEditMode(true);
+
+        // Open form if closed
+        if (!formVisible) {
+            toggleForm();
+        }
+
+        // Populate question
+        binding.questionInput.setText(step.getQuestion());
+
+        // Populate actions
+        clearActionInputRows();
+        List<EmergencyPlanAction> actions = step.getActions();
+        if (actions != null && !actions.isEmpty()) {
+            // clearActionInputRows already added one empty row, remove it
+            actionInputRows.clear();
+            binding.actionInputsContainer.removeAllViews();
+            for (EmergencyPlanAction action : actions) {
+                addActionInputRow();
+                ActionInputRow lastRow = actionInputRows.get(actionInputRows.size() - 1);
+                lastRow.actionInput.setText(action.getActionText());
+                if (action.getPhoneNumber() != null) {
+                    lastRow.phoneInput.setText(action.getPhoneNumber());
+                }
+            }
+        }
+
+        // Scroll to top so user can see the form
+        if (binding.getRoot() instanceof androidx.core.widget.NestedScrollView) {
+            ((androidx.core.widget.NestedScrollView) binding.getRoot()).smoothScrollTo(0, 0);
+        }
+    }
+
+    private void cancelEdit() {
+        editingStep = null;
+        setEditMode(false);
+        binding.questionInput.setText("");
+        clearActionInputRows();
+    }
+
+    private void setEditMode(boolean editing) {
+        if (editing) {
+            binding.addStepButton.setText(R.string.emergency_plan_update_step);
+            binding.cancelEditButton.setVisibility(View.VISIBLE);
+        } else {
+            binding.addStepButton.setText(R.string.emergency_plan_add_step);
+            binding.cancelEditButton.setVisibility(View.GONE);
+        }
     }
 
     @Override

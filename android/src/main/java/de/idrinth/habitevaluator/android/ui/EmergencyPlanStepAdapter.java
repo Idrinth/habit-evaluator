@@ -24,6 +24,7 @@ public class EmergencyPlanStepAdapter extends RecyclerView.Adapter<EmergencyPlan
 
     public interface OnStepActionListener {
         void onDeleteStep(EmergencyPlanStep step);
+        void onEditStep(EmergencyPlanStep step);
         void onMoveUp(EmergencyPlanStep step);
         void onMoveDown(EmergencyPlanStep step);
         void onCallPhone(String phoneNumber);
@@ -102,6 +103,11 @@ public class EmergencyPlanStepAdapter extends RecyclerView.Adapter<EmergencyPlan
                 listener.onMoveDown(step);
             }
         });
+        holder.editStepButton.setOnClickListener(v -> {
+            if (listener != null) {
+                listener.onEditStep(step);
+            }
+        });
         holder.deleteStepButton.setOnClickListener(v -> {
             if (listener != null) {
                 listener.onDeleteStep(step);
@@ -120,6 +126,7 @@ public class EmergencyPlanStepAdapter extends RecyclerView.Adapter<EmergencyPlan
         final LinearLayout actionsContainer;
         final ImageButton moveUpButton;
         final ImageButton moveDownButton;
+        final ImageButton editStepButton;
         final ImageButton deleteStepButton;
 
         ViewHolder(@NonNull View itemView) {
@@ -129,6 +136,7 @@ public class EmergencyPlanStepAdapter extends RecyclerView.Adapter<EmergencyPlan
             actionsContainer = itemView.findViewById(R.id.actionsContainer);
             moveUpButton = itemView.findViewById(R.id.moveUpButton);
             moveDownButton = itemView.findViewById(R.id.moveDownButton);
+            editStepButton = itemView.findViewById(R.id.editStepButton);
             deleteStepButton = itemView.findViewById(R.id.deleteStepButton);
         }
     }
