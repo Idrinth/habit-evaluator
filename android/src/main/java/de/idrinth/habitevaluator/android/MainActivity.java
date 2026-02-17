@@ -266,29 +266,32 @@ public class MainActivity extends AppCompatActivity {
         sharedHabits = habits;
 
         initializeStorage();
+
+        SharedPreferences prefs = getSharedPreferences(SettingsActivity.PREFS_NAME, MODE_PRIVATE);
+        if (!prefs.getBoolean(SettingsActivity.KEY_FIRST_START_COMPLETED, false)) {
+            new MaterialAlertDialogBuilder(this)
+                    .setTitle(R.string.first_start_title)
+                    .setMessage(getString(R.string.first_start_not_professional_help)
+                            + "\n\n"
+                            + getString(R.string.first_start_no_data_sharing))
+                    .setPositiveButton(R.string.first_start_acknowledge, (dialog, which) -> {
+                        prefs.edit().putBoolean(SettingsActivity.KEY_FIRST_START_COMPLETED, true).apply();
+                        completeSetup();
+                    })
+                    .setCancelable(false)
+                    .show();
+        } else {
+            completeSetup();
+        }
+    }
+
+    private void completeSetup() {
         setupViewPager();
         setupBottomNavigation();
         setupStatsButton();
         setupSettingsButton();
         setupImprintButton();
         performDailyBackupIfEnabled();
-        showFirstStartDialogIfNeeded();
-    }
-
-    private void showFirstStartDialogIfNeeded() {
-        SharedPreferences prefs = getSharedPreferences(SettingsActivity.PREFS_NAME, MODE_PRIVATE);
-        if (prefs.getBoolean(SettingsActivity.KEY_FIRST_START_COMPLETED, false)) {
-            return;
-        }
-        new MaterialAlertDialogBuilder(this)
-                .setTitle(R.string.first_start_title)
-                .setMessage(getString(R.string.first_start_not_professional_help)
-                        + "\n\n"
-                        + getString(R.string.first_start_no_data_sharing))
-                .setPositiveButton(R.string.first_start_acknowledge, (dialog, which) ->
-                        prefs.edit().putBoolean(SettingsActivity.KEY_FIRST_START_COMPLETED, true).apply())
-                .setCancelable(false)
-                .show();
     }
 
     public void navigateToEditHabit(String habitId) {
