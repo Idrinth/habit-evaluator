@@ -3,7 +3,12 @@ package de.idrinth.habitevaluator.android;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Typeface;
 import android.os.Bundle;
+import android.util.TypedValue;
+import android.widget.LinearLayout;
+import android.widget.ScrollView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -267,11 +272,32 @@ public class MainActivity extends AppCompatActivity {
 
         SharedPreferences prefs = getSharedPreferences(SettingsActivity.PREFS_NAME, MODE_PRIVATE);
         if (!prefs.getBoolean(SettingsActivity.KEY_FIRST_START_COMPLETED, false)) {
+            float density = getResources().getDisplayMetrics().density;
+            int dp24 = (int) (24 * density);
+            int dp16 = (int) (16 * density);
+
+            LinearLayout dialogLayout = new LinearLayout(this);
+            dialogLayout.setOrientation(LinearLayout.VERTICAL);
+            dialogLayout.setPadding(dp24, dp24, dp24, dp16);
+
+            TextView titleView = new TextView(this);
+            titleView.setText(R.string.first_start_title);
+            titleView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20);
+            titleView.setTypeface(titleView.getTypeface(), Typeface.BOLD);
+            dialogLayout.addView(titleView);
+
+            TextView messageView = new TextView(this);
+            messageView.setText(getString(R.string.first_start_not_professional_help)
+                    + "\n\n"
+                    + getString(R.string.first_start_no_data_sharing));
+            messageView.setPadding(0, dp16, 0, 0);
+            dialogLayout.addView(messageView);
+
+            ScrollView scrollView = new ScrollView(this);
+            scrollView.addView(dialogLayout);
+
             new MaterialAlertDialogBuilder(this)
-                    .setTitle(R.string.first_start_title)
-                    .setMessage(getString(R.string.first_start_not_professional_help)
-                            + "\n\n"
-                            + getString(R.string.first_start_no_data_sharing))
+                    .setView(scrollView)
                     .setPositiveButton(R.string.first_start_acknowledge, (dialog, which) -> {
                         prefs.edit().putBoolean(SettingsActivity.KEY_FIRST_START_COMPLETED, true).apply();
                         initializeStorage();
