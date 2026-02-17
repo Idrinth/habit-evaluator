@@ -64,15 +64,19 @@ for ATTEMPT in $(seq 1 "$MAX_ATTEMPTS"); do
     # to ensure reliable delivery across Android versions. The action matches
     # the intent-filter in the debug AndroidManifest.
     # Flags:
-    #   0x10000000  FLAG_RECEIVER_FOREGROUND — dispatch via the foreground
-    #               broadcast queue so it is not deferred under load.
     #   0x00000020  FLAG_INCLUDE_STOPPED_PACKAGES — deliver even if the system
     #               considers the app to be in a stopped state (which can
     #               happen after a crash + restart on some API levels).
+    # NOTE: FLAG_RECEIVER_FOREGROUND (0x10000000) is intentionally NOT used.
+    # The foreground broadcast queue enforces a 10-second hard timeout, which
+    # is too short for JaCoCo coverage dumps on slow emulators using software
+    # rendering (swiftshader_indirect). The background queue allows 60 seconds.
+    # Broadcast deferral is not a concern because the script brings the app to
+    # the foreground before sending the broadcast.
     BROADCAST_OUTPUT=$(adb shell am broadcast \
       -a "$BROADCAST_ACTION" \
       -n "$PACKAGE/.coverage.CoverageBroadcastReceiver" \
-      -f 0x10000020 \
+      -f 0x00000020 \
       --es coverageFile "$COVERAGE_FILENAME" 2>&1) || true
 
     # Log broadcast result for diagnostics

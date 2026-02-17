@@ -26,7 +26,9 @@ import java.lang.reflect.Method;
  * Uses {@link #goAsync()} so that the dump runs on a background thread,
  * preventing the main-thread from blocking delivery when the UI is busy with
  * heavy view rendering (e.g. custom chart views on a software-rendered
- * emulator).
+ * emulator). All file I/O (including heartbeat status writes) is performed on
+ * the background thread to minimise the time spent in {@code onReceive()} on
+ * the main thread.
  * <p>
  * In addition to the {@code .ec} coverage file, the receiver always writes a
  * small {@code .status} file (same base name) that the collection script can
@@ -56,16 +58,6 @@ public class CoverageBroadcastReceiver extends BroadcastReceiver {
         File internalDir = context.getFilesDir();
         File externalDir = context.getExternalFilesDir(null);
 
-        // Write a heartbeat file immediately so the collection script can
-        // detect that onReceive was dispatched, even if the JaCoCo dump
-        // fails later.
-        writeStatus(
-                internalDir != null ? statusFileFor(internalDir, coverageFileName) : null,
-                "STARTED");
-        writeStatus(
-                externalDir != null ? statusFileFor(externalDir, coverageFileName) : null,
-                "STARTED");
-
         if (internalDir == null && externalDir == null) {
             Log.e(TAG, "No files directory available");
             Log.i(TAG, "COVERAGE_RESULT:ERROR:no_files_directory");
@@ -85,6 +77,12 @@ public class CoverageBroadcastReceiver extends BroadcastReceiver {
         final File fExternalStatus = externalStatus;
         new Thread(() -> {
             try {
+                // Write a heartbeat file so the collection script can detect
+                // that onReceive was dispatched, even if the JaCoCo dump fails
+                // later.  Done on the background thread to minimise the time
+                // spent in onReceive() on the main thread.
+                writeStatus(fInternalStatus, "STARTED");
+                writeStatus(fExternalStatus, "STARTED");
                 dumpCoverage(pendingResult, fInternalCoverage, fInternalStatus,
                         fExternalCoverage, fExternalStatus);
             } finally {
