@@ -9,12 +9,14 @@ maestro test "android/.maestro/$1.yaml" || MAESTRO_EXIT=$?
 
 EC_FILE="android/build/maestro-coverage/coverage_$1.ec"
 COVERAGE_FILENAME="coverage_$1.ec"
+STATUS_FILENAME="coverage_$1.status"
 BROADCAST_ACTION="de.idrinth.habitevaluator.android.DUMP_COVERAGE"
 
-# Retry coverage collection up to 5 times. Tests that navigate to activities
-# with heavy custom view rendering (e.g. SleepAnalysisActivity with graph
-# views) can leave the main thread busy on slow emulators using software
-# rendering; the broadcast may need extra time and attempts.
+# Retry coverage collection up to 5 times. The broadcast receiver uses
+# goAsync() and a background thread, but the broadcast itself is still
+# enqueued on the main thread's Looper. Activities with heavy custom view
+# rendering (e.g. SleepAnalysisActivity with graph views) can delay delivery
+# on slow emulators using software rendering (swiftshader_indirect).
 MAX_ATTEMPTS=5
 ENCODED=""
 
@@ -34,6 +36,10 @@ for ATTEMPT in $(seq 1 "$MAX_ATTEMPTS"); do
         fi
     fi
 
+    # Remove any previous status file so we can tell whether the receiver ran
+    # this attempt.
+    adb shell run-as "$PACKAGE" rm -f "files/$STATUS_FILENAME" 2>/dev/null || true
+
     # Send broadcast with both component target (-n) and explicit action (-a)
     # to ensure reliable delivery across Android versions. The action matches
     # the intent-filter in the debug AndroidManifest.
@@ -48,10 +54,44 @@ for ATTEMPT in $(seq 1 "$MAX_ATTEMPTS"); do
     fi
 
     # Wait for the receiver to process the broadcast and write the file.
-    # Slow emulators with software rendering (swiftshader_indirect) may need
-    # extra time when the main thread is busy with view rendering.
+    # The receiver now uses goAsync() + background thread so the main thread
+    # is freed quickly, but we still need to wait for the thread to complete.
     SLEEP_DURATION=$((3 + ATTEMPT))
     sleep "$SLEEP_DURATION"
+
+    # Check the .status file first — the receiver writes this regardless of
+    # whether coverage data was produced. If the status file exists, we know
+    # the receiver ran; its content tells us why coverage may be missing.
+    STATUS_CHECK=$(adb shell run-as "$PACKAGE" cat "files/$STATUS_FILENAME" 2>&1 | tr -d '\r')
+    if echo "$STATUS_CHECK" | grep -q "^OK:"; then
+        : # Receiver ran successfully, coverage file should exist
+    elif echo "$STATUS_CHECK" | grep -qE "^(EMPTY|NO_CLASS|REFLECT_ERROR|IO_ERROR|UNEXPECTED):"; then
+        echo "::warning::Coverage receiver reported: $STATUS_CHECK (attempt $ATTEMPT/$MAX_ATTEMPTS for $1)"
+        # No point retrying if the receiver itself says instrumentation is
+        # missing — the data will not appear on subsequent attempts.
+        if echo "$STATUS_CHECK" | grep -qE "^(NO_CLASS|EMPTY):"; then
+            echo "::warning::Instrumentation issue detected — skipping remaining retries for $1"
+            break
+        fi
+        if [ "$ATTEMPT" -lt "$MAX_ATTEMPTS" ]; then
+            sleep 2
+            continue
+        fi
+        break
+    else
+        # Status file not found or unreadable — receiver may not have run yet
+        if [ "$ATTEMPT" -lt "$MAX_ATTEMPTS" ]; then
+            echo "::warning::Coverage receiver has not responded yet (attempt $ATTEMPT/$MAX_ATTEMPTS for $1), retrying..."
+            sleep 2
+            continue
+        fi
+        # Final attempt: pull logcat to help diagnose why the receiver never ran
+        echo "::warning::Coverage receiver never responded for $1 after $MAX_ATTEMPTS attempts"
+        echo "::group::Logcat (CoverageBroadcastReceiver)"
+        adb logcat -d -s CoverageBroadcastReceiver:* 2>/dev/null | tail -30
+        echo "::endgroup::"
+        break
+    fi
 
     # Verify the coverage file exists on the device before extraction
     FILE_CHECK=$(adb shell run-as "$PACKAGE" ls "files/$COVERAGE_FILENAME" 2>&1 | tr -d '\r')
