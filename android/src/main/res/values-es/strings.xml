@@ -395,6 +395,10 @@
     <string name="emergency_plan_move_up">Subir</string>
     <string name="emergency_plan_move_down">Bajar</string>
     <string name="emergency_plan_delete_step">Eliminar paso</string>
+    <string name="emergency_plan_edit_step">Editar paso</string>
+    <string name="emergency_plan_update_step">Actualizar paso</string>
+    <string name="emergency_plan_step_updated">Paso actualizado</string>
+    <string name="emergency_plan_cancel_edit">Cancelar</string>
     <string name="nav_emergency_plan">Emergencia</string>
     <string name="diary_navigation_emergency_plan_description">Crea un plan paso a paso con preguntas y acciones para situaciones difíciles</string>
     <string name="emergency_dialogue_start">Iniciar diálogo</string>

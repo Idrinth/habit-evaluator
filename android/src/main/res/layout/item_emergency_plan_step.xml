@@ -49,6 +49,16 @@
                 android:scaleType="centerInside" />
 
             <ImageButton
+                android:id="@+id/editStepButton"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:padding="8dp"
+                android:src="@android:drawable/ic_menu_edit"
+                android:contentDescription="@string/emergency_plan_edit_step"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:scaleType="centerInside" />
+
+            <ImageButton
                 android:id="@+id/deleteStepButton"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
