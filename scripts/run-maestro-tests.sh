@@ -4,8 +4,79 @@ PACKAGE="de.idrinth.habitevaluator.android"
 
 adb install android/build/outputs/apk/oreo/debug/*.apk
 mkdir -p android/build/maestro-coverage
+mkdir -p android/build/maestro-logs
+
+# --- Pre-flight crash check ---
+# Launch the app once before Maestro to detect immediate startup crashes.
+# If the app can't survive 5 seconds, there's no point running Maestro —
+# capture the crash stacktrace and fail fast with a clear error.
+adb logcat -c 2>/dev/null || true
+adb shell am start -W -n "$PACKAGE/.MainActivity" 2>/dev/null || true
+sleep 5
+PREFLIGHT_PID=$(adb shell pidof "$PACKAGE" 2>/dev/null | tr -d '\r')
+if [ -z "$PREFLIGHT_PID" ]; then
+    echo "::error::App crashed on startup (pre-flight check failed for $1)"
+    PREFLIGHT_LOG="android/build/maestro-logs/preflight_crash_$1.txt"
+    adb logcat -d > "$PREFLIGHT_LOG" 2>/dev/null || true
+
+    echo "::group::FATAL EXCEPTION (startup crash)"
+    grep -A 40 "FATAL EXCEPTION" "$PREFLIGHT_LOG" | head -60 || echo "(no FATAL EXCEPTION tag found)"
+    echo "::endgroup::"
+
+    echo "::group::AndroidRuntime errors"
+    grep "AndroidRuntime" "$PREFLIGHT_LOG" | head -30 || echo "(none)"
+    echo "::endgroup::"
+
+    echo "::group::Class loading / verification errors"
+    grep -iE "ClassNotFoundException|NoClassDefFoundError|VerifyError|IncompatibleClassChangeError|NoSuchMethodError|NoSuchFieldError|ExceptionInInitializerError" "$PREFLIGHT_LOG" | head -20 || echo "(none)"
+    echo "::endgroup::"
+
+    echo "::group::Process death"
+    grep -E "ActivityManager.*$PACKAGE|Process.*$PACKAGE|LOW_MEMORY|Force finishing" "$PREFLIGHT_LOG" | tail -15 || echo "(none)"
+    echo "::endgroup::"
+
+    # Still run Maestro so its exit code is captured, but we already know the cause
+fi
+# Force-stop so Maestro gets a clean launch with clearState
+adb shell am force-stop "$PACKAGE" 2>/dev/null || true
+
 MAESTRO_EXIT=0
 maestro test "android/.maestro/$1.yaml" || MAESTRO_EXIT=$?
+
+# --- Crash diagnostics ---
+# Capture logcat immediately after the test finishes so we can see fatal
+# exceptions, ANRs, or any other runtime errors.  The full logcat is saved
+# to a file for artifact upload; a crash summary is printed inline.
+LOGCAT_FILE="android/build/maestro-logs/logcat_$1.txt"
+adb logcat -d > "$LOGCAT_FILE" 2>/dev/null || true
+
+if [ "$MAESTRO_EXIT" -ne 0 ]; then
+    # Check if the app process is still alive
+    APP_PID_CHECK=$(adb shell pidof "$PACKAGE" 2>/dev/null | tr -d '\r')
+    if [ -z "$APP_PID_CHECK" ]; then
+        echo "::error::App process is NOT running after test $1 — the app crashed"
+    fi
+
+    # Print fatal exceptions (the actual crash stacktrace)
+    echo "::group::Fatal exceptions (AndroidRuntime)"
+    grep -A 30 "FATAL EXCEPTION\|AndroidRuntime.*E " "$LOGCAT_FILE" | head -80 || echo "(no fatal exceptions found)"
+    echo "::endgroup::"
+
+    # Print any native crashes / tombstones
+    echo "::group::Native crash signals"
+    grep -A 10 "Fatal signal\|DEBUG.*:.*pid" "$LOGCAT_FILE" | head -40 || echo "(no native crashes found)"
+    echo "::endgroup::"
+
+    # Print class loading errors (common with JaCoCo instrumentation issues)
+    echo "::group::Class loading errors"
+    grep -i "ClassNotFoundException\|NoClassDefFoundError\|VerifyError\|IncompatibleClassChangeError\|NoSuchMethodError\|NoSuchFieldError" "$LOGCAT_FILE" | head -20 || echo "(no class loading errors found)"
+    echo "::endgroup::"
+
+    # Print ActivityManager process-death messages
+    echo "::group::Process lifecycle (ActivityManager)"
+    grep "ActivityManager.*$PACKAGE\|Process.*$PACKAGE\|Force finishing\|ANR in" "$LOGCAT_FILE" | tail -20 || echo "(no relevant ActivityManager messages)"
+    echo "::endgroup::"
+fi
 
 EC_FILE="android/build/maestro-coverage/coverage_$1.ec"
 COVERAGE_FILENAME="coverage_$1.ec"
