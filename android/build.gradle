@@ -116,7 +116,7 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-livedata:2.7.0'
 
     // JaCoCo agent runtime for Maestro coverage collection in debug builds
-    debugImplementation 'org.jacoco:org.jacoco.agent:0.8.11:runtime'
+    debugRuntimeOnly 'org.jacoco:org.jacoco.agent:0.8.11:runtime'
 
     // Testing
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
