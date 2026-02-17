@@ -29,8 +29,11 @@ import android.net.Uri;
 public class JacocoInitProvider extends ContentProvider {
 
     static {
-        System.setProperty("/jacoco-agent.properties", "output=none");
-        System.setProperty("jacoco-agent.properties", "output=none");
+        // JaCoCo's ConfigLoader reads system properties with prefix "jacoco-agent."
+        // and strips the prefix to get the option name. Setting "jacoco-agent.output"
+        // results in the agent option "output=none", which prevents it from trying
+        // to open /jacoco.exec on Android's read-only root filesystem.
+        System.setProperty("jacoco-agent.output", "none");
     }
 
     @Override
