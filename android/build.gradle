@@ -116,7 +116,7 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-livedata:2.7.0'
 
     // JaCoCo agent runtime for Maestro coverage collection in debug builds
-    debugRuntimeOnly 'org.jacoco:org.jacoco.agent:0.8.11:runtime'
+    debugImplementation 'org.jacoco:org.jacoco.agent:0.8.11:runtime'
 
     // Testing
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
@@ -216,4 +216,48 @@ tasks.register('jacocoMaestroReport', JacocoReport) {
             }
         }
     )
+}
+
+// JaCoCo offline instrumentation for Maestro coverage collection.
+// AGP's enableAndroidTestCoverage only instruments for connectedAndroidTest,
+// not for assembleDebug. Maestro installs the regular debug APK, so we must
+// instrument the compiled bytecode explicitly.
+// Guarded by -PmaestroCoverage to avoid interfering with unit test coverage
+// which AGP instruments separately.
+if (project.hasProperty('maestroCoverage')) {
+    android.applicationVariants.configureEach { variant ->
+        if (variant.buildType.name == 'debug') {
+            variant.javaCompileProvider.configure {
+                doLast {
+                    def classesDir = destinationDirectory.get().asFile
+                    if (!classesDir.exists()) {
+                        return
+                    }
+                    def tempDir = new File(classesDir.parentFile, classesDir.name + '-jacoco-instrumented')
+
+                    ant.taskdef(
+                        name: 'instrument',
+                        classname: 'org.jacoco.ant.InstrumentTask',
+                        classpath: configurations.jacocoAnt.asPath
+                    )
+
+                    if (tempDir.exists()) {
+                        project.delete(tempDir)
+                    }
+
+                    ant.instrument(destdir: tempDir) {
+                        fileset(dir: classesDir, includes: '**/*.class')
+                    }
+
+                    project.copy {
+                        from tempDir
+                        into classesDir
+                    }
+                    project.delete(tempDir)
+
+                    logger.lifecycle("JaCoCo offline instrumentation applied to ${variant.name} classes")
+                }
+            }
+        }
+    }
 }

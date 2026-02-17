@@ -168,8 +168,8 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v5
 
-      - name: Build debug APK
-        run: ./gradlew :android:assembleOreoDebug
+      - name: Build debug APK with coverage instrumentation
+        run: ./gradlew :android:assembleOreoDebug -PmaestroCoverage
 
       - name: Upload APK
         uses: actions/upload-artifact@v6
