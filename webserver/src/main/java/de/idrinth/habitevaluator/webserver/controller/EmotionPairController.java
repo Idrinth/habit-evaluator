@@ -20,7 +20,7 @@ import java.util.TreeMap;
 @RequestMapping("/api/emotions")
 public class EmotionPairController {
 
-    private static final DateTimeFormatter LABEL_FORMAT = DateTimeFormatter.ofPattern("MM/dd");
+    private static final DateTimeFormatter LABEL_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     private final EmotionPairRepository emotionPairRepository;
     private final EmotionEntryRepository emotionEntryRepository;

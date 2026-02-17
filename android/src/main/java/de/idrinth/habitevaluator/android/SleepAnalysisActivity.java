@@ -19,7 +19,7 @@ import de.idrinth.habitevaluator.shared.service.SleepEvaluationService;
 
 public class SleepAnalysisActivity extends AppCompatActivity {
 
-    private static final DateTimeFormatter LABEL_FORMAT = DateTimeFormatter.ofPattern("MM/dd");
+    private static final DateTimeFormatter LABEL_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     @Override
     protected void attachBaseContext(Context newBase) {

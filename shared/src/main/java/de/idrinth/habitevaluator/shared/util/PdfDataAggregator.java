@@ -26,9 +26,9 @@ public final class PdfDataAggregator {
     public static final DateTimeFormatter DISPLAY_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     /**
-     * Short date format for chart labels (MM/dd).
+     * Short date format for chart labels (yyyy-MM-dd).
      */
-    public static final DateTimeFormatter LABEL_FORMAT = DateTimeFormatter.ofPattern("MM/dd");
+    public static final DateTimeFormatter LABEL_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     /**
      * Color palette for emotion pair charts (as ARGB integers for Android compatibility).

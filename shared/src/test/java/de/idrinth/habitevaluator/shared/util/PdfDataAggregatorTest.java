@@ -30,7 +30,7 @@ class PdfDataAggregatorTest {
     @Test
     void testLabelFormatConstant() {
         assertNotNull(PdfDataAggregator.LABEL_FORMAT);
-        assertEquals("01/15", LocalDate.of(2024, 1, 15).format(PdfDataAggregator.LABEL_FORMAT));
+        assertEquals("2024-01-15", LocalDate.of(2024, 1, 15).format(PdfDataAggregator.LABEL_FORMAT));
     }
 
     @Test
@@ -276,8 +276,8 @@ class PdfDataAggregatorTest {
     @Test
     void testDailyHabitPointsGetters() {
         PdfDataAggregator.DailyHabitPoints points = new PdfDataAggregator.DailyHabitPoints(
-                List.of("01/01"), List.of(5.0f), 5.0f, 1, 5.0f);
-        assertEquals(List.of("01/01"), points.getLabels());
+                List.of("2024-01-01"), List.of(5.0f), 5.0f, 1, 5.0f);
+        assertEquals(List.of("2024-01-01"), points.getLabels());
         assertEquals(List.of(5.0f), points.getValues());
         assertEquals(5.0f, points.getTotalPoints());
         assertEquals(1, points.getDaysWithData());
@@ -296,8 +296,8 @@ class PdfDataAggregatorTest {
     @Test
     void testDailySleepDurationsGetters() {
         PdfDataAggregator.DailySleepDurations durations = new PdfDataAggregator.DailySleepDurations(
-                List.of("01/01"), List.of(8.0f), 8.0f, 1, 8.0f, 8.0f, 8.0f);
-        assertEquals(List.of("01/01"), durations.getLabels());
+                List.of("2024-01-01"), List.of(8.0f), 8.0f, 1, 8.0f, 8.0f, 8.0f);
+        assertEquals(List.of("2024-01-01"), durations.getLabels());
         assertEquals(List.of(8.0f), durations.getDurations());
         assertEquals(8.0f, durations.getTotalDuration());
         assertEquals(1, durations.getDaysWithData());

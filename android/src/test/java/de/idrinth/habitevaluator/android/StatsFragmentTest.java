@@ -27,19 +27,19 @@ class StatsFragmentTest {
     @Test
     void testLabelFormatProducesExpectedOutput() {
         LocalDate date = LocalDate.of(2025, 3, 15);
-        assertEquals("03/15", StatsFragment.LABEL_FORMAT.format(date));
+        assertEquals("2025-03-15", StatsFragment.LABEL_FORMAT.format(date));
     }
 
     @Test
     void testLabelFormatWithDecember() {
         LocalDate date = LocalDate.of(2025, 12, 1);
-        assertEquals("12/01", StatsFragment.LABEL_FORMAT.format(date));
+        assertEquals("2025-12-01", StatsFragment.LABEL_FORMAT.format(date));
     }
 
     @Test
     void testLabelFormatWithJanuary() {
         LocalDate date = LocalDate.of(2025, 1, 31);
-        assertEquals("01/31", StatsFragment.LABEL_FORMAT.format(date));
+        assertEquals("2025-01-31", StatsFragment.LABEL_FORMAT.format(date));
     }
 
     @Test
@@ -72,7 +72,7 @@ class StatsFragmentTest {
         LocalDate date = LocalDate.of(2025, 6, 15);
         List<String> labels = StatsFragment.generateDateLabels(date, date);
         assertEquals(1, labels.size());
-        assertEquals("06/15", labels.get(0));
+        assertEquals("2025-06-15", labels.get(0));
     }
 
     @Test
@@ -81,9 +81,9 @@ class StatsFragmentTest {
         LocalDate end = LocalDate.of(2025, 6, 15);
         List<String> labels = StatsFragment.generateDateLabels(start, end);
         assertEquals(3, labels.size());
-        assertEquals("06/13", labels.get(0));
-        assertEquals("06/14", labels.get(1));
-        assertEquals("06/15", labels.get(2));
+        assertEquals("2025-06-13", labels.get(0));
+        assertEquals("2025-06-14", labels.get(1));
+        assertEquals("2025-06-15", labels.get(2));
     }
 
     @Test
@@ -92,10 +92,10 @@ class StatsFragmentTest {
         LocalDate end = LocalDate.of(2025, 2, 2);
         List<String> labels = StatsFragment.generateDateLabels(start, end);
         assertEquals(4, labels.size());
-        assertEquals("01/30", labels.get(0));
-        assertEquals("01/31", labels.get(1));
-        assertEquals("02/01", labels.get(2));
-        assertEquals("02/02", labels.get(3));
+        assertEquals("2025-01-30", labels.get(0));
+        assertEquals("2025-01-31", labels.get(1));
+        assertEquals("2025-02-01", labels.get(2));
+        assertEquals("2025-02-02", labels.get(3));
     }
 
     @Test
@@ -142,10 +142,10 @@ class StatsFragmentTest {
         LocalDate end = LocalDate.of(2025, 1, 2);
         List<String> labels = StatsFragment.generateDateLabels(start, end);
         assertEquals(4, labels.size());
-        assertEquals("12/30", labels.get(0));
-        assertEquals("12/31", labels.get(1));
-        assertEquals("01/01", labels.get(2));
-        assertEquals("01/02", labels.get(3));
+        assertEquals("2024-12-30", labels.get(0));
+        assertEquals("2024-12-31", labels.get(1));
+        assertEquals("2025-01-01", labels.get(2));
+        assertEquals("2025-01-02", labels.get(3));
     }
 
     @Test
@@ -154,39 +154,39 @@ class StatsFragmentTest {
         LocalDate end = LocalDate.of(2024, 3, 1);
         List<String> labels = StatsFragment.generateDateLabels(start, end);
         assertEquals(3, labels.size());
-        assertEquals("02/28", labels.get(0));
-        assertEquals("02/29", labels.get(1));
-        assertEquals("03/01", labels.get(2));
+        assertEquals("2024-02-28", labels.get(0));
+        assertEquals("2024-02-29", labels.get(1));
+        assertEquals("2024-03-01", labels.get(2));
     }
 
     @Test
-    void testLabelPatternIsMMdd() {
-        assertEquals("MM/dd", StatsFragment.LABEL_PATTERN);
+    void testLabelPatternIsYyyyMMdd() {
+        assertEquals("yyyy-MM-dd", StatsFragment.LABEL_PATTERN);
     }
 
     @Test
     void testLabelFormatWithFebruary() {
         LocalDate date = LocalDate.of(2025, 2, 14);
-        assertEquals("02/14", StatsFragment.LABEL_FORMAT.format(date));
+        assertEquals("2025-02-14", StatsFragment.LABEL_FORMAT.format(date));
     }
 
     @Test
-    void testGenerateDateLabelsAllLabelsHaveSlash() {
+    void testGenerateDateLabelsAllLabelsHaveDash() {
         LocalDate start = LocalDate.of(2025, 6, 1);
         LocalDate end = LocalDate.of(2025, 6, 10);
         List<String> labels = StatsFragment.generateDateLabels(start, end);
         for (String label : labels) {
-            assertTrue(label.contains("/"), "Each label should contain a slash separator");
+            assertTrue(label.contains("-"), "Each label should contain a dash separator");
         }
     }
 
     @Test
-    void testGenerateDateLabelsAllLabelsHaveFiveCharacters() {
+    void testGenerateDateLabelsAllLabelsHaveTenCharacters() {
         LocalDate start = LocalDate.of(2025, 6, 1);
         LocalDate end = LocalDate.of(2025, 6, 10);
         List<String> labels = StatsFragment.generateDateLabels(start, end);
         for (String label : labels) {
-            assertEquals(5, label.length(), "Each label should be in MM/dd format (5 chars)");
+            assertEquals(10, label.length(), "Each label should be in yyyy-MM-dd format (10 chars)");
         }
     }
 }

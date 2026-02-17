@@ -35,7 +35,7 @@ import java.util.TreeMap;
 public class StatsController {
 
     private static final int DAYS = 30;
-    private static final DateTimeFormatter LABEL_FORMAT = DateTimeFormatter.ofPattern("MM/dd");
+    private static final DateTimeFormatter LABEL_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     @FXML
     private BarChart<String, Number> habitPointsChart;

@@ -100,7 +100,7 @@ public class SportLogController {
 
         LocalDate today = LocalDate.now();
         LocalDate startDate = today.minusDays(29);
-        DateTimeFormatter labelFormat = DateTimeFormatter.ofPattern("MM/dd");
+        DateTimeFormatter labelFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
         List<String> labels = new ArrayList<>();
         for (LocalDate d = startDate; !d.isAfter(today); d = d.plusDays(1)) {
