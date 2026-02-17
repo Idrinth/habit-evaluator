@@ -136,6 +136,7 @@ jacoco {
 androidComponents {
     onVariants(selector().all()) { variant ->
         variant.instrumentation.excludes.add('**/databinding/**')
+        variant.instrumentation.excludes.add('**/coverage/**')
     }
 }
 
@@ -254,7 +255,7 @@ if (project.hasProperty('maestroCoverage')) {
                     }
 
                     ant.instrument(destdir: tempDir) {
-                        fileset(dir: classesDir, includes: '**/*.class', excludes: '**/databinding/**')
+                        fileset(dir: classesDir, includes: '**/*.class', excludes: '**/databinding/**,**/coverage/**')
                     }
 
                     project.copy {
