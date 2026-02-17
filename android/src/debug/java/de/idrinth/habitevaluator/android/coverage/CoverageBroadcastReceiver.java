@@ -49,8 +49,14 @@ public class CoverageBroadcastReceiver extends BroadcastReceiver {
             Method getExecutionDataMethod = offlineClass.getMethod("getExecutionData", boolean.class);
             byte[] data = (byte[]) getExecutionDataMethod.invoke(null, false);
 
+            if (data == null || data.length == 0) {
+                Log.w(TAG, "JaCoCo returned empty execution data");
+                return;
+            }
+
             try (OutputStream out = new FileOutputStream(coverageFile)) {
                 out.write(data);
+                out.flush();
             }
             Log.d(TAG, "Coverage data written to " + coverageFile.getAbsolutePath()
                     + " (" + data.length + " bytes)");
@@ -60,6 +66,8 @@ public class CoverageBroadcastReceiver extends BroadcastReceiver {
             Log.e(TAG, "Failed to invoke JaCoCo Offline.getExecutionData()", e);
         } catch (IOException e) {
             Log.e(TAG, "Failed to write coverage data to " + coverageFile.getAbsolutePath(), e);
+        } catch (Exception e) {
+            Log.e(TAG, "Unexpected error during coverage dump", e);
         }
     }
 }
