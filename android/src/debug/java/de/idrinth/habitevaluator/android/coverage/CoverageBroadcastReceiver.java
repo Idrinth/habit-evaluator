@@ -1,5 +1,6 @@
 package de.idrinth.habitevaluator.android.coverage;
 
+import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -55,9 +56,20 @@ public class CoverageBroadcastReceiver extends BroadcastReceiver {
         File internalDir = context.getFilesDir();
         File externalDir = context.getExternalFilesDir(null);
 
+        // Write a heartbeat file immediately so the collection script can
+        // detect that onReceive was dispatched, even if the JaCoCo dump
+        // fails later.
+        writeStatus(
+                internalDir != null ? statusFileFor(internalDir, coverageFileName) : null,
+                "STARTED");
+        writeStatus(
+                externalDir != null ? statusFileFor(externalDir, coverageFileName) : null,
+                "STARTED");
+
         if (internalDir == null && externalDir == null) {
             Log.e(TAG, "No files directory available");
             Log.i(TAG, "COVERAGE_RESULT:ERROR:no_files_directory");
+            setResult(pendingResult, Activity.RESULT_CANCELED, "ERROR:no_files_directory");
             pendingResult.finish();
             return;
         }
@@ -73,14 +85,16 @@ public class CoverageBroadcastReceiver extends BroadcastReceiver {
         final File fExternalStatus = externalStatus;
         new Thread(() -> {
             try {
-                dumpCoverage(fInternalCoverage, fInternalStatus, fExternalCoverage, fExternalStatus);
+                dumpCoverage(pendingResult, fInternalCoverage, fInternalStatus,
+                        fExternalCoverage, fExternalStatus);
             } finally {
                 pendingResult.finish();
             }
         }).start();
     }
 
-    private void dumpCoverage(File internalCoverage, File internalStatus,
+    private void dumpCoverage(PendingResult pendingResult,
+                              File internalCoverage, File internalStatus,
                               File externalCoverage, File externalStatus) {
         try {
             // AGP uses offline instrumentation, so coverage data is stored in
@@ -99,6 +113,7 @@ public class CoverageBroadcastReceiver extends BroadcastReceiver {
                 writeStatus(internalStatus, "EMPTY: " + msg);
                 writeStatus(externalStatus, "EMPTY: " + msg);
                 Log.i(TAG, "COVERAGE_RESULT:EMPTY");
+                setResult(pendingResult, Activity.RESULT_CANCELED, "EMPTY");
                 return;
             }
 
@@ -110,27 +125,40 @@ public class CoverageBroadcastReceiver extends BroadcastReceiver {
             writeStatus(externalStatus, statusMsg);
             Log.i(TAG, "COVERAGE_RESULT:OK:" + data.length);
             Log.d(TAG, "Coverage data written (" + data.length + " bytes)");
+            setResult(pendingResult, Activity.RESULT_OK, "OK:" + data.length);
         } catch (ClassNotFoundException e) {
-            reportError(internalStatus, externalStatus, "NO_CLASS",
+            reportError(pendingResult, internalStatus, externalStatus, "NO_CLASS",
                     "JaCoCo Offline class not available — app may not be instrumented");
         } catch (NoClassDefFoundError e) {
-            reportError(internalStatus, externalStatus, "NO_CLASS",
+            reportError(pendingResult, internalStatus, externalStatus, "NO_CLASS",
                     "JaCoCo Offline class not available — app may not be instrumented");
         } catch (IOException e) {
-            reportError(internalStatus, externalStatus, "IO_ERROR",
+            reportError(pendingResult, internalStatus, externalStatus, "IO_ERROR",
                     "Failed to write coverage data: " + e.getMessage());
         } catch (Exception e) {
-            reportError(internalStatus, externalStatus, "UNEXPECTED",
+            reportError(pendingResult, internalStatus, externalStatus, "UNEXPECTED",
                     "Unexpected error during coverage dump: " + e.getMessage());
         }
     }
 
-    private void reportError(File internalStatus, File externalStatus, String code, String msg) {
+    private void reportError(PendingResult pendingResult,
+                             File internalStatus, File externalStatus,
+                             String code, String msg) {
         Log.w(TAG, msg);
         String status = code + ": " + msg;
         writeStatus(internalStatus, status);
         writeStatus(externalStatus, status);
         Log.i(TAG, "COVERAGE_RESULT:" + code);
+        setResult(pendingResult, Activity.RESULT_CANCELED, code);
+    }
+
+    private static void setResult(PendingResult pendingResult, int code, String data) {
+        try {
+            pendingResult.setResultCode(code);
+            pendingResult.setResultData(data);
+        } catch (Exception e) {
+            Log.w(TAG, "Failed to set broadcast result: " + e.getMessage());
+        }
     }
 
     private static void writeCoverageData(File file, byte[] data) throws IOException {

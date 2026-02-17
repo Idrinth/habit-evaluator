@@ -21,10 +21,6 @@ EXTERNAL_DIR="/sdcard/Android/data/$PACKAGE/files"
 MAX_ATTEMPTS=5
 COVERAGE_COLLECTED=""
 
-# Clear logcat for our tag before starting coverage collection so we can
-# reliably detect receiver responses without interference from prior runs.
-adb logcat -c 2>/dev/null || true
-
 for ATTEMPT in $(seq 1 "$MAX_ATTEMPTS"); do
     # Verify the app process is still alive — coverage data lives in the
     # JVM's static fields and is lost if the process dies.
@@ -53,16 +49,30 @@ for ATTEMPT in $(seq 1 "$MAX_ATTEMPTS"); do
     adb shell run-as "$PACKAGE" rm -f "files/$STATUS_FILENAME" 2>/dev/null || true
     adb shell rm -f "$EXTERNAL_DIR/$STATUS_FILENAME" 2>/dev/null || true
 
+    # Bring the app to the foreground before each attempt so the main-thread
+    # Looper is actively dispatching messages.  On slow emulators using
+    # swiftshader_indirect the Looper can stall when the app is backgrounded,
+    # causing broadcast delivery to time out silently.
+    adb shell am start -W -n "$PACKAGE/.MainActivity" >/dev/null 2>&1 || true
+    sleep 1
+
+    # Clear logcat before each attempt so status detection only sees messages
+    # from this attempt, not stale ones from a prior retry.
+    adb logcat -c 2>/dev/null || true
+
     # Send broadcast with both component target (-n) and explicit action (-a)
     # to ensure reliable delivery across Android versions. The action matches
     # the intent-filter in the debug AndroidManifest.
-    # -f 0x20 sets FLAG_INCLUDE_STOPPED_PACKAGES so the broadcast is delivered
-    # even if the system considers the app to be in a stopped state (which can
-    # happen after a crash + restart on some API levels).
+    # Flags:
+    #   0x10000000  FLAG_RECEIVER_FOREGROUND — dispatch via the foreground
+    #               broadcast queue so it is not deferred under load.
+    #   0x00000020  FLAG_INCLUDE_STOPPED_PACKAGES — deliver even if the system
+    #               considers the app to be in a stopped state (which can
+    #               happen after a crash + restart on some API levels).
     BROADCAST_OUTPUT=$(adb shell am broadcast \
       -a "$BROADCAST_ACTION" \
       -n "$PACKAGE/.coverage.CoverageBroadcastReceiver" \
-      -f 0x00000020 \
+      -f 0x10000020 \
       --es coverageFile "$COVERAGE_FILENAME" 2>&1) || true
 
     # Log broadcast result for diagnostics
@@ -114,6 +124,14 @@ for ATTEMPT in $(seq 1 "$MAX_ATTEMPTS"); do
                 continue
             fi
             break
+        elif echo "$STATUS_CHECK" | grep -q "^STARTED"; then
+            # Receiver ran (heartbeat written) but the JaCoCo dump is still
+            # in progress on the background thread.  Give it more time.
+            if [ "$ATTEMPT" -lt "$MAX_ATTEMPTS" ]; then
+                echo "::warning::Coverage receiver started but dump not finished yet (attempt $ATTEMPT/$MAX_ATTEMPTS for $1), retrying..."
+                sleep 4
+                continue
+            fi
         else
             # Neither logcat nor status file showed a result — receiver may
             # not have run yet.
@@ -127,10 +145,15 @@ for ATTEMPT in $(seq 1 "$MAX_ATTEMPTS"); do
             echo "::group::Logcat (CoverageBroadcastReceiver)"
             adb logcat -d -s CoverageBroadcastReceiver:* 2>/dev/null | tail -30
             echo "::endgroup::"
+            echo "::group::System logcat (broadcast delivery)"
+            adb logcat -d -s ActivityManager:* BroadcastQueue:* AndroidRuntime:* System.err:* 2>/dev/null | tail -50
+            echo "::endgroup::"
             echo "::group::Broadcast diagnostic"
             echo "Last broadcast output: $BROADCAST_OUTPUT"
             echo "Receiver registration:"
             adb shell dumpsys package "$PACKAGE" 2>/dev/null | grep -A3 "CoverageBroadcastReceiver" || echo "Receiver not found in package dump"
+            echo "App process:"
+            adb shell pidof "$PACKAGE" 2>/dev/null || echo "App process not running"
             echo "run-as test:"
             adb shell run-as "$PACKAGE" ls files/ 2>&1 | head -5
             echo "::endgroup::"
