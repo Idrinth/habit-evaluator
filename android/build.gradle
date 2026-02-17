@@ -77,7 +77,7 @@ android {
     }
 
     testCoverage {
-        jacocoVersion = '0.8.12'
+        jacocoVersion = '0.8.13'
     }
 
     testOptions {
@@ -116,7 +116,7 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-livedata:2.7.0'
 
     // JaCoCo agent runtime for Maestro coverage collection in debug builds
-    debugImplementation 'org.jacoco:org.jacoco.agent:0.8.12:runtime'
+    debugImplementation 'org.jacoco:org.jacoco.agent:0.8.13:runtime'
 
     // Testing
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
@@ -130,7 +130,7 @@ dependencies {
 }
 
 jacoco {
-    toolVersion = '0.8.12'
+    toolVersion = '0.8.13'
 }
 
 androidComponents {
