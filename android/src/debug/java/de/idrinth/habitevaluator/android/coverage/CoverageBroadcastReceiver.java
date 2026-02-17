@@ -5,11 +5,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
+import org.jacoco.agent.rt.internal.Offline;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.lang.reflect.Method;
 
 /**
  * Debug-only broadcast receiver that dumps JaCoCo execution data to the app's
@@ -68,11 +69,9 @@ public class CoverageBroadcastReceiver extends BroadcastReceiver {
         try {
             // AGP uses offline instrumentation, so coverage data is stored in
             // org.jacoco.agent.rt.internal.Offline, not accessible via RT.getAgent().
-            // Offline.getExecutionData(boolean) is a static method available since
-            // JaCoCo 0.8.8 that returns serialized execution data directly.
-            Class<?> offlineClass = Class.forName("org.jacoco.agent.rt.internal.Offline");
-            Method getExecutionDataMethod = offlineClass.getMethod("getExecutionData", boolean.class);
-            byte[] data = (byte[]) getExecutionDataMethod.invoke(null, false);
+            // Direct call (not reflection) so D8 sees the compile-time reference
+            // and keeps the Offline class in the DEX.
+            byte[] data = Offline.getExecutionData(false);
 
             if (data == null || data.length == 0) {
                 String msg = "JaCoCo returned empty execution data — bytecode may not be instrumented";
@@ -88,14 +87,10 @@ public class CoverageBroadcastReceiver extends BroadcastReceiver {
             Log.d(TAG, "Coverage data written to " + coverageFile.getAbsolutePath()
                     + " (" + data.length + " bytes)");
             writeStatus(statusFile, "OK: " + data.length + " bytes");
-        } catch (ClassNotFoundException e) {
+        } catch (NoClassDefFoundError e) {
             String msg = "JaCoCo Offline class not available — app may not be instrumented";
             Log.w(TAG, msg);
             writeStatus(statusFile, "NO_CLASS: " + msg);
-        } catch (ReflectiveOperationException e) {
-            String msg = "Failed to invoke JaCoCo Offline.getExecutionData(): " + e.getMessage();
-            Log.e(TAG, msg, e);
-            writeStatus(statusFile, "REFLECT_ERROR: " + msg);
         } catch (IOException e) {
             String msg = "Failed to write coverage data to " + coverageFile.getAbsolutePath()
                     + ": " + e.getMessage();
