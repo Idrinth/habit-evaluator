@@ -32,7 +32,7 @@ import de.idrinth.habitevaluator.android.ui.EmotionScatterChartView;
 public class StatsFragment extends Fragment {
 
     static final int DAYS = 30;
-    static final String LABEL_PATTERN = "MM/dd";
+    static final String LABEL_PATTERN = "yyyy-MM-dd";
     static final DateTimeFormatter LABEL_FORMAT = DateTimeFormatter.ofPattern(LABEL_PATTERN);
 
     private FragmentStatsBinding binding;

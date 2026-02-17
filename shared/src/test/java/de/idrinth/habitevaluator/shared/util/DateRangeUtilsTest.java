@@ -41,19 +41,19 @@ class DateRangeUtilsTest {
     void testFormatDateLabels() {
         LocalDate from = LocalDate.of(2024, 3, 1);
         LocalDate to = LocalDate.of(2024, 3, 3);
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         List<String> labels = DateRangeUtils.formatDateLabels(from, to, formatter);
         assertEquals(3, labels.size());
-        assertEquals("03/01", labels.get(0));
-        assertEquals("03/02", labels.get(1));
-        assertEquals("03/03", labels.get(2));
+        assertEquals("2024-03-01", labels.get(0));
+        assertEquals("2024-03-02", labels.get(1));
+        assertEquals("2024-03-03", labels.get(2));
     }
 
     @Test
     void testFormatDateLabelsEmptyRange() {
         LocalDate from = LocalDate.of(2024, 3, 5);
         LocalDate to = LocalDate.of(2024, 3, 1);
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         List<String> labels = DateRangeUtils.formatDateLabels(from, to, formatter);
         assertTrue(labels.isEmpty());
     }

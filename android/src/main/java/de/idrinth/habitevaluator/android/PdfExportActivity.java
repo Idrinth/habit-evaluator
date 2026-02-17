@@ -47,7 +47,7 @@ public class PdfExportActivity extends AppCompatActivity {
     }
 
     private static final DateTimeFormatter DISPLAY_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-    private static final DateTimeFormatter LABEL_FORMAT = DateTimeFormatter.ofPattern("MM/dd");
+    private static final DateTimeFormatter LABEL_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     private static final int PAGE_WIDTH = 595;
     private static final int PAGE_HEIGHT = 842;
     private static final float MARGIN = 40f;
