@@ -13,9 +13,14 @@ import java.lang.reflect.Method;
 
 /**
  * Debug-only broadcast receiver that dumps JaCoCo execution data to the app's
- * internal files directory, accessible via {@code adb exec-out run-as <package>}
- * on debuggable builds across all API levels (including API 30+ where scoped
- * storage restricts adb pull from external storage).
+ * files directory, accessible via {@code adb pull} (external) or
+ * {@code adb exec-out run-as <package>} (internal) on debuggable builds.
+ * <p>
+ * Coverage files are written to <b>both</b> external storage
+ * ({@link Context#getExternalFilesDir}) and internal storage
+ * ({@link Context#getFilesDir}). External storage is preferred for extraction
+ * because it does not require {@code run-as}, which can be unreliable on some
+ * emulator images (especially API 30+).
  * <p>
  * Uses {@link #goAsync()} so that the dump runs on a background thread,
  * preventing the main-thread from blocking delivery when the UI is busy with
@@ -24,8 +29,9 @@ import java.lang.reflect.Method;
  * <p>
  * In addition to the {@code .ec} coverage file, the receiver always writes a
  * small {@code .status} file (same base name) that the collection script can
- * check to distinguish "receiver never ran" from "receiver ran but had no
- * data."
+ * check. It also logs structured status messages with the tag
+ * {@code CoverageBroadcastReceiver} and prefix {@code COVERAGE_RESULT:} so the
+ * script can check receiver status via logcat without relying on file access.
  * <p>
  * Triggered via: adb shell am broadcast -a de.idrinth.habitevaluator.android.DUMP_COVERAGE
  *                --es coverageFile coverage.ec
@@ -37,34 +43,45 @@ public class CoverageBroadcastReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
+        Log.i(TAG, "COVERAGE_RECEIVER_ALIVE");
         final PendingResult pendingResult = goAsync();
 
         String coverageFileName = intent.getStringExtra("coverageFile");
         if (coverageFileName == null || coverageFileName.isEmpty()) {
             coverageFileName = DEFAULT_COVERAGE_FILENAME;
         }
+        Log.i(TAG, "COVERAGE_STARTED:" + coverageFileName);
+
         File internalDir = context.getFilesDir();
-        if (internalDir == null) {
-            Log.e(TAG, "Internal files directory not available");
-            writeStatus(null, "ERROR: internal files directory not available");
+        File externalDir = context.getExternalFilesDir(null);
+
+        if (internalDir == null && externalDir == null) {
+            Log.e(TAG, "No files directory available");
+            Log.i(TAG, "COVERAGE_RESULT:ERROR:no_files_directory");
             pendingResult.finish();
             return;
         }
-        File coverageFile = new File(internalDir, coverageFileName);
-        File statusFile = statusFileFor(internalDir, coverageFileName);
 
-        final File fCoverageFile = coverageFile;
-        final File fStatusFile = statusFile;
+        File internalCoverage = internalDir != null ? new File(internalDir, coverageFileName) : null;
+        File internalStatus = internalDir != null ? statusFileFor(internalDir, coverageFileName) : null;
+        File externalCoverage = externalDir != null ? new File(externalDir, coverageFileName) : null;
+        File externalStatus = externalDir != null ? statusFileFor(externalDir, coverageFileName) : null;
+
+        final File fInternalCoverage = internalCoverage;
+        final File fInternalStatus = internalStatus;
+        final File fExternalCoverage = externalCoverage;
+        final File fExternalStatus = externalStatus;
         new Thread(() -> {
             try {
-                dumpCoverage(fCoverageFile, fStatusFile);
+                dumpCoverage(fInternalCoverage, fInternalStatus, fExternalCoverage, fExternalStatus);
             } finally {
                 pendingResult.finish();
             }
         }).start();
     }
 
-    private void dumpCoverage(File coverageFile, File statusFile) {
+    private void dumpCoverage(File internalCoverage, File internalStatus,
+                              File externalCoverage, File externalStatus) {
         try {
             // AGP uses offline instrumentation, so coverage data is stored in
             // org.jacoco.agent.rt.internal.Offline, not accessible via RT.getAgent().
@@ -79,34 +96,54 @@ public class CoverageBroadcastReceiver extends BroadcastReceiver {
             if (data == null || data.length == 0) {
                 String msg = "JaCoCo returned empty execution data — bytecode may not be instrumented";
                 Log.w(TAG, msg);
-                writeStatus(statusFile, "EMPTY: " + msg);
+                writeStatus(internalStatus, "EMPTY: " + msg);
+                writeStatus(externalStatus, "EMPTY: " + msg);
+                Log.i(TAG, "COVERAGE_RESULT:EMPTY");
                 return;
             }
 
-            try (OutputStream out = new FileOutputStream(coverageFile)) {
-                out.write(data);
-                out.flush();
-            }
-            Log.d(TAG, "Coverage data written to " + coverageFile.getAbsolutePath()
-                    + " (" + data.length + " bytes)");
-            writeStatus(statusFile, "OK: " + data.length + " bytes");
+            writeCoverageData(internalCoverage, data);
+            writeCoverageData(externalCoverage, data);
+
+            String statusMsg = "OK: " + data.length + " bytes";
+            writeStatus(internalStatus, statusMsg);
+            writeStatus(externalStatus, statusMsg);
+            Log.i(TAG, "COVERAGE_RESULT:OK:" + data.length);
+            Log.d(TAG, "Coverage data written (" + data.length + " bytes)");
         } catch (ClassNotFoundException e) {
-            String msg = "JaCoCo Offline class not available — app may not be instrumented";
-            Log.w(TAG, msg);
-            writeStatus(statusFile, "NO_CLASS: " + msg);
+            reportError(internalStatus, externalStatus, "NO_CLASS",
+                    "JaCoCo Offline class not available — app may not be instrumented");
         } catch (NoClassDefFoundError e) {
-            String msg = "JaCoCo Offline class not available — app may not be instrumented";
-            Log.w(TAG, msg);
-            writeStatus(statusFile, "NO_CLASS: " + msg);
+            reportError(internalStatus, externalStatus, "NO_CLASS",
+                    "JaCoCo Offline class not available — app may not be instrumented");
         } catch (IOException e) {
-            String msg = "Failed to write coverage data to " + coverageFile.getAbsolutePath()
-                    + ": " + e.getMessage();
-            Log.e(TAG, msg, e);
-            writeStatus(statusFile, "IO_ERROR: " + msg);
+            reportError(internalStatus, externalStatus, "IO_ERROR",
+                    "Failed to write coverage data: " + e.getMessage());
         } catch (Exception e) {
-            String msg = "Unexpected error during coverage dump: " + e.getMessage();
-            Log.e(TAG, msg, e);
-            writeStatus(statusFile, "UNEXPECTED: " + msg);
+            reportError(internalStatus, externalStatus, "UNEXPECTED",
+                    "Unexpected error during coverage dump: " + e.getMessage());
+        }
+    }
+
+    private void reportError(File internalStatus, File externalStatus, String code, String msg) {
+        Log.w(TAG, msg);
+        String status = code + ": " + msg;
+        writeStatus(internalStatus, status);
+        writeStatus(externalStatus, status);
+        Log.i(TAG, "COVERAGE_RESULT:" + code);
+    }
+
+    private static void writeCoverageData(File file, byte[] data) throws IOException {
+        if (file == null) {
+            return;
+        }
+        File parent = file.getParentFile();
+        if (parent != null && !parent.exists()) {
+            parent.mkdirs();
+        }
+        try (OutputStream out = new FileOutputStream(file)) {
+            out.write(data);
+            out.flush();
         }
     }
 

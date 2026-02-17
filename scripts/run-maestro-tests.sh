@@ -11,6 +11,7 @@ EC_FILE="android/build/maestro-coverage/coverage_$1.ec"
 COVERAGE_FILENAME="coverage_$1.ec"
 STATUS_FILENAME="coverage_$1.status"
 BROADCAST_ACTION="de.idrinth.habitevaluator.android.DUMP_COVERAGE"
+EXTERNAL_DIR="/sdcard/Android/data/$PACKAGE/files"
 
 # Retry coverage collection up to 5 times. The broadcast receiver uses
 # goAsync() and a background thread, but the broadcast itself is still
@@ -18,7 +19,11 @@ BROADCAST_ACTION="de.idrinth.habitevaluator.android.DUMP_COVERAGE"
 # rendering (e.g. SleepAnalysisActivity with graph views) can delay delivery
 # on slow emulators using software rendering (swiftshader_indirect).
 MAX_ATTEMPTS=5
-ENCODED=""
+COVERAGE_COLLECTED=""
+
+# Clear logcat for our tag before starting coverage collection so we can
+# reliably detect receiver responses without interference from prior runs.
+adb logcat -c 2>/dev/null || true
 
 for ATTEMPT in $(seq 1 "$MAX_ATTEMPTS"); do
     # Verify the app process is still alive — coverage data lives in the
@@ -28,72 +33,123 @@ for ATTEMPT in $(seq 1 "$MAX_ATTEMPTS"); do
         echo "::warning::App process not running before coverage dump (attempt $ATTEMPT/$MAX_ATTEMPTS)"
         # Try to relaunch the app so coverage classes are loaded for the broadcast
         adb shell am start -n "$PACKAGE/.MainActivity" 2>/dev/null || true
-        sleep 3
+        sleep 5
         APP_PID=$(adb shell pidof "$PACKAGE" 2>/dev/null | tr -d '\r')
         if [ -z "$APP_PID" ]; then
             echo "::warning::Could not restart app for coverage dump"
             break
         fi
+        # Verify the process is stable (hasn't crashed immediately)
+        sleep 3
+        APP_PID2=$(adb shell pidof "$PACKAGE" 2>/dev/null | tr -d '\r')
+        if [ -z "$APP_PID2" ]; then
+            echo "::warning::App process died shortly after restart (attempt $ATTEMPT/$MAX_ATTEMPTS)"
+            continue
+        fi
     fi
 
-    # Remove any previous status file so we can tell whether the receiver ran
-    # this attempt.
+    # Remove any previous status files so we can tell whether the receiver
+    # ran this attempt.
     adb shell run-as "$PACKAGE" rm -f "files/$STATUS_FILENAME" 2>/dev/null || true
+    adb shell rm -f "$EXTERNAL_DIR/$STATUS_FILENAME" 2>/dev/null || true
 
     # Send broadcast with both component target (-n) and explicit action (-a)
     # to ensure reliable delivery across Android versions. The action matches
     # the intent-filter in the debug AndroidManifest.
+    # -f 0x20 sets FLAG_INCLUDE_STOPPED_PACKAGES so the broadcast is delivered
+    # even if the system considers the app to be in a stopped state (which can
+    # happen after a crash + restart on some API levels).
     BROADCAST_OUTPUT=$(adb shell am broadcast \
       -a "$BROADCAST_ACTION" \
       -n "$PACKAGE/.coverage.CoverageBroadcastReceiver" \
+      -f 0x00000020 \
       --es coverageFile "$COVERAGE_FILENAME" 2>&1) || true
 
     # Log broadcast result for diagnostics
-    if echo "$BROADCAST_OUTPUT" | grep -qi "error\|exception"; then
+    if echo "$BROADCAST_OUTPUT" | grep -qi "error\|exception\|not found"; then
         echo "::warning::Broadcast delivery issue on attempt $ATTEMPT: $BROADCAST_OUTPUT"
     fi
 
     # Wait for the receiver to process the broadcast and write the file.
     # The receiver now uses goAsync() + background thread so the main thread
     # is freed quickly, but we still need to wait for the thread to complete.
-    SLEEP_DURATION=$((3 + ATTEMPT))
+    SLEEP_DURATION=$((4 + ATTEMPT * 2))
     sleep "$SLEEP_DURATION"
 
-    # Check the .status file first — the receiver writes this regardless of
-    # whether coverage data was produced. If the status file exists, we know
-    # the receiver ran; its content tells us why coverage may be missing.
-    STATUS_CHECK=$(adb shell run-as "$PACKAGE" cat "files/$STATUS_FILENAME" 2>&1 | tr -d '\r')
-    if echo "$STATUS_CHECK" | grep -q "^OK:"; then
+    # PRIMARY STATUS CHECK: logcat (does not depend on run-as working)
+    # The receiver logs structured "COVERAGE_RESULT:<status>" messages.
+    LOGCAT_STATUS=$(adb logcat -d -s CoverageBroadcastReceiver:* 2>/dev/null \
+      | grep "COVERAGE_RESULT" | tail -1 | tr -d '\r')
+
+    if echo "$LOGCAT_STATUS" | grep -q "COVERAGE_RESULT:OK:"; then
         : # Receiver ran successfully, coverage file should exist
-    elif echo "$STATUS_CHECK" | grep -qE "^(EMPTY|NO_CLASS|REFLECT_ERROR|IO_ERROR|UNEXPECTED):"; then
-        echo "::warning::Coverage receiver reported: $STATUS_CHECK (attempt $ATTEMPT/$MAX_ATTEMPTS for $1)"
-        # No point retrying if the receiver itself says instrumentation is
-        # missing — the data will not appear on subsequent attempts.
-        if echo "$STATUS_CHECK" | grep -qE "^(NO_CLASS|EMPTY):"; then
-            echo "::warning::Instrumentation issue detected — skipping remaining retries for $1"
-            break
-        fi
+    elif echo "$LOGCAT_STATUS" | grep -q "COVERAGE_RESULT:EMPTY"; then
+        echo "::warning::Coverage receiver reported EMPTY data (attempt $ATTEMPT/$MAX_ATTEMPTS for $1)"
+        echo "::warning::Bytecode may not be instrumented or process was restarted — skipping remaining retries"
+        break
+    elif echo "$LOGCAT_STATUS" | grep -q "COVERAGE_RESULT:NO_CLASS"; then
+        echo "::warning::Coverage receiver reported NO_CLASS (attempt $ATTEMPT/$MAX_ATTEMPTS for $1)"
+        echo "::warning::Instrumentation issue detected — skipping remaining retries"
+        break
+    elif echo "$LOGCAT_STATUS" | grep -qE "COVERAGE_RESULT:(IO_ERROR|UNEXPECTED|ERROR)"; then
+        echo "::warning::Coverage receiver reported error: $LOGCAT_STATUS (attempt $ATTEMPT/$MAX_ATTEMPTS for $1)"
         if [ "$ATTEMPT" -lt "$MAX_ATTEMPTS" ]; then
             sleep 2
             continue
         fi
         break
     else
-        # Status file not found or unreadable — receiver may not have run yet
-        if [ "$ATTEMPT" -lt "$MAX_ATTEMPTS" ]; then
-            echo "::warning::Coverage receiver has not responded yet (attempt $ATTEMPT/$MAX_ATTEMPTS for $1), retrying..."
-            sleep 2
-            continue
+        # FALLBACK STATUS CHECK: status file via run-as (original method)
+        STATUS_CHECK=$(adb shell run-as "$PACKAGE" cat "files/$STATUS_FILENAME" 2>&1 | tr -d '\r')
+        if echo "$STATUS_CHECK" | grep -q "^OK:"; then
+            : # Receiver ran successfully, coverage file should exist
+        elif echo "$STATUS_CHECK" | grep -qE "^(EMPTY|NO_CLASS|REFLECT_ERROR|IO_ERROR|UNEXPECTED):"; then
+            echo "::warning::Coverage receiver reported: $STATUS_CHECK (attempt $ATTEMPT/$MAX_ATTEMPTS for $1)"
+            if echo "$STATUS_CHECK" | grep -qE "^(NO_CLASS|EMPTY):"; then
+                echo "::warning::Instrumentation issue detected — skipping remaining retries for $1"
+                break
+            fi
+            if [ "$ATTEMPT" -lt "$MAX_ATTEMPTS" ]; then
+                sleep 2
+                continue
+            fi
+            break
+        else
+            # Neither logcat nor status file showed a result — receiver may
+            # not have run yet.
+            if [ "$ATTEMPT" -lt "$MAX_ATTEMPTS" ]; then
+                echo "::warning::Coverage receiver has not responded yet (attempt $ATTEMPT/$MAX_ATTEMPTS for $1), retrying..."
+                sleep 2
+                continue
+            fi
+            # Final attempt: pull logcat and package info to diagnose why
+            echo "::warning::Coverage receiver never responded for $1 after $MAX_ATTEMPTS attempts"
+            echo "::group::Logcat (CoverageBroadcastReceiver)"
+            adb logcat -d -s CoverageBroadcastReceiver:* 2>/dev/null | tail -30
+            echo "::endgroup::"
+            echo "::group::Broadcast diagnostic"
+            echo "Last broadcast output: $BROADCAST_OUTPUT"
+            echo "Receiver registration:"
+            adb shell dumpsys package "$PACKAGE" 2>/dev/null | grep -A3 "CoverageBroadcastReceiver" || echo "Receiver not found in package dump"
+            echo "run-as test:"
+            adb shell run-as "$PACKAGE" ls files/ 2>&1 | head -5
+            echo "::endgroup::"
+            break
         fi
-        # Final attempt: pull logcat to help diagnose why the receiver never ran
-        echo "::warning::Coverage receiver never responded for $1 after $MAX_ATTEMPTS attempts"
-        echo "::group::Logcat (CoverageBroadcastReceiver)"
-        adb logcat -d -s CoverageBroadcastReceiver:* 2>/dev/null | tail -30
-        echo "::endgroup::"
+    fi
+
+    # Attempt to extract the coverage file.
+    # PRIMARY: adb pull from external storage (does not depend on run-as)
+    adb pull "$EXTERNAL_DIR/$COVERAGE_FILENAME" "$EC_FILE" 2>/dev/null
+
+    if [ -s "$EC_FILE" ]; then
+        COVERAGE_COLLECTED=1
         break
     fi
 
-    # Verify the coverage file exists on the device before extraction
+    # FALLBACK: Use base64 encoding via run-as for extraction from internal
+    # storage. Filter output: strip \r (injected by some adb versions) and
+    # drop any non-base64 lines (e.g. linker warnings, run-as messages).
     FILE_CHECK=$(adb shell run-as "$PACKAGE" ls "files/$COVERAGE_FILENAME" 2>&1 | tr -d '\r')
     if echo "$FILE_CHECK" | grep -q "No such file"; then
         if [ "$ATTEMPT" -lt "$MAX_ATTEMPTS" ]; then
@@ -105,17 +161,13 @@ for ATTEMPT in $(seq 1 "$MAX_ATTEMPTS"); do
         break
     fi
 
-    # Use base64 encoding for extraction to avoid binary data corruption
-    # through the adb exec-out pipe (raw binary piping can lose or mangle
-    # bytes containing null or control characters on some adb versions).
-    # Filter output: strip \r (injected by some adb versions) and drop any
-    # non-base64 lines (e.g. linker warnings, run-as messages) that the
-    # device may emit to stdout before the actual data.
     ENCODED=$(adb exec-out run-as "$PACKAGE" base64 "files/$COVERAGE_FILENAME" 2>/dev/null \
       | tr -d '\r' \
       | grep -E '^[A-Za-z0-9+/=]+$')
 
     if [ -n "$ENCODED" ]; then
+        echo "$ENCODED" | base64 -d > "$EC_FILE" 2>/dev/null
+        COVERAGE_COLLECTED=1
         break
     fi
 
@@ -125,23 +177,18 @@ for ATTEMPT in $(seq 1 "$MAX_ATTEMPTS"); do
     fi
 done
 
-if [ -n "$ENCODED" ]; then
-    echo "$ENCODED" | base64 -d > "$EC_FILE" 2>/dev/null
-    if [ -s "$EC_FILE" ]; then
-        python3 -c "
+if [ -s "$EC_FILE" ]; then
+    python3 -c "
 import sys
 data = open(sys.argv[1], 'rb').read()
 if len(data) < 5 or data[0:3] != b'\x01\xc0\xc0':
     sys.exit(1)
 " "$EC_FILE" || {
-            rm -f "$EC_FILE"
-            echo "::warning::Coverage file for $1 is not valid JaCoCo data"
-        }
-    else
         rm -f "$EC_FILE"
-        echo "::warning::Coverage file for $1 could not be decoded"
-    fi
+        echo "::warning::Coverage file for $1 is not valid JaCoCo data"
+    }
 else
+    rm -f "$EC_FILE" 2>/dev/null
     echo "::warning::Coverage file for $1 was not produced"
 fi
 
