@@ -265,8 +265,6 @@ public class MainActivity extends AppCompatActivity {
         habits = new ArrayList<>();
         sharedHabits = habits;
 
-        initializeStorage();
-
         SharedPreferences prefs = getSharedPreferences(SettingsActivity.PREFS_NAME, MODE_PRIVATE);
         if (!prefs.getBoolean(SettingsActivity.KEY_FIRST_START_COMPLETED, false)) {
             new MaterialAlertDialogBuilder(this)
@@ -276,11 +274,13 @@ public class MainActivity extends AppCompatActivity {
                             + getString(R.string.first_start_no_data_sharing))
                     .setPositiveButton(R.string.first_start_acknowledge, (dialog, which) -> {
                         prefs.edit().putBoolean(SettingsActivity.KEY_FIRST_START_COMPLETED, true).apply();
+                        initializeStorage();
                         completeSetup();
                     })
                     .setCancelable(false)
                     .show();
         } else {
+            initializeStorage();
             completeSetup();
         }
     }
