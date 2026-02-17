@@ -260,6 +260,13 @@ jobs:
           name: maestro-coverage-${{ matrix.test-file }}
           path: android/build/maestro-coverage/*.ec
 
+      - name: Upload crash logs
+        uses: actions/upload-artifact@v6
+        if: failure()
+        with:
+          name: maestro-logcat-${{ matrix.test-file }}
+          path: android/build/maestro-logs/*.txt
+
   android-maestro-report:
     needs: android-maestro
     if: always()

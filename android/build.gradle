@@ -254,7 +254,7 @@ if (project.hasProperty('maestroCoverage')) {
                     }
 
                     ant.instrument(destdir: tempDir) {
-                        fileset(dir: classesDir, includes: '**/*.class', excludes: '**/databinding/**,**/coverage/**')
+                        fileset(dir: classesDir, includes: '**/*.class', excludes: '**/databinding/**,**/coverage/**,**/module-info.class,**/package-info.class')
                     }
 
                     project.copy {
