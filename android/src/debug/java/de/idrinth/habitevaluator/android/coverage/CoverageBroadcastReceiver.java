@@ -5,12 +5,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
-import org.jacoco.agent.rt.internal.Offline;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.lang.reflect.Method;
 
 /**
  * Debug-only broadcast receiver that dumps JaCoCo execution data to the app's
@@ -69,9 +68,13 @@ public class CoverageBroadcastReceiver extends BroadcastReceiver {
         try {
             // AGP uses offline instrumentation, so coverage data is stored in
             // org.jacoco.agent.rt.internal.Offline, not accessible via RT.getAgent().
-            // Direct call (not reflection) so D8 sees the compile-time reference
-            // and keeps the Offline class in the DEX.
-            byte[] data = Offline.getExecutionData(false);
+            // Use reflection to avoid a compile-time dependency on the JaCoCo agent
+            // JAR, which may not be on the javac classpath in all AGP versions.
+            // Debug builds do not run R8/ProGuard, so the Offline class is kept in
+            // the DEX via the debugImplementation dependency regardless.
+            Class<?> offlineClass = Class.forName("org.jacoco.agent.rt.internal.Offline");
+            Method getExecutionData = offlineClass.getMethod("getExecutionData", boolean.class);
+            byte[] data = (byte[]) getExecutionData.invoke(null, false);
 
             if (data == null || data.length == 0) {
                 String msg = "JaCoCo returned empty execution data — bytecode may not be instrumented";
@@ -87,6 +90,10 @@ public class CoverageBroadcastReceiver extends BroadcastReceiver {
             Log.d(TAG, "Coverage data written to " + coverageFile.getAbsolutePath()
                     + " (" + data.length + " bytes)");
             writeStatus(statusFile, "OK: " + data.length + " bytes");
+        } catch (ClassNotFoundException e) {
+            String msg = "JaCoCo Offline class not available — app may not be instrumented";
+            Log.w(TAG, msg);
+            writeStatus(statusFile, "NO_CLASS: " + msg);
         } catch (NoClassDefFoundError e) {
             String msg = "JaCoCo Offline class not available — app may not be instrumented";
             Log.w(TAG, msg);
