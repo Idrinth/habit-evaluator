@@ -234,11 +234,6 @@ jobs:
       - name: Add Maestro to PATH
         run: echo "$HOME/.maestro/bin" >> "$GITHUB_PATH"
 
-      - name: Start ADB server
-        run: |
-          adb start-server
-          adb devices
-
       - name: Run Maestro test
         uses: reactivecircus/android-emulator-runner@v2
         with:
