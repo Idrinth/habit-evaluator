@@ -1,13 +1,13 @@
 package de.idrinth.habitevaluator.android;
 
 import android.annotation.SuppressLint;
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.google.gson.reflect.TypeToken;
@@ -280,7 +280,7 @@ public class MainActivity extends AppCompatActivity {
         if (prefs.getBoolean(SettingsActivity.KEY_FIRST_START_COMPLETED, false)) {
             return;
         }
-        new AlertDialog.Builder(this)
+        new MaterialAlertDialogBuilder(this)
                 .setTitle(R.string.first_start_title)
                 .setMessage(getString(R.string.first_start_not_professional_help)
                         + "\n\n"
