@@ -147,20 +147,8 @@ public class EditHabitAdapter extends RecyclerView.Adapter<EditHabitAdapter.Edit
         categoryAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         holder.categorySpinner.setAdapter(categoryAdapter);
         holder.categorySpinner.setSelection(findCategoryPosition(values.categoryId));
-        holder.categorySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
-                String selectedName = categoryNames.get(pos);
-                String catId = categoryDisplayNameToId.get(selectedName);
-                if (catId != null) {
-                    values.categoryId = catId;
-                }
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-            }
-        });
+        holder.categorySpinner.setOnItemSelectedListener(
+                new CategorySelectionListener(categoryNames, categoryDisplayNameToId, values));
 
         // Frequency type spinner
         List<String> freqLabels = new ArrayList<>();
@@ -172,18 +160,8 @@ public class EditHabitAdapter extends RecyclerView.Adapter<EditHabitAdapter.Edit
         freqAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         holder.frequencyTypeSpinner.setAdapter(freqAdapter);
         holder.frequencyTypeSpinner.setSelection(values.frequencyType.ordinal());
-        holder.frequencyTypeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
-                if (pos >= 0 && pos < FrequencyType.values().length) {
-                    values.frequencyType = FrequencyType.values()[pos];
-                }
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-            }
-        });
+        holder.frequencyTypeSpinner.setOnItemSelectedListener(
+                new FrequencyTypeSelectionListener(values));
 
         holder.targetFrequency.setText(String.valueOf(values.targetFrequency));
         holder.maxEntriesPerDay.setText(String.valueOf(values.maxEntriesPerDay));
@@ -307,45 +285,111 @@ public class EditHabitAdapter extends RecyclerView.Adapter<EditHabitAdapter.Edit
     }
 
     private TextWatcher createIntWatcher(IntConsumer consumer) {
-        return new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {}
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                try {
-                    int val = Integer.parseInt(s.toString());
-                    if (val >= 0) {
-                        consumer.accept(val);
-                    }
-                } catch (NumberFormatException e) {
-                    // ignore invalid input
-                }
-            }
-        };
+        return new IntTextWatcher(consumer);
     }
 
     private TextWatcher createStringWatcher(StringConsumer consumer) {
-        return new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {}
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                consumer.accept(s.toString());
-            }
-        };
+        return new StringTextWatcher(consumer);
     }
 
     @Override
     public int getItemCount() {
         return habits.size();
+    }
+
+    private static class CategorySelectionListener implements AdapterView.OnItemSelectedListener {
+        private final List<String> categoryNames;
+        private final Map<String, String> categoryDisplayNameToId;
+        private final EditedHabitValues values;
+
+        CategorySelectionListener(List<String> categoryNames,
+                                  Map<String, String> categoryDisplayNameToId,
+                                  EditedHabitValues values) {
+            this.categoryNames = categoryNames;
+            this.categoryDisplayNameToId = categoryDisplayNameToId;
+            this.values = values;
+        }
+
+        @Override
+        public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+            String selectedName = categoryNames.get(pos);
+            String catId = categoryDisplayNameToId.get(selectedName);
+            if (catId != null) {
+                values.categoryId = catId;
+            }
+        }
+
+        @Override
+        public void onNothingSelected(AdapterView<?> parent) {
+        }
+    }
+
+    private static class FrequencyTypeSelectionListener implements AdapterView.OnItemSelectedListener {
+        private final EditedHabitValues values;
+
+        FrequencyTypeSelectionListener(EditedHabitValues values) {
+            this.values = values;
+        }
+
+        @Override
+        public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+            if (pos >= 0 && pos < FrequencyType.values().length) {
+                values.frequencyType = FrequencyType.values()[pos];
+            }
+        }
+
+        @Override
+        public void onNothingSelected(AdapterView<?> parent) {
+        }
+    }
+
+    private static class IntTextWatcher implements TextWatcher {
+        private final IntConsumer consumer;
+
+        IntTextWatcher(IntConsumer consumer) {
+            this.consumer = consumer;
+        }
+
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+        }
+
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+        }
+
+        @Override
+        public void afterTextChanged(Editable s) {
+            try {
+                int val = Integer.parseInt(s.toString());
+                if (val >= 0) {
+                    consumer.accept(val);
+                }
+            } catch (NumberFormatException e) {
+                // ignore invalid input
+            }
+        }
+    }
+
+    private static class StringTextWatcher implements TextWatcher {
+        private final StringConsumer consumer;
+
+        StringTextWatcher(StringConsumer consumer) {
+            this.consumer = consumer;
+        }
+
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+        }
+
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+        }
+
+        @Override
+        public void afterTextChanged(Editable s) {
+            consumer.accept(s.toString());
+        }
     }
 
     public static class EditedHabitValues {
