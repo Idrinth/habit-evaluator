@@ -1,122 +1,148 @@
 # habit-evaluator
+
 [![Crowdin](https://badges.crowdin.net/habit-evaluator/localized.svg)](https://crowdin.com/project/habit-evaluator) [![Coverage Status](https://coveralls.io/repos/github/Idrinth/habit-evaluator/badge.svg?branch=claude/add-coveralls-workflow-rQrdw)](https://coveralls.io/github/Idrinth/habit-evaluator?branch=claude/add-coveralls-workflow-rQrdw)
 
-A habit tracker focussed on analysing and evaluating data without leaking it anywhere.
+A privacy-focused, multi-platform habit tracker for analysing and evaluating your personal data — without leaking it anywhere.
+
+Track habits, sleep, emotions, diary entries, food, sport, and medication across web, desktop, and Android. All data stays under your control.
+
+## Why habit-evaluator?
+
+Most habit trackers upload your data to third-party servers. habit-evaluator keeps everything local by default. You decide if and when to sync, share, or export your data.
+
+- **Privacy first** — no automatic cloud uploads, no tracking, no ads
+- **Your data, your way** — local storage on every platform, optional self-hosted sync
+- **Deep analysis** — go beyond simple checkboxes with scoring, streaks, correlations, and trend analysis
+- **Multi-platform** — use on web, desktop, or Android with the same feature set
+
+## Platforms
+
+| Platform | Description |
+|----------|-------------|
+| **Web** | Self-hosted web application with a Svelte frontend |
+| **Desktop** | Standalone desktop application with local database storage |
+| **Android** | Native Android app available in three SDK flavours |
 
 ## Features
 
 ### Habit Management
-- Create, update, and delete habits
-- Organise habits into user-defined categories with colour coding
-- Track habit completions with optional notes and configurable value/weight
-- Support for daily, weekly, and monthly frequency types
-- Configurable daily limits per habit
-- Positive and negative habit tracking
-- Alphabetical sorting of habits and categories
+
+- Create, update, and delete habits with categories and colour coding
+- Daily, weekly, and monthly frequency types
+- Positive and negative habit tracking (build good habits or break bad ones)
+- Configurable daily limits and optional notes per completion
 
 ### Evaluation & Scoring
-- Evaluate habit performance over custom date ranges, current week, or current month
-- Completion rate calculation (percentage of target met)
-- Streak tracking (current and longest)
-- On-track detection (≥80% completion rate)
-- Configurable scoring rules with 0/1/2/4/8 point thresholds, customisable during habit creation
+
+- Completion rate, current streak, and longest streak for any date range
+- On-track detection at 80% or above completion rate
+- Configurable point thresholds (0/1/2/4/8) per scoring rule
 - Weekly score aggregation across all habits and per category
-- Score prediction based on current pace
+- Score prediction based on your current pace
 - Point development charts (weekly and monthly)
 
 ### Diary / Journal
-- Log personal events and activities with date selection
-- Event significance levels: minor, normal, and major
-- Event description suggestions based on previous entries
+
+- Log events and activities with significance levels (minor, normal, major)
+- Suggestions based on previous entries
 - Daily, weekly, and monthly point aggregation and trend analysis
 
 ### Sleep Tracking
-- Log sleep sessions with date, start time, and end time
+
+- Log sleep sessions with start and end times
 - Overlap detection to prevent duplicate entries
-- Optional notes per sleep session
-- Statistics: daily duration, weekly and monthly averages, minimums, and maximums
+- Weekly and monthly statistics (average, minimum, maximum hours)
 - 30-day sleep duration visualisation
 
 ### Emotion Tracking
+
 - Define custom emotion pairs (e.g. sad–happy, anxious–calm)
-- Record emotion measurements on a scale over time
-- Line chart visualisation of emotion trends
-- Daily and overall emotion averages
-- Event correlation analysis between emotions, habits, diary entries, and sleep
+- Record measurements on a -10 to +10 scale
+- Line chart visualisation of trends over time
+- Correlation analysis between emotions, habits, diary entries, and sleep
+
+### Food & Sport Logging
+
+- Log meals with calorie and carbohydrate tracking
+- Tag-based food item organisation with suggestions
+- Log sport activities with duration, measurement, and units
+- Weekly and monthly sport statistics per activity
+
+### Medication Tracking
+
+- Track medications with dosage and provision type (pill, liquid drops, liquid ml)
+- Log individual doses with timestamps and notes
 
 ### Statistics & Dashboard
-- 30-day statistics dashboard with habit points, diary points, sleep duration, and sleep entry counts
-- Daily activity timeline showing when habits were completed
-- Colour-coded habit visualisation by category
-- Correlation report across all tracked data types
+
+- 30-day dashboard with habit points, diary points, and sleep data
+- Daily activity timeline with category colour coding
+- Cross-data correlation reports (habits, diary, sleep, emotions)
+- Emotion scatter plots by time of day
 
 ### PDF Export
-- Generate comprehensive PDF reports
-- Selective export: choose which sections to include (habits, sleep, diary, emotions, correlations)
+
+- Generate comprehensive reports with selective sections
 - Custom date range selection
+- Include habits, sleep, diary, emotions, and correlations
 
 ### Sharing
-- Magic links for read-only shared data access with optional time-based and category-based filtering and token expiration
+
+- Magic links for read-only access with optional category filtering, date ranges, and expiration
 
 ### Backup & Restore
-- Encrypted daily backups with password protection
-- 30-day backup retention
-- Restore from backup or merge backup data with existing data
-- Cross-platform backup compatibility (desktop and Android)
+
+- Password-encrypted backups (.hez format)
+- Selective restore — choose which data types to import
+- Cross-platform backup compatibility
 
 ### Synchronisation
-- Bidirectional sync with a remote web server
-- Conflict resolution and entry deduplication
-- Circuit breaker with cooldown to prevent sync spam
 
-### Multi-Platform Support
-- **Web** — Spring Boot REST API with Svelte frontend
-- **Desktop** — JavaFX application with local H2 database storage
-- **Android** — Native app with RecyclerView-based UI
+- Bidirectional sync with a self-hosted web server
+- Conflict resolution and entry deduplication
+- Circuit breaker to prevent sync spam
 
 ### Internationalisation
+
 - English, German, Spanish, and French
-- Custom habit name translations
+- Custom habit name translations per language
+- Community translations via [Crowdin](https://crowdin.com/project/habit-evaluator)
 
 ### Customisation
-- Dark mode, light mode, and system default theme selection
-- Custom scoring rule thresholds
-- Default data initialisation with sample habits and categories
 
-### Privacy
-- All data stays under your control — no automatic cloud uploads
-- Desktop app stores everything locally in an H2 database
-- Data is only shared when you explicitly create a magic link
-- HTTPS enforcement for remote server connections
+- Dark mode, light mode, and system default themes
+- Configurable scoring rules and thresholds
+- Module visibility toggles to show only what you use
+- Configurable reminders for sleep, diary, and emotion tracking
 
-## Technical Details
+## Getting Started
 
-### Authentication
-- Session-based authentication with BCrypt password encoding
-- HTML login page served via Thymeleaf
+### Docker (recommended for web)
 
-### REST API
-- Full CRUD endpoints for habits (`/api/habits`), categories (`/api/categories`), and scoring rules (`/api/score-rules`)
-- Habit entry creation, evaluation, score prediction, and point development endpoints
-- Diary entry management with description suggestions and statistics (`/api/diary`)
-- Sleep entry management with statistics (`/api/sleep-entries`)
-- Emotion pair management and graph data (`/api/emotions/pairs`, `/api/emotions/graph`)
-- Statistics dashboard, daily timeline, and correlation analysis (`/api/stats/*`)
-- Bidirectional synchronisation (`/api/sync`)
-- PDF export (`/api/export/pdf`)
-- Authentication endpoints (`/api/auth/login`, `/api/auth/logout`, `/api/auth/me`)
-- Magic link management (`/api/magic-links`) and public shared data access (`/api/shared/{token}`)
+```bash
+docker compose up --build
+```
 
-### Database
-- H2 for development and local/desktop use
-- MariaDB support for production (configured via environment variables)
-- H2 console available at `/h2-console` in development
+This starts the full stack: database, web server, website, and homepage.
 
-### Deployment
-- Two-stage Dockerfile for the webserver (Eclipse Temurin JDK 17 build, JRE 17 runtime)
-- GitHub Actions CI workflow for automated builds
-- Gradle multi-module build (`shared`, `webserver`, `desktop`, `android`)
+### Desktop
 
-### Testing
-- Unit tests for all shared models and services (JUnit 5)
-- Spring Boot integration test for application context loading
+```bash
+./gradlew :desktop:run
+```
+
+### Android
+
+Build a debug APK for your target SDK level:
+
+```bash
+./gradlew :android:assembleOreoDebug
+```
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for development setup, build instructions, architecture details, and coding conventions.
+
+## License
+
+[MIT](LICENSE)
