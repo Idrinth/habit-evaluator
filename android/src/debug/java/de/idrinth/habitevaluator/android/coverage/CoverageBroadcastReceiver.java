@@ -96,15 +96,13 @@ public class CoverageBroadcastReceiver extends BroadcastReceiver {
                               File internalCoverage, File internalStatus,
                               File externalCoverage, File externalStatus) {
         try {
-            // AGP uses offline instrumentation, so coverage data is stored in
-            // the JaCoCo Offline class, not accessible via RT.getAgent().
-            // JaCoCo shades its runtime classes to a version-specific package
-            // (org.jacoco.agent.rt.internal_<hash>) where the hash changes
-            // between JaCoCo versions.  Use findOfflineClass() to locate the
-            // actual class name dynamically instead of hardcoding it.
-            Class<?> offlineClass = findOfflineClass(context);
-            Method getExecutionData = offlineClass.getMethod("getExecutionData", boolean.class);
-            byte[] data = (byte[]) getExecutionData.invoke(null, false);
+            // JaCoCo offline instrumentation stores coverage data in the
+            // Agent singleton, which is initialized when the first
+            // instrumented class is loaded (via Offline.getProbes()).
+            // The public API to retrieve execution data is through
+            // RT.getAgent() which returns an IAgent with
+            // getExecutionData(boolean).
+            byte[] data = getExecutionData(context);
 
             if (data == null || data.length == 0) {
                 String msg = "JaCoCo returned empty execution data — bytecode may not be instrumented";
@@ -131,7 +129,7 @@ public class CoverageBroadcastReceiver extends BroadcastReceiver {
         } catch (NoClassDefFoundError e) {
             String cause = e.getCause() != null ? e.getCause().toString() : "no cause";
             reportError(pendingResult, internalStatus, externalStatus, "NO_CLASS",
-                    "NoClassDefFoundError: JaCoCo Offline class failed to initialize — "
+                    "NoClassDefFoundError: JaCoCo agent class failed to initialize — "
                     + cause);
         } catch (IOException e) {
             reportError(pendingResult, internalStatus, externalStatus, "IO_ERROR",
@@ -141,6 +139,54 @@ public class CoverageBroadcastReceiver extends BroadcastReceiver {
             reportError(pendingResult, internalStatus, externalStatus, "UNEXPECTED",
                     "Unexpected error during coverage dump: " + e);
         }
+    }
+
+    /**
+     * Retrieves JaCoCo execution data using the public RT/IAgent API.
+     * <p>
+     * When offline instrumentation is active, loading any instrumented class
+     * triggers {@code Offline.getProbes()} which initialises the JaCoCo
+     * {@code Agent} singleton. The public {@code RT.getAgent()} method
+     * returns this singleton (as {@code IAgent}), whose
+     * {@code getExecutionData(boolean)} serialises the accumulated probe
+     * data into the JaCoCo {@code .exec}/{@code .ec} binary format.
+     * <p>
+     * If the public API is unavailable (e.g. class-loading issues on some
+     * Android versions), this method falls back to locating the shaded
+     * {@code Agent} class via the {@code Offline} class's package name and
+     * calling {@code getInstance().getExecutionData(false)} directly.
+     */
+    private byte[] getExecutionData(Context context) throws Exception {
+        // Primary: use the public JaCoCo RT API (not shaded).
+        // RT is at org.jacoco.agent.rt.RT and IAgent is at
+        // org.jacoco.agent.rt.IAgent — neither is affected by
+        // the internal package shading.
+        try {
+            Class<?> rtClass = Class.forName("org.jacoco.agent.rt.RT");
+            Object agent = rtClass.getMethod("getAgent").invoke(null);
+            Class<?> iAgentClass = Class.forName("org.jacoco.agent.rt.IAgent");
+            Method getExecutionData = iAgentClass.getMethod("getExecutionData", boolean.class);
+            byte[] data = (byte[]) getExecutionData.invoke(agent, false);
+            Log.d(TAG, "Coverage data retrieved via RT.getAgent()");
+            return data;
+        } catch (Exception e) {
+            Log.w(TAG, "RT.getAgent() failed (" + e.getMessage()
+                    + "), trying shaded Agent fallback");
+        }
+
+        // Fallback: find the shaded Agent class via the Offline class's
+        // package.  The Agent class lives in the same shaded package
+        // (org.jacoco.agent.rt.internal_<hash>) and exposes
+        // getInstance() / getExecutionData(boolean).
+        Class<?> offlineClass = findOfflineClass(context);
+        String agentClassName = offlineClass.getName().replace(".Offline", ".Agent");
+        Log.d(TAG, "Trying shaded Agent class: " + agentClassName);
+        Class<?> agentClass = Class.forName(agentClassName, true, context.getClassLoader());
+        Object agent = agentClass.getMethod("getInstance").invoke(null);
+        Method getExecutionData = agent.getClass().getMethod("getExecutionData", boolean.class);
+        byte[] data = (byte[]) getExecutionData.invoke(agent, false);
+        Log.d(TAG, "Coverage data retrieved via shaded Agent class");
+        return data;
     }
 
     /**
