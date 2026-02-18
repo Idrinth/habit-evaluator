@@ -137,8 +137,9 @@ public class CoverageBroadcastReceiver extends BroadcastReceiver {
             reportError(pendingResult, internalStatus, externalStatus, "IO_ERROR",
                     "Failed to write coverage data: " + e.getMessage());
         } catch (Exception e) {
+            Log.e(TAG, "Unexpected error during coverage dump", e);
             reportError(pendingResult, internalStatus, externalStatus, "UNEXPECTED",
-                    "Unexpected error during coverage dump: " + e.getMessage());
+                    "Unexpected error during coverage dump: " + e);
         }
     }
 
@@ -203,7 +204,7 @@ public class CoverageBroadcastReceiver extends BroadcastReceiver {
         String status = code + ": " + msg;
         writeStatus(internalStatus, status);
         writeStatus(externalStatus, status);
-        Log.i(TAG, "COVERAGE_RESULT:" + code);
+        Log.i(TAG, "COVERAGE_RESULT:" + code + ":" + msg);
         setResult(pendingResult, Activity.RESULT_CANCELED, code);
     }
 
