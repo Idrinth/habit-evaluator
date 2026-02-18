@@ -174,6 +174,13 @@ for ATTEMPT in $(seq 1 "$MAX_ATTEMPTS"); do
         break
     elif echo "$LOGCAT_STATUS" | grep -q "COVERAGE_RESULT:NO_CLASS"; then
         echo "::warning::Coverage receiver reported NO_CLASS (attempt $ATTEMPT/$MAX_ATTEMPTS for $1)"
+        # Log the detailed error message from the receiver for diagnostics
+        NO_CLASS_DETAIL=$(adb logcat -d -s CoverageBroadcastReceiver:* 2>/dev/null \
+          | grep -E "ClassNotFoundException|NoClassDefFoundError|not found|not instrumented|failed to initialize|build cache" \
+          | tail -3 | tr -d '\r')
+        if [ -n "$NO_CLASS_DETAIL" ]; then
+            echo "::warning::Receiver detail: $NO_CLASS_DETAIL"
+        fi
         echo "::warning::Instrumentation issue detected — skipping remaining retries"
         break
     elif echo "$LOGCAT_STATUS" | grep -qE "COVERAGE_RESULT:(IO_ERROR|UNEXPECTED|ERROR)"; then

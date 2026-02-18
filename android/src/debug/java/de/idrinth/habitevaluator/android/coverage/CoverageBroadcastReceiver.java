@@ -126,10 +126,14 @@ public class CoverageBroadcastReceiver extends BroadcastReceiver {
             setResult(pendingResult, Activity.RESULT_OK, "OK:" + data.length);
         } catch (ClassNotFoundException e) {
             reportError(pendingResult, internalStatus, externalStatus, "NO_CLASS",
-                    "JaCoCo Offline class not available — app may not be instrumented");
+                    "ClassNotFoundException: JaCoCo Offline class not found in DEX — "
+                    + "bytecode was likely not instrumented (build cache may have "
+                    + "skipped the offline instrumentation step)");
         } catch (NoClassDefFoundError e) {
+            String cause = e.getCause() != null ? e.getCause().toString() : "no cause";
             reportError(pendingResult, internalStatus, externalStatus, "NO_CLASS",
-                    "JaCoCo Offline class not available — app may not be instrumented");
+                    "NoClassDefFoundError: JaCoCo Offline class failed to initialize — "
+                    + cause);
         } catch (IOException e) {
             reportError(pendingResult, internalStatus, externalStatus, "IO_ERROR",
                     "Failed to write coverage data: " + e.getMessage());
