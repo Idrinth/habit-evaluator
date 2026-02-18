@@ -200,8 +200,13 @@ tasks.register('jacocoMaestroReport', JacocoReport) {
         '**/databinding/**'
     ]
 
+    // Use the original (non-instrumented) classes saved before offline
+    // instrumentation.  JaCoCo computes class IDs (CRC64) from the bytecode
+    // of the classes provided here and matches them against the IDs recorded
+    // in the execution data.  Instrumented bytecode has different CRC64
+    // hashes, so using instrumented classes would silently produce 0% coverage.
     def debugTree = fileTree(
-        dir: layout.buildDirectory.dir("intermediates/javac/oreoDebug/compileOreoDebugJavaWithJavac/classes"),
+        dir: layout.buildDirectory.dir("maestro-original-classes"),
         excludes: fileFilter
     )
 
@@ -250,6 +255,21 @@ if (project.hasProperty('maestroCoverage')) {
                     if (!classesDir.exists()) {
                         return
                     }
+
+                    // Save original (non-instrumented) classes before instrumenting.
+                    // JaCoCo report generation requires the original bytecode to match
+                    // class IDs (CRC64) stored in the execution data.  The instrumented
+                    // bytecode has different CRC64 hashes, so providing instrumented
+                    // classes to the report task causes silent 0% coverage.
+                    def originalClassesDir = new File(project.layout.buildDirectory.get().asFile, 'maestro-original-classes')
+                    if (originalClassesDir.exists()) {
+                        project.delete(originalClassesDir)
+                    }
+                    project.copy {
+                        from classesDir
+                        into originalClassesDir
+                    }
+
                     def tempDir = new File(classesDir.parentFile, classesDir.name + '-jacoco-instrumented')
 
                     ant.taskdef(

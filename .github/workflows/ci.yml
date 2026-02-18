@@ -177,11 +177,11 @@ jobs:
           name: maestro-apk
           path: android/build/outputs/apk/oreo/debug/*.apk
 
-      - name: Upload compiled classes for coverage
+      - name: Upload original classes for coverage report
         uses: actions/upload-artifact@v6
         with:
           name: maestro-classes
-          path: android/build/intermediates/javac/oreoDebug/compileOreoDebugJavaWithJavac/classes/
+          path: android/build/maestro-original-classes/
 
   android-maestro:
     needs: android-maestro-build
@@ -284,11 +284,11 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v5
 
-      - name: Download compiled classes
+      - name: Download original classes
         uses: actions/download-artifact@v7
         with:
           name: maestro-classes
-          path: android/build/intermediates/javac/oreoDebug/compileOreoDebugJavaWithJavac/classes/
+          path: android/build/maestro-original-classes/
 
       - name: Download all coverage data
         uses: actions/download-artifact@v7
