@@ -297,6 +297,7 @@ jobs:
           path: android/build/maestro-coverage/
           merge-multiple: true
           github-token: ${{ github.token }}
+          run-id: ${{ github.run_id }}
 
       - name: Generate Maestro coverage report
         run: ./gradlew :android:jacocoMaestroReport
