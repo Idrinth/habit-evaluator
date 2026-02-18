@@ -183,6 +183,10 @@ public class CoverageBroadcastReceiver extends BroadcastReceiver {
         Log.d(TAG, "Trying shaded Agent class: " + agentClassName);
         Class<?> agentClass = Class.forName(agentClassName, true, context.getClassLoader());
         Object agent = agentClass.getMethod("getInstance").invoke(null);
+        if (agent == null) {
+            throw new IllegalStateException(
+                    "Shaded Agent.getInstance() returned null — agent not initialised");
+        }
         Method getExecutionData = agent.getClass().getMethod("getExecutionData", boolean.class);
         byte[] data = (byte[]) getExecutionData.invoke(agent, false);
         Log.d(TAG, "Coverage data retrieved via shaded Agent class");
