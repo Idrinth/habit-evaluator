@@ -24,6 +24,7 @@ habit-evaluator/
 ├── settings.gradle      # Module definitions (6 Gradle modules)
 ├── gradle.properties    # Version pins (Java 17, Spring Boot 3.5.10, JavaFX 21.0.2)
 ├── compose.yml          # Docker Compose (MariaDB + webserver + website + homepage + nginx)
+├── scripts/             # Utility scripts (local proxy, Maestro test runner)
 ├── crowdin.yml          # Crowdin localization configuration
 ├── CONTRIBUTING.md      # Contribution guidelines
 └── gradle/wrapper/      # Gradle 9.3.1 wrapper
@@ -58,7 +59,7 @@ Spring Boot 3.5.10 application with Spring Security, Spring Data JPA, Spring Dep
 - **Database:** H2 (dev, console at `/h2-console`) or MariaDB (production via `mariadb` profile)
 - **Artifact:** `habit-evaluator-web.jar`
 - **Additional dependencies:** OpenPDF 1.3.35 (PDF generation), springdoc-openapi 2.8.6 (test-only, OpenAPI spec generation)
-- **Docker:** `webserver/Dockerfile` — two-stage build (Eclipse Temurin JDK 17 build, JRE 17 runtime), exposes port 8080
+- **Docker:** `webserver/Dockerfile` — multi-target build: `prebuilt` target (JRE 25, copies pre-built JAR) and default target (JDK 25 build, JRE 25 runtime); source compiled to Java 17 bytecode, exposes port 8080
 
 ### desktop
 
@@ -82,7 +83,7 @@ Android application (SDK 35, min 21/26/33).
 - **Activities:** `MainActivity` (launcher with bottom navigation and fragment tabs), `SettingsActivity`, `PdfExportActivity`, `SleepAnalysisActivity`, `CorrelationActivity`, `EmergencyDialogueActivity` (step-by-step emergency plan walkthrough)
 - **Fragments:** `HomeFragment`, `EditHabitsFragment`, `AddHabitFragment`, `DiaryFragment`, `DiaryNavigationFragment`, `SleepTrackingFragment`, `StatsFragment`, `PointDevelopmentFragment`, `EmotionalStateFragment`, `RecordEmotionEntryFragment`, `AddEmotionPairFragment`, `ImprintFragment`, `SettingsFragment`, `FoodLogFragment`, `SportLogFragment`, `MedicationListFragment`, `MedicationLogFragment`, `EmergencyPlanFragment` (emergency plan step management)
 - **UI Adapters:** `HabitAdapter`, `EditHabitAdapter`, `DiaryEntryAdapter`, `SleepEntryAdapter`, `EmotionPairAdapter`, `EmotionDataAdapter`, `FoodLogAdapter`, `SportLogAdapter`, `MedicationAdapter`, `MedicationLogAdapter`, `ScreenPagerAdapter`, `EmergencyPlanStepAdapter`
-- **Chart Views:** `PointChartView`, `SleepGraphView`, `EmotionLineChartView`, `EmotionScatterChartView` (custom Android views)
+- **Chart Views:** `PointChartView`, `SleepGraphView`, `EmotionLineChartView`, `EmotionScatterChartView`, `SleepDistributionView` (custom Android views)
 - **Utilities:** `FontSizeHelper`, `ViewPager2SwipeSensitivityReducer`, `GsonSerializers`
 - **Reminders:** `ReminderScheduler`, `ReminderReceiver` (broadcast receiver for boot-completed and reminder intents)
 - **Permission Handlers:** `Api33PermissionHandler` (Android 13+), `PreApi33PermissionHandler`, `NotificationPermissionHandler`
@@ -91,7 +92,8 @@ Android application (SDK 35, min 21/26/33).
 - **Permissions:** INTERNET, POST_NOTIFICATIONS, RECEIVE_BOOT_COMPLETED, SCHEDULE_EXACT_ALARM (API ≤32)
 - **Build Flavors:** `lollipop` (minSdk 21), `oreo` (minSdk 26), `tiramisu` (minSdk 33) with Core Library Desugaring
 - **Dependencies:** AndroidX AppCompat 1.7.1, Material 1.11.0, ConstraintLayout 2.2.1, RecyclerView 1.4.0, CardView 1.0.0, ViewPager2 1.1.0, Lifecycle (ViewModel/LiveData 2.7.0), Core Library Desugaring 2.0.4, SLF4J no-op 2.0.17, Mockito 5.11.0 (test)
-- **Build:** Android Gradle Plugin 8.9.0, ProGuard minification and resource shrinking in release builds, signing config for release APKs, AAB (Android App Bundle) support, JaCoCo coverage reporting for all three flavors, view binding enabled, buildConfig enabled
+- **Debug instrumentation:** `CoverageBroadcastReceiver` (JaCoCo execution data dump via broadcast intent), `JacocoInitProvider` (ContentProvider that initializes JaCoCo agent at app startup) — debug source set only (`src/debug/`), used for Maestro UI test coverage collection
+- **Build:** Android Gradle Plugin 8.9.0, ProGuard minification and resource shrinking in release builds, signing config for release APKs, AAB (Android App Bundle) support, JaCoCo 0.8.13 coverage reporting for all three flavors (unit test + Maestro coverage via offline instrumentation pipeline guarded by `-PmaestroCoverage`), view binding enabled, buildConfig enabled
 
 ### website
 
@@ -103,7 +105,7 @@ SvelteKit 2.0 frontend application with TypeScript.
 - **Config:** `src/lib/config.ts` — runtime configuration with dynamic API URL
 - **Build:** SvelteKit 2.50.2, Svelte 5.50.2, Vite 7.3.1, `svelte-check` for type checking, TypeScript 5.9.3 (strict mode)
 - **Testing:** Vitest 4.0.18, Testing Library (Svelte 5.3.1, user-event 14.6.1, jest-dom 6.9.1), jsdom 28.0.0, Cypress 15.10.0 (E2E)
-- **Docker:** `website/Dockerfile` — Node.js 22 alpine build, nginx alpine runtime; `docker-entrypoint.sh` injects `API_BASE_URL` at runtime
+- **Docker:** `website/Dockerfile` — multi-target build: `prebuilt` target (nginx alpine, copies build/) and default target (Node.js 25 alpine build, nginx alpine runtime); `docker-entrypoint.sh` injects `API_BASE_URL` at runtime
 - **Static adapter** with SPA fallback (`index.html`)
 
 ### homepage
@@ -113,7 +115,7 @@ SvelteKit 2.0 static homepage and documentation site.
 - **Routes:** Landing page, features page, documentation pages (android, desktop, api, webserver), imprint
 - **Build:** SvelteKit 2.50.2, Svelte 5.50.2, Vite 7.3.1, TypeScript 5.9.3
 - **Prerendering:** All routes prerendered (`['*']`), strict mode enabled
-- **Docker:** `homepage/Dockerfile` — Node.js 22 alpine build, nginx alpine runtime
+- **Docker:** `homepage/Dockerfile` — multi-target build: `prebuilt` target (nginx alpine) and default target (Node.js 25 alpine build, nginx alpine runtime)
 
 ### api-bench
 
@@ -380,6 +382,9 @@ The script reads the upstream proxy URL (including credentials) from the `http_p
 
 **npm / Node.js** tools (website, homepage) generally respect the environment variables automatically and need no extra configuration.
 
+**Other scripts:**
+- `scripts/run-maestro-tests.sh` — Maestro UI test runner for Android emulator. Handles pre-flight crash detection, JaCoCo coverage broadcast triggering, `adb` file extraction, structured logging, and crash diagnostic summaries. Used by CI's `android-maestro` job.
+
 ## Android SDK Setup
 
 The Android SDK is **not pre-installed** in this environment. The android module requires compileSdk 35, build-tools 35.0.0, and platform-tools. Follow these steps to install the SDK from scratch.
@@ -449,7 +454,7 @@ cd "$WRAPPER_DIR" && unzip -q gradle-9.3.1-bin.zip && rm -f *.lck *.part
 
 ## Testing
 
-**Java Framework:** JUnit 5 (Jupiter 5.10.2), JaCoCo 0.8.11 for coverage
+**Java Framework:** JUnit 5 (Jupiter 5.10.2), JaCoCo 0.8.13 for coverage
 **Frontend Framework:** Vitest 4.0.18, Testing Library (Svelte/user-event), jsdom 28.0.0, Cypress 15.10.0 (E2E)
 
 **Test locations:**
@@ -477,11 +482,13 @@ cd "$WRAPPER_DIR" && unzip -q gradle-9.3.1-bin.zip && rm -f *.lck *.part
   - **Activity tests (6):** `MainActivityTest`, `SettingsActivityTest`, `PdfExportActivityTest`, `SleepAnalysisActivityTest`, `CorrelationActivityTest`, `EmergencyDialogueActivityTest`
   - **Fragment tests (19):** `HomeFragmentTest`, `EditHabitsFragmentTest`, `AddHabitFragmentTest`, `DiaryFragmentTest`, `DiaryNavigationFragmentTest`, `SleepTrackingFragmentTest`, `StatsFragmentTest`, `PointDevelopmentFragmentTest`, `EmotionalStateFragmentTest`, `RecordEmotionEntryFragmentTest`, `AddEmotionPairFragmentTest`, `ImprintFragmentTest`, `SettingsFragmentTest`, `FoodLogFragmentTest`, `SportLogFragmentTest`, `MedicationListFragmentTest`, `MedicationLogFragmentTest`, `EmergencyPlanFragmentTest`, `StartupRegressionTest`
   - **Adapter/View tests (19):** `HabitAdapterTest`, `EditHabitAdapterTest`, `DiaryEntryAdapterTest`, `SleepEntryAdapterTest`, `EmotionPairAdapterTest`, `EmotionDataAdapterTest`, `FoodLogAdapterTest`, `SportLogAdapterTest`, `MedicationAdapterTest`, `MedicationLogAdapterTest`, `ScreenPagerAdapterTest`, `PointChartViewTest`, `SleepGraphViewTest`, `EmotionLineChartViewTest`, `EmotionScatterChartViewTest`, `SleepDistributionViewTest`, `ViewPager2SwipeSensitivityReducerTest`, `AdapterDataConsistencyTest`, `BottomNavigationRegressionTest`
-  - **Persistence tests (14):** `SQLiteHabitRepositoryTest`, `SQLiteHabitCategoryRepositoryTest`, `SQLiteDiaryEntryRepositoryTest`, `SQLiteDiaryReferenceRepositoryTest`, `SQLiteSleepEntryRepositoryTest`, `SQLiteEmotionPairRepositoryTest`, `SQLiteEmotionEntryRepositoryTest`, `SQLiteFoodLogRepositoryTest`, `SQLiteFoodTagRepositoryTest`, `SQLiteSportLogRepositoryTest`, `SQLiteMedicationRepositoryTest`, `SQLiteMedicationLogRepositoryTest`, `SQLiteEmergencyPlanStepRepositoryTest`, `SQLiteEmergencyPlanActionRepositoryTest`
+  - **Persistence tests (15):** `SQLiteHabitRepositoryTest`, `SQLiteHabitCategoryRepositoryTest`, `SQLiteDiaryEntryRepositoryTest`, `SQLiteDiaryReferenceRepositoryTest`, `SQLiteSleepEntryRepositoryTest`, `SQLiteEmotionPairRepositoryTest`, `SQLiteEmotionEntryRepositoryTest`, `SQLiteFoodLogRepositoryTest`, `SQLiteFoodTagRepositoryTest`, `SQLiteSportLogRepositoryTest`, `SQLiteMedicationRepositoryTest`, `SQLiteMedicationLogRepositoryTest`, `SQLiteEmergencyPlanStepRepositoryTest`, `SQLiteEmergencyPlanActionRepositoryTest`, `SQLiteHelperTest`
   - **Utility/Other tests (7+):** `FontSizeHelperTest`, `ReminderSchedulerTest`, `ReminderReceiverTest`, `PreApi33PermissionHandlerTest`, `Api33PermissionHandlerTest`, `NotificationHelperTest`, `JsonToSqliteMigrationTest`
 - `android/.maestro/` — 13 Maestro UI test files (see Maestro Testing section)
 - `website/src/` — 6 test files:
   - `lib/api.test.ts`, `lib/config.test.ts`, `lib/i18n.test.ts`, `routes/login/login.test.ts`, `routes/diary/diary.test.ts`, `routes/categories/add/categories-add.test.ts`
+- `homepage/src/` — 4 test files:
+  - `routes/landing.test.ts`, `routes/imprint/imprint.test.ts`, `routes/docs/docs.test.ts`, `routes/features/features.test.ts`
 - `shared/src/test/resources/test-localization/` — German and English YAML test fixtures
 
 **Conventions:**
@@ -510,16 +517,18 @@ Maestro UI test files at `android/.maestro/` for automated Android emulator test
 12. `12_sleep_tracking_page.yaml` — Sleep tracking interactions
 13. `13_full_navigation_flow.yaml` — End-to-end navigation flow
 
-Maestro tests run in CI on an Android 30 emulator with KVM acceleration and generate JaCoCo coverage reports.
+Maestro tests run in CI on an Android 30 emulator with KVM acceleration. Each of the 13 tests runs as a separate matrix job (`android-maestro`), with coverage data aggregated in `android-maestro-report`. Coverage collection uses JaCoCo offline instrumentation via `CoverageBroadcastReceiver` in the debug source set, triggered by `scripts/run-maestro-tests.sh`.
 
 ## CI/CD
 
 GitHub Actions workflows at `.github/workflows/`:
 
-- **ci.yml** — Primary CI pipeline: triggers on push/PR to `the-one`. Contains 13 jobs:
+- **ci.yml** — Primary CI pipeline: triggers on push/PR to `the-one`. Contains 15 jobs:
   - **java** — JDK 17 (Temurin), builds shared/webserver/desktop, JaCoCo coverage, Coveralls upload
   - **android** — JDK 17, debug APKs for all three flavors (lollipop, oreo, tiramisu), unit tests, JaCoCo coverage, Coveralls upload
-  - **android-maestro** — Maestro UI tests on Android emulator (API 30) with coverage collection
+  - **android-maestro-build** — Builds instrumented APK with JaCoCo offline instrumentation for Maestro coverage
+  - **android-maestro** — Matrix of 13 individual Maestro UI tests on Android emulator (API 30), each producing coverage data (depends on android-maestro-build)
+  - **android-maestro-report** — Aggregates Maestro coverage from all 13 test runs into a single JaCoCo report, uploads to Coveralls (depends on android-maestro)
   - **frontend-check** — Matrix job for website and homepage `svelte-check` type checking (Node.js 22)
   - **website-test** — Website unit tests with coverage, Coveralls upload
   - **homepage-test** — Homepage unit tests with coverage, Coveralls upload
@@ -528,7 +537,7 @@ GitHub Actions workflows at `.github/workflows/`:
   - **desktop-exe** — Windows .exe packaging via jpackage (depends on java)
   - **check-signing** — Checks for Android keystore secrets availability
   - **android-release** — Matrix job for signed APK + AAB per flavor (conditional on secrets)
-  - **docker** — Matrix Docker builds to GHCR for webserver, website, homepage (conditional on push, depends on java + e2e + frontend-check)
+  - **docker** — Matrix Docker builds to GHCR for webserver, website, homepage (conditional on push, depends on java + android-maestro-report + e2e + frontend-check)
   - **coveralls-finish** — Finalizes parallel Coveralls reporting
 - **release.yml** — Release automation: artifact builds (Linux .deb, Windows .exe, Android APK for lollipop/oreo/tiramisu flavors, AAB), Docker builds to GHCR (webserver, website, homepage), signing with environment variables
 - **release-auto-draft.yml** — Automatic draft release creation with semantic versioning
