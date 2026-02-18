@@ -236,6 +236,15 @@ if (project.hasProperty('maestroCoverage')) {
     android.applicationVariants.configureEach { variant ->
         if (variant.buildType.name == 'debug') {
             variant.javaCompileProvider.configure {
+                // Declare the maestroCoverage flag as a task input so that
+                // Gradle's up-to-date checking and build cache treat builds
+                // with and without offline instrumentation as distinct.
+                // Without this, a cached compile output from a non-instrumented
+                // build would be reused, silently skipping the doLast
+                // instrumentation step and producing an APK with no JaCoCo
+                // probes (causing NO_CLASS at coverage collection time).
+                inputs.property('jacocoOfflineInstrumentation', true)
+
                 doLast {
                     def classesDir = destinationDirectory.get().asFile
                     if (!classesDir.exists()) {
@@ -257,13 +266,20 @@ if (project.hasProperty('maestroCoverage')) {
                         fileset(dir: classesDir, includes: '**/*.class', excludes: '**/databinding/**,**/coverage/**,**/module-info.class,**/package-info.class')
                     }
 
+                    def instrumentedCount = 0
+                    tempDir.eachFileRecurse { if (it.name.endsWith('.class')) instrumentedCount++ }
+
+                    if (instrumentedCount == 0) {
+                        logger.warn("JaCoCo offline instrumentation produced no instrumented classes for ${variant.name}")
+                    }
+
                     project.copy {
                         from tempDir
                         into classesDir
                     }
                     project.delete(tempDir)
 
-                    logger.lifecycle("JaCoCo offline instrumentation applied to ${variant.name} classes")
+                    logger.lifecycle("JaCoCo offline instrumentation applied to ${variant.name} classes (${instrumentedCount} files)")
                 }
             }
         }
