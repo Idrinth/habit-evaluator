@@ -11,6 +11,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.reflect.Method;
+import java.util.Enumeration;
 
 /**
  * Debug-only broadcast receiver that dumps JaCoCo execution data to the app's
@@ -83,7 +84,7 @@ public class CoverageBroadcastReceiver extends BroadcastReceiver {
                 // spent in onReceive() on the main thread.
                 writeStatus(fInternalStatus, "STARTED");
                 writeStatus(fExternalStatus, "STARTED");
-                dumpCoverage(pendingResult, fInternalCoverage, fInternalStatus,
+                dumpCoverage(context, pendingResult, fInternalCoverage, fInternalStatus,
                         fExternalCoverage, fExternalStatus);
             } finally {
                 pendingResult.finish();
@@ -91,17 +92,17 @@ public class CoverageBroadcastReceiver extends BroadcastReceiver {
         }).start();
     }
 
-    private void dumpCoverage(PendingResult pendingResult,
+    private void dumpCoverage(Context context, PendingResult pendingResult,
                               File internalCoverage, File internalStatus,
                               File externalCoverage, File externalStatus) {
         try {
             // AGP uses offline instrumentation, so coverage data is stored in
-            // org.jacoco.agent.rt.internal.Offline, not accessible via RT.getAgent().
-            // Use reflection to avoid a compile-time dependency on the JaCoCo agent
-            // JAR, which may not be on the javac classpath in all AGP versions.
-            // Debug builds do not run R8/ProGuard, so the Offline class is kept in
-            // the DEX via the debugImplementation dependency regardless.
-            Class<?> offlineClass = Class.forName("org.jacoco.agent.rt.internal.Offline");
+            // the JaCoCo Offline class, not accessible via RT.getAgent().
+            // JaCoCo shades its runtime classes to a version-specific package
+            // (org.jacoco.agent.rt.internal_<hash>) where the hash changes
+            // between JaCoCo versions.  Use findOfflineClass() to locate the
+            // actual class name dynamically instead of hardcoding it.
+            Class<?> offlineClass = findOfflineClass(context);
             Method getExecutionData = offlineClass.getMethod("getExecutionData", boolean.class);
             byte[] data = (byte[]) getExecutionData.invoke(null, false);
 
@@ -126,9 +127,7 @@ public class CoverageBroadcastReceiver extends BroadcastReceiver {
             setResult(pendingResult, Activity.RESULT_OK, "OK:" + data.length);
         } catch (ClassNotFoundException e) {
             reportError(pendingResult, internalStatus, externalStatus, "NO_CLASS",
-                    "ClassNotFoundException: JaCoCo Offline class not found in DEX — "
-                    + "bytecode was likely not instrumented (build cache may have "
-                    + "skipped the offline instrumentation step)");
+                    "ClassNotFoundException: " + e.getMessage());
         } catch (NoClassDefFoundError e) {
             String cause = e.getCause() != null ? e.getCause().toString() : "no cause";
             reportError(pendingResult, internalStatus, externalStatus, "NO_CLASS",
@@ -141,6 +140,60 @@ public class CoverageBroadcastReceiver extends BroadcastReceiver {
             reportError(pendingResult, internalStatus, externalStatus, "UNEXPECTED",
                     "Unexpected error during coverage dump: " + e.getMessage());
         }
+    }
+
+    /**
+     * Locates the JaCoCo {@code Offline} class in the APK's DEX.
+     * <p>
+     * JaCoCo's published {@code runtime} classifier JAR shades the internal
+     * package to {@code org.jacoco.agent.rt.internal_<hash>} where the hash
+     * is derived from the build's Git commit ID and changes between versions.
+     * The Ant {@code instrument} task produces bytecode referencing the same
+     * shaded name, so the instrumented code and runtime match — but we cannot
+     * hardcode the class name for reflective access.
+     * <p>
+     * This method first tries the canonical (unshaded) name, then falls back
+     * to scanning the DEX entries for any class matching the shaded pattern.
+     */
+    @SuppressWarnings("deprecation")
+    private static Class<?> findOfflineClass(Context context) throws ClassNotFoundException {
+        // Try the canonical (unshaded) name first — works if the runtime JAR
+        // is ever published without shading or if a future version changes.
+        try {
+            return Class.forName("org.jacoco.agent.rt.internal.Offline");
+        } catch (ClassNotFoundException ignored) {
+            // Expected for standard JaCoCo releases that shade internal classes.
+        }
+
+        // Scan the APK's DEX entries for the shaded variant.
+        // DexFile is deprecated since API 26 but remains functional through
+        // API 35.  This is debug-only code, so using a deprecated API is
+        // acceptable.
+        try {
+            dalvik.system.DexFile dexFile = new dalvik.system.DexFile(
+                    context.getPackageCodePath());
+            try {
+                Enumeration<String> entries = dexFile.entries();
+                while (entries.hasMoreElements()) {
+                    String name = entries.nextElement();
+                    if (name.startsWith("org.jacoco.agent.rt.internal")
+                            && name.endsWith(".Offline")) {
+                        Log.d(TAG, "Found shaded JaCoCo Offline class: " + name);
+                        return Class.forName(name, true, context.getClassLoader());
+                    }
+                }
+            } finally {
+                dexFile.close();
+            }
+        } catch (IOException e) {
+            Log.w(TAG, "Failed to scan DEX for JaCoCo Offline class: "
+                    + e.getMessage());
+        }
+
+        throw new ClassNotFoundException(
+                "JaCoCo Offline class not found — neither the unshaded "
+                + "(org.jacoco.agent.rt.internal.Offline) nor a shaded variant "
+                + "(org.jacoco.agent.rt.internal_<hash>.Offline) was detected in DEX");
     }
 
     private void reportError(PendingResult pendingResult,
