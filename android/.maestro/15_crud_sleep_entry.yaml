@@ -35,7 +35,9 @@ name: "Add, display and delete a sleep entry"
     element:
       text: "22:00"
     direction: DOWN
-    timeout: 5000
+    speed: 80
+    visibilityPercentage: 80
+    timeout: 10000
 - assertVisible: "22:00"
 
 # Delete the entry
