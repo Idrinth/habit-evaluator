@@ -398,18 +398,23 @@ public class MainActivity extends AppCompatActivity {
             }
             int id = item.getItemId();
             if (id == R.id.nav_home) {
+                programmaticNavigationTarget = ScreenPagerAdapter.PAGE_HOME;
                 binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_HOME, true);
                 return true;
             } else if (id == R.id.nav_diary) {
+                programmaticNavigationTarget = ScreenPagerAdapter.PAGE_DIARY;
                 binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_DIARY, true);
                 return true;
             } else if (id == R.id.nav_emotions) {
+                programmaticNavigationTarget = ScreenPagerAdapter.PAGE_EMOTIONAL_STATE;
                 binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_EMOTIONAL_STATE, true);
                 return true;
             } else if (id == R.id.nav_sleep) {
+                programmaticNavigationTarget = ScreenPagerAdapter.PAGE_SLEEP;
                 binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_SLEEP, true);
                 return true;
             } else if (id == R.id.nav_emergency_plan) {
+                programmaticNavigationTarget = ScreenPagerAdapter.PAGE_EMERGENCY_PLAN;
                 binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_EMERGENCY_PLAN, true);
                 return true;
             }
@@ -421,14 +426,19 @@ public class MainActivity extends AppCompatActivity {
             }
             int id = item.getItemId();
             if (id == R.id.nav_home) {
+                programmaticNavigationTarget = ScreenPagerAdapter.PAGE_HOME;
                 binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_HOME, true);
             } else if (id == R.id.nav_diary) {
+                programmaticNavigationTarget = ScreenPagerAdapter.PAGE_DIARY;
                 binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_DIARY, true);
             } else if (id == R.id.nav_emotions) {
+                programmaticNavigationTarget = ScreenPagerAdapter.PAGE_EMOTIONAL_STATE;
                 binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_EMOTIONAL_STATE, true);
             } else if (id == R.id.nav_sleep) {
+                programmaticNavigationTarget = ScreenPagerAdapter.PAGE_SLEEP;
                 binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_SLEEP, true);
             } else if (id == R.id.nav_emergency_plan) {
+                programmaticNavigationTarget = ScreenPagerAdapter.PAGE_EMERGENCY_PLAN;
                 binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_EMERGENCY_PLAN, true);
             }
         });
