@@ -12,7 +12,7 @@ dependencies {
     implementation project(':shared')
 
     // Logging implementation
-    implementation 'ch.qos.logback:logback-classic:1.4.14'
+    implementation 'ch.qos.logback:logback-classic:1.5.32'
 
     // H2 database for local persistence
     implementation 'com.h2database:h2:2.2.224'
