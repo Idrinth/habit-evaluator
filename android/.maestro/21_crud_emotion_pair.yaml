@@ -1,0 +1,46 @@
+appId: de.idrinth.habitevaluator.android
+name: "Add, display and delete an emotion pair"
+---
+- launchApp:
+    clearState: true
+- assertVisible: "Welcome to Habit Evaluator"
+- tapOn: "I understand"
+
+# Navigate to Emotions tab
+- tapOn: "Emotions"
+- assertVisible:
+    id: "emotionalStateTitle"
+
+# Tap add emotion pair button
+- tapOn:
+    id: "addEmotionPairButton"
+- assertVisible: "Add Emotion Pair"
+
+# Fill negative label (required)
+- tapOn:
+    id: "negativeLabelInput"
+- inputText: "Sad"
+- hideKeyboard
+
+# Fill positive label (required)
+- tapOn:
+    id: "positiveLabelInput"
+- inputText: "Happy"
+- hideKeyboard
+
+# Submit
+- tapOn:
+    id: "saveEmotionPairButton"
+
+# After saving, navigates back to Emotions page
+# Verify pair appears in the list
+- assertVisible: "Sad"
+
+# Delete the emotion pair (has confirmation dialog)
+- tapOn:
+    id: "deleteEmotionPairButton"
+- assertVisible: "Delete Emotion Pair"
+- tapOn: "OK"
+
+# Verify pair is removed
+- assertNotVisible: "Sad"

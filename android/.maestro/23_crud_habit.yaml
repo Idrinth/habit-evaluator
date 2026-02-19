@@ -1,0 +1,60 @@
+appId: de.idrinth.habitevaluator.android
+name: "Add, display and delete a habit"
+---
+- launchApp:
+    clearState: true
+- assertVisible: "Welcome to Habit Evaluator"
+- tapOn: "I understand"
+
+# Home tab should show Add Habit button
+- assertVisible: "Home"
+- tapOn:
+    id: "addHabitButton"
+
+# Wait for Add Habit form
+- scrollUntilVisible:
+    element:
+      text: "Add Habit"
+    timeout: 10000
+- assertVisible:
+    id: "habitNameInput"
+
+# Fill habit name (required)
+- tapOn:
+    id: "habitNameInput"
+- inputText: "Maestro Test Habit"
+- hideKeyboard
+
+# Create a category via spinner dialog (required)
+# On fresh install, only "New category" is available
+- tapOn:
+    id: "categorySpinner"
+- tapOn: "New category"
+
+# Category creation dialog appears
+- assertVisible: "Create New Category"
+- inputText: "Test Category"
+- tapOn: "OK"
+
+# Frequency defaults to Daily, target defaults to 1
+# Scroll to and tap submit button
+- scrollUntilVisible:
+    element:
+      id: "submitHabitButton"
+    direction: DOWN
+    timeout: 5000
+- tapOn:
+    id: "submitHabitButton"
+
+# After saving, navigates back to Home
+# Verify habit appears in the list
+- assertVisible: "Maestro Test Habit"
+
+# Delete the habit (has confirmation dialog)
+- tapOn:
+    id: "deleteHabitButton"
+- assertVisible: "Delete Habit"
+- tapOn: "OK"
+
+# Verify habit is removed
+- assertNotVisible: "Maestro Test Habit"
