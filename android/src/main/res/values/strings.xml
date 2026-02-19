@@ -38,6 +38,7 @@
     <string name="defaults_loaded">Default categories and habits loaded</string>
     <string name="load_defaults_failed">Failed to load defaults: %s</string>
     <string name="new_category">New category</string>
+    <string name="select_category_prompt">Select category…</string>
     <string name="new_category_dialog_title">Create New Category</string>
     <string name="new_category_hint">Category name</string>
     <string name="category_required">Please select or create a category</string>

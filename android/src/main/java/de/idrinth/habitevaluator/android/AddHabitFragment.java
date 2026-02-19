@@ -107,6 +107,9 @@ public class AddHabitFragment extends Fragment {
         categoryDisplayNameToId.clear();
         String displayLanguage = getDisplayLanguage();
         List<String> categoryNames = new ArrayList<>();
+        if (categoryList.isEmpty()) {
+            categoryNames.add(getString(R.string.select_category_prompt));
+        }
         categoryNames.add(getString(R.string.new_category));
         for (HabitCategory cat : categoryList) {
             String displayName = displayLanguage != null ? cat.getDisplayName(displayLanguage) : cat.getName();
@@ -229,7 +232,8 @@ public class AddHabitFragment extends Fragment {
         habit.setUser(currentUser);
 
         String selectedCategory = (String) binding.categorySpinner.getSelectedItem();
-        if (selectedCategory == null || getString(R.string.new_category).equals(selectedCategory)) {
+        if (selectedCategory == null || getString(R.string.new_category).equals(selectedCategory)
+                || getString(R.string.select_category_prompt).equals(selectedCategory)) {
             Toast.makeText(requireContext(), R.string.category_required, Toast.LENGTH_SHORT).show();
             return;
         }
