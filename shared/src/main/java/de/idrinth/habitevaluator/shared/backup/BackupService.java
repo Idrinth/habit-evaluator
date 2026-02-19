@@ -129,6 +129,45 @@ public class BackupService {
     }
 
     /**
+     * Creates an encrypted backup of all user data and returns it as a byte array.
+     * This can be used to write the backup to non-file destinations (e.g. SAF URIs).
+     *
+     * @param password            the encryption password
+     * @param user                the current user
+     * @param habitRepository     habit data source
+     * @param categoryRepository  category data source (may be null)
+     * @param diaryEntryRepository diary entry data source (may be null)
+     * @param sleepEntryRepository sleep entry data source (may be null)
+     * @return the encrypted backup data
+     * @throws BackupException if backup creation fails
+     */
+    public byte[] createBackupBytes(String password, User user,
+                                    HabitRepository habitRepository,
+                                    HabitCategoryRepository categoryRepository,
+                                    DiaryEntryRepository diaryEntryRepository,
+                                    SleepEntryRepository sleepEntryRepository) throws BackupException {
+        if (password == null || password.isEmpty()) {
+            throw new BackupException("Backup password must not be empty");
+        }
+        if (user == null) {
+            throw new BackupException("User must not be null for backup");
+        }
+
+        try {
+            BackupData backupData = collectBackupData(user, habitRepository,
+                    categoryRepository, diaryEntryRepository, sleepEntryRepository);
+
+            String json = gson.toJson(backupData);
+            byte[] plaintext = json.getBytes(StandardCharsets.UTF_8);
+            return encryptionService.encrypt(plaintext, password);
+        } catch (BackupException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new BackupException("Failed to create backup", e);
+        }
+    }
+
+    /**
      * Restores user data from an encrypted backup file.
      *
      * @param backupFile the encrypted backup file
@@ -154,6 +193,75 @@ public class BackupService {
         } catch (Exception e) {
             throw new BackupException("Failed to restore backup", e);
         }
+    }
+
+    /**
+     * Restores user data from an encrypted backup provided as an InputStream.
+     * This can be used to restore from non-file sources (e.g. SAF URIs).
+     *
+     * @param inputStream the input stream containing encrypted backup data
+     * @param password    the encryption password
+     * @return the deserialized backup data
+     * @throws BackupException if restore fails
+     */
+    public BackupData restoreBackupFromStream(InputStream inputStream, String password) throws BackupException {
+        if (password == null || password.isEmpty()) {
+            throw new BackupException("Backup password must not be empty");
+        }
+        if (inputStream == null) {
+            throw new BackupException("Input stream must not be null");
+        }
+
+        try {
+            ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+            byte[] chunk = new byte[8192];
+            int bytesRead;
+            while ((bytesRead = inputStream.read(chunk)) != -1) {
+                buffer.write(chunk, 0, bytesRead);
+            }
+            byte[] encrypted = buffer.toByteArray();
+            byte[] plaintext = encryptionService.decrypt(encrypted, password);
+            String json = new String(plaintext, StandardCharsets.UTF_8);
+            return gson.fromJson(json, BackupData.class);
+        } catch (BackupException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new BackupException("Failed to restore backup from stream", e);
+        }
+    }
+
+    /**
+     * Merges data from a backup stream into the current user's existing data.
+     *
+     * @param inputStream          the input stream containing encrypted backup data
+     * @param password             the encryption password
+     * @param user                 the current user
+     * @param habitRepository      habit data source
+     * @param categoryRepository   category data source (may be null)
+     * @param diaryEntryRepository diary entry data source (may be null)
+     * @param sleepEntryRepository sleep entry data source (may be null)
+     * @param options              selective restore options
+     * @return a summary of what was merged
+     * @throws BackupException if merge fails
+     */
+    public MergeResult mergeBackupFromStream(InputStream inputStream, String password, User user,
+                                             HabitRepository habitRepository,
+                                             HabitCategoryRepository categoryRepository,
+                                             DiaryEntryRepository diaryEntryRepository,
+                                             SleepEntryRepository sleepEntryRepository,
+                                             RestoreOptions options) throws BackupException {
+        BackupData backupData = restoreBackupFromStream(inputStream, password);
+        return mergeBackupData(backupData, user, habitRepository, categoryRepository,
+                diaryEntryRepository, sleepEntryRepository, null, null, options);
+    }
+
+    /**
+     * Returns the expected backup filename for today.
+     *
+     * @return the backup filename for today (e.g. "2026-02-19.backup")
+     */
+    public String getTodaysBackupFilename() {
+        return LocalDate.now().format(DATE_FORMAT) + BACKUP_FILE_EXTENSION;
     }
 
     /**

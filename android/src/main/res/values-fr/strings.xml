@@ -208,6 +208,9 @@
     <string name="backup_password_confirm_hint">Confirmer le mot de passe de sauvegarde</string>
     <string name="backup_password_required">Le mot de passe de sauvegarde est requis lorsque les sauvegardes sont activées</string>
     <string name="backup_passwords_mismatch">Les mots de passe ne correspondent pas</string>
+    <string name="backup_location_label">Dossier de sauvegarde</string>
+    <string name="backup_location_default">Par défaut (interne à l\'app — supprimé lors de la désinstallation)</string>
+    <string name="backup_location_choose">Choisir un dossier</string>
     <string name="restore_backup_title">Restaurer la sauvegarde</string>
     <string name="restore_backup_button">Restaurer depuis une sauvegarde</string>
     <string name="restore_no_backups">Aucune sauvegarde trouvée</string>

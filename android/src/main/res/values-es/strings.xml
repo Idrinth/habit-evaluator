@@ -208,6 +208,9 @@
     <string name="backup_password_confirm_hint">Confirmar contraseña de respaldo</string>
     <string name="backup_password_required">La contraseña de respaldo es obligatoria cuando los respaldos están activados</string>
     <string name="backup_passwords_mismatch">Las contraseñas no coinciden</string>
+    <string name="backup_location_label">Carpeta de respaldo</string>
+    <string name="backup_location_default">Predeterminada (interna de la app — se elimina al desinstalar)</string>
+    <string name="backup_location_choose">Elegir carpeta</string>
     <string name="restore_backup_title">Restaurar respaldo</string>
     <string name="restore_backup_button">Restaurar desde respaldo</string>
     <string name="restore_no_backups">No se encontraron respaldos</string>

@@ -574,6 +574,30 @@
             </com.google.android.material.textfield.TextInputLayout>
 
             <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="@string/backup_location_label"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/backupLocationText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="@string/backup_location_default"
+                android:textSize="12sp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/chooseBackupLocationButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="@string/backup_location_choose"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
+
+            <TextView
                 android:id="@+id/backupStatusText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
