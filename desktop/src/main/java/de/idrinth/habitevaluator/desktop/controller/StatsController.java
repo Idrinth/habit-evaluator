@@ -3,11 +3,13 @@ package de.idrinth.habitevaluator.desktop.controller;
 import de.idrinth.habitevaluator.shared.model.DiaryEntry;
 import de.idrinth.habitevaluator.shared.model.EmotionEntry;
 import de.idrinth.habitevaluator.shared.model.EventCorrelation;
+import de.idrinth.habitevaluator.shared.model.FoodLog;
 import de.idrinth.habitevaluator.shared.model.Habit;
 import de.idrinth.habitevaluator.shared.model.SleepEntry;
 import de.idrinth.habitevaluator.shared.model.User;
 import de.idrinth.habitevaluator.shared.repository.DiaryEntryRepository;
 import de.idrinth.habitevaluator.shared.repository.EmotionEntryRepository;
+import de.idrinth.habitevaluator.shared.repository.FoodLogRepository;
 import de.idrinth.habitevaluator.shared.repository.SleepEntryRepository;
 import de.idrinth.habitevaluator.shared.service.DiaryService;
 import de.idrinth.habitevaluator.shared.service.EventCorrelationService;
@@ -89,6 +91,7 @@ public class StatsController {
     private SleepEntryRepository sleepEntryRepository;
     private DiaryEntryRepository diaryEntryRepository;
     private EmotionEntryRepository emotionEntryRepository;
+    private FoodLogRepository foodLogRepository;
     private User currentUser;
 
     private final DiaryService diaryService = new DiaryService();
@@ -109,6 +112,10 @@ public class StatsController {
 
     public void setEmotionEntryRepository(EmotionEntryRepository emotionEntryRepository) {
         this.emotionEntryRepository = emotionEntryRepository;
+    }
+
+    public void setFoodLogRepository(FoodLogRepository foodLogRepository) {
+        this.foodLogRepository = foodLogRepository;
     }
 
     public void setCurrentUser(User currentUser) {
@@ -287,6 +294,7 @@ public class StatsController {
         List<DiaryEntry> diaryEntries = new ArrayList<>();
         List<SleepEntry> sleepEntries = new ArrayList<>();
         List<EmotionEntry> emotionEntries = new ArrayList<>();
+        List<FoodLog> foodLogs = new ArrayList<>();
         if (diaryEntryRepository != null && currentUser != null) {
             diaryEntries = diaryEntryRepository.findByUserId(currentUser.getId());
         }
@@ -296,9 +304,14 @@ public class StatsController {
         if (emotionEntryRepository != null && currentUser != null) {
             emotionEntries = emotionEntryRepository.findByUserId(currentUser.getId());
         }
+        if (foodLogRepository != null && currentUser != null) {
+            foodLogs = foodLogRepository.findByUserId(currentUser.getId());
+        }
 
         List<EventCorrelation> correlations = correlationService.calculateCorrelations(
-                habits, diaryEntries, sleepEntries, emotionEntries);
+                habits, diaryEntries, sleepEntries, emotionEntries,
+                new ArrayList<>(), new ArrayList<>(), new ArrayList<>(),
+                foodLogs, new ArrayList<>());
 
         eventAColumn.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getEventA()));
         eventBColumn.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getEventB()));

@@ -17,11 +17,15 @@ import de.idrinth.habitevaluator.shared.model.DiaryEntry;
 import de.idrinth.habitevaluator.shared.model.EmotionEntry;
 import de.idrinth.habitevaluator.shared.model.EmotionStrengthFormatter;
 import de.idrinth.habitevaluator.shared.model.EventCorrelation;
+import de.idrinth.habitevaluator.shared.model.FoodLog;
 import de.idrinth.habitevaluator.shared.model.Habit;
+import de.idrinth.habitevaluator.shared.model.MedicationLog;
 import de.idrinth.habitevaluator.shared.model.SleepEntry;
 import de.idrinth.habitevaluator.shared.repository.DiaryEntryRepository;
 import de.idrinth.habitevaluator.shared.repository.EmotionEntryRepository;
+import de.idrinth.habitevaluator.shared.repository.FoodLogRepository;
 import de.idrinth.habitevaluator.shared.repository.HabitRepository;
+import de.idrinth.habitevaluator.shared.repository.MedicationLogRepository;
 import de.idrinth.habitevaluator.shared.repository.SleepEntryRepository;
 import de.idrinth.habitevaluator.shared.service.DiaryService;
 import de.idrinth.habitevaluator.shared.service.EventCorrelationService;
@@ -64,6 +68,8 @@ public class PdfExportController {
     private final DiaryEntryRepository diaryEntryRepository;
     private final SleepEntryRepository sleepEntryRepository;
     private final EmotionEntryRepository emotionEntryRepository;
+    private final FoodLogRepository foodLogRepository;
+    private final MedicationLogRepository medicationLogRepository;
     private final HabitScoringService scoringService;
     private final DiaryService diaryService;
     private final SleepEvaluationService sleepEvaluationService;
@@ -73,6 +79,8 @@ public class PdfExportController {
                                DiaryEntryRepository diaryEntryRepository,
                                SleepEntryRepository sleepEntryRepository,
                                EmotionEntryRepository emotionEntryRepository,
+                               FoodLogRepository foodLogRepository,
+                               MedicationLogRepository medicationLogRepository,
                                HabitScoringService scoringService,
                                DiaryService diaryService,
                                SleepEvaluationService sleepEvaluationService,
@@ -81,6 +89,8 @@ public class PdfExportController {
         this.diaryEntryRepository = diaryEntryRepository;
         this.sleepEntryRepository = sleepEntryRepository;
         this.emotionEntryRepository = emotionEntryRepository;
+        this.foodLogRepository = foodLogRepository;
+        this.medicationLogRepository = medicationLogRepository;
         this.scoringService = scoringService;
         this.diaryService = diaryService;
         this.sleepEvaluationService = sleepEvaluationService;
@@ -869,9 +879,13 @@ public class PdfExportController {
         List<DiaryEntry> diaryEntries = diaryEntryRepository.findByUserId(userId);
         List<SleepEntry> sleepEntries = sleepEntryRepository.findByUserId(userId);
         List<EmotionEntry> emotionEntries = emotionEntryRepository.findByUserId(userId);
+        List<FoodLog> foodLogs = foodLogRepository.findByUserId(userId);
+        List<MedicationLog> medicationLogs = medicationLogRepository.findByUserId(userId);
 
         List<EventCorrelation> correlations = correlationService.calculateCorrelations(
-                habits, diaryEntries, sleepEntries, emotionEntries);
+                habits, diaryEntries, sleepEntries, emotionEntries,
+                new ArrayList<>(), new ArrayList<>(), new ArrayList<>(),
+                foodLogs, medicationLogs);
 
         Paragraph header = new Paragraph("Event Correlations", SECTION_FONT);
         header.setSpacingBefore(15);

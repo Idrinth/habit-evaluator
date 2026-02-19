@@ -3,6 +3,7 @@ package de.idrinth.habitevaluator.desktop.controller;
 import de.idrinth.habitevaluator.desktop.persistence.H2DiaryEntryRepository;
 import de.idrinth.habitevaluator.desktop.persistence.H2EmotionEntryRepository;
 import de.idrinth.habitevaluator.desktop.persistence.H2EmotionPairRepository;
+import de.idrinth.habitevaluator.desktop.persistence.H2FoodLogRepository;
 import de.idrinth.habitevaluator.desktop.persistence.H2HabitCategoryRepository;
 import de.idrinth.habitevaluator.desktop.persistence.H2HabitRepository;
 import de.idrinth.habitevaluator.desktop.persistence.H2SleepEntryRepository;
@@ -629,6 +630,7 @@ public class MainController {
             controller.setSleepEntryRepository(new H2SleepEntryRepository());
             controller.setDiaryEntryRepository(new H2DiaryEntryRepository());
             controller.setEmotionEntryRepository(new H2EmotionEntryRepository());
+            controller.setFoodLogRepository(new H2FoodLogRepository());
             controller.setCurrentUser(currentUser);
             controller.loadData();
 
@@ -861,6 +863,7 @@ public class MainController {
             controller.setDiaryEntryRepository(diaryEntryRepository);
             controller.setSleepEntryRepository(sleepEntryRepository);
             controller.setEmotionEntryRepository(emotionEntryRepository);
+            controller.setFoodLogRepository(new H2FoodLogRepository());
             controller.setCurrentUser(currentUser);
 
             Stage dialogStage = new Stage();

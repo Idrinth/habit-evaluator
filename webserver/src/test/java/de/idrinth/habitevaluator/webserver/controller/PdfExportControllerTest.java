@@ -3,7 +3,9 @@ package de.idrinth.habitevaluator.webserver.controller;
 import de.idrinth.habitevaluator.shared.model.User;
 import de.idrinth.habitevaluator.shared.repository.DiaryEntryRepository;
 import de.idrinth.habitevaluator.shared.repository.EmotionEntryRepository;
+import de.idrinth.habitevaluator.shared.repository.FoodLogRepository;
 import de.idrinth.habitevaluator.shared.repository.HabitRepository;
+import de.idrinth.habitevaluator.shared.repository.MedicationLogRepository;
 import de.idrinth.habitevaluator.shared.repository.SleepEntryRepository;
 import de.idrinth.habitevaluator.shared.service.DiaryService;
 import de.idrinth.habitevaluator.shared.service.EventCorrelationService;
@@ -26,6 +28,8 @@ class PdfExportControllerTest {
     private DiaryEntryRepository diaryEntryRepository;
     private SleepEntryRepository sleepEntryRepository;
     private EmotionEntryRepository emotionEntryRepository;
+    private FoodLogRepository foodLogRepository;
+    private MedicationLogRepository medicationLogRepository;
     private HabitScoringService scoringService;
     private DiaryService diaryService;
     private SleepEvaluationService sleepEvaluationService;
@@ -40,12 +44,15 @@ class PdfExportControllerTest {
         diaryEntryRepository = mock(DiaryEntryRepository.class);
         sleepEntryRepository = mock(SleepEntryRepository.class);
         emotionEntryRepository = mock(EmotionEntryRepository.class);
+        foodLogRepository = mock(FoodLogRepository.class);
+        medicationLogRepository = mock(MedicationLogRepository.class);
         scoringService = mock(HabitScoringService.class);
         diaryService = mock(DiaryService.class);
         sleepEvaluationService = mock(SleepEvaluationService.class);
         correlationService = mock(EventCorrelationService.class);
         controller = new PdfExportController(habitRepository, diaryEntryRepository, sleepEntryRepository,
-                emotionEntryRepository, scoringService, diaryService, sleepEvaluationService, correlationService);
+                emotionEntryRepository, foodLogRepository, medicationLogRepository,
+                scoringService, diaryService, sleepEvaluationService, correlationService);
         session = new MockHttpSession();
         testUser = new User("testuser", "password");
         session.setAttribute("userId", testUser.getId());
@@ -70,7 +77,9 @@ class PdfExportControllerTest {
         when(diaryEntryRepository.findByUserId(testUser.getId())).thenReturn(new ArrayList<>());
         when(sleepEntryRepository.findByUserId(testUser.getId())).thenReturn(new ArrayList<>());
         when(emotionEntryRepository.findByUserId(testUser.getId())).thenReturn(new ArrayList<>());
-        when(correlationService.calculateCorrelations(any(), any(), any(), any())).thenReturn(new ArrayList<>());
+        when(foodLogRepository.findByUserId(testUser.getId())).thenReturn(new ArrayList<>());
+        when(medicationLogRepository.findByUserId(testUser.getId())).thenReturn(new ArrayList<>());
+        when(correlationService.calculateCorrelations(any(), any(), any(), any(), any(), any(), any(), any(), any())).thenReturn(new ArrayList<>());
         when(diaryService.getDayPoints(any(), any())).thenReturn(0);
         when(diaryService.getEntriesInRange(any(), any(), any())).thenReturn(new ArrayList<>());
 
@@ -89,7 +98,9 @@ class PdfExportControllerTest {
         when(diaryEntryRepository.findByUserId(testUser.getId())).thenReturn(new ArrayList<>());
         when(sleepEntryRepository.findByUserId(testUser.getId())).thenReturn(new ArrayList<>());
         when(emotionEntryRepository.findByUserId(testUser.getId())).thenReturn(new ArrayList<>());
-        when(correlationService.calculateCorrelations(any(), any(), any(), any())).thenReturn(new ArrayList<>());
+        when(foodLogRepository.findByUserId(testUser.getId())).thenReturn(new ArrayList<>());
+        when(medicationLogRepository.findByUserId(testUser.getId())).thenReturn(new ArrayList<>());
+        when(correlationService.calculateCorrelations(any(), any(), any(), any(), any(), any(), any(), any(), any())).thenReturn(new ArrayList<>());
         when(diaryService.getDayPoints(any(), any())).thenReturn(0);
         when(diaryService.getEntriesInRange(any(), any(), any())).thenReturn(new ArrayList<>());
 
@@ -105,7 +116,9 @@ class PdfExportControllerTest {
         when(diaryEntryRepository.findByUserId(testUser.getId())).thenReturn(new ArrayList<>());
         when(sleepEntryRepository.findByUserId(testUser.getId())).thenReturn(new ArrayList<>());
         when(emotionEntryRepository.findByUserId(testUser.getId())).thenReturn(new ArrayList<>());
-        when(correlationService.calculateCorrelations(any(), any(), any(), any())).thenReturn(new ArrayList<>());
+        when(foodLogRepository.findByUserId(testUser.getId())).thenReturn(new ArrayList<>());
+        when(medicationLogRepository.findByUserId(testUser.getId())).thenReturn(new ArrayList<>());
+        when(correlationService.calculateCorrelations(any(), any(), any(), any(), any(), any(), any(), any(), any())).thenReturn(new ArrayList<>());
 
         ResponseEntity<byte[]> response = controller.exportPdf("2025-01-01", "2025-01-31", true, false, false, false, session);
 

@@ -5,8 +5,12 @@ import de.idrinth.habitevaluator.shared.model.EmotionEntry;
 import de.idrinth.habitevaluator.shared.model.EmotionPair;
 import de.idrinth.habitevaluator.shared.model.EventCorrelation;
 import de.idrinth.habitevaluator.shared.model.EventSignificance;
+import de.idrinth.habitevaluator.shared.model.FoodLog;
 import de.idrinth.habitevaluator.shared.model.Habit;
 import de.idrinth.habitevaluator.shared.model.HabitEntry;
+import de.idrinth.habitevaluator.shared.model.Medication;
+import de.idrinth.habitevaluator.shared.model.MedicationLog;
+import de.idrinth.habitevaluator.shared.model.MedicationProvisionType;
 import de.idrinth.habitevaluator.shared.model.SleepEntry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -524,6 +528,172 @@ class EventCorrelationServiceTest {
             assertTrue(manyCorr > singleCorr,
                     "30-day correlation should be stronger than 1-day correlation");
         }
+    }
+
+    @Test
+    void testFoodCaloriesSignalIncluded() {
+        LocalDate today = LocalDate.now();
+
+        Habit habit = new Habit("Exercise", "Test");
+        List<FoodLog> foodLogs = new ArrayList<>();
+
+        for (int i = 0; i < 30; i++) {
+            LocalDate date = today.minusDays(i);
+
+            HabitEntry he = new HabitEntry();
+            he.setCompletedAt(date.atTime(10, 0));
+            habit.addEntry(he);
+
+            FoodLog food = new FoodLog(50.0, 500, date.atTime(12, 0), "Lunch");
+            foodLogs.add(food);
+        }
+
+        List<EventCorrelation> result = service.calculateCorrelations(
+                List.of(habit), new ArrayList<>(), new ArrayList<>(), new ArrayList<>(),
+                new ArrayList<>(), new ArrayList<>(), new ArrayList<>(),
+                foodLogs, new ArrayList<>());
+
+        boolean foundCalories = result.stream()
+                .anyMatch(c -> c.getEventA().contains("Food Calories")
+                        || c.getEventB().contains("Food Calories"));
+        assertTrue(foundCalories, "Expected Food Calories signal in correlations");
+    }
+
+    @Test
+    void testFoodCarbohydratesSignalIncluded() {
+        LocalDate today = LocalDate.now();
+
+        List<DiaryEntry> diaryEntries = new ArrayList<>();
+        List<FoodLog> foodLogs = new ArrayList<>();
+
+        for (int i = 0; i < 30; i++) {
+            LocalDate date = today.minusDays(i);
+
+            diaryEntries.add(new DiaryEntry("Event", EventSignificance.NORMAL, date));
+
+            FoodLog food = new FoodLog(80.0, 600, date.atTime(12, 0), "Lunch");
+            foodLogs.add(food);
+        }
+
+        List<EventCorrelation> result = service.calculateCorrelations(
+                new ArrayList<>(), diaryEntries, new ArrayList<>(), new ArrayList<>(),
+                new ArrayList<>(), new ArrayList<>(), new ArrayList<>(),
+                foodLogs, new ArrayList<>());
+
+        boolean foundCarbs = result.stream()
+                .anyMatch(c -> c.getEventA().contains("Food Carbohydrates")
+                        || c.getEventB().contains("Food Carbohydrates"));
+        assertTrue(foundCarbs, "Expected Food Carbohydrates signal in correlations");
+    }
+
+    @Test
+    void testFoodSignalsNotIncludedWithoutData() {
+        LocalDate today = LocalDate.now();
+
+        Habit habit = new Habit("Reading", "Test");
+        for (int i = 0; i < 30; i++) {
+            HabitEntry he = new HabitEntry();
+            he.setCompletedAt(today.minusDays(i).atTime(10, 0));
+            habit.addEntry(he);
+        }
+
+        List<EventCorrelation> result = service.calculateCorrelations(
+                List.of(habit), new ArrayList<>(), new ArrayList<>(), new ArrayList<>(),
+                new ArrayList<>(), new ArrayList<>(), new ArrayList<>(),
+                new ArrayList<>(), new ArrayList<>());
+
+        boolean foundFood = result.stream()
+                .anyMatch(c -> c.getEventA().contains("Food")
+                        || c.getEventB().contains("Food"));
+        assertFalse(foundFood, "Food signals should not appear without food log data");
+    }
+
+    @Test
+    void testMedicationDoseSignalIncluded() {
+        LocalDate today = LocalDate.now();
+
+        Medication medication = new Medication("Aspirin", MedicationProvisionType.PILL);
+        List<SleepEntry> sleepEntries = new ArrayList<>();
+        List<MedicationLog> medicationLogs = new ArrayList<>();
+
+        for (int i = 0; i < 30; i++) {
+            LocalDate date = today.minusDays(i);
+
+            sleepEntries.add(new SleepEntry(LocalTime.of(22, 0), LocalTime.of(6, 0), date));
+
+            MedicationLog log = new MedicationLog(medication, 100.0, date.atTime(8, 0));
+            medicationLogs.add(log);
+        }
+
+        List<EventCorrelation> result = service.calculateCorrelations(
+                new ArrayList<>(), new ArrayList<>(), sleepEntries, new ArrayList<>(),
+                new ArrayList<>(), new ArrayList<>(), new ArrayList<>(),
+                new ArrayList<>(), medicationLogs);
+
+        boolean foundMedication = result.stream()
+                .anyMatch(c -> c.getEventA().contains("Medication: Aspirin")
+                        || c.getEventB().contains("Medication: Aspirin"));
+        assertTrue(foundMedication, "Expected Medication: Aspirin signal in correlations");
+    }
+
+    @Test
+    void testMedicationWithNullMedicationSkipped() {
+        LocalDate today = LocalDate.now();
+
+        Habit habit = new Habit("Exercise", "Test");
+        List<MedicationLog> medicationLogs = new ArrayList<>();
+
+        for (int i = 0; i < 30; i++) {
+            LocalDate date = today.minusDays(i);
+
+            HabitEntry he = new HabitEntry();
+            he.setCompletedAt(date.atTime(10, 0));
+            habit.addEntry(he);
+
+            MedicationLog log = new MedicationLog(null, 50.0, date.atTime(8, 0));
+            medicationLogs.add(log);
+        }
+
+        List<EventCorrelation> result = service.calculateCorrelations(
+                List.of(habit), new ArrayList<>(), new ArrayList<>(), new ArrayList<>(),
+                new ArrayList<>(), new ArrayList<>(), new ArrayList<>(),
+                new ArrayList<>(), medicationLogs);
+
+        boolean foundMedication = result.stream()
+                .anyMatch(c -> c.getEventA().contains("Medication")
+                        || c.getEventB().contains("Medication"));
+        assertFalse(foundMedication, "Medication signals with null medication should be skipped");
+    }
+
+    @Test
+    void testFoodProximityWithHabit() {
+        LocalDate today = LocalDate.now();
+
+        Habit habit = new Habit("Workout", "Test");
+        List<FoodLog> foodLogs = new ArrayList<>();
+
+        for (int i = 0; i < 30; i++) {
+            LocalDate date = today.minusDays(i);
+
+            HabitEntry he = new HabitEntry();
+            he.setCompletedAt(date.atTime(12, 0));
+            habit.addEntry(he);
+
+            // Food log 30 min after workout -> within 2h proximity
+            FoodLog food = new FoodLog(40.0, 400, date.atTime(12, 30), "Post-workout meal");
+            foodLogs.add(food);
+        }
+
+        List<EventCorrelation> result = service.calculateCorrelations(
+                List.of(habit), new ArrayList<>(), new ArrayList<>(), new ArrayList<>(),
+                new ArrayList<>(), new ArrayList<>(), new ArrayList<>(),
+                foodLogs, new ArrayList<>());
+
+        assertFalse(result.isEmpty());
+        boolean foundWorkoutFood = result.stream()
+                .anyMatch(c -> (c.getEventA().contains("Workout") && c.getEventB().contains("Food"))
+                        || (c.getEventA().contains("Food") && c.getEventB().contains("Workout")));
+        assertTrue(foundWorkoutFood, "Expected correlation between workout and food with temporal proximity");
     }
 
     private double findCorrelation(List<EventCorrelation> correlations, String partA, String partB) {

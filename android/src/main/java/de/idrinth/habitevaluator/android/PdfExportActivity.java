@@ -32,7 +32,9 @@ import de.idrinth.habitevaluator.shared.model.DiaryEntry;
 import de.idrinth.habitevaluator.shared.model.EmotionEntry;
 import de.idrinth.habitevaluator.shared.model.EmotionStrengthFormatter;
 import de.idrinth.habitevaluator.shared.model.EventCorrelation;
+import de.idrinth.habitevaluator.shared.model.FoodLog;
 import de.idrinth.habitevaluator.shared.model.Habit;
+import de.idrinth.habitevaluator.shared.model.MedicationLog;
 import de.idrinth.habitevaluator.shared.model.SleepEntry;
 import de.idrinth.habitevaluator.shared.model.User;
 import de.idrinth.habitevaluator.shared.service.DiaryService;
@@ -681,8 +683,20 @@ public class PdfExportActivity extends AppCompatActivity {
             emotionEntries = MainActivity.getSharedEmotionEntryRepository().findByUserId(user.getId());
         }
 
+        List<FoodLog> foodLogs = new ArrayList<>();
+        if (user != null && MainActivity.getSharedFoodLogRepository() != null) {
+            foodLogs = MainActivity.getSharedFoodLogRepository().findByUserId(user.getId());
+        }
+
+        List<MedicationLog> medicationLogs = new ArrayList<>();
+        if (user != null && MainActivity.getSharedMedicationLogRepository() != null) {
+            medicationLogs = MainActivity.getSharedMedicationLogRepository().findByUserId(user.getId());
+        }
+
         List<EventCorrelation> correlations = correlationService.calculateCorrelations(
-                habits, diaryEntries, sleepEntries, emotionEntries);
+                habits, diaryEntries, sleepEntries, emotionEntries,
+                new ArrayList<>(), new ArrayList<>(), new ArrayList<>(),
+                foodLogs, medicationLogs);
 
         commands.add(new SectionHeaderCommand(getString(R.string.pdf_section_correlations), MARGIN, yPosition));
         yPosition += 25;

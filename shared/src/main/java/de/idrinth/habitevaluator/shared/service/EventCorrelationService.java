@@ -4,8 +4,10 @@ import de.idrinth.habitevaluator.shared.model.ActivityLog;
 import de.idrinth.habitevaluator.shared.model.DiaryEntry;
 import de.idrinth.habitevaluator.shared.model.EmotionEntry;
 import de.idrinth.habitevaluator.shared.model.EventCorrelation;
+import de.idrinth.habitevaluator.shared.model.FoodLog;
 import de.idrinth.habitevaluator.shared.model.Habit;
 import de.idrinth.habitevaluator.shared.model.HabitEntry;
+import de.idrinth.habitevaluator.shared.model.MedicationLog;
 import de.idrinth.habitevaluator.shared.model.MeetingEntry;
 import de.idrinth.habitevaluator.shared.model.SleepEntry;
 import de.idrinth.habitevaluator.shared.model.SportLog;
@@ -124,6 +126,38 @@ public class EventCorrelationService {
             List<SportLog> sportLogs,
             List<MeetingEntry> meetingEntries,
             List<ActivityLog> activityLogs) {
+        return calculateCorrelations(habits, diaryEntries, sleepEntries, emotionEntries,
+                sportLogs, meetingEntries, activityLogs, new ArrayList<>(), new ArrayList<>());
+    }
+
+    /**
+     * Calculates the top event correlations over the past year using time-weighted
+     * Pearson correlation. Events include individual habits, diary points, sleep hours,
+     * emotion pair daily averages, sport log data, meeting duration, activity log data,
+     * food log data (daily calories and carbohydrates), and medication log data
+     * (daily dose per medication).
+     *
+     * @param habits          all habits with their entries
+     * @param diaryEntries    all diary entries
+     * @param sleepEntries    all sleep entries
+     * @param emotionEntries  all emotion entries
+     * @param sportLogs       all sport log entries
+     * @param meetingEntries  all meeting entries
+     * @param activityLogs    all activity log entries
+     * @param foodLogs        all food log entries
+     * @param medicationLogs  all medication log entries
+     * @return all correlations sorted by absolute correlation strength
+     */
+    public List<EventCorrelation> calculateCorrelations(
+            List<Habit> habits,
+            List<DiaryEntry> diaryEntries,
+            List<SleepEntry> sleepEntries,
+            List<EmotionEntry> emotionEntries,
+            List<SportLog> sportLogs,
+            List<MeetingEntry> meetingEntries,
+            List<ActivityLog> activityLogs,
+            List<FoodLog> foodLogs,
+            List<MedicationLog> medicationLogs) {
 
         LocalDate today = LocalDate.now();
         LocalDate startDate = today.minusDays(YEAR_DAYS - 1);
@@ -459,6 +493,96 @@ public class EventCorrelationService {
                 activityDurationTs[i] = activityTs[i];
             }
             eventTimestamps.put("Activity Duration", activityDurationTs);
+        }
+
+        // Process food log entries: track daily calories and carbohydrates
+        double[] foodKcalSignal = new double[totalDays];
+        double[] foodCarbsSignal = new double[totalDays];
+        @SuppressWarnings("unchecked")
+        List<LocalDateTime>[] foodTs = new ArrayList[totalDays];
+        for (FoodLog entry : foodLogs) {
+            LocalDate entryDate = entry.getDateTime().toLocalDate();
+            if (!entryDate.isBefore(startDate) && !entryDate.isAfter(today)) {
+                int dayIndex = (int) ChronoUnit.DAYS.between(startDate, entryDate);
+                if (entry.getKcal() != null) {
+                    foodKcalSignal[dayIndex] += entry.getKcal();
+                }
+                if (entry.getCarbohydrates() != null) {
+                    foodCarbsSignal[dayIndex] += entry.getCarbohydrates();
+                }
+                if (foodTs[dayIndex] == null) {
+                    foodTs[dayIndex] = new ArrayList<>();
+                }
+                foodTs[dayIndex].add(entry.getDateTime());
+            }
+        }
+        boolean hasFoodKcalData = false;
+        for (double v : foodKcalSignal) {
+            if (v != 0) {
+                hasFoodKcalData = true;
+                break;
+            }
+        }
+        boolean hasFoodCarbsData = false;
+        for (double v : foodCarbsSignal) {
+            if (v != 0) {
+                hasFoodCarbsData = true;
+                break;
+            }
+        }
+        if (hasFoodKcalData) {
+            eventSignals.put("Food Calories", foodKcalSignal);
+            eventTimestamps.put("Food Calories", foodTs);
+        }
+        if (hasFoodCarbsData) {
+            @SuppressWarnings("unchecked")
+            List<LocalDateTime>[] foodCarbsTs = new ArrayList[totalDays];
+            for (int i = 0; i < totalDays; i++) {
+                foodCarbsTs[i] = foodTs[i];
+            }
+            eventSignals.put("Food Carbohydrates", foodCarbsSignal);
+            eventTimestamps.put("Food Carbohydrates", foodCarbsTs);
+        }
+
+        // Process medication log entries: track daily dose per medication
+        Map<String, Map<Integer, List<Double>>> medDoseByName = new LinkedHashMap<>();
+        Map<String, Map<Integer, List<LocalDateTime>>> medTsByName = new LinkedHashMap<>();
+        for (MedicationLog entry : medicationLogs) {
+            LocalDate entryDate = entry.getTakenAt().toLocalDate();
+            if (!entryDate.isBefore(startDate) && !entryDate.isAfter(today)) {
+                int dayIndex = (int) ChronoUnit.DAYS.between(startDate, entryDate);
+                String medName = entry.getMedication() != null ? entry.getMedication().getName() : null;
+                if (medName == null) {
+                    continue;
+                }
+                medDoseByName.computeIfAbsent(medName, k -> new LinkedHashMap<>())
+                        .computeIfAbsent(dayIndex, k -> new ArrayList<>())
+                        .add(entry.getAmount());
+                medTsByName.computeIfAbsent(medName, k -> new LinkedHashMap<>())
+                        .computeIfAbsent(dayIndex, k -> new ArrayList<>())
+                        .add(entry.getTakenAt());
+            }
+        }
+        for (String medName : medDoseByName.keySet()) {
+            double[] doseSignal = new double[totalDays];
+            @SuppressWarnings("unchecked")
+            List<LocalDateTime>[] medTimestamps = new ArrayList[totalDays];
+            Map<Integer, List<Double>> doseMap = medDoseByName.get(medName);
+            Map<Integer, List<LocalDateTime>> tsMap = medTsByName.get(medName);
+            for (Map.Entry<Integer, List<Double>> dayEntry : doseMap.entrySet()) {
+                int dayIdx = dayEntry.getKey();
+                double totalDose = 0;
+                for (double d : dayEntry.getValue()) {
+                    totalDose += d;
+                }
+                doseSignal[dayIdx] = totalDose;
+                if (tsMap != null && tsMap.containsKey(dayIdx)) {
+                    medTimestamps[dayIdx] = new ArrayList<>(tsMap.get(dayIdx));
+                }
+            }
+            String label = "Medication: " + medName;
+            eventSignals.put(label, doseSignal);
+            eventTimestamps.put(label, medTimestamps);
         }
 
         double[] weights = new double[totalDays];
