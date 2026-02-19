@@ -15,6 +15,6 @@ module de.idrinth.habitevaluator.shared {
     exports de.idrinth.habitevaluator.shared.repository;
     exports de.idrinth.habitevaluator.shared.util;
 
-    opens de.idrinth.habitevaluator.shared.model to org.hibernate.orm.core;
+    opens de.idrinth.habitevaluator.shared.model;
     opens de.idrinth.habitevaluator.shared.backup to com.google.gson;
 }
