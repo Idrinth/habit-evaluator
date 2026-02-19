@@ -519,6 +519,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void navigateToEmotionalState() {
+        programmaticNavigationTarget = ScreenPagerAdapter.PAGE_EMOTIONAL_STATE;
         binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_EMOTIONAL_STATE, true);
     }
 
