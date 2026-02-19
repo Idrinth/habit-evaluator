@@ -8,6 +8,9 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.chip.Chip;
+import com.google.android.material.chip.ChipGroup;
+
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Locale;
@@ -43,7 +46,15 @@ public class FoodLogAdapter extends RecyclerView.Adapter<FoodLogAdapter.ViewHold
         FoodLog entry = entries.get(position);
 
         holder.dateTime.setText(entry.getDateTime() != null ? entry.getDateTime().format(DT_FORMAT) : "");
-        holder.foodItems.setText(entry.getFoodItems());
+
+        holder.foodItems.removeAllViews();
+        for (String item : entry.getFoodItemList()) {
+            Chip chip = new Chip(holder.itemView.getContext());
+            chip.setText(item);
+            chip.setClickable(false);
+            chip.setCheckable(false);
+            holder.foodItems.addView(chip);
+        }
 
         StringBuilder nutritionText = new StringBuilder();
         if (entry.getKcal() != null) {
@@ -83,7 +94,7 @@ public class FoodLogAdapter extends RecyclerView.Adapter<FoodLogAdapter.ViewHold
 
     static class ViewHolder extends RecyclerView.ViewHolder {
         final TextView dateTime;
-        final TextView foodItems;
+        final ChipGroup foodItems;
         final TextView nutrition;
         final TextView notes;
         final View deleteButton;

@@ -20,12 +20,12 @@
             android:layout_weight="1"
             android:orientation="vertical">
 
-            <TextView
+            <com.google.android.material.chip.ChipGroup
                 android:id="@+id/foodLogFoodItems"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="14sp"
-                android:textStyle="bold" />
+                app:chipSpacingHorizontal="4dp"
+                app:chipSpacingVertical="0dp" />
 
             <TextView
                 android:id="@+id/foodLogDateTime"
