@@ -170,6 +170,7 @@ class SettingsActivityTest {
         assertEquals("custom_translations_enabled", SettingsActivity.KEY_CUSTOM_TRANSLATIONS);
         assertEquals("backup_enabled", SettingsActivity.KEY_BACKUP_ENABLED);
         assertEquals("backup_password", SettingsActivity.KEY_BACKUP_PASSWORD);
+        assertEquals("backup_location_uri", SettingsActivity.KEY_BACKUP_LOCATION_URI);
         assertEquals("first_start_completed", SettingsActivity.KEY_FIRST_START_COMPLETED);
         assertEquals("font_size", SettingsActivity.KEY_FONT_SIZE);
     }

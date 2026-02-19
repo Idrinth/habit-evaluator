@@ -900,6 +900,15 @@ public class MainActivity extends AppCompatActivity {
         if (password.isEmpty()) {
             return;
         }
+        String backupLocationUri = prefs.getString(SettingsActivity.KEY_BACKUP_LOCATION_URI, "");
+        if (!backupLocationUri.isEmpty()) {
+            performDailyBackupToSaf(android.net.Uri.parse(backupLocationUri), password);
+        } else {
+            performDailyBackupToInternal(password);
+        }
+    }
+
+    private void performDailyBackupToInternal(String password) {
         java.io.File backupDir = new java.io.File(getFilesDir(), "backups");
         if (backupServiceInstance.hasTodaysBackup(backupDir)) {
             return;
@@ -915,6 +924,62 @@ public class MainActivity extends AppCompatActivity {
                                 Toast.LENGTH_LONG).show());
             }
         }).start();
+    }
+
+    private void performDailyBackupToSaf(android.net.Uri treeUri, String password) {
+        new Thread(() -> {
+            try {
+                androidx.documentfile.provider.DocumentFile treeDoc =
+                        androidx.documentfile.provider.DocumentFile.fromTreeUri(this, treeUri);
+                if (treeDoc == null) {
+                    return;
+                }
+                String todaysFilename = backupServiceInstance.getTodaysBackupFilename();
+                androidx.documentfile.provider.DocumentFile existing = treeDoc.findFile(todaysFilename);
+                if (existing != null) {
+                    return;
+                }
+                byte[] backupBytes = backupServiceInstance.createBackupBytes(password, currentUser,
+                        habitRepository, categoryRepository,
+                        sharedDiaryEntryRepository, sleepEntryRepository);
+                androidx.documentfile.provider.DocumentFile newFile =
+                        treeDoc.createFile("application/octet-stream", todaysFilename);
+                if (newFile == null) {
+                    return;
+                }
+                java.io.OutputStream outputStream = getContentResolver().openOutputStream(newFile.getUri());
+                if (outputStream != null) {
+                    outputStream.write(backupBytes);
+                    outputStream.close();
+                }
+                cleanupOldSafBackups(treeDoc);
+            } catch (BackupException e) {
+                runOnUiThread(() ->
+                        Toast.makeText(this, "Backup failed: " + e.getMessage(),
+                                Toast.LENGTH_LONG).show());
+            } catch (java.io.IOException e) {
+                runOnUiThread(() ->
+                        Toast.makeText(this, "Backup failed: " + e.getMessage(),
+                                Toast.LENGTH_LONG).show());
+            }
+        }).start();
+    }
+
+    private void cleanupOldSafBackups(androidx.documentfile.provider.DocumentFile treeDoc) {
+        java.util.List<androidx.documentfile.provider.DocumentFile> backups = new java.util.ArrayList<>();
+        for (androidx.documentfile.provider.DocumentFile file : treeDoc.listFiles()) {
+            if (file.isFile() && file.getName() != null && file.getName().endsWith(".backup")) {
+                backups.add(file);
+            }
+        }
+        backups.sort((a, b) -> {
+            String nameA = a.getName() != null ? a.getName() : "";
+            String nameB = b.getName() != null ? b.getName() : "";
+            return nameB.compareTo(nameA);
+        });
+        while (backups.size() > 30) {
+            backups.remove(backups.size() - 1).delete();
+        }
     }
 
     public void loadDefaults() {

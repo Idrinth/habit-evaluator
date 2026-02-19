@@ -159,6 +159,93 @@ class BackupServiceTest {
     }
 
     @Test
+    void testCreateBackupBytesAndRestoreFromStream() throws BackupException {
+        byte[] backupBytes = backupService.createBackupBytes("password", user,
+                habitRepository, categoryRepository, diaryEntryRepository, sleepEntryRepository);
+        assertNotNull(backupBytes);
+        assertTrue(backupBytes.length > 0);
+
+        java.io.ByteArrayInputStream inputStream = new java.io.ByteArrayInputStream(backupBytes);
+        BackupData restored = backupService.restoreBackupFromStream(inputStream, "password");
+        assertNotNull(restored);
+    }
+
+    @Test
+    void testCreateBackupBytesEmptyPasswordThrows() {
+        assertThrows(BackupException.class, () ->
+                backupService.createBackupBytes("", user,
+                        habitRepository, categoryRepository, diaryEntryRepository, sleepEntryRepository));
+    }
+
+    @Test
+    void testCreateBackupBytesNullPasswordThrows() {
+        assertThrows(BackupException.class, () ->
+                backupService.createBackupBytes(null, user,
+                        habitRepository, categoryRepository, diaryEntryRepository, sleepEntryRepository));
+    }
+
+    @Test
+    void testCreateBackupBytesNullUserThrows() {
+        assertThrows(BackupException.class, () ->
+                backupService.createBackupBytes("password", null,
+                        habitRepository, categoryRepository, diaryEntryRepository, sleepEntryRepository));
+    }
+
+    @Test
+    void testRestoreBackupFromStreamEmptyPasswordThrows() {
+        java.io.ByteArrayInputStream inputStream = new java.io.ByteArrayInputStream(new byte[0]);
+        assertThrows(BackupException.class, () ->
+                backupService.restoreBackupFromStream(inputStream, ""));
+    }
+
+    @Test
+    void testRestoreBackupFromStreamNullStreamThrows() {
+        assertThrows(BackupException.class, () ->
+                backupService.restoreBackupFromStream(null, "password"));
+    }
+
+    @Test
+    void testRestoreBackupFromStreamWrongPasswordThrows() throws BackupException {
+        byte[] backupBytes = backupService.createBackupBytes("password", user,
+                habitRepository, categoryRepository, diaryEntryRepository, sleepEntryRepository);
+        java.io.ByteArrayInputStream inputStream = new java.io.ByteArrayInputStream(backupBytes);
+        assertThrows(BackupException.class, () ->
+                backupService.restoreBackupFromStream(inputStream, "wrong"));
+    }
+
+    @Test
+    void testMergeBackupFromStream() throws BackupException {
+        HabitCategory category = new HabitCategory("Test Category", "desc", "#FF0000");
+        category.setUser(user);
+        categoryRepository.save(category);
+        Habit habit = new Habit("Test Habit", "desc");
+        habit.setCategoryId(category.getId());
+        habit.setUser(user);
+        habitRepository.save(habit);
+
+        byte[] backupBytes = backupService.createBackupBytes("password", user,
+                habitRepository, categoryRepository, diaryEntryRepository, sleepEntryRepository);
+
+        habitRepository.deleteById(habit.getId());
+        categoryRepository.deleteById(category.getId());
+
+        java.io.ByteArrayInputStream inputStream = new java.io.ByteArrayInputStream(backupBytes);
+        MergeResult result = backupService.mergeBackupFromStream(inputStream, "password", user,
+                habitRepository, categoryRepository, diaryEntryRepository, sleepEntryRepository,
+                RestoreOptions.all());
+        assertNotNull(result);
+        assertEquals(1, result.getHabitsAdded());
+    }
+
+    @Test
+    void testGetTodaysBackupFilename() {
+        String filename = backupService.getTodaysBackupFilename();
+        assertNotNull(filename);
+        assertTrue(filename.endsWith(".backup"));
+        assertTrue(filename.contains(LocalDate.now().toString()));
+    }
+
+    @Test
     void testBackupIncludesDiaryEntries() throws BackupException {
         DiaryEntry entry = new DiaryEntry("Good event", EventSignificance.MAJOR, LocalDate.of(2026, 1, 15));
         entry.setUser(user);

@@ -208,6 +208,9 @@
     <string name="backup_password_confirm_hint">Backup-Passwort bestätigen</string>
     <string name="backup_password_required">Backup-Passwort ist erforderlich, wenn Backups aktiviert sind</string>
     <string name="backup_passwords_mismatch">Passwörter stimmen nicht überein</string>
+    <string name="backup_location_label">Backup-Ordner</string>
+    <string name="backup_location_default">Standard (App-intern — wird bei Deinstallation gelöscht)</string>
+    <string name="backup_location_choose">Ordner wählen</string>
     <string name="restore_backup_title">Backup wiederherstellen</string>
     <string name="restore_backup_button">Aus Backup wiederherstellen</string>
     <string name="restore_no_backups">Keine Backups gefunden</string>

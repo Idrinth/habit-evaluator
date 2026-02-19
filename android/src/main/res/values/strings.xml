@@ -188,6 +188,9 @@
     <string name="backup_password_confirm_hint">Confirm backup password</string>
     <string name="backup_password_required">Backup password is required when backups are enabled</string>
     <string name="backup_passwords_mismatch">Passwords do not match</string>
+    <string name="backup_location_label">Backup folder</string>
+    <string name="backup_location_default">Default (app internal — deleted on uninstall)</string>
+    <string name="backup_location_choose">Choose folder</string>
     <string name="restore_backup_title">Restore Backup</string>
     <string name="restore_backup_button">Restore from Backup</string>
     <string name="restore_no_backups">No backups found</string>

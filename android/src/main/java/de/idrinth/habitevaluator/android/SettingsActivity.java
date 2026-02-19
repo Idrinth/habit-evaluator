@@ -28,6 +28,7 @@ public final class SettingsActivity {
     public static final String KEY_CUSTOM_TRANSLATIONS = "custom_translations_enabled";
     public static final String KEY_BACKUP_ENABLED = "backup_enabled";
     public static final String KEY_BACKUP_PASSWORD = "backup_password";
+    public static final String KEY_BACKUP_LOCATION_URI = "backup_location_uri";
     public static final String KEY_FIRST_START_COMPLETED = "first_start_completed";
     public static final String KEY_FONT_SIZE = "font_size";
     public static final String KEY_SLEEP_REMINDER_ENABLED = "sleep_reminder_enabled";

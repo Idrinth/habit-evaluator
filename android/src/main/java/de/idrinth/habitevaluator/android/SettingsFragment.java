@@ -27,6 +27,10 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
+
+import androidx.documentfile.provider.DocumentFile;
 
 import de.idrinth.habitevaluator.android.databinding.FragmentSettingsBinding;
 import de.idrinth.habitevaluator.shared.api.ApiClient;
@@ -48,6 +52,7 @@ public class SettingsFragment extends Fragment {
     private byte[] pendingHezBackupData;
     private ActivityResultLauncher<Intent> createDocumentLauncher;
     private ActivityResultLauncher<Intent> openDocumentLauncher;
+    private ActivityResultLauncher<Uri> openDocumentTreeLauncher;
     private ActivityResultLauncher<String> notificationPermissionLauncher;
 
     @Override
@@ -74,6 +79,20 @@ public class SettingsFragment extends Fragment {
                         if (uri != null) {
                             showPasswordDialogAndRestoreFromFile(uri);
                         }
+                    }
+                });
+
+        openDocumentTreeLauncher = registerForActivityResult(
+                new ActivityResultContracts.OpenDocumentTree(),
+                uri -> {
+                    if (uri != null) {
+                        requireContext().getContentResolver().takePersistableUriPermission(uri,
+                                Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+                        SharedPreferences.Editor editor = requireContext()
+                                .getSharedPreferences(SettingsActivity.PREFS_NAME, Context.MODE_PRIVATE).edit();
+                        editor.putString(SettingsActivity.KEY_BACKUP_LOCATION_URI, uri.toString());
+                        editor.apply();
+                        updateBackupLocationDisplay(uri);
                     }
                 });
 
@@ -197,6 +216,11 @@ public class SettingsFragment extends Fragment {
         binding.backupPasswordInput.setText(backupPassword);
         binding.backupPasswordConfirmInput.setText(backupPassword);
 
+        String backupLocationUri = prefs.getString(SettingsActivity.KEY_BACKUP_LOCATION_URI, "");
+        if (!backupLocationUri.isEmpty()) {
+            updateBackupLocationDisplay(Uri.parse(backupLocationUri));
+        }
+
         // Module visibility settings
         binding.diaryVisibleSwitch.setChecked(
                 prefs.getBoolean(SettingsActivity.KEY_MODULE_DIARY_VISIBLE, true));
@@ -272,6 +296,7 @@ public class SettingsFragment extends Fragment {
 
         binding.testConnectionButton.setOnClickListener(v -> testConnection());
         binding.saveSettingsButton.setOnClickListener(v -> saveSettings());
+        binding.chooseBackupLocationButton.setOnClickListener(v -> openDocumentTreeLauncher.launch(null));
         binding.restoreBackupButton.setOnClickListener(v -> restoreBackup());
         binding.downloadBackupButton.setOnClickListener(v -> downloadBackup());
         binding.restoreFromFileButton.setOnClickListener(v -> restoreFromFile());
@@ -499,6 +524,15 @@ public class SettingsFragment extends Fragment {
                 && password != null && !password.isEmpty();
     }
 
+    private void updateBackupLocationDisplay(Uri treeUri) {
+        DocumentFile docFile = DocumentFile.fromTreeUri(requireContext(), treeUri);
+        if (docFile != null && docFile.getName() != null) {
+            binding.backupLocationText.setText(docFile.getName());
+        } else {
+            binding.backupLocationText.setText(treeUri.getLastPathSegment());
+        }
+    }
+
     private void showTimePicker(String currentTime, TimePickerCallback callback) {
         int[] parsed = parseTimeString(currentTime);
         new TimePickerDialog(requireContext(),
@@ -511,6 +545,17 @@ public class SettingsFragment extends Fragment {
     }
 
     private void restoreBackup() {
+        SharedPreferences prefs = requireContext().getSharedPreferences(SettingsActivity.PREFS_NAME, Context.MODE_PRIVATE);
+        String backupLocationUri = prefs.getString(SettingsActivity.KEY_BACKUP_LOCATION_URI, "");
+
+        if (!backupLocationUri.isEmpty()) {
+            restoreBackupFromSaf(Uri.parse(backupLocationUri));
+        } else {
+            restoreBackupFromInternalDir();
+        }
+    }
+
+    private void restoreBackupFromInternalDir() {
         File backupDir = new File(requireContext().getFilesDir(), "backups");
         BackupService backupService = new BackupService();
         File[] backups = backupService.listBackups(backupDir);
@@ -530,7 +575,116 @@ public class SettingsFragment extends Fragment {
                 .setTitle(R.string.restore_select_backup)
                 .setItems(backupNames, (dialog, which) -> {
                     File selectedFile = backups[which];
-                    showPasswordDialogAndRestore(backupService, selectedFile);
+                    showPasswordDialogAndRestore(new BackupService(), selectedFile);
+                })
+                .setNegativeButton(android.R.string.cancel, null)
+                .show();
+    }
+
+    private void restoreBackupFromSaf(Uri treeUri) {
+        DocumentFile treeDoc = DocumentFile.fromTreeUri(requireContext(), treeUri);
+        if (treeDoc == null) {
+            binding.restoreStatusText.setText(R.string.restore_no_backups);
+            binding.restoreStatusText.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_red_dark));
+            return;
+        }
+
+        List<DocumentFile> backupFiles = new ArrayList<>();
+        for (DocumentFile file : treeDoc.listFiles()) {
+            if (file.isFile() && file.getName() != null && file.getName().endsWith(".backup")) {
+                backupFiles.add(file);
+            }
+        }
+        backupFiles.sort((a, b) -> {
+            String nameA = a.getName() != null ? a.getName() : "";
+            String nameB = b.getName() != null ? b.getName() : "";
+            return nameB.compareTo(nameA);
+        });
+
+        if (backupFiles.isEmpty()) {
+            binding.restoreStatusText.setText(R.string.restore_no_backups);
+            binding.restoreStatusText.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_red_dark));
+            return;
+        }
+
+        String[] backupNames = new String[backupFiles.size()];
+        for (int i = 0; i < backupFiles.size(); i++) {
+            String name = backupFiles.get(i).getName();
+            backupNames[i] = name != null ? name.replace(".backup", "") : "";
+        }
+
+        new AlertDialog.Builder(requireContext())
+                .setTitle(R.string.restore_select_backup)
+                .setItems(backupNames, (dialog, which) -> {
+                    DocumentFile selectedFile = backupFiles.get(which);
+                    showPasswordDialogAndRestoreFromSaf(selectedFile);
+                })
+                .setNegativeButton(android.R.string.cancel, null)
+                .show();
+    }
+
+    private void showPasswordDialogAndRestoreFromSaf(DocumentFile backupDoc) {
+        EditText passwordInput = new EditText(requireContext());
+        passwordInput.setHint(R.string.backup_password_hint);
+        passwordInput.setInputType(android.text.InputType.TYPE_CLASS_TEXT | android.text.InputType.TYPE_TEXT_VARIATION_PASSWORD);
+
+        new AlertDialog.Builder(requireContext())
+                .setTitle(R.string.restore_enter_password)
+                .setView(passwordInput)
+                .setPositiveButton(android.R.string.ok, (dialog, which) -> {
+                    String password = passwordInput.getText().toString();
+                    if (password.isEmpty()) {
+                        binding.restoreStatusText.setText(R.string.backup_password_required);
+                        binding.restoreStatusText.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_red_dark));
+                        return;
+                    }
+                    if (MainActivity.getSharedLocalUser() == null || MainActivity.getSharedHabitRepository() == null) {
+                        binding.restoreStatusText.setText(R.string.restore_failed_not_initialized);
+                        binding.restoreStatusText.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_red_dark));
+                        return;
+                    }
+                    showRestoreOptionsDialog(options -> {
+                        binding.restoreStatusText.setText(R.string.restore_in_progress);
+                        binding.restoreStatusText.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_secondary));
+
+                        new Thread(() -> {
+                            try {
+                                InputStream inputStream = requireContext().getContentResolver().openInputStream(backupDoc.getUri());
+                                if (inputStream == null) {
+                                    throw new BackupException("Could not open backup file");
+                                }
+                                BackupService backupService = new BackupService();
+                                MergeResult result = backupService.mergeBackupFromStream(
+                                        inputStream, password,
+                                        MainActivity.getSharedLocalUser(),
+                                        MainActivity.getSharedHabitRepository(),
+                                        MainActivity.getSharedCategoryRepository(),
+                                        MainActivity.getSharedDiaryEntryRepository(),
+                                        MainActivity.getSharedSleepEntryRepository(),
+                                        options);
+                                inputStream.close();
+                                if (isAdded()) {
+                                    requireActivity().runOnUiThread(() -> {
+                                        binding.restoreStatusText.setText(getString(R.string.restore_success,
+                                                result.getHabitsAdded(), result.getHabitsMerged(),
+                                                result.getEntriesAdded(), result.getDiaryEntriesAdded(),
+                                                result.getSleepEntriesAdded(), result.getCategoriesAdded()));
+                                        binding.restoreStatusText.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_green_dark));
+                                        if (getActivity() instanceof MainActivity) {
+                                            ((MainActivity) getActivity()).onSettingsChanged();
+                                        }
+                                    });
+                                }
+                            } catch (Exception e) {
+                                if (isAdded()) {
+                                    requireActivity().runOnUiThread(() -> {
+                                        binding.restoreStatusText.setText(getString(R.string.restore_failed, e.getMessage()));
+                                        binding.restoreStatusText.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_red_dark));
+                                    });
+                                }
+                            }
+                        }).start();
+                    });
                 })
                 .setNegativeButton(android.R.string.cancel, null)
                 .show();
