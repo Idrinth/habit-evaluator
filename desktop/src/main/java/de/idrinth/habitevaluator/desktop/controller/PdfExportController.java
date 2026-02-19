@@ -17,13 +17,19 @@ import de.idrinth.habitevaluator.shared.model.DiaryEntry;
 import de.idrinth.habitevaluator.shared.model.EmotionEntry;
 import de.idrinth.habitevaluator.shared.model.EmotionStrengthFormatter;
 import de.idrinth.habitevaluator.shared.model.EventCorrelation;
+import de.idrinth.habitevaluator.shared.model.ActivityLog;
+import de.idrinth.habitevaluator.shared.model.FoodLog;
 import de.idrinth.habitevaluator.shared.model.Habit;
 import de.idrinth.habitevaluator.shared.model.SleepEntry;
+import de.idrinth.habitevaluator.shared.model.SportLog;
 import de.idrinth.habitevaluator.shared.model.User;
+import de.idrinth.habitevaluator.shared.repository.ActivityLogRepository;
 import de.idrinth.habitevaluator.shared.repository.DiaryEntryRepository;
 import de.idrinth.habitevaluator.shared.repository.EmotionEntryRepository;
+import de.idrinth.habitevaluator.shared.repository.FoodLogRepository;
 import de.idrinth.habitevaluator.shared.repository.HabitRepository;
 import de.idrinth.habitevaluator.shared.repository.SleepEntryRepository;
+import de.idrinth.habitevaluator.shared.repository.SportLogRepository;
 import de.idrinth.habitevaluator.shared.service.DiaryService;
 import de.idrinth.habitevaluator.shared.service.EventCorrelationService;
 import de.idrinth.habitevaluator.shared.service.HabitScoringService;
@@ -82,6 +88,9 @@ public class PdfExportController {
     private DiaryEntryRepository diaryEntryRepository;
     private SleepEntryRepository sleepEntryRepository;
     private EmotionEntryRepository emotionEntryRepository;
+    private FoodLogRepository foodLogRepository;
+    private SportLogRepository sportLogRepository;
+    private ActivityLogRepository activityLogRepository;
     private User currentUser;
     private final HabitScoringService scoringService = new HabitScoringService();
     private final DiaryService diaryService = new DiaryService();
@@ -107,6 +116,18 @@ public class PdfExportController {
 
     public void setEmotionEntryRepository(EmotionEntryRepository emotionEntryRepository) {
         this.emotionEntryRepository = emotionEntryRepository;
+    }
+
+    public void setFoodLogRepository(FoodLogRepository foodLogRepository) {
+        this.foodLogRepository = foodLogRepository;
+    }
+
+    public void setSportLogRepository(SportLogRepository sportLogRepository) {
+        this.sportLogRepository = sportLogRepository;
+    }
+
+    public void setActivityLogRepository(ActivityLogRepository activityLogRepository) {
+        this.activityLogRepository = activityLogRepository;
     }
 
     public void setCurrentUser(User currentUser) {
@@ -777,6 +798,9 @@ public class PdfExportController {
         List<DiaryEntry> diaryEntries = new ArrayList<>();
         List<SleepEntry> sleepEntries = new ArrayList<>();
         List<EmotionEntry> emotionEntries = new ArrayList<>();
+        List<FoodLog> foodLogs = new ArrayList<>();
+        List<SportLog> sportLogs = new ArrayList<>();
+        List<ActivityLog> activityLogs = new ArrayList<>();
         if (diaryEntryRepository != null && userId != null) {
             diaryEntries = diaryEntryRepository.findByUserId(userId);
         }
@@ -786,9 +810,20 @@ public class PdfExportController {
         if (emotionEntryRepository != null && userId != null) {
             emotionEntries = emotionEntryRepository.findByUserId(userId);
         }
+        if (foodLogRepository != null && userId != null) {
+            foodLogs = foodLogRepository.findByUserId(userId);
+        }
+        if (sportLogRepository != null && userId != null) {
+            sportLogs = sportLogRepository.findByUserId(userId);
+        }
+        if (activityLogRepository != null && userId != null) {
+            activityLogs = activityLogRepository.findByUserId(userId);
+        }
 
         List<EventCorrelation> correlations = correlationService.calculateCorrelations(
-                habits, diaryEntries, sleepEntries, emotionEntries);
+                habits, diaryEntries, sleepEntries, emotionEntries,
+                sportLogs, new ArrayList<>(), activityLogs,
+                foodLogs, new ArrayList<>());
 
         Paragraph header = new Paragraph("Event Correlations", SECTION_FONT);
         header.setSpacingBefore(15);

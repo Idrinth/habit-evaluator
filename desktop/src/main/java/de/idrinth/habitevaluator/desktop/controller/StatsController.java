@@ -1,14 +1,20 @@
 package de.idrinth.habitevaluator.desktop.controller;
 
+import de.idrinth.habitevaluator.shared.model.ActivityLog;
 import de.idrinth.habitevaluator.shared.model.DiaryEntry;
 import de.idrinth.habitevaluator.shared.model.EmotionEntry;
 import de.idrinth.habitevaluator.shared.model.EventCorrelation;
+import de.idrinth.habitevaluator.shared.model.FoodLog;
 import de.idrinth.habitevaluator.shared.model.Habit;
 import de.idrinth.habitevaluator.shared.model.SleepEntry;
+import de.idrinth.habitevaluator.shared.model.SportLog;
 import de.idrinth.habitevaluator.shared.model.User;
+import de.idrinth.habitevaluator.shared.repository.ActivityLogRepository;
 import de.idrinth.habitevaluator.shared.repository.DiaryEntryRepository;
 import de.idrinth.habitevaluator.shared.repository.EmotionEntryRepository;
+import de.idrinth.habitevaluator.shared.repository.FoodLogRepository;
 import de.idrinth.habitevaluator.shared.repository.SleepEntryRepository;
+import de.idrinth.habitevaluator.shared.repository.SportLogRepository;
 import de.idrinth.habitevaluator.shared.service.DiaryService;
 import de.idrinth.habitevaluator.shared.service.EventCorrelationService;
 import de.idrinth.habitevaluator.shared.service.HabitScoringService;
@@ -89,6 +95,9 @@ public class StatsController {
     private SleepEntryRepository sleepEntryRepository;
     private DiaryEntryRepository diaryEntryRepository;
     private EmotionEntryRepository emotionEntryRepository;
+    private FoodLogRepository foodLogRepository;
+    private SportLogRepository sportLogRepository;
+    private ActivityLogRepository activityLogRepository;
     private User currentUser;
 
     private final DiaryService diaryService = new DiaryService();
@@ -109,6 +118,18 @@ public class StatsController {
 
     public void setEmotionEntryRepository(EmotionEntryRepository emotionEntryRepository) {
         this.emotionEntryRepository = emotionEntryRepository;
+    }
+
+    public void setFoodLogRepository(FoodLogRepository foodLogRepository) {
+        this.foodLogRepository = foodLogRepository;
+    }
+
+    public void setSportLogRepository(SportLogRepository sportLogRepository) {
+        this.sportLogRepository = sportLogRepository;
+    }
+
+    public void setActivityLogRepository(ActivityLogRepository activityLogRepository) {
+        this.activityLogRepository = activityLogRepository;
     }
 
     public void setCurrentUser(User currentUser) {
@@ -287,6 +308,9 @@ public class StatsController {
         List<DiaryEntry> diaryEntries = new ArrayList<>();
         List<SleepEntry> sleepEntries = new ArrayList<>();
         List<EmotionEntry> emotionEntries = new ArrayList<>();
+        List<FoodLog> foodLogs = new ArrayList<>();
+        List<SportLog> sportLogs = new ArrayList<>();
+        List<ActivityLog> activityLogs = new ArrayList<>();
         if (diaryEntryRepository != null && currentUser != null) {
             diaryEntries = diaryEntryRepository.findByUserId(currentUser.getId());
         }
@@ -296,9 +320,20 @@ public class StatsController {
         if (emotionEntryRepository != null && currentUser != null) {
             emotionEntries = emotionEntryRepository.findByUserId(currentUser.getId());
         }
+        if (foodLogRepository != null && currentUser != null) {
+            foodLogs = foodLogRepository.findByUserId(currentUser.getId());
+        }
+        if (sportLogRepository != null && currentUser != null) {
+            sportLogs = sportLogRepository.findByUserId(currentUser.getId());
+        }
+        if (activityLogRepository != null && currentUser != null) {
+            activityLogs = activityLogRepository.findByUserId(currentUser.getId());
+        }
 
         List<EventCorrelation> correlations = correlationService.calculateCorrelations(
-                habits, diaryEntries, sleepEntries, emotionEntries);
+                habits, diaryEntries, sleepEntries, emotionEntries,
+                sportLogs, new ArrayList<>(), activityLogs,
+                foodLogs, new ArrayList<>());
 
         eventAColumn.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getEventA()));
         eventBColumn.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getEventB()));
