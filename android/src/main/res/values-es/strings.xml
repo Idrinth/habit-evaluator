@@ -409,4 +409,21 @@
     <string name="emergency_dialogue_finish">Finish</string>
     <string name="emergency_dialogue_progress">Question %1$d of %2$d</string>
     <string name="emergency_dialogue_complete">You have completed all steps.</string>
+    <string name="activity_log_title">Activity Log</string>
+    <string name="activity_log_add_entry">Add</string>
+    <string name="activity_log_toggle_form">Toggle add entry form</string>
+    <string name="activity_log_persons_hint">Persons (e.g. Alice, Bob)</string>
+    <string name="activity_log_location_hint">Location</string>
+    <string name="activity_log_start_time">Start time</string>
+    <string name="activity_log_end_time">End time</string>
+    <string name="activity_log_date">Date</string>
+    <string name="activity_log_activity_hint">Activity (optional)</string>
+    <string name="activity_log_delete">Delete</string>
+    <string name="activity_log_entry_added">Activity log entry added</string>
+    <string name="activity_log_entry_removed">Activity log entry removed</string>
+    <string name="activity_log_persons_required">Please enter persons</string>
+    <string name="activity_log_location_required">Please enter a location</string>
+    <string name="activity_log_time_required">Please select both start and end times</string>
+    <string name="activity_log_duration">%d min</string>
+    <string name="diary_navigation_activity_log_description">Log activities with persons, locations, and times</string>
 </resources>
