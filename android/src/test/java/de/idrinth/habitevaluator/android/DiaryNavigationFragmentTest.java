@@ -8,7 +8,7 @@ class DiaryNavigationFragmentTest {
 
     @Test
     void testNavigationCardCountValue() {
-        assertEquals(5, DiaryNavigationFragment.NAVIGATION_CARD_COUNT);
+        assertEquals(6, DiaryNavigationFragment.NAVIGATION_CARD_COUNT);
     }
 
     @Test
@@ -45,6 +45,11 @@ class DiaryNavigationFragmentTest {
     @Test
     void testNavigationTargetsContainsMedicationList() {
         assertTrue(DiaryNavigationFragment.isValidNavigationTarget("medicationList"));
+    }
+
+    @Test
+    void testNavigationTargetsContainsActivityLog() {
+        assertTrue(DiaryNavigationFragment.isValidNavigationTarget("activityLog"));
     }
 
     @Test

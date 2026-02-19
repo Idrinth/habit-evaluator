@@ -88,6 +88,7 @@ public class MainActivity extends AppCompatActivity {
     private static de.idrinth.habitevaluator.shared.repository.MedicationLogRepository sharedMedicationLogRepository;
     private static List<de.idrinth.habitevaluator.shared.model.Medication> sharedMedications = new ArrayList<>();
     private static de.idrinth.habitevaluator.shared.repository.EmergencyPlanStepRepository sharedEmergencyPlanStepRepository;
+    private static de.idrinth.habitevaluator.shared.repository.ActivityLogRepository sharedActivityLogRepository;
     private static User sharedLocalUser;
     private static String editHabitId;
     private static String pointDevelopmentHabitId;
@@ -216,6 +217,10 @@ public class MainActivity extends AppCompatActivity {
 
     public static de.idrinth.habitevaluator.shared.repository.EmergencyPlanStepRepository getSharedEmergencyPlanStepRepository() {
         return sharedEmergencyPlanStepRepository;
+    }
+
+    public static de.idrinth.habitevaluator.shared.repository.ActivityLogRepository getSharedActivityLogRepository() {
+        return sharedActivityLogRepository;
     }
 
     public static void saveAllHabits() {
@@ -398,6 +403,13 @@ public class MainActivity extends AppCompatActivity {
                             binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_DIARY, false);
                         }
                         break;
+                    case ScreenPagerAdapter.PAGE_ACTIVITY_LOG:
+                        if (isProgrammatic) {
+                            binding.bottomNavigation.setSelectedItemId(R.id.nav_diary);
+                        } else if (!isIntermediate) {
+                            binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_DIARY, false);
+                        }
+                        break;
                     case ScreenPagerAdapter.PAGE_EMERGENCY_PLAN:
                         binding.bottomNavigation.setSelectedItemId(R.id.nav_emergency_plan);
                         break;
@@ -558,6 +570,11 @@ public class MainActivity extends AppCompatActivity {
         binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_EMERGENCY_PLAN, true);
     }
 
+    public void navigateToActivityLog() {
+        programmaticNavigationTarget = ScreenPagerAdapter.PAGE_ACTIVITY_LOG;
+        binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_ACTIVITY_LOG, true);
+    }
+
     public void onSettingsChanged() {
         initializeStorage();
         applyModuleVisibility();
@@ -612,6 +629,7 @@ public class MainActivity extends AppCompatActivity {
         de.idrinth.habitevaluator.android.persistence.SQLiteMedicationLogRepository medicationLogRepo = new de.idrinth.habitevaluator.android.persistence.SQLiteMedicationLogRepository(dbHelper, medicationRepo);
         de.idrinth.habitevaluator.android.persistence.SQLiteEmergencyPlanActionRepository emergencyPlanActionRepo = new de.idrinth.habitevaluator.android.persistence.SQLiteEmergencyPlanActionRepository(dbHelper);
         de.idrinth.habitevaluator.android.persistence.SQLiteEmergencyPlanStepRepository emergencyPlanStepRepo = new de.idrinth.habitevaluator.android.persistence.SQLiteEmergencyPlanStepRepository(dbHelper, emergencyPlanActionRepo);
+        de.idrinth.habitevaluator.android.persistence.SQLiteActivityLogRepository activityLogRepo = new de.idrinth.habitevaluator.android.persistence.SQLiteActivityLogRepository(dbHelper);
 
         currentUser = getOrCreateLocalUser();
         sharedHabitRepository = habitRepository;
@@ -631,6 +649,7 @@ public class MainActivity extends AppCompatActivity {
         sharedMedicationRepository = medicationRepo;
         sharedMedicationLogRepository = medicationLogRepo;
         sharedEmergencyPlanStepRepository = emergencyPlanStepRepo;
+        sharedActivityLogRepository = activityLogRepo;
 
         // Migrate legacy JSON files to SQLite if they exist
         java.io.File storageDir = new java.io.File(getFilesDir(), "habit-data");
@@ -694,6 +713,7 @@ public class MainActivity extends AppCompatActivity {
         de.idrinth.habitevaluator.android.persistence.SQLiteMedicationLogRepository medicationLogRepo = new de.idrinth.habitevaluator.android.persistence.SQLiteMedicationLogRepository(dbHelper, medicationRepo);
         de.idrinth.habitevaluator.android.persistence.SQLiteEmergencyPlanActionRepository emergencyPlanActionRepo = new de.idrinth.habitevaluator.android.persistence.SQLiteEmergencyPlanActionRepository(dbHelper);
         de.idrinth.habitevaluator.android.persistence.SQLiteEmergencyPlanStepRepository emergencyPlanStepRepo = new de.idrinth.habitevaluator.android.persistence.SQLiteEmergencyPlanStepRepository(dbHelper, emergencyPlanActionRepo);
+        de.idrinth.habitevaluator.android.persistence.SQLiteActivityLogRepository activityLogRepo = new de.idrinth.habitevaluator.android.persistence.SQLiteActivityLogRepository(dbHelper);
         sharedSleepEntryRepository = sleepEntryRepository;
         sharedDiaryEntryRepository = diaryEntryRepo;
         sharedDiaryReferenceRepository = diaryRefRepo;
@@ -705,8 +725,9 @@ public class MainActivity extends AppCompatActivity {
         sharedMedicationRepository = medicationRepo;
         sharedMedicationLogRepository = medicationLogRepo;
         sharedEmergencyPlanStepRepository = emergencyPlanStepRepo;
+        sharedActivityLogRepository = activityLogRepo;
 
-        // Set local user for local-only data access (diary, sleep, emotions, sport, food, medication, emergency plan)
+        // Set local user for local-only data access (diary, sleep, emotions, sport, food, medication, emergency plan, activity log)
         sharedLocalUser = getOrCreateLocalUser();
 
         // Migrate legacy JSON files to SQLite if they exist
