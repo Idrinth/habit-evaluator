@@ -18,6 +18,8 @@ public class RestoreOptions {
     private boolean restoreActivityLogs;
     private boolean restoreMedicationData;
     private boolean restoreReminderSettings;
+    private boolean restoreModuleVisibility;
+    private boolean restoreEmergencyPlan;
 
     public RestoreOptions() {
         this.restoreCategories = true;
@@ -31,6 +33,8 @@ public class RestoreOptions {
         this.restoreActivityLogs = true;
         this.restoreMedicationData = true;
         this.restoreReminderSettings = true;
+        this.restoreModuleVisibility = true;
+        this.restoreEmergencyPlan = true;
     }
 
     /**
@@ -56,6 +60,8 @@ public class RestoreOptions {
         options.restoreActivityLogs = false;
         options.restoreMedicationData = false;
         options.restoreReminderSettings = false;
+        options.restoreModuleVisibility = false;
+        options.restoreEmergencyPlan = false;
         return options;
     }
 
@@ -145,5 +151,21 @@ public class RestoreOptions {
 
     public void setRestoreReminderSettings(boolean restoreReminderSettings) {
         this.restoreReminderSettings = restoreReminderSettings;
+    }
+
+    public boolean isRestoreModuleVisibility() {
+        return restoreModuleVisibility;
+    }
+
+    public void setRestoreModuleVisibility(boolean restoreModuleVisibility) {
+        this.restoreModuleVisibility = restoreModuleVisibility;
+    }
+
+    public boolean isRestoreEmergencyPlan() {
+        return restoreEmergencyPlan;
+    }
+
+    public void setRestoreEmergencyPlan(boolean restoreEmergencyPlan) {
+        this.restoreEmergencyPlan = restoreEmergencyPlan;
     }
 }

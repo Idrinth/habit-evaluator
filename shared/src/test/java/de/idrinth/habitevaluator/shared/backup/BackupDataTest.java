@@ -540,4 +540,107 @@ class BackupDataTest {
         userData.setId("user-uuid-123");
         assertEquals("user-uuid-123", userData.getId());
     }
+
+    @Test
+    void testDefaultStateIncludesModuleVisibilityAndEmergencyPlan() {
+        BackupData data = new BackupData();
+        assertNull(data.getModuleVisibility());
+        assertNotNull(data.getEmergencyPlanSteps());
+        assertTrue(data.getEmergencyPlanSteps().isEmpty());
+    }
+
+    @Test
+    void testModuleVisibilityData() {
+        BackupData.ModuleVisibilityData vis = new BackupData.ModuleVisibilityData();
+        vis.setId("mv1");
+        vis.setDiaryVisible(true);
+        vis.setSleepVisible(false);
+        vis.setEmotionsVisible(true);
+        vis.setPointsVisible(false);
+        vis.setStatisticsVisible(true);
+        vis.setFoodLogVisible(false);
+        vis.setSportLogVisible(true);
+        vis.setMedicationVisible(false);
+        vis.setBackupVisible(true);
+        vis.setPdfExportVisible(false);
+        vis.setActivityLogVisible(true);
+
+        assertEquals("mv1", vis.getId());
+        assertTrue(vis.isDiaryVisible());
+        assertFalse(vis.isSleepVisible());
+        assertTrue(vis.isEmotionsVisible());
+        assertFalse(vis.isPointsVisible());
+        assertTrue(vis.isStatisticsVisible());
+        assertFalse(vis.isFoodLogVisible());
+        assertTrue(vis.isSportLogVisible());
+        assertFalse(vis.isMedicationVisible());
+        assertTrue(vis.isBackupVisible());
+        assertFalse(vis.isPdfExportVisible());
+        assertTrue(vis.isActivityLogVisible());
+    }
+
+    @Test
+    void testSetModuleVisibility() {
+        BackupData data = new BackupData();
+        BackupData.ModuleVisibilityData vis = new BackupData.ModuleVisibilityData();
+        vis.setDiaryVisible(false);
+        data.setModuleVisibility(vis);
+        assertNotNull(data.getModuleVisibility());
+        assertFalse(data.getModuleVisibility().isDiaryVisible());
+    }
+
+    @Test
+    void testEmergencyPlanStepData() {
+        BackupData.EmergencyPlanStepData step = new BackupData.EmergencyPlanStepData();
+        step.setId("eps1");
+        step.setQuestion("Are you safe?");
+        step.setStepOrder(1);
+
+        assertEquals("eps1", step.getId());
+        assertEquals("Are you safe?", step.getQuestion());
+        assertEquals(1, step.getStepOrder());
+        assertNotNull(step.getActions());
+        assertTrue(step.getActions().isEmpty());
+    }
+
+    @Test
+    void testEmergencyPlanActionData() {
+        BackupData.EmergencyPlanActionData action = new BackupData.EmergencyPlanActionData();
+        action.setId("epa1");
+        action.setActionText("Call emergency services");
+        action.setPhoneNumber("112");
+        action.setActionOrder(1);
+
+        assertEquals("epa1", action.getId());
+        assertEquals("Call emergency services", action.getActionText());
+        assertEquals("112", action.getPhoneNumber());
+        assertEquals(1, action.getActionOrder());
+    }
+
+    @Test
+    void testEmergencyPlanStepWithActions() {
+        BackupData.EmergencyPlanStepData step = new BackupData.EmergencyPlanStepData();
+        step.setQuestion("Do you need help?");
+
+        List<BackupData.EmergencyPlanActionData> actions = new ArrayList<>();
+        BackupData.EmergencyPlanActionData action = new BackupData.EmergencyPlanActionData();
+        action.setActionText("Breathe deeply");
+        actions.add(action);
+        step.setActions(actions);
+
+        assertEquals(1, step.getActions().size());
+        assertEquals("Breathe deeply", step.getActions().get(0).getActionText());
+    }
+
+    @Test
+    void testSetEmergencyPlanSteps() {
+        BackupData data = new BackupData();
+        List<BackupData.EmergencyPlanStepData> steps = new ArrayList<>();
+        BackupData.EmergencyPlanStepData step = new BackupData.EmergencyPlanStepData();
+        step.setQuestion("Are you okay?");
+        steps.add(step);
+        data.setEmergencyPlanSteps(steps);
+        assertEquals(1, data.getEmergencyPlanSteps().size());
+        assertEquals("Are you okay?", data.getEmergencyPlanSteps().get(0).getQuestion());
+    }
 }

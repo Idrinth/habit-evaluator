@@ -673,7 +673,31 @@ paths:
         schema:
           type: boolean
           default: true
+      - name: meetings
+        in: query
+        required: false
+        schema:
+          type: boolean
+          default: true
+      - name: activityLogs
+        in: query
+        required: false
+        schema:
+          type: boolean
+          default: true
+      - name: medications
+        in: query
+        required: false
+        schema:
+          type: boolean
+          default: true
       - name: reminderSettings
+        in: query
+        required: false
+        schema:
+          type: boolean
+          default: true
+      - name: moduleVisibility
         in: query
         required: false
         schema:

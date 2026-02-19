@@ -20,6 +20,8 @@ class RestoreOptionsTest {
         assertTrue(options.isRestoreActivityLogs());
         assertTrue(options.isRestoreMedicationData());
         assertTrue(options.isRestoreReminderSettings());
+        assertTrue(options.isRestoreModuleVisibility());
+        assertTrue(options.isRestoreEmergencyPlan());
     }
 
     @Test
@@ -36,6 +38,8 @@ class RestoreOptionsTest {
         assertTrue(options.isRestoreActivityLogs());
         assertTrue(options.isRestoreMedicationData());
         assertTrue(options.isRestoreReminderSettings());
+        assertTrue(options.isRestoreModuleVisibility());
+        assertTrue(options.isRestoreEmergencyPlan());
     }
 
     @Test
@@ -52,6 +56,8 @@ class RestoreOptionsTest {
         assertFalse(options.isRestoreActivityLogs());
         assertFalse(options.isRestoreMedicationData());
         assertFalse(options.isRestoreReminderSettings());
+        assertFalse(options.isRestoreModuleVisibility());
+        assertFalse(options.isRestoreEmergencyPlan());
     }
 
     @Test
@@ -90,6 +96,12 @@ class RestoreOptionsTest {
 
         options.setRestoreReminderSettings(false);
         assertFalse(options.isRestoreReminderSettings());
+
+        options.setRestoreModuleVisibility(false);
+        assertFalse(options.isRestoreModuleVisibility());
+
+        options.setRestoreEmergencyPlan(false);
+        assertFalse(options.isRestoreEmergencyPlan());
     }
 
     @Test
@@ -161,5 +173,26 @@ class RestoreOptionsTest {
 
         assertFalse(options.isRestoreCategories());
         assertTrue(options.isRestoreReminderSettings());
+    }
+
+    @Test
+    void testIndividualModuleVisibilityFlag() {
+        RestoreOptions options = RestoreOptions.none();
+        options.setRestoreModuleVisibility(true);
+
+        assertFalse(options.isRestoreCategories());
+        assertFalse(options.isRestoreMeetingEntries());
+        assertTrue(options.isRestoreModuleVisibility());
+        assertFalse(options.isRestoreEmergencyPlan());
+    }
+
+    @Test
+    void testIndividualEmergencyPlanFlag() {
+        RestoreOptions options = RestoreOptions.none();
+        options.setRestoreEmergencyPlan(true);
+
+        assertFalse(options.isRestoreCategories());
+        assertFalse(options.isRestoreModuleVisibility());
+        assertTrue(options.isRestoreEmergencyPlan());
     }
 }

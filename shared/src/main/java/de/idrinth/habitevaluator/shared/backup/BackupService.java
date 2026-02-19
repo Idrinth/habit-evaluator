@@ -32,6 +32,12 @@ import de.idrinth.habitevaluator.shared.repository.MeetingEntryRepository;
 import de.idrinth.habitevaluator.shared.repository.ReminderSettingsRepository;
 import de.idrinth.habitevaluator.shared.repository.SleepEntryRepository;
 import de.idrinth.habitevaluator.shared.repository.SportLogRepository;
+import de.idrinth.habitevaluator.shared.model.ModuleVisibility;
+import de.idrinth.habitevaluator.shared.model.EmergencyPlanStep;
+import de.idrinth.habitevaluator.shared.model.EmergencyPlanAction;
+import de.idrinth.habitevaluator.shared.repository.ModuleVisibilityRepository;
+import de.idrinth.habitevaluator.shared.repository.EmergencyPlanStepRepository;
+import de.idrinth.habitevaluator.shared.repository.EmergencyPlanActionRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -323,6 +329,32 @@ public class BackupService {
                                        MedicationRepository medicationRepository,
                                        MedicationLogRepository medicationLogRepository,
                                        RestoreOptions options) throws BackupException {
+        return mergeBackupData(backupData, user, habitRepository, categoryRepository,
+                diaryEntryRepository, sleepEntryRepository, sportLogRepository,
+                foodLogRepository, foodTagRepository, emotionPairRepository,
+                emotionEntryRepository, null, null, reminderSettingsRepository,
+                medicationRepository, medicationLogRepository, null, null, null, options);
+    }
+
+    public MergeResult mergeBackupData(BackupData backupData, User user,
+                                       HabitRepository habitRepository,
+                                       HabitCategoryRepository categoryRepository,
+                                       DiaryEntryRepository diaryEntryRepository,
+                                       SleepEntryRepository sleepEntryRepository,
+                                       SportLogRepository sportLogRepository,
+                                       FoodLogRepository foodLogRepository,
+                                       de.idrinth.habitevaluator.shared.repository.FoodTagRepository foodTagRepository,
+                                       EmotionPairRepository emotionPairRepository,
+                                       EmotionEntryRepository emotionEntryRepository,
+                                       MeetingEntryRepository meetingEntryRepository,
+                                       ActivityLogRepository activityLogRepository,
+                                       ReminderSettingsRepository reminderSettingsRepository,
+                                       MedicationRepository medicationRepository,
+                                       MedicationLogRepository medicationLogRepository,
+                                       ModuleVisibilityRepository moduleVisibilityRepository,
+                                       EmergencyPlanStepRepository emergencyPlanStepRepository,
+                                       EmergencyPlanActionRepository emergencyPlanActionRepository,
+                                       RestoreOptions options) throws BackupException {
         if (user == null) {
             throw new BackupException("User must not be null for merge");
         }
@@ -334,8 +366,10 @@ public class BackupService {
             return doMerge(backupData, user, habitRepository, categoryRepository,
                     diaryEntryRepository, sleepEntryRepository, sportLogRepository,
                     foodLogRepository, foodTagRepository, emotionPairRepository,
-                    emotionEntryRepository, null, null, reminderSettingsRepository,
-                    medicationRepository, medicationLogRepository, options);
+                    emotionEntryRepository, meetingEntryRepository, activityLogRepository,
+                    reminderSettingsRepository, medicationRepository, medicationLogRepository,
+                    moduleVisibilityRepository, emergencyPlanStepRepository,
+                    emergencyPlanActionRepository, options);
         } catch (BackupException e) {
             throw e;
         } catch (Exception e) {
@@ -354,7 +388,7 @@ public class BackupService {
                                 RestoreOptions options) throws BackupException {
         return doMerge(backupData, user, habitRepository, categoryRepository,
                 diaryEntryRepository, sleepEntryRepository, sportLogRepository,
-                foodLogRepository, foodTagRepository, null, null, null, null, null, null, null, options);
+                foodLogRepository, foodTagRepository, null, null, null, null, null, null, null, null, null, null, options);
     }
 
     private MergeResult doMerge(BackupData backupData, User user,
@@ -372,7 +406,7 @@ public class BackupService {
         return doMerge(backupData, user, habitRepository, categoryRepository,
                 diaryEntryRepository, sleepEntryRepository, sportLogRepository,
                 foodLogRepository, foodTagRepository, emotionPairRepository,
-                emotionEntryRepository, null, null, reminderSettingsRepository, null, null, options);
+                emotionEntryRepository, null, null, reminderSettingsRepository, null, null, null, null, null, options);
     }
 
     private MergeResult doMerge(BackupData backupData, User user,
@@ -390,6 +424,33 @@ public class BackupService {
                                 ReminderSettingsRepository reminderSettingsRepository,
                                 MedicationRepository medicationRepository,
                                 MedicationLogRepository medicationLogRepository,
+                                RestoreOptions options) throws BackupException {
+        return doMerge(backupData, user, habitRepository, categoryRepository,
+                diaryEntryRepository, sleepEntryRepository, sportLogRepository,
+                foodLogRepository, foodTagRepository, emotionPairRepository,
+                emotionEntryRepository, meetingEntryRepository, activityLogRepository,
+                reminderSettingsRepository, medicationRepository, medicationLogRepository,
+                null, null, null, options);
+    }
+
+    private MergeResult doMerge(BackupData backupData, User user,
+                                HabitRepository habitRepository,
+                                HabitCategoryRepository categoryRepository,
+                                DiaryEntryRepository diaryEntryRepository,
+                                SleepEntryRepository sleepEntryRepository,
+                                SportLogRepository sportLogRepository,
+                                FoodLogRepository foodLogRepository,
+                                de.idrinth.habitevaluator.shared.repository.FoodTagRepository foodTagRepository,
+                                EmotionPairRepository emotionPairRepository,
+                                EmotionEntryRepository emotionEntryRepository,
+                                MeetingEntryRepository meetingEntryRepository,
+                                ActivityLogRepository activityLogRepository,
+                                ReminderSettingsRepository reminderSettingsRepository,
+                                MedicationRepository medicationRepository,
+                                MedicationLogRepository medicationLogRepository,
+                                ModuleVisibilityRepository moduleVisibilityRepository,
+                                EmergencyPlanStepRepository emergencyPlanStepRepository,
+                                EmergencyPlanActionRepository emergencyPlanActionRepository,
                                 RestoreOptions options) throws BackupException {
         int categoriesAdded = 0;
         int habitsAdded = 0;
@@ -912,10 +973,67 @@ public class BackupService {
             reminderSettingsRestored = true;
         }
 
+        // Merge module visibility
+        boolean moduleVisibilityRestored = false;
+        if (options.isRestoreModuleVisibility() && moduleVisibilityRepository != null
+                && backupData.getModuleVisibility() != null) {
+            BackupData.ModuleVisibilityData visData = backupData.getModuleVisibility();
+            java.util.Optional<ModuleVisibility> existingOpt =
+                    moduleVisibilityRepository.findByUserId(user.getId());
+            ModuleVisibility visibility = existingOpt.orElseGet(ModuleVisibility::new);
+            visibility.setUser(user);
+            visibility.setDiaryVisible(visData.isDiaryVisible());
+            visibility.setSleepVisible(visData.isSleepVisible());
+            visibility.setEmotionsVisible(visData.isEmotionsVisible());
+            visibility.setPointsVisible(visData.isPointsVisible());
+            visibility.setStatisticsVisible(visData.isStatisticsVisible());
+            visibility.setFoodLogVisible(visData.isFoodLogVisible());
+            visibility.setSportLogVisible(visData.isSportLogVisible());
+            visibility.setMedicationVisible(visData.isMedicationVisible());
+            visibility.setBackupVisible(visData.isBackupVisible());
+            visibility.setPdfExportVisible(visData.isPdfExportVisible());
+            visibility.setActivityLogVisible(visData.isActivityLogVisible());
+            moduleVisibilityRepository.save(visibility);
+            moduleVisibilityRestored = true;
+        }
+
+        // Merge emergency plan steps and actions
+        int emergencyPlanStepsAdded = 0;
+        if (options.isRestoreEmergencyPlan() && emergencyPlanStepRepository != null
+                && backupData.getEmergencyPlanSteps() != null) {
+            List<EmergencyPlanStep> existingSteps = emergencyPlanStepRepository.findByUserId(user.getId());
+            Set<String> existingStepIds = new HashSet<>();
+            for (EmergencyPlanStep step : existingSteps) {
+                existingStepIds.add(step.getId());
+            }
+
+            for (BackupData.EmergencyPlanStepData stepData : backupData.getEmergencyPlanSteps()) {
+                if (!existingStepIds.contains(stepData.getId())) {
+                    EmergencyPlanStep newStep = new EmergencyPlanStep(stepData.getQuestion(), stepData.getStepOrder());
+                    newStep.setId(stepData.getId());
+                    newStep.setUser(user);
+                    newStep = emergencyPlanStepRepository.save(newStep);
+
+                    if (emergencyPlanActionRepository != null && stepData.getActions() != null) {
+                        for (BackupData.EmergencyPlanActionData actionData : stepData.getActions()) {
+                            EmergencyPlanAction newAction = new EmergencyPlanAction(
+                                    actionData.getActionText(), actionData.getPhoneNumber(), actionData.getActionOrder());
+                            newAction.setId(actionData.getId());
+                            newAction.setStep(newStep);
+                            emergencyPlanActionRepository.save(newAction);
+                        }
+                    }
+
+                    emergencyPlanStepsAdded++;
+                }
+            }
+        }
+
         MergeResult result = new MergeResult(categoriesAdded, habitsAdded, habitsMerged,
                 entriesAdded, diaryEntriesAdded, sleepEntriesAdded, sportLogsAdded, foodLogsAdded,
                 emotionPairsAdded, emotionEntriesAdded, meetingEntriesAdded, activityLogsAdded,
-                medicationsAdded, medicationLogsAdded, reminderSettingsRestored);
+                medicationsAdded, medicationLogsAdded, reminderSettingsRestored,
+                moduleVisibilityRestored, emergencyPlanStepsAdded);
         logger.info("Backup merged: {}", result);
         return result;
     }
@@ -1286,6 +1404,77 @@ public class BackupService {
                     logData.setCreatedAt(log.getCreatedAt().toString());
                 }
                 data.getMedicationLogs().add(logData);
+            }
+        }
+
+        return data;
+    }
+
+    BackupData collectBackupData(User user,
+                                         HabitRepository habitRepository,
+                                         HabitCategoryRepository categoryRepository,
+                                         DiaryEntryRepository diaryEntryRepository,
+                                         SleepEntryRepository sleepEntryRepository,
+                                         SportLogRepository sportLogRepository,
+                                         FoodLogRepository foodLogRepository,
+                                         EmotionPairRepository emotionPairRepository,
+                                         EmotionEntryRepository emotionEntryRepository,
+                                         MeetingEntryRepository meetingEntryRepository,
+                                         ActivityLogRepository activityLogRepository,
+                                         ReminderSettingsRepository reminderSettingsRepository,
+                                         MedicationRepository medicationRepository,
+                                         MedicationLogRepository medicationLogRepository,
+                                         ModuleVisibilityRepository moduleVisibilityRepository,
+                                         EmergencyPlanStepRepository emergencyPlanStepRepository,
+                                         EmergencyPlanActionRepository emergencyPlanActionRepository) {
+        BackupData data = collectBackupData(user, habitRepository, categoryRepository,
+                diaryEntryRepository, sleepEntryRepository, sportLogRepository, foodLogRepository,
+                emotionPairRepository, emotionEntryRepository, meetingEntryRepository,
+                activityLogRepository, reminderSettingsRepository, medicationRepository,
+                medicationLogRepository);
+
+        if (moduleVisibilityRepository != null) {
+            java.util.Optional<ModuleVisibility> visOpt = moduleVisibilityRepository.findByUserId(user.getId());
+            if (visOpt.isPresent()) {
+                ModuleVisibility vis = visOpt.get();
+                BackupData.ModuleVisibilityData visData = new BackupData.ModuleVisibilityData();
+                visData.setId(vis.getId());
+                visData.setDiaryVisible(vis.isDiaryVisible());
+                visData.setSleepVisible(vis.isSleepVisible());
+                visData.setEmotionsVisible(vis.isEmotionsVisible());
+                visData.setPointsVisible(vis.isPointsVisible());
+                visData.setStatisticsVisible(vis.isStatisticsVisible());
+                visData.setFoodLogVisible(vis.isFoodLogVisible());
+                visData.setSportLogVisible(vis.isSportLogVisible());
+                visData.setMedicationVisible(vis.isMedicationVisible());
+                visData.setBackupVisible(vis.isBackupVisible());
+                visData.setPdfExportVisible(vis.isPdfExportVisible());
+                visData.setActivityLogVisible(vis.isActivityLogVisible());
+                data.setModuleVisibility(visData);
+            }
+        }
+
+        if (emergencyPlanStepRepository != null) {
+            List<EmergencyPlanStep> steps = emergencyPlanStepRepository.findByUserId(user.getId());
+            for (EmergencyPlanStep step : steps) {
+                BackupData.EmergencyPlanStepData stepData = new BackupData.EmergencyPlanStepData();
+                stepData.setId(step.getId());
+                stepData.setQuestion(step.getQuestion());
+                stepData.setStepOrder(step.getStepOrder());
+
+                if (emergencyPlanActionRepository != null) {
+                    List<EmergencyPlanAction> actions = emergencyPlanActionRepository.findByStepId(step.getId());
+                    for (EmergencyPlanAction action : actions) {
+                        BackupData.EmergencyPlanActionData actionData = new BackupData.EmergencyPlanActionData();
+                        actionData.setId(action.getId());
+                        actionData.setActionText(action.getActionText());
+                        actionData.setPhoneNumber(action.getPhoneNumber());
+                        actionData.setActionOrder(action.getActionOrder());
+                        stepData.getActions().add(actionData);
+                    }
+                }
+
+                data.getEmergencyPlanSteps().add(stepData);
             }
         }
 
