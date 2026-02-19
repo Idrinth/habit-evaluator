@@ -12,6 +12,7 @@ import de.idrinth.habitevaluator.shared.model.Medication;
 import de.idrinth.habitevaluator.shared.model.MedicationLog;
 import de.idrinth.habitevaluator.shared.model.MedicationProvisionType;
 import de.idrinth.habitevaluator.shared.model.ReminderSettings;
+import de.idrinth.habitevaluator.shared.model.ActivityLog;
 import de.idrinth.habitevaluator.shared.model.ScoringRule;
 import de.idrinth.habitevaluator.shared.model.MeetingEntry;
 import de.idrinth.habitevaluator.shared.model.SleepEntry;
@@ -26,6 +27,7 @@ import de.idrinth.habitevaluator.shared.repository.HabitCategoryRepository;
 import de.idrinth.habitevaluator.shared.repository.HabitRepository;
 import de.idrinth.habitevaluator.shared.repository.MedicationLogRepository;
 import de.idrinth.habitevaluator.shared.repository.MedicationRepository;
+import de.idrinth.habitevaluator.shared.repository.ActivityLogRepository;
 import de.idrinth.habitevaluator.shared.repository.MeetingEntryRepository;
 import de.idrinth.habitevaluator.shared.repository.ReminderSettingsRepository;
 import de.idrinth.habitevaluator.shared.repository.SleepEntryRepository;
@@ -332,7 +334,7 @@ public class BackupService {
             return doMerge(backupData, user, habitRepository, categoryRepository,
                     diaryEntryRepository, sleepEntryRepository, sportLogRepository,
                     foodLogRepository, foodTagRepository, emotionPairRepository,
-                    emotionEntryRepository, null, reminderSettingsRepository,
+                    emotionEntryRepository, null, null, reminderSettingsRepository,
                     medicationRepository, medicationLogRepository, options);
         } catch (BackupException e) {
             throw e;
@@ -352,7 +354,7 @@ public class BackupService {
                                 RestoreOptions options) throws BackupException {
         return doMerge(backupData, user, habitRepository, categoryRepository,
                 diaryEntryRepository, sleepEntryRepository, sportLogRepository,
-                foodLogRepository, foodTagRepository, null, null, null, options);
+                foodLogRepository, foodTagRepository, null, null, null, null, null, null, null, options);
     }
 
     private MergeResult doMerge(BackupData backupData, User user,
@@ -370,7 +372,7 @@ public class BackupService {
         return doMerge(backupData, user, habitRepository, categoryRepository,
                 diaryEntryRepository, sleepEntryRepository, sportLogRepository,
                 foodLogRepository, foodTagRepository, emotionPairRepository,
-                emotionEntryRepository, null, reminderSettingsRepository, null, null, options);
+                emotionEntryRepository, null, null, reminderSettingsRepository, null, null, options);
     }
 
     private MergeResult doMerge(BackupData backupData, User user,
@@ -384,6 +386,7 @@ public class BackupService {
                                 EmotionPairRepository emotionPairRepository,
                                 EmotionEntryRepository emotionEntryRepository,
                                 MeetingEntryRepository meetingEntryRepository,
+                                ActivityLogRepository activityLogRepository,
                                 ReminderSettingsRepository reminderSettingsRepository,
                                 MedicationRepository medicationRepository,
                                 MedicationLogRepository medicationLogRepository,
@@ -772,6 +775,41 @@ public class BackupService {
             }
         }
 
+        // Merge activity logs
+        int activityLogsAdded = 0;
+        if (options.isRestoreActivityLogs() && activityLogRepository != null
+                && backupData.getActivityLogs() != null) {
+            List<ActivityLog> existingActivityLogs = activityLogRepository.findByUserId(user.getId());
+            Set<String> existingActivityLogIds = new HashSet<>();
+            for (ActivityLog entry : existingActivityLogs) {
+                existingActivityLogIds.add(entry.getId());
+            }
+            for (BackupData.ActivityLogData entryData : backupData.getActivityLogs()) {
+                if (!existingActivityLogIds.contains(entryData.getId())) {
+                    ActivityLog newEntry = new ActivityLog();
+                    newEntry.setId(entryData.getId());
+                    newEntry.setPersons(entryData.getPersons());
+                    newEntry.setLocation(entryData.getLocation());
+                    if (entryData.getStartTime() != null) {
+                        newEntry.setStartTime(LocalTime.parse(entryData.getStartTime()));
+                    }
+                    if (entryData.getEndTime() != null) {
+                        newEntry.setEndTime(LocalTime.parse(entryData.getEndTime()));
+                    }
+                    if (entryData.getDate() != null) {
+                        newEntry.setDate(LocalDate.parse(entryData.getDate()));
+                    }
+                    newEntry.setActivity(entryData.getActivity());
+                    if (entryData.getCreatedAt() != null) {
+                        newEntry.setCreatedAt(LocalDateTime.parse(entryData.getCreatedAt()));
+                    }
+                    newEntry.setUser(user);
+                    activityLogRepository.save(newEntry);
+                    activityLogsAdded++;
+                }
+            }
+        }
+
         // Merge medications
         int medicationsAdded = 0;
         Map<String, String> medicationIdMapping = new HashMap<>();
@@ -872,8 +910,8 @@ public class BackupService {
 
         MergeResult result = new MergeResult(categoriesAdded, habitsAdded, habitsMerged,
                 entriesAdded, diaryEntriesAdded, sleepEntriesAdded, sportLogsAdded, foodLogsAdded,
-                emotionPairsAdded, emotionEntriesAdded, meetingEntriesAdded, medicationsAdded, medicationLogsAdded,
-                reminderSettingsRestored);
+                emotionPairsAdded, emotionEntriesAdded, meetingEntriesAdded, activityLogsAdded,
+                medicationsAdded, medicationLogsAdded, reminderSettingsRestored);
         logger.info("Backup merged: {}", result);
         return result;
     }
@@ -1155,6 +1193,7 @@ public class BackupService {
                                          EmotionPairRepository emotionPairRepository,
                                          EmotionEntryRepository emotionEntryRepository,
                                          MeetingEntryRepository meetingEntryRepository,
+                                         ActivityLogRepository activityLogRepository,
                                          ReminderSettingsRepository reminderSettingsRepository,
                                          MedicationRepository medicationRepository,
                                          MedicationLogRepository medicationLogRepository) {
@@ -1182,6 +1221,30 @@ public class BackupService {
                     entryData.setCreatedAt(entry.getCreatedAt().toString());
                 }
                 data.getMeetingEntries().add(entryData);
+            }
+        }
+
+        if (activityLogRepository != null) {
+            List<ActivityLog> activityLogs = activityLogRepository.findByUserId(user.getId());
+            for (ActivityLog entry : activityLogs) {
+                BackupData.ActivityLogData entryData = new BackupData.ActivityLogData();
+                entryData.setId(entry.getId());
+                entryData.setPersons(entry.getPersons());
+                entryData.setLocation(entry.getLocation());
+                if (entry.getStartTime() != null) {
+                    entryData.setStartTime(entry.getStartTime().toString());
+                }
+                if (entry.getEndTime() != null) {
+                    entryData.setEndTime(entry.getEndTime().toString());
+                }
+                if (entry.getDate() != null) {
+                    entryData.setDate(entry.getDate().toString());
+                }
+                entryData.setActivity(entry.getActivity());
+                if (entry.getCreatedAt() != null) {
+                    entryData.setCreatedAt(entry.getCreatedAt().toString());
+                }
+                data.getActivityLogs().add(entryData);
             }
         }
 

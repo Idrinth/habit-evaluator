@@ -58,6 +58,7 @@ public class ModuleVisibilityController {
         settings.setMedicationVisible(incoming.isMedicationVisible());
         settings.setBackupVisible(incoming.isBackupVisible());
         settings.setPdfExportVisible(incoming.isPdfExportVisible());
+        settings.setActivityLogVisible(incoming.isActivityLogVisible());
         return ResponseEntity.ok(moduleVisibilityRepository.save(settings));
     }
 }

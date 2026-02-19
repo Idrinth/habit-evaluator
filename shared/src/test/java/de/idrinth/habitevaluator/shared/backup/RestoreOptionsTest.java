@@ -17,6 +17,7 @@ class RestoreOptionsTest {
         assertTrue(options.isRestoreFoodLogs());
         assertTrue(options.isRestoreEmotionData());
         assertTrue(options.isRestoreMeetingEntries());
+        assertTrue(options.isRestoreActivityLogs());
         assertTrue(options.isRestoreMedicationData());
         assertTrue(options.isRestoreReminderSettings());
     }
@@ -32,6 +33,7 @@ class RestoreOptionsTest {
         assertTrue(options.isRestoreFoodLogs());
         assertTrue(options.isRestoreEmotionData());
         assertTrue(options.isRestoreMeetingEntries());
+        assertTrue(options.isRestoreActivityLogs());
         assertTrue(options.isRestoreMedicationData());
         assertTrue(options.isRestoreReminderSettings());
     }
@@ -47,6 +49,7 @@ class RestoreOptionsTest {
         assertFalse(options.isRestoreFoodLogs());
         assertFalse(options.isRestoreEmotionData());
         assertFalse(options.isRestoreMeetingEntries());
+        assertFalse(options.isRestoreActivityLogs());
         assertFalse(options.isRestoreMedicationData());
         assertFalse(options.isRestoreReminderSettings());
     }
@@ -79,6 +82,9 @@ class RestoreOptionsTest {
         options.setRestoreMeetingEntries(false);
         assertFalse(options.isRestoreMeetingEntries());
 
+        options.setRestoreActivityLogs(false);
+        assertFalse(options.isRestoreActivityLogs());
+
         options.setRestoreMedicationData(false);
         assertFalse(options.isRestoreMedicationData());
 
@@ -99,6 +105,7 @@ class RestoreOptionsTest {
         assertFalse(options.isRestoreFoodLogs());
         assertFalse(options.isRestoreEmotionData());
         assertFalse(options.isRestoreMeetingEntries());
+        assertFalse(options.isRestoreActivityLogs());
         assertFalse(options.isRestoreMedicationData());
         assertFalse(options.isRestoreReminderSettings());
     }
@@ -134,6 +141,17 @@ class RestoreOptionsTest {
         assertFalse(options.isRestoreCategories());
         assertFalse(options.isRestoreMeetingEntries());
         assertTrue(options.isRestoreMedicationData());
+    }
+
+    @Test
+    void testIndividualActivityLogFlag() {
+        RestoreOptions options = RestoreOptions.none();
+        options.setRestoreActivityLogs(true);
+
+        assertFalse(options.isRestoreCategories());
+        assertFalse(options.isRestoreMeetingEntries());
+        assertTrue(options.isRestoreActivityLogs());
+        assertFalse(options.isRestoreMedicationData());
     }
 
     @Test

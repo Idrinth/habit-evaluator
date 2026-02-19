@@ -22,6 +22,7 @@
         <class>de.idrinth.habitevaluator.shared.model.SportLog</class>
         <class>de.idrinth.habitevaluator.shared.model.FoodLog</class>
         <class>de.idrinth.habitevaluator.shared.model.FoodTag</class>
+        <class>de.idrinth.habitevaluator.shared.model.ActivityLog</class>
 
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
 

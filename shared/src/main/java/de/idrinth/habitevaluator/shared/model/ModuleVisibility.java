@@ -58,6 +58,9 @@ public class ModuleVisibility {
     @Column(name = "pdf_export_visible", nullable = false)
     private boolean pdfExportVisible;
 
+    @Column(name = "activity_log_visible", nullable = false)
+    private boolean activityLogVisible;
+
     public ModuleVisibility() {
         this.id = UUID.randomUUID().toString();
         this.diaryVisible = true;
@@ -70,6 +73,7 @@ public class ModuleVisibility {
         this.medicationVisible = true;
         this.backupVisible = true;
         this.pdfExportVisible = true;
+        this.activityLogVisible = true;
     }
 
     public String getId() {
@@ -166,6 +170,14 @@ public class ModuleVisibility {
 
     public void setPdfExportVisible(boolean pdfExportVisible) {
         this.pdfExportVisible = pdfExportVisible;
+    }
+
+    public boolean isActivityLogVisible() {
+        return activityLogVisible;
+    }
+
+    public void setActivityLogVisible(boolean activityLogVisible) {
+        this.activityLogVisible = activityLogVisible;
     }
 
     @Override

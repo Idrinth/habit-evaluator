@@ -663,7 +663,7 @@ class BackupServiceTest {
         BackupData data = backupService.collectBackupData(user, habitRepository,
                 categoryRepository, diaryEntryRepository, sleepEntryRepository,
                 null, null, null, null,
-                meetingEntryRepository, null,
+                meetingEntryRepository, null, null,
                 medicationRepository, medicationLogRepository);
 
         assertEquals(1, data.getMeetingEntries().size());
@@ -690,7 +690,7 @@ class BackupServiceTest {
         BackupData data = backupService.collectBackupData(user, habitRepository,
                 categoryRepository, diaryEntryRepository, sleepEntryRepository,
                 null, null, null, null,
-                meetingEntryRepository, null,
+                meetingEntryRepository, null, null,
                 medicationRepository, medicationLogRepository);
 
         assertEquals(1, data.getMedications().size());

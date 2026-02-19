@@ -93,7 +93,7 @@ class MergeResultTest {
 
     @Test
     void testFullConstructorWithMeetingAndMedication() {
-        MergeResult result = new MergeResult(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, true);
+        MergeResult result = new MergeResult(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, true);
         assertEquals(1, result.getCategoriesAdded());
         assertEquals(2, result.getHabitsAdded());
         assertEquals(3, result.getHabitsMerged());
@@ -105,14 +105,15 @@ class MergeResultTest {
         assertEquals(9, result.getEmotionPairsAdded());
         assertEquals(10, result.getEmotionEntriesAdded());
         assertEquals(11, result.getMeetingEntriesAdded());
-        assertEquals(12, result.getMedicationsAdded());
-        assertEquals(13, result.getMedicationLogsAdded());
+        assertEquals(12, result.getActivityLogsAdded());
+        assertEquals(13, result.getMedicationsAdded());
+        assertEquals(14, result.getMedicationLogsAdded());
         assertTrue(result.isReminderSettingsRestored());
     }
 
     @Test
     void testTotalChangesIncludesMeetingAndMedication() {
-        MergeResult result = new MergeResult(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 3, 7, false);
+        MergeResult result = new MergeResult(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 0, 3, 7, false);
         // meeting(5) + medications(3) + medicationLogs(7) = 15
         assertEquals(15, result.getTotalChanges());
     }
@@ -126,9 +127,10 @@ class MergeResultTest {
 
     @Test
     void testToStringIncludesMeetingAndMedication() {
-        MergeResult result = new MergeResult(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 2, 6, false);
+        MergeResult result = new MergeResult(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 2, 6, false);
         String str = result.toString();
         assertTrue(str.contains("meeting entries added=4"));
+        assertTrue(str.contains("activity logs added=0"));
         assertTrue(str.contains("medications added=2"));
         assertTrue(str.contains("medication logs added=6"));
         assertTrue(str.contains("reminder settings restored=false"));
@@ -152,6 +154,7 @@ class MergeResultTest {
     void testMeetingEntriesDefaultZero() {
         MergeResult result = new MergeResult(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, true);
         assertEquals(0, result.getMeetingEntriesAdded());
+        assertEquals(0, result.getActivityLogsAdded());
         assertEquals(0, result.getMedicationsAdded());
         assertEquals(0, result.getMedicationLogsAdded());
     }

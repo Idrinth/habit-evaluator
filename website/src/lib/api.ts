@@ -493,6 +493,7 @@ export interface ModuleVisibility {
 	medicationVisible: boolean;
 	backupVisible: boolean;
 	pdfExportVisible: boolean;
+	activityLogVisible: boolean;
 }
 
 export const moduleVisibility = {
@@ -594,6 +595,40 @@ export const foodLogs = {
 	},
 	migrateTags() {
 		return request<void>('/food-logs/migrate-tags', { method: 'POST' });
+	}
+};
+
+export interface ActivityLog {
+	id: string;
+	persons: string;
+	location: string;
+	startTime: string;
+	endTime: string;
+	date: string;
+	activity: string | null;
+	createdAt: string;
+	durationMinutes: number | null;
+}
+
+export const activityLogs = {
+	list() {
+		return request<ActivityLog[]>('/activity-logs');
+	},
+	create(entry: {
+		persons: string;
+		location: string;
+		startTime: string;
+		endTime: string;
+		date: string;
+		activity?: string;
+	}) {
+		return request<ActivityLog>('/activity-logs', {
+			method: 'POST',
+			body: JSON.stringify(entry)
+		});
+	},
+	delete(id: string) {
+		return request<void>(`/activity-logs/${id}`, { method: 'DELETE' });
 	}
 };
 

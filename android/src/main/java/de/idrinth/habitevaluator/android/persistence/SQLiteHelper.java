@@ -7,7 +7,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class SQLiteHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "habit_evaluator.db";
-    private static final int DATABASE_VERSION = 9;
+    private static final int DATABASE_VERSION = 10;
     private static SQLiteHelper instance;
 
     private SQLiteHelper(Context context) {
@@ -241,6 +241,20 @@ public class SQLiteHelper extends SQLiteOpenHelper {
                 + "FOREIGN KEY (step_id) REFERENCES emergency_plan_steps(id) ON DELETE CASCADE"
                 + ")");
         db.execSQL("CREATE INDEX idx_emergency_plan_actions_step_id ON emergency_plan_actions(step_id)");
+
+        db.execSQL("CREATE TABLE activity_logs ("
+                + "id TEXT PRIMARY KEY,"
+                + "persons TEXT NOT NULL,"
+                + "location TEXT NOT NULL,"
+                + "start_time TEXT NOT NULL,"
+                + "end_time TEXT NOT NULL,"
+                + "date TEXT NOT NULL,"
+                + "activity TEXT,"
+                + "created_at TEXT NOT NULL,"
+                + "user_id TEXT,"
+                + "user_name TEXT"
+                + ")");
+        db.execSQL("CREATE INDEX idx_activity_logs_user_id ON activity_logs(user_id)");
     }
 
     @Override
@@ -379,6 +393,21 @@ public class SQLiteHelper extends SQLiteOpenHelper {
             db.execSQL("DROP TABLE emergency_plan_steps");
             db.execSQL("ALTER TABLE emergency_plan_steps_new RENAME TO emergency_plan_steps");
             db.execSQL("CREATE INDEX IF NOT EXISTS idx_emergency_plan_steps_user_id ON emergency_plan_steps(user_id)");
+        }
+        if (oldVersion < 10) {
+            db.execSQL("CREATE TABLE IF NOT EXISTS activity_logs ("
+                    + "id TEXT PRIMARY KEY,"
+                    + "persons TEXT NOT NULL,"
+                    + "location TEXT NOT NULL,"
+                    + "start_time TEXT NOT NULL,"
+                    + "end_time TEXT NOT NULL,"
+                    + "date TEXT NOT NULL,"
+                    + "activity TEXT,"
+                    + "created_at TEXT NOT NULL,"
+                    + "user_id TEXT,"
+                    + "user_name TEXT"
+                    + ")");
+            db.execSQL("CREATE INDEX IF NOT EXISTS idx_activity_logs_user_id ON activity_logs(user_id)");
         }
     }
 
