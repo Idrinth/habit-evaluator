@@ -1,5 +1,5 @@
 plugins {
-    id 'com.android.application' version '8.9.0'
+    id 'com.android.application' version '9.0.1'
     id 'jacoco'
 }
 
@@ -243,18 +243,31 @@ tasks.register('jacocoMaestroReport', JacocoReport) {
 // cache hits.  A doLast hook that modifies compile output would silently be
 // skipped when the compile task is restored from cache, producing an APK with
 // no JaCoCo probes (causing NO_CLASS at coverage collection time).
+//
+// Uses androidComponents.onVariants (AGP 9+) instead of the removed
+// applicationVariants API.  Variant names are collected during configuration,
+// then afterEvaluate registers instrumentation tasks and wires them into the
+// build pipeline once all AGP tasks exist.
 if (project.hasProperty('maestroCoverage')) {
-    android.applicationVariants.configureEach { variant ->
-        if (variant.buildType.name == 'debug') {
-            def variantCapName = variant.name.capitalize()
+    def debugVariantNames = []
+
+    androidComponents {
+        onVariants(selector().withBuildType("debug")) { variant ->
+            debugVariantNames.add(variant.name)
+        }
+    }
+
+    afterEvaluate {
+        debugVariantNames.each { variantName ->
+            def variantCapName = variantName.capitalize()
+            def compileTaskName = "compile${variantCapName}JavaWithJavac"
+            def compileTask = tasks.named(compileTaskName, JavaCompile)
+            def classesDir = compileTask.flatMap { it.destinationDirectory }
+            def originalClassesDir = layout.buildDirectory.dir("maestro-original-classes")
 
             def instrumentTask = tasks.register("jacocoOfflineInstrument${variantCapName}") {
-                description = "Applies JaCoCo offline instrumentation to ${variant.name} classes for Maestro coverage"
+                description = "Applies JaCoCo offline instrumentation to ${variantName} classes for Maestro coverage"
                 group = 'verification'
-
-                def compileTask = variant.javaCompileProvider
-                def classesDir = compileTask.flatMap { it.destinationDirectory }
-                def originalClassesDir = layout.buildDirectory.dir("maestro-original-classes")
 
                 dependsOn compileTask
                 inputs.dir(classesDir)
@@ -304,7 +317,7 @@ if (project.hasProperty('maestroCoverage')) {
                     tempDir.eachFileRecurse { if (it.name.endsWith('.class')) instrumentedCount++ }
 
                     if (instrumentedCount == 0) {
-                        logger.warn("JaCoCo offline instrumentation produced no instrumented classes for ${variant.name}")
+                        logger.warn("JaCoCo offline instrumentation produced no instrumented classes for ${variantName}")
                     }
 
                     project.copy {
@@ -313,22 +326,18 @@ if (project.hasProperty('maestroCoverage')) {
                     }
                     project.delete(tempDir)
 
-                    logger.lifecycle("JaCoCo offline instrumentation applied to ${variant.name} classes (${instrumentedCount} files)")
+                    logger.lifecycle("JaCoCo offline instrumentation applied to ${variantName} classes (${instrumentedCount} files)")
                 }
             }
 
             // Wire the instrumentation task into AGP's pipeline: every task that
             // consumes compiled classes (dex, merge, package) must wait for
-            // instrumentation to finish.  Using afterEvaluate to ensure all AGP
-            // tasks are registered before we modify dependencies.
-            afterEvaluate {
-                def compileTaskName = variant.javaCompileProvider.get().name
-                tasks.configureEach { task ->
-                    if (task.name != instrumentTask.name &&
-                        task.name != compileTaskName &&
-                        task.taskDependencies.getDependencies(task).any { it.name == compileTaskName }) {
-                        task.dependsOn(instrumentTask)
-                    }
+            // instrumentation to finish.
+            tasks.configureEach { task ->
+                if (task.name != instrumentTask.name &&
+                    task.name != compileTaskName &&
+                    task.taskDependencies.getDependencies(task).any { it.name == compileTaskName }) {
+                    task.dependsOn(instrumentTask)
                 }
             }
         }

@@ -93,7 +93,7 @@ Android application (SDK 35, min 21/26/33).
 - **Build Flavors:** `lollipop` (minSdk 21), `oreo` (minSdk 26), `tiramisu` (minSdk 33) with Core Library Desugaring
 - **Dependencies:** AndroidX AppCompat 1.7.1, Material 1.11.0, ConstraintLayout 2.2.1, RecyclerView 1.4.0, CardView 1.0.0, ViewPager2 1.1.0, Lifecycle (ViewModel/LiveData 2.7.0), Core Library Desugaring 2.0.4, SLF4J no-op 2.0.17, Mockito 5.11.0 (test)
 - **Debug instrumentation:** `CoverageBroadcastReceiver` (JaCoCo execution data dump via broadcast intent), `JacocoInitProvider` (ContentProvider that initializes JaCoCo agent at app startup) — debug source set only (`src/debug/`), used for Maestro UI test coverage collection
-- **Build:** Android Gradle Plugin 8.9.0, ProGuard minification and resource shrinking in release builds, signing config for release APKs, AAB (Android App Bundle) support, JaCoCo 0.8.13 coverage reporting for all three flavors (unit test + Maestro coverage via offline instrumentation pipeline guarded by `-PmaestroCoverage`), view binding enabled, buildConfig enabled
+- **Build:** Android Gradle Plugin 9.0.1, ProGuard minification and resource shrinking in release builds, signing config for release APKs, AAB (Android App Bundle) support, JaCoCo 0.8.13 coverage reporting for all three flavors (unit test + Maestro coverage via offline instrumentation pipeline guarded by `-PmaestroCoverage`), view binding enabled, buildConfig enabled
 
 ### website
 
@@ -387,7 +387,7 @@ The script reads the upstream proxy URL (including credentials) from the `http_p
 
 ## Android SDK Setup
 
-The Android SDK is **not pre-installed** in this environment. The android module requires compileSdk 35, build-tools 35.0.0, and platform-tools. Follow these steps to install the SDK from scratch.
+The Android SDK is **not pre-installed** in this environment. The android module requires compileSdk 35, build-tools 36.0.0, and platform-tools. Follow these steps to install the SDK from scratch.
 
 **Step 1 — Download and install Android command-line tools:**
 
@@ -417,7 +417,7 @@ python3 scripts/local-proxy.py &
 LOCAL_PROXY_PID=$!
 sleep 2
 $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install \
-  "platforms;android-35" "build-tools;35.0.0" "platform-tools" \
+  "platforms;android-35" "build-tools;36.0.0" "platform-tools" \
   --proxy=http --proxy_host=127.0.0.1 --proxy_port=18080
 kill $LOCAL_PROXY_PID 2>/dev/null
 ```
