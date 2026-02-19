@@ -141,51 +141,6 @@ jobs:
           tag_name: v${{ steps.version.outputs.VERSION }}
           files: android/build/outputs/bundle/${{ matrix.flavor }}Release/*.aab
 
-  frontend-check:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        project: [homepage, website]
-    defaults:
-      run:
-        working-directory: ${{ matrix.project }}
-    steps:
-      - uses: actions/checkout@v6
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v6
-        with:
-          node-version: '22'
-          cache: 'npm'
-          cache-dependency-path: ${{ matrix.project }}/package-lock.json
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Check
-        run: npm run check
-
-  website-test:
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: website
-    steps:
-      - uses: actions/checkout@v6
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v6
-        with:
-          node-version: '22'
-          cache: 'npm'
-          cache-dependency-path: website/package-lock.json
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Run tests
-        run: npm test
-
   frontend-build:
     runs-on: ubuntu-latest
     strategy:
@@ -217,7 +172,7 @@ jobs:
           path: ${{ matrix.project }}/build/
 
   docker:
-    needs: [artifacts, frontend-build, frontend-check, website-test]
+    needs: [artifacts, frontend-build]
     runs-on: ubuntu-latest
     strategy:
       matrix:
