@@ -1,6 +1,5 @@
 package de.idrinth.habitevaluator.android;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -312,11 +311,9 @@ public class MainActivity extends AppCompatActivity {
         binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_HOME, true);
     }
 
-    @SuppressLint("WrongConstant")
     private void setupViewPager() {
         ScreenPagerAdapter pagerAdapter = new ScreenPagerAdapter(this);
         binding.viewPager.setAdapter(pagerAdapter);
-        binding.viewPager.setOffscreenPageLimit(ScreenPagerAdapter.PAGE_COUNT);
         binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_HOME, false);
         ViewPager2SwipeSensitivityReducer.reduce(binding.viewPager, 3);
 
