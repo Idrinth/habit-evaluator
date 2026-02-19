@@ -55,3 +55,16 @@ name: "Diary navigation cards lead to sub-pages"
 - tapOn:
     id: "medicationListCard"
 - assertVisible: "Your Medications"
+
+# Back to Diary hub
+- tapOn: "Diary"
+
+# Activity Log sub-page
+- scrollUntilVisible:
+    element:
+      id: "activityLogCard"
+    direction: DOWN
+    timeout: 5000
+- tapOn:
+    id: "activityLogCard"
+- assertVisible: "Activity Log"

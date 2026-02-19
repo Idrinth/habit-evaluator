@@ -16,6 +16,7 @@ import de.idrinth.habitevaluator.shared.model.Habit;
 import de.idrinth.habitevaluator.shared.model.HabitCategory;
 import de.idrinth.habitevaluator.shared.model.Medication;
 import de.idrinth.habitevaluator.shared.model.MedicationLog;
+import de.idrinth.habitevaluator.shared.model.ActivityLog;
 import de.idrinth.habitevaluator.shared.model.SleepEntry;
 import de.idrinth.habitevaluator.shared.model.SportLog;
 
@@ -221,6 +222,23 @@ class AdapterDataConsistencyTest {
 
         for (int i = 0; i < 30; i++) {
             entries.add(new MedicationLog(null, 1.0, LocalDateTime.now()));
+            assertEquals(entries.size(), adapter.getItemCount());
+        }
+
+        entries.clear();
+        assertEquals(0, adapter.getItemCount());
+    }
+
+    // ── ActivityLogAdapter ────────────────────────────────────────────────────
+
+    @Test
+    void testActivityLogAdapterItemCountAlwaysMatchesBackingList() {
+        List<ActivityLog> entries = new ArrayList<>();
+        ActivityLogAdapter adapter = new ActivityLogAdapter(entries, null);
+
+        for (int i = 0; i < 30; i++) {
+            entries.add(new ActivityLog("Person " + i, "Location " + i,
+                    LocalTime.of(10, 0), LocalTime.of(11, 0)));
             assertEquals(entries.size(), adapter.getItemCount());
         }
 

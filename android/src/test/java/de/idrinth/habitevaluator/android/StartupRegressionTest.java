@@ -146,7 +146,8 @@ class StartupRegressionTest {
                 ScreenPagerAdapter.PAGE_FOOD_LOG,
                 ScreenPagerAdapter.PAGE_MEDICATION_LOG,
                 ScreenPagerAdapter.PAGE_MEDICATION_LIST,
-                ScreenPagerAdapter.PAGE_EMERGENCY_PLAN
+                ScreenPagerAdapter.PAGE_EMERGENCY_PLAN,
+                ScreenPagerAdapter.PAGE_ACTIVITY_LOG
         };
 
         for (int page : allPages) {
@@ -181,7 +182,8 @@ class StartupRegressionTest {
                 ScreenPagerAdapter.PAGE_FOOD_LOG,
                 ScreenPagerAdapter.PAGE_MEDICATION_LOG,
                 ScreenPagerAdapter.PAGE_MEDICATION_LIST,
-                ScreenPagerAdapter.PAGE_EMERGENCY_PLAN
+                ScreenPagerAdapter.PAGE_EMERGENCY_PLAN,
+                ScreenPagerAdapter.PAGE_ACTIVITY_LOG
         };
 
         assertEquals(
@@ -212,7 +214,8 @@ class StartupRegressionTest {
                 ScreenPagerAdapter.PAGE_FOOD_LOG,
                 ScreenPagerAdapter.PAGE_MEDICATION_LOG,
                 ScreenPagerAdapter.PAGE_MEDICATION_LIST,
-                ScreenPagerAdapter.PAGE_EMERGENCY_PLAN
+                ScreenPagerAdapter.PAGE_EMERGENCY_PLAN,
+                ScreenPagerAdapter.PAGE_ACTIVITY_LOG
         };
 
         boolean[] seen = new boolean[ScreenPagerAdapter.PAGE_COUNT];
