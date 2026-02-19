@@ -1,6 +1,6 @@
 package de.idrinth.habitevaluator.android;
 
-import android.app.AlertDialog;
+import androidx.appcompat.app.AlertDialog;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
