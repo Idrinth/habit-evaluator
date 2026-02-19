@@ -78,6 +78,12 @@ public class EmotionalStateFragment extends Fragment {
         refreshList();
     }
 
+    public void refreshData() {
+        if (adapter != null) {
+            refreshList();
+        }
+    }
+
     private void refreshList() {
         List<EmotionPair> pairs = MainActivity.getSharedEmotionPairs();
         EmotionEntryRepository entryRepository = MainActivity.getSharedEmotionEntryRepository();

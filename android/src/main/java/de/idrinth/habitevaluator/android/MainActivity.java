@@ -422,6 +422,11 @@ public class MainActivity extends AppCompatActivity {
                         break;
                     case ScreenPagerAdapter.PAGE_EMOTIONAL_STATE:
                         binding.bottomNavigation.setSelectedItemId(R.id.nav_emotions);
+                        androidx.fragment.app.Fragment emotionFrag = getSupportFragmentManager()
+                                .findFragmentByTag("f" + ScreenPagerAdapter.PAGE_EMOTIONAL_STATE);
+                        if (emotionFrag instanceof EmotionalStateFragment) {
+                            ((EmotionalStateFragment) emotionFrag).refreshData();
+                        }
                         break;
                 }
                 isSyncingBottomNav = false;
