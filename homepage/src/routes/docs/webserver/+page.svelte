@@ -5,7 +5,7 @@
 <p><a href="/docs">&larr; Back to Setup Guide</a></p>
 
 <h1>Web Server Setup</h1>
-<p class="intro">The webserver module is a Spring Boot 3.5.10 application that serves a REST API consumed by the SvelteKit frontend.</p>
+<p class="intro">The webserver module is a Spring Boot 4.0.2 application that serves a REST API consumed by the SvelteKit frontend.</p>
 
 <section>
 	<h2>Running Locally</h2>

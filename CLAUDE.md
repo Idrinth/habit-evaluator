@@ -13,7 +13,7 @@ A privacy-focused, multi-platform habit tracker for analyzing and evaluating hab
 ```text
 habit-evaluator/
 ├── shared/              # Core models, services, repositories, localization, backup, persistence
-├── webserver/           # Spring Boot 3.5.10 web application (REST API)
+├── webserver/           # Spring Boot 4.0.2 web application (REST API)
 ├── desktop/             # JavaFX 21.0.2 desktop application
 ├── android/             # Android (SDK 35, min 21/26/33) mobile application
 ├── website/             # SvelteKit 2.0 frontend application
@@ -22,7 +22,7 @@ habit-evaluator/
 ├── .github/workflows/   # CI/CD (GitHub Actions)
 ├── build.gradle         # Root build configuration (JaCoCo coverage)
 ├── settings.gradle      # Module definitions (6 Gradle modules)
-├── gradle.properties    # Version pins (Java 17, Spring Boot 3.5.10, JavaFX 21.0.2)
+├── gradle.properties    # Version pins (Java 17, Spring Boot 4.0.2, JavaFX 21.0.2)
 ├── compose.yml          # Docker Compose (MariaDB + webserver + website + homepage + nginx)
 ├── scripts/             # Utility scripts (local proxy, Maestro test runner)
 ├── crowdin.yml          # Crowdin localization configuration
@@ -49,7 +49,7 @@ Core library consumed by all platform modules. Uses JPMS (`module-info.java`) an
 
 ### webserver
 
-Spring Boot 3.5.10 application with Spring Security, Spring Data JPA, Spring Dependency Management 1.1.7.
+Spring Boot 4.0.2 application with Spring Security, Spring Data JPA, Spring Dependency Management 1.1.7.
 
 - **Entry point:** `de.idrinth.habitevaluator.webserver.HabitEvaluatorWebApplication`
 - **Controllers:** `HabitController`, `AuthController`, `CategoryController`, `ScoringRuleController`, `MagicLinkController`, `DefaultDataController`, `SyncController`, `DiaryController`, `SleepEntryController`, `EmotionPairController`, `ReminderSettingsController`, `StatsController`, `PdfExportController`, `BackupController`, `FoodLogController`, `SportLogController`, `MedicationController`, `MeetingController`, `ModuleVisibilityController`, `VersionController`
