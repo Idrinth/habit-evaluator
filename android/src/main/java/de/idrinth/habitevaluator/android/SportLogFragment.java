@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -224,7 +225,24 @@ public class SportLogFragment extends Fragment implements SportLogAdapter.OnSpor
         }
 
         adapter.notifyDataSetChanged();
+        updateSuggestions();
         updateStats();
+    }
+
+    private void updateSuggestions() {
+        SportLogRepository repository = MainActivity.getSharedSportLogRepository();
+        if (repository != null && MainActivity.getSharedLocalUser() != null) {
+            String userId = MainActivity.getSharedLocalUser().getId();
+            List<String> names = repository.findDistinctNamesByUserId(userId);
+            ArrayAdapter<String> nameAdapter = new ArrayAdapter<>(requireContext(),
+                    android.R.layout.simple_dropdown_item_1line, names);
+            binding.activityNameInput.setAdapter(nameAdapter);
+
+            List<String> units = repository.findDistinctMeasurementUnitsByUserId(userId);
+            ArrayAdapter<String> unitAdapter = new ArrayAdapter<>(requireContext(),
+                    android.R.layout.simple_dropdown_item_1line, units);
+            binding.measurementUnitInput.setAdapter(unitAdapter);
+        }
     }
 
     private void updateStats() {

@@ -247,6 +247,52 @@ class SQLiteSportLogRepositoryTest {
         verify(db).insertWithOnConflict(eq("sport_logs"), isNull(), any(), eq(5));
     }
 
+    @Test
+    void testFindDistinctNamesByUserId() {
+        Cursor cursor = mock(Cursor.class);
+        when(cursor.moveToNext()).thenReturn(true, true, false);
+        when(cursor.getString(0)).thenReturn("Running", "Swimming");
+        when(db.rawQuery(startsWith("SELECT DISTINCT name FROM sport_logs"), eq(new String[]{"u1"}))).thenReturn(cursor);
+
+        List<String> result = repository.findDistinctNamesByUserId("u1");
+
+        assertEquals(2, result.size());
+        assertEquals("Running", result.get(0));
+        assertEquals("Swimming", result.get(1));
+    }
+
+    @Test
+    void testFindDistinctNamesByUserIdEmpty() {
+        Cursor cursor = createEmptyCursor();
+        when(db.rawQuery(startsWith("SELECT DISTINCT name FROM sport_logs"), eq(new String[]{"u1"}))).thenReturn(cursor);
+
+        List<String> result = repository.findDistinctNamesByUserId("u1");
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    void testFindDistinctMeasurementUnitsByUserId() {
+        Cursor cursor = mock(Cursor.class);
+        when(cursor.moveToNext()).thenReturn(true, true, false);
+        when(cursor.getString(0)).thenReturn("km", "m");
+        when(db.rawQuery(startsWith("SELECT DISTINCT measurement_unit FROM sport_logs"), eq(new String[]{"u1"}))).thenReturn(cursor);
+
+        List<String> result = repository.findDistinctMeasurementUnitsByUserId("u1");
+
+        assertEquals(2, result.size());
+        assertEquals("km", result.get(0));
+        assertEquals("m", result.get(1));
+    }
+
+    @Test
+    void testFindDistinctMeasurementUnitsByUserIdEmpty() {
+        Cursor cursor = createEmptyCursor();
+        when(db.rawQuery(startsWith("SELECT DISTINCT measurement_unit FROM sport_logs"), eq(new String[]{"u1"}))).thenReturn(cursor);
+
+        List<String> result = repository.findDistinctMeasurementUnitsByUserId("u1");
+        assertTrue(result.isEmpty());
+    }
+
     private Cursor createSportLogCursor(String id, String name, double measurement, String measurementUnit, String startTime, String endTime, String date, String notes, String userId, String userName) {
         Cursor cursor = mock(Cursor.class);
         when(cursor.moveToFirst()).thenReturn(true);

@@ -13,4 +13,10 @@ public interface JpaSportLogRepository extends JpaRepository<SportLog, String> {
 
     @Query("SELECT s FROM SportLog s WHERE s.user.id = :userId ORDER BY s.date DESC, s.startTime DESC")
     List<SportLog> findByUserId(@Param("userId") String userId);
+
+    @Query("SELECT DISTINCT s.name FROM SportLog s WHERE s.user.id = :userId ORDER BY s.name")
+    List<String> findDistinctNamesByUserId(@Param("userId") String userId);
+
+    @Query("SELECT DISTINCT s.measurementUnit FROM SportLog s WHERE s.user.id = :userId ORDER BY s.measurementUnit")
+    List<String> findDistinctMeasurementUnitsByUserId(@Param("userId") String userId);
 }

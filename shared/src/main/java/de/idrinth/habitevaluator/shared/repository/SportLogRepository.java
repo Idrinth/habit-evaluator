@@ -21,4 +21,8 @@ public interface SportLogRepository {
     boolean existsById(String id);
 
     List<SportLog> findByUserId(String userId);
+
+    List<String> findDistinctNamesByUserId(String userId);
+
+    List<String> findDistinctMeasurementUnitsByUserId(String userId);
 }

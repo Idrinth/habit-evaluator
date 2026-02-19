@@ -45,4 +45,14 @@ public class DatabaseSportLogRepository implements SportLogRepository {
     public List<SportLog> findByUserId(String userId) {
         return jpaRepository.findByUserId(userId);
     }
+
+    @Override
+    public List<String> findDistinctNamesByUserId(String userId) {
+        return jpaRepository.findDistinctNamesByUserId(userId);
+    }
+
+    @Override
+    public List<String> findDistinctMeasurementUnitsByUserId(String userId) {
+        return jpaRepository.findDistinctMeasurementUnitsByUserId(userId);
+    }
 }

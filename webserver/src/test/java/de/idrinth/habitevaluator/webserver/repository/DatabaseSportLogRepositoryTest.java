@@ -90,4 +90,30 @@ class DatabaseSportLogRepositoryTest {
         assertEquals(1, result.size());
         verify(jpaRepository).findByUserId("user-1");
     }
+
+    @Test
+    void testFindDistinctNamesByUserIdDelegatesToJpa() {
+        List<String> names = List.of("Running", "Swimming");
+        when(jpaRepository.findDistinctNamesByUserId("user-1")).thenReturn(names);
+
+        List<String> result = repository.findDistinctNamesByUserId("user-1");
+
+        assertEquals(2, result.size());
+        assertEquals("Running", result.get(0));
+        assertEquals("Swimming", result.get(1));
+        verify(jpaRepository).findDistinctNamesByUserId("user-1");
+    }
+
+    @Test
+    void testFindDistinctMeasurementUnitsByUserIdDelegatesToJpa() {
+        List<String> units = List.of("km", "m");
+        when(jpaRepository.findDistinctMeasurementUnitsByUserId("user-1")).thenReturn(units);
+
+        List<String> result = repository.findDistinctMeasurementUnitsByUserId("user-1");
+
+        assertEquals(2, result.size());
+        assertEquals("km", result.get(0));
+        assertEquals("m", result.get(1));
+        verify(jpaRepository).findDistinctMeasurementUnitsByUserId("user-1");
+    }
 }

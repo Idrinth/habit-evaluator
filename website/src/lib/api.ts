@@ -544,9 +544,17 @@ export interface SportLogGraphData {
 	activities: SportLogActivityGraph[];
 }
 
+export interface SportLogSuggestions {
+	names: string[];
+	units: string[];
+}
+
 export const sportLogs = {
 	graph() {
 		return request<SportLogGraphData>('/sport-logs/graph');
+	},
+	suggestions() {
+		return request<SportLogSuggestions>('/sport-logs/suggestions');
 	}
 };
 

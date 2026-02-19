@@ -41,4 +41,22 @@ public class H2SportLogRepository implements SportLogRepository {
                 "userId",
                 userId);
     }
+
+    @Override
+    public List<String> findDistinctNamesByUserId(String userId) {
+        return JpaTransactionHelper.findByParameter(
+                String.class,
+                "SELECT DISTINCT s.name FROM SportLog s WHERE s.user.id = :userId ORDER BY s.name",
+                "userId",
+                userId);
+    }
+
+    @Override
+    public List<String> findDistinctMeasurementUnitsByUserId(String userId) {
+        return JpaTransactionHelper.findByParameter(
+                String.class,
+                "SELECT DISTINCT s.measurementUnit FROM SportLog s WHERE s.user.id = :userId ORDER BY s.measurementUnit",
+                "userId",
+                userId);
+    }
 }

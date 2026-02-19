@@ -97,6 +97,34 @@ public class SQLiteSportLogRepository implements SportLogRepository {
         return result;
     }
 
+    @Override
+    public List<String> findDistinctNamesByUserId(String userId) {
+        List<String> result = new ArrayList<>();
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        try (Cursor cursor = db.rawQuery(
+                "SELECT DISTINCT name FROM sport_logs WHERE user_id = ? AND name IS NOT NULL AND name != '' ORDER BY name",
+                new String[]{userId})) {
+            while (cursor.moveToNext()) {
+                result.add(cursor.getString(0));
+            }
+        }
+        return result;
+    }
+
+    @Override
+    public List<String> findDistinctMeasurementUnitsByUserId(String userId) {
+        List<String> result = new ArrayList<>();
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        try (Cursor cursor = db.rawQuery(
+                "SELECT DISTINCT measurement_unit FROM sport_logs WHERE user_id = ? AND measurement_unit IS NOT NULL AND measurement_unit != '' ORDER BY measurement_unit",
+                new String[]{userId})) {
+            while (cursor.moveToNext()) {
+                result.add(cursor.getString(0));
+            }
+        }
+        return result;
+    }
+
     private SportLog readFromCursor(Cursor cursor) {
         SportLog entry = new SportLog();
         entry.setId(getString(cursor, "id"));

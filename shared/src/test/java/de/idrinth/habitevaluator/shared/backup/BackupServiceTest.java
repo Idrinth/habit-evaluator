@@ -1678,6 +1678,26 @@ class BackupServiceTest {
             }
             return result;
         }
+
+        @Override
+        public List<String> findDistinctNamesByUserId(String userId) {
+            return entries.stream()
+                    .filter(e -> e.getUser() != null && e.getUser().getId().equals(userId))
+                    .map(SportLog::getName)
+                    .distinct()
+                    .sorted()
+                    .collect(java.util.stream.Collectors.toList());
+        }
+
+        @Override
+        public List<String> findDistinctMeasurementUnitsByUserId(String userId) {
+            return entries.stream()
+                    .filter(e -> e.getUser() != null && e.getUser().getId().equals(userId))
+                    .map(SportLog::getMeasurementUnit)
+                    .distinct()
+                    .sorted()
+                    .collect(java.util.stream.Collectors.toList());
+        }
     }
 
     private static class InMemoryFoodLogRepository implements FoodLogRepository {
