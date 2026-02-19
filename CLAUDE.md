@@ -571,6 +571,7 @@ GitHub Actions workflows at `.github/workflows/`:
 - Lazy loading for JPA relationships
 - JPMS module system for shared and desktop modules
 - Android persistence: SQLite (primary) with `JsonToSqliteMigration` from legacy FileSystem format
+- **SQLiteHelper version sync:** When bumping `DATABASE_VERSION` in `SQLiteHelper.java`, also update the hardcoded version in `SQLiteHelperTest.testOnUpgradeFromCurrentVersionDoesNothing()` to match, otherwise the test will fail because the new migration branch executes unexpectedly
 - Android build flavors: `lollipop` (API 21), `oreo` (API 26), `tiramisu` (API 33) with core library desugaring
 - Bidirectional sync via SyncController merging client and server data by ID
 - Emotion strength clamped to [-10, +10] range with validation in model
