@@ -77,6 +77,12 @@ public class SQLiteFoodTagRepository implements FoodTagRepository {
         db.delete("food_tags", "id = ?", new String[]{id});
     }
 
+    @Override
+    public void deleteEmptyTags(String userId) {
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        db.delete("food_tags", "(name IS NULL OR TRIM(name) = '') AND user_id = ?", new String[]{userId});
+    }
+
     public void linkTagToFoodLog(String foodLogId, String foodTagId) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         ContentValues values = new ContentValues();

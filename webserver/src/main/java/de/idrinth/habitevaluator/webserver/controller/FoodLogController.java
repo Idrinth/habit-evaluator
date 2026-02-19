@@ -100,6 +100,7 @@ public class FoodLogController {
             return ResponseEntity.status(401).build();
         }
         User user = userOpt.get();
+        foodTagRepository.deleteEmptyTags(userId);
         List<FoodLog> entries = foodLogRepository.findByUserId(userId);
         for (FoodLog entry : entries) {
             if (entry.getTags() == null || entry.getTags().isEmpty()) {
@@ -113,12 +114,16 @@ public class FoodLogController {
     private Set<FoodTag> resolveTagsFromFoodItems(FoodLog entry, User user) {
         Set<FoodTag> tags = new HashSet<>();
         for (String item : entry.getFoodItemList()) {
-            String nameLower = item.toLowerCase();
+            String trimmed = item.trim();
+            if (trimmed.isEmpty()) {
+                continue;
+            }
+            String nameLower = trimmed.toLowerCase();
             Optional<FoodTag> existing = foodTagRepository.findByNameLowerAndUserId(nameLower, user.getId());
             if (existing.isPresent()) {
                 tags.add(existing.get());
             } else {
-                FoodTag newTag = new FoodTag(item.trim());
+                FoodTag newTag = new FoodTag(trimmed);
                 newTag.setUser(user);
                 tags.add(foodTagRepository.save(newTag));
             }

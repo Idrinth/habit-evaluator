@@ -125,4 +125,41 @@ class H2FoodTagRepositoryTest extends H2RepositoryTestBase {
         Optional<FoodTag> found = foodTagRepository.findByNameLowerAndUserId("apple", "wrong-user-id");
         assertFalse(found.isPresent());
     }
+
+    @Test
+    void testDeleteEmptyTagsRemovesEmptyNames() {
+        FoodTag emptyTag = new FoodTag();
+        emptyTag.setName("");
+        emptyTag.setUser(testUser);
+        foodTagRepository.save(emptyTag);
+
+        FoodTag validTag = new FoodTag("Apple");
+        validTag.setUser(testUser);
+        foodTagRepository.save(validTag);
+
+        foodTagRepository.deleteEmptyTags(testUser.getId());
+
+        assertFalse(foodTagRepository.findById(emptyTag.getId()).isPresent());
+        assertTrue(foodTagRepository.findById(validTag.getId()).isPresent());
+    }
+
+    @Test
+    void testDeleteEmptyTagsDoesNotAffectOtherUsers() {
+        FoodTag emptyTag = new FoodTag();
+        emptyTag.setName("");
+        emptyTag.setUser(testUser);
+        foodTagRepository.save(emptyTag);
+
+        User otherUser = new User("otheremptyuser", "password123");
+        userRepository.save(otherUser);
+        FoodTag otherEmptyTag = new FoodTag();
+        otherEmptyTag.setName("");
+        otherEmptyTag.setUser(otherUser);
+        foodTagRepository.save(otherEmptyTag);
+
+        foodTagRepository.deleteEmptyTags(testUser.getId());
+
+        assertFalse(foodTagRepository.findById(emptyTag.getId()).isPresent());
+        assertTrue(foodTagRepository.findById(otherEmptyTag.getId()).isPresent());
+    }
 }

@@ -19,4 +19,6 @@ public interface FoodTagRepository {
     Optional<FoodTag> findByNameLowerAndUserId(String nameLower, String userId);
 
     void deleteById(String id);
+
+    void deleteEmptyTags(String userId);
 }

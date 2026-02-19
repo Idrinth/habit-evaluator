@@ -658,14 +658,18 @@ public class BackupService {
                     if (foodTagRepository != null && entryData.getTagNames() != null) {
                         Set<de.idrinth.habitevaluator.shared.model.FoodTag> tags = new HashSet<>();
                         for (String tagName : entryData.getTagNames()) {
-                            String nameLower = tagName.toLowerCase();
+                            String trimmed = tagName.trim();
+                            if (trimmed.isEmpty()) {
+                                continue;
+                            }
+                            String nameLower = trimmed.toLowerCase();
                             java.util.Optional<de.idrinth.habitevaluator.shared.model.FoodTag> existing =
                                     foodTagRepository.findByNameLowerAndUserId(nameLower, user.getId());
                             if (existing.isPresent()) {
                                 tags.add(existing.get());
                             } else {
                                 de.idrinth.habitevaluator.shared.model.FoodTag newTag =
-                                        new de.idrinth.habitevaluator.shared.model.FoodTag(tagName);
+                                        new de.idrinth.habitevaluator.shared.model.FoodTag(trimmed);
                                 newTag.setUser(user);
                                 tags.add(foodTagRepository.save(newTag));
                             }
@@ -1095,6 +1099,9 @@ public class BackupService {
                 if (entry.getTags() != null) {
                     List<String> tagNames = new java.util.ArrayList<>();
                     for (de.idrinth.habitevaluator.shared.model.FoodTag tag : entry.getTags()) {
+                        if (tag.getName() == null || tag.getName().trim().isEmpty()) {
+                            continue;
+                        }
                         tagNames.add(tag.getName());
                         if (exportedTagIds.add(tag.getId())) {
                             BackupData.FoodTagData tagData = new BackupData.FoodTagData();
