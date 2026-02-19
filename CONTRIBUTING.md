@@ -29,7 +29,7 @@ The project is a Gradle multi-module build:
 | Module | Technology | Description |
 |--------|------------|-------------|
 | `shared` | Java 17, JPMS | Core models, services, repository interfaces, localisation, and backup logic shared by all platforms |
-| `webserver` | Spring Boot 3.5.10, Spring Data JPA | REST API with session-based authentication and Spring Security |
+| `webserver` | Spring Boot 4.0.2, Spring Data JPA | REST API with session-based authentication and Spring Security |
 | `desktop` | JavaFX 21.0.2, H2 | Standalone desktop application with local database storage |
 | `android` | Android SDK 35, SQLite | Native Android app with three build flavours (lollipop/oreo/tiramisu) |
 | `website` | SvelteKit 2.0, TypeScript | Frontend web application |
