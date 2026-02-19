@@ -1,7 +1,7 @@
 package de.idrinth.habitevaluator.android;
 
 import android.app.Activity;
-import android.app.AlertDialog;
+import androidx.appcompat.app.AlertDialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.Intent;
