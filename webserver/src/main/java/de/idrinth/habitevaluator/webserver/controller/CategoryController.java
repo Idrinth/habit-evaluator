@@ -1,8 +1,10 @@
 package de.idrinth.habitevaluator.webserver.controller;
 
+import de.idrinth.habitevaluator.shared.model.Habit;
 import de.idrinth.habitevaluator.shared.model.HabitCategory;
 import de.idrinth.habitevaluator.shared.model.User;
 import de.idrinth.habitevaluator.shared.repository.HabitCategoryRepository;
+import de.idrinth.habitevaluator.shared.repository.HabitRepository;
 import de.idrinth.habitevaluator.shared.repository.UserRepository;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.http.ResponseEntity;
@@ -16,10 +18,12 @@ import java.util.Optional;
 public class CategoryController {
 
     private final HabitCategoryRepository habitCategoryRepository;
+    private final HabitRepository habitRepository;
     private final UserRepository userRepository;
 
-    public CategoryController(HabitCategoryRepository habitCategoryRepository, UserRepository userRepository) {
+    public CategoryController(HabitCategoryRepository habitCategoryRepository, HabitRepository habitRepository, UserRepository userRepository) {
         this.habitCategoryRepository = habitCategoryRepository;
+        this.habitRepository = habitRepository;
         this.userRepository = userRepository;
     }
 
@@ -48,6 +52,75 @@ public class CategoryController {
         HabitCategory category = new HabitCategory(request.name, request.description, request.color);
         category.setUser(userOpt.get());
         return ResponseEntity.ok(habitCategoryRepository.save(category));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<HabitCategory> updateCategory(@PathVariable String id, @RequestBody CreateCategoryRequest request, HttpSession session) {
+        String userId = (String) session.getAttribute("userId");
+        if (userId == null) {
+            return ResponseEntity.status(401).build();
+        }
+        Optional<HabitCategory> existingOpt = habitCategoryRepository.findById(id);
+        if (existingOpt.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        HabitCategory existing = existingOpt.get();
+        if (existing.getUser() == null || !userId.equals(existing.getUser().getId())) {
+            return ResponseEntity.notFound().build();
+        }
+        if (request.name == null || request.name.isBlank()) {
+            return ResponseEntity.badRequest().build();
+        }
+        existing.setName(request.name);
+        existing.setDescription(request.description);
+        existing.setColor(request.color);
+        return ResponseEntity.ok(habitCategoryRepository.save(existing));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteCategory(
+            @PathVariable String id,
+            @RequestParam(required = false) String reassignTo,
+            @RequestParam(defaultValue = "false") boolean confirm,
+            HttpSession session) {
+        String userId = (String) session.getAttribute("userId");
+        if (userId == null) {
+            return ResponseEntity.status(401).build();
+        }
+        Optional<HabitCategory> existingOpt = habitCategoryRepository.findById(id);
+        if (existingOpt.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        HabitCategory existing = existingOpt.get();
+        if (existing.getUser() == null || !userId.equals(existing.getUser().getId())) {
+            return ResponseEntity.notFound().build();
+        }
+        List<Habit> affectedHabits = habitRepository.findByUserId(userId).stream()
+                .filter(h -> id.equals(h.getCategoryId()))
+                .toList();
+        if (reassignTo != null && !reassignTo.isBlank()) {
+            Optional<HabitCategory> targetOpt = habitCategoryRepository.findById(reassignTo);
+            if (targetOpt.isEmpty()) {
+                return ResponseEntity.badRequest().build();
+            }
+            HabitCategory target = targetOpt.get();
+            if (target.getUser() == null || !userId.equals(target.getUser().getId())) {
+                return ResponseEntity.badRequest().build();
+            }
+            for (Habit habit : affectedHabits) {
+                habit.setCategoryId(reassignTo);
+                habitRepository.save(habit);
+            }
+        } else if (!affectedHabits.isEmpty()) {
+            if (!confirm) {
+                return ResponseEntity.status(409).build();
+            }
+            for (Habit habit : affectedHabits) {
+                habitRepository.deleteById(habit.getId());
+            }
+        }
+        habitCategoryRepository.deleteById(id);
+        return ResponseEntity.noContent().build();
     }
 
     public static class CreateCategoryRequest {

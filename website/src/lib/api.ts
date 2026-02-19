@@ -210,6 +210,21 @@ export const categories = {
 			method: 'POST',
 			body: JSON.stringify(category)
 		});
+	},
+	update(id: string, category: { name: string; description?: string; color?: string }) {
+		return request<HabitCategory>(`/categories/${id}`, {
+			method: 'PUT',
+			body: JSON.stringify(category)
+		});
+	},
+	delete(id: string, options?: { reassignTo?: string; confirm?: boolean }) {
+		const params = new URLSearchParams();
+		if (options?.reassignTo) params.set('reassignTo', options.reassignTo);
+		if (options?.confirm) params.set('confirm', 'true');
+		const query = params.toString();
+		return request<void>(`/categories/${id}${query ? '?' + query : ''}`, {
+			method: 'DELETE'
+		});
 	}
 };
 
