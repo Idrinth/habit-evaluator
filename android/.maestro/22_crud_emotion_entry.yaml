@@ -23,7 +23,11 @@ name: "Add, display and delete an emotion entry"
     id: "saveEmotionPairButton"
 
 # After saving, navigates back to Emotions page
-- assertVisible: "Anxious"
+- scrollUntilVisible:
+    element:
+      text: "Anxious"
+    direction: DOWN
+    timeout: 10000
 
 # Tap add emotion entry button on the pair
 - tapOn:
