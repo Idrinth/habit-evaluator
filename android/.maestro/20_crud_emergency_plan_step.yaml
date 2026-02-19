@@ -1,0 +1,47 @@
+appId: de.idrinth.habitevaluator.android
+name: "Add, display and delete an emergency plan step"
+---
+- launchApp:
+    clearState: true
+- assertVisible: "Welcome to Habit Evaluator"
+- tapOn: "I understand"
+
+# Navigate to Emergency tab
+- tapOn: "Emergency"
+- assertVisible: "Emergency Plan"
+
+# Expand add step form
+- tapOn:
+    id: "toggleFormButton"
+
+# Fill question (required)
+- tapOn:
+    id: "questionInput"
+- inputText: "Did you take your medication today?"
+- hideKeyboard
+
+# One action row is added by default on form open
+# Fill action text in the default row (required)
+- tapOn:
+    id: "rowActionInput"
+- inputText: "Take your medication now"
+- hideKeyboard
+
+# Submit the step
+- tapOn:
+    id: "addStepButton"
+
+# Verify step appears in the list
+- scrollUntilVisible:
+    element:
+      text: "Did you take your medication today?"
+    direction: DOWN
+    timeout: 5000
+- assertVisible: "Did you take your medication today?"
+
+# Delete the step
+- tapOn:
+    id: "deleteStepButton"
+
+# Verify step is removed
+- assertNotVisible: "Did you take your medication today?"

@@ -1,0 +1,38 @@
+appId: de.idrinth.habitevaluator.android
+name: "Add, display and delete a diary entry"
+---
+- launchApp:
+    clearState: true
+- assertVisible: "Welcome to Habit Evaluator"
+- tapOn: "I understand"
+
+# Navigate to Diary > Positive Events
+- tapOn: "Diary"
+- tapOn:
+    id: "positivityDiaryCard"
+- assertVisible: "Positive Events"
+
+# Expand add entry form
+- tapOn:
+    id: "toggleFormButton"
+
+# Fill description (required field)
+- tapOn:
+    id: "eventDescriptionInput"
+- inputText: "Maestro test diary event"
+- hideKeyboard
+
+# Date auto-fills with today, significance defaults to Minor
+# Submit the entry
+- tapOn:
+    id: "addEventButton"
+
+# Verify entry appears in the list
+- assertVisible: "Maestro test diary event"
+
+# Delete the entry
+- tapOn:
+    id: "diaryEntryDeleteButton"
+
+# Verify entry is removed
+- assertNotVisible: "Maestro test diary event"

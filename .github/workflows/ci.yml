@@ -204,6 +204,16 @@ jobs:
           - 11_emergency_plan_page
           - 12_sleep_tracking_page
           - 13_full_navigation_flow
+          - 14_crud_diary_entry
+          - 15_crud_sleep_entry
+          - 16_crud_food_log_entry
+          - 17_crud_sport_log_entry
+          - 18_crud_medication
+          - 19_crud_medication_log_entry
+          - 20_crud_emergency_plan_step
+          - 21_crud_emotion_pair
+          - 22_crud_emotion_entry
+          - 23_crud_habit
 
     steps:
       - uses: actions/checkout@v6
