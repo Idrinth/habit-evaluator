@@ -27,24 +27,28 @@ import de.idrinth.habitevaluator.android.StatsFragment;
 
 public class ScreenPagerAdapter extends FragmentStateAdapter {
 
-    public static final int PAGE_EDIT_HABITS = 0;
-    public static final int PAGE_HOME = 1;
-    public static final int PAGE_DIARY = 2;
-    public static final int PAGE_SLEEP = 3;
-    public static final int PAGE_STATS = 4;
-    public static final int PAGE_EMOTIONAL_STATE = 5;
+    // Bottom navigation pages (swipeable, must match bottom_navigation.xml order)
+    public static final int PAGE_HOME = 0;
+    public static final int PAGE_DIARY = 1;
+    public static final int PAGE_SLEEP = 2;
+    public static final int PAGE_EMERGENCY_PLAN = 3;
+    public static final int PAGE_EMOTIONAL_STATE = 4;
+    public static final int LAST_SWIPEABLE_PAGE = PAGE_EMOTIONAL_STATE;
+
+    // Programmatic-only pages (not reachable via swiping)
+    public static final int PAGE_EDIT_HABITS = 5;
     public static final int PAGE_ADD_HABIT = 6;
-    public static final int PAGE_POINT_DEVELOPMENT = 7;
-    public static final int PAGE_ADD_EMOTION_PAIR = 8;
-    public static final int PAGE_RECORD_EMOTION_ENTRY = 9;
-    public static final int PAGE_SETTINGS = 10;
-    public static final int PAGE_IMPRINT = 11;
-    public static final int PAGE_POSITIVITY_DIARY = 12;
-    public static final int PAGE_SPORT_LOG = 13;
-    public static final int PAGE_FOOD_LOG = 14;
-    public static final int PAGE_MEDICATION_LOG = 15;
-    public static final int PAGE_MEDICATION_LIST = 16;
-    public static final int PAGE_EMERGENCY_PLAN = 17;
+    public static final int PAGE_STATS = 7;
+    public static final int PAGE_POINT_DEVELOPMENT = 8;
+    public static final int PAGE_ADD_EMOTION_PAIR = 9;
+    public static final int PAGE_RECORD_EMOTION_ENTRY = 10;
+    public static final int PAGE_SETTINGS = 11;
+    public static final int PAGE_IMPRINT = 12;
+    public static final int PAGE_POSITIVITY_DIARY = 13;
+    public static final int PAGE_SPORT_LOG = 14;
+    public static final int PAGE_FOOD_LOG = 15;
+    public static final int PAGE_MEDICATION_LOG = 16;
+    public static final int PAGE_MEDICATION_LIST = 17;
     public static final int PAGE_ACTIVITY_LOG = 18;
     public static final int PAGE_COUNT = 19;
 
@@ -56,20 +60,22 @@ public class ScreenPagerAdapter extends FragmentStateAdapter {
     @Override
     public Fragment createFragment(int position) {
         switch (position) {
-            case PAGE_EDIT_HABITS:
-                return new EditHabitsFragment();
             case PAGE_HOME:
                 return new HomeFragment();
             case PAGE_DIARY:
                 return new DiaryNavigationFragment();
             case PAGE_SLEEP:
                 return new SleepTrackingFragment();
-            case PAGE_STATS:
-                return new StatsFragment();
+            case PAGE_EMERGENCY_PLAN:
+                return new EmergencyPlanFragment();
             case PAGE_EMOTIONAL_STATE:
                 return new EmotionalStateFragment();
+            case PAGE_EDIT_HABITS:
+                return new EditHabitsFragment();
             case PAGE_ADD_HABIT:
                 return new AddHabitFragment();
+            case PAGE_STATS:
+                return new StatsFragment();
             case PAGE_POINT_DEVELOPMENT:
                 return new PointDevelopmentFragment();
             case PAGE_ADD_EMOTION_PAIR:
@@ -90,8 +96,6 @@ public class ScreenPagerAdapter extends FragmentStateAdapter {
                 return new MedicationLogFragment();
             case PAGE_MEDICATION_LIST:
                 return new MedicationListFragment();
-            case PAGE_EMERGENCY_PLAN:
-                return new EmergencyPlanFragment();
             case PAGE_ACTIVITY_LOG:
                 return new ActivityLogFragment();
             default:

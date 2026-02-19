@@ -331,88 +331,7 @@ public class MainActivity extends AppCompatActivity {
                 isSyncingBottomNav = true;
 
                 switch (position) {
-                    case ScreenPagerAdapter.PAGE_EDIT_HABITS:
-                        if (!isProgrammatic && !isIntermediate) {
-                            // Circular wrap: swiping left from Home wraps to Emotional State
-                            binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_EMOTIONAL_STATE, false);
-                        }
-                        break;
-                    case ScreenPagerAdapter.PAGE_ADD_HABIT:
-                        if (!isProgrammatic && !isIntermediate) {
-                            // Circular wrap: swiping right from Emotional State wraps to Home
-                            binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_HOME, false);
-                        }
-                        break;
-                    case ScreenPagerAdapter.PAGE_POINT_DEVELOPMENT:
-                        if (!isProgrammatic && !isIntermediate) {
-                            binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_EMOTIONAL_STATE, false);
-                        }
-                        break;
-                    case ScreenPagerAdapter.PAGE_ADD_EMOTION_PAIR:
-                        if (!isProgrammatic && !isIntermediate) {
-                            binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_EMOTIONAL_STATE, false);
-                        }
-                        break;
-                    case ScreenPagerAdapter.PAGE_RECORD_EMOTION_ENTRY:
-                        if (!isProgrammatic && !isIntermediate) {
-                            binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_EMOTIONAL_STATE, false);
-                        }
-                        break;
-                    case ScreenPagerAdapter.PAGE_SETTINGS:
-                        if (!isProgrammatic && !isIntermediate) {
-                            binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_HOME, false);
-                        }
-                        break;
-                    case ScreenPagerAdapter.PAGE_IMPRINT:
-                        if (!isProgrammatic && !isIntermediate) {
-                            binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_HOME, false);
-                        }
-                        break;
-                    case ScreenPagerAdapter.PAGE_POSITIVITY_DIARY:
-                        if (isProgrammatic) {
-                            binding.bottomNavigation.setSelectedItemId(R.id.nav_diary);
-                        } else if (!isIntermediate) {
-                            binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_DIARY, false);
-                        }
-                        break;
-                    case ScreenPagerAdapter.PAGE_SPORT_LOG:
-                        if (isProgrammatic) {
-                            binding.bottomNavigation.setSelectedItemId(R.id.nav_diary);
-                        } else if (!isIntermediate) {
-                            binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_DIARY, false);
-                        }
-                        break;
-                    case ScreenPagerAdapter.PAGE_FOOD_LOG:
-                        if (isProgrammatic) {
-                            binding.bottomNavigation.setSelectedItemId(R.id.nav_diary);
-                        } else if (!isIntermediate) {
-                            binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_DIARY, false);
-                        }
-                        break;
-                    case ScreenPagerAdapter.PAGE_MEDICATION_LOG:
-                        if (isProgrammatic) {
-                            binding.bottomNavigation.setSelectedItemId(R.id.nav_diary);
-                        } else if (!isIntermediate) {
-                            binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_DIARY, false);
-                        }
-                        break;
-                    case ScreenPagerAdapter.PAGE_MEDICATION_LIST:
-                        if (isProgrammatic) {
-                            binding.bottomNavigation.setSelectedItemId(R.id.nav_diary);
-                        } else if (!isIntermediate) {
-                            binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_DIARY, false);
-                        }
-                        break;
-                    case ScreenPagerAdapter.PAGE_ACTIVITY_LOG:
-                        if (isProgrammatic) {
-                            binding.bottomNavigation.setSelectedItemId(R.id.nav_diary);
-                        } else if (!isIntermediate) {
-                            binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_DIARY, false);
-                        }
-                        break;
-                    case ScreenPagerAdapter.PAGE_EMERGENCY_PLAN:
-                        binding.bottomNavigation.setSelectedItemId(R.id.nav_emergency_plan);
-                        break;
+                    // Bottom navigation pages (swipeable)
                     case ScreenPagerAdapter.PAGE_HOME:
                         binding.bottomNavigation.setSelectedItemId(R.id.nav_home);
                         break;
@@ -427,10 +346,8 @@ public class MainActivity extends AppCompatActivity {
                     case ScreenPagerAdapter.PAGE_SLEEP:
                         binding.bottomNavigation.setSelectedItemId(R.id.nav_sleep);
                         break;
-                    case ScreenPagerAdapter.PAGE_STATS:
-                        if (!isProgrammatic && !isIntermediate) {
-                            binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_HOME, false);
-                        }
+                    case ScreenPagerAdapter.PAGE_EMERGENCY_PLAN:
+                        binding.bottomNavigation.setSelectedItemId(R.id.nav_emergency_plan);
                         break;
                     case ScreenPagerAdapter.PAGE_EMOTIONAL_STATE:
                         binding.bottomNavigation.setSelectedItemId(R.id.nav_emotions);
@@ -438,6 +355,35 @@ public class MainActivity extends AppCompatActivity {
                                 .findFragmentByTag("f" + ScreenPagerAdapter.PAGE_EMOTIONAL_STATE);
                         if (emotionFrag instanceof EmotionalStateFragment) {
                             ((EmotionalStateFragment) emotionFrag).refreshData();
+                        }
+                        break;
+
+                    // Diary sub-pages (programmatic only, show diary in bottom nav)
+                    case ScreenPagerAdapter.PAGE_POSITIVITY_DIARY:
+                    case ScreenPagerAdapter.PAGE_SPORT_LOG:
+                    case ScreenPagerAdapter.PAGE_FOOD_LOG:
+                    case ScreenPagerAdapter.PAGE_MEDICATION_LOG:
+                    case ScreenPagerAdapter.PAGE_MEDICATION_LIST:
+                    case ScreenPagerAdapter.PAGE_ACTIVITY_LOG:
+                        if (isProgrammatic) {
+                            binding.bottomNavigation.setSelectedItemId(R.id.nav_diary);
+                        } else if (!isIntermediate) {
+                            binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_DIARY, false);
+                        }
+                        break;
+
+                    // Emotion sub-pages (programmatic only)
+                    case ScreenPagerAdapter.PAGE_ADD_EMOTION_PAIR:
+                    case ScreenPagerAdapter.PAGE_RECORD_EMOTION_ENTRY:
+                        if (!isProgrammatic && !isIntermediate) {
+                            binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_EMOTIONAL_STATE, false);
+                        }
+                        break;
+
+                    // All other programmatic-only pages
+                    default:
+                        if (!isProgrammatic && !isIntermediate) {
+                            binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_HOME, false);
                         }
                         break;
                 }
