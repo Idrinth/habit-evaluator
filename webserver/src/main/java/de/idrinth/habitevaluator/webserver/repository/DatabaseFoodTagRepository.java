@@ -40,4 +40,10 @@ public class DatabaseFoodTagRepository implements FoodTagRepository {
     public void deleteById(String id) {
         jpaRepository.deleteById(id);
     }
+
+    @Override
+    public void deleteEmptyTags(String userId) {
+        jpaRepository.removeEmptyTagLinks(userId);
+        jpaRepository.removeEmptyTags(userId);
+    }
 }

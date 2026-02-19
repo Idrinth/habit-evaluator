@@ -91,4 +91,12 @@ class DatabaseFoodTagRepositoryTest {
 
         verify(jpaRepository).deleteById("id-1");
     }
+
+    @Test
+    void testDeleteEmptyTagsDelegatesToJpa() {
+        repository.deleteEmptyTags("user-1");
+
+        verify(jpaRepository).removeEmptyTagLinks("user-1");
+        verify(jpaRepository).removeEmptyTags("user-1");
+    }
 }

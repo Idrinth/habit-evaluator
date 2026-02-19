@@ -68,6 +68,7 @@ public class FoodLogFragment extends Fragment implements FoodLogAdapter.OnFoodLo
         setupDateTimePicker();
         setupFormToggle();
         binding.addFoodLogButton.setOnClickListener(v -> addFoodLog());
+        cleanupEmptyTags();
         loadEntries();
     }
 
@@ -210,13 +211,17 @@ public class FoodLogFragment extends Fragment implements FoodLogAdapter.OnFoodLo
             return;
         }
         for (String item : entry.getFoodItemList()) {
-            String nameLower = item.toLowerCase();
+            String trimmed = item.trim();
+            if (trimmed.isEmpty()) {
+                continue;
+            }
+            String nameLower = trimmed.toLowerCase();
             Optional<FoodTag> existing = tagRepo.findByNameLowerAndUserId(nameLower, user.getId());
             FoodTag tag;
             if (existing.isPresent()) {
                 tag = existing.get();
             } else {
-                tag = new FoodTag(item.trim());
+                tag = new FoodTag(trimmed);
                 tag.setUser(user);
                 tagRepo.save(tag);
             }
@@ -236,6 +241,14 @@ public class FoodLogFragment extends Fragment implements FoodLogAdapter.OnFoodLo
         }
         Toast.makeText(requireContext(), R.string.food_log_entry_removed, Toast.LENGTH_SHORT).show();
         loadEntries();
+    }
+
+    private void cleanupEmptyTags() {
+        SQLiteFoodTagRepository tagRepo = MainActivity.getSharedFoodTagRepository();
+        User user = MainActivity.getSharedLocalUser();
+        if (tagRepo != null && user != null) {
+            tagRepo.deleteEmptyTags(user.getId());
+        }
     }
 
     private void loadEntries() {

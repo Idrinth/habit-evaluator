@@ -187,4 +187,28 @@ class FoodLogControllerTest {
         assertEquals(204, response.getStatusCode().value());
         verify(foodLogRepository).save(any(FoodLog.class));
     }
+
+    @Test
+    void testMigrateTagsDeletesEmptyTags() {
+        when(userRepository.findById(testUser.getId())).thenReturn(Optional.of(testUser));
+        when(foodLogRepository.findByUserId(testUser.getId())).thenReturn(List.of());
+
+        ResponseEntity<Void> response = controller.migrateTags(session);
+
+        assertEquals(204, response.getStatusCode().value());
+        verify(foodTagRepository).deleteEmptyTags(testUser.getId());
+    }
+
+    @Test
+    void testCreateEntryDoesNotCreateTagsForEmptyItems() {
+        when(userRepository.findById(testUser.getId())).thenReturn(Optional.of(testUser));
+        when(foodLogRepository.save(any(FoodLog.class))).thenAnswer(i -> i.getArgument(0));
+
+        FoodLog entry = new FoodLog(30.0, 450, LocalDateTime.now(), ", , ,");
+        ResponseEntity<?> response = controller.createEntry(entry, session);
+
+        assertEquals(200, response.getStatusCode().value());
+        verify(foodTagRepository, never()).save(any(FoodTag.class));
+        verify(foodTagRepository, never()).findByNameLowerAndUserId(anyString(), anyString());
+    }
 }

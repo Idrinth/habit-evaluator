@@ -43,4 +43,19 @@ public class H2FoodTagRepository implements FoodTagRepository {
     public void deleteById(String id) {
         JpaTransactionHelper.deleteById(FoodTag.class, id);
     }
+
+    @Override
+    public void deleteEmptyTags(String userId) {
+        JpaTransactionHelper.executeInTransactionVoid(em -> {
+            em.createNativeQuery(
+                    "DELETE FROM food_log_tags WHERE food_tag_id IN "
+                            + "(SELECT id FROM food_tags WHERE (name IS NULL OR TRIM(name) = '') AND user_id = :userId)")
+                    .setParameter("userId", userId)
+                    .executeUpdate();
+            em.createNativeQuery(
+                    "DELETE FROM food_tags WHERE (name IS NULL OR TRIM(name) = '') AND user_id = :userId")
+                    .setParameter("userId", userId)
+                    .executeUpdate();
+        });
+    }
 }
