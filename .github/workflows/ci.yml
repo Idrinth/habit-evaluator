@@ -563,7 +563,7 @@ jobs:
 
   android-release:
     runs-on: ubuntu-latest
-    needs: [android, android-maestro, check-signing]
+    needs: [android, check-signing]
     if: needs.check-signing.outputs.has-secrets == 'true'
     strategy:
       matrix:
