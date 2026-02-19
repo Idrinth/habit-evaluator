@@ -24,7 +24,7 @@ dependencies {
     implementation 'com.github.librepdf:openpdf:1.3.35'
 
     // Headless JavaFX backend for testing without a display
-    testImplementation 'org.testfx:openjfx-monocle:17.0.10'
+    testImplementation 'org.testfx:openjfx-monocle:21.0.2'
 }
 
 application {
