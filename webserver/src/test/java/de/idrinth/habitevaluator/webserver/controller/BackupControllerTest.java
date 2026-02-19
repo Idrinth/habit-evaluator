@@ -1,13 +1,21 @@
 package de.idrinth.habitevaluator.webserver.controller;
 
 import de.idrinth.habitevaluator.shared.model.User;
+import de.idrinth.habitevaluator.shared.repository.ActivityLogRepository;
 import de.idrinth.habitevaluator.shared.repository.DiaryEntryRepository;
 import de.idrinth.habitevaluator.shared.repository.EmotionEntryRepository;
 import de.idrinth.habitevaluator.shared.repository.EmotionPairRepository;
+import de.idrinth.habitevaluator.shared.repository.FoodLogRepository;
+import de.idrinth.habitevaluator.shared.repository.FoodTagRepository;
 import de.idrinth.habitevaluator.shared.repository.HabitCategoryRepository;
 import de.idrinth.habitevaluator.shared.repository.HabitRepository;
+import de.idrinth.habitevaluator.shared.repository.MedicationLogRepository;
+import de.idrinth.habitevaluator.shared.repository.MedicationRepository;
+import de.idrinth.habitevaluator.shared.repository.MeetingEntryRepository;
+import de.idrinth.habitevaluator.shared.repository.ModuleVisibilityRepository;
 import de.idrinth.habitevaluator.shared.repository.ReminderSettingsRepository;
 import de.idrinth.habitevaluator.shared.repository.SleepEntryRepository;
+import de.idrinth.habitevaluator.shared.repository.SportLogRepository;
 import de.idrinth.habitevaluator.shared.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -31,6 +39,14 @@ class BackupControllerTest {
     private EmotionPairRepository emotionPairRepository;
     private EmotionEntryRepository emotionEntryRepository;
     private ReminderSettingsRepository reminderSettingsRepository;
+    private SportLogRepository sportLogRepository;
+    private FoodLogRepository foodLogRepository;
+    private FoodTagRepository foodTagRepository;
+    private MeetingEntryRepository meetingEntryRepository;
+    private ActivityLogRepository activityLogRepository;
+    private MedicationRepository medicationRepository;
+    private MedicationLogRepository medicationLogRepository;
+    private ModuleVisibilityRepository moduleVisibilityRepository;
     private BackupController controller;
     private MockHttpSession session;
     private User testUser;
@@ -45,10 +61,22 @@ class BackupControllerTest {
         emotionPairRepository = mock(EmotionPairRepository.class);
         emotionEntryRepository = mock(EmotionEntryRepository.class);
         reminderSettingsRepository = mock(ReminderSettingsRepository.class);
+        sportLogRepository = mock(SportLogRepository.class);
+        foodLogRepository = mock(FoodLogRepository.class);
+        foodTagRepository = mock(FoodTagRepository.class);
+        meetingEntryRepository = mock(MeetingEntryRepository.class);
+        activityLogRepository = mock(ActivityLogRepository.class);
+        medicationRepository = mock(MedicationRepository.class);
+        medicationLogRepository = mock(MedicationLogRepository.class);
+        moduleVisibilityRepository = mock(ModuleVisibilityRepository.class);
         controller = new BackupController(
                 habitRepository, categoryRepository, diaryEntryRepository,
                 sleepEntryRepository, userRepository, emotionPairRepository,
-                emotionEntryRepository, reminderSettingsRepository);
+                emotionEntryRepository, reminderSettingsRepository,
+                sportLogRepository, foodLogRepository, foodTagRepository,
+                meetingEntryRepository, activityLogRepository,
+                medicationRepository, medicationLogRepository,
+                moduleVisibilityRepository);
         session = new MockHttpSession();
         testUser = new User("testuser", "password");
         session.setAttribute("userId", testUser.getId());
@@ -82,7 +110,8 @@ class BackupControllerTest {
         MockMultipartFile file = new MockMultipartFile("file", "backup.hez",
                 "application/octet-stream", new byte[]{1, 2, 3});
         ResponseEntity<Map<String, Object>> response =
-                controller.uploadBackup(file, "mypass", true, true, true, true, true, true, true, true, unauthSession);
+                controller.uploadBackup(file, "mypass", true, true, true, true,
+                        true, true, true, true, true, true, true, true, unauthSession);
         assertEquals(401, response.getStatusCode().value());
     }
 
@@ -92,7 +121,8 @@ class BackupControllerTest {
         MockMultipartFile file = new MockMultipartFile("file", "backup.hez",
                 "application/octet-stream", new byte[]{1, 2, 3});
         ResponseEntity<Map<String, Object>> response =
-                controller.uploadBackup(file, "mypass", true, true, true, true, true, true, true, true, session);
+                controller.uploadBackup(file, "mypass", true, true, true, true,
+                        true, true, true, true, true, true, true, true, session);
         assertEquals(401, response.getStatusCode().value());
     }
 
@@ -102,7 +132,8 @@ class BackupControllerTest {
         MockMultipartFile file = new MockMultipartFile("file", "backup.hez",
                 "application/octet-stream", new byte[0]);
         ResponseEntity<Map<String, Object>> response =
-                controller.uploadBackup(file, "mypass", true, true, true, true, true, true, true, true, session);
+                controller.uploadBackup(file, "mypass", true, true, true, true,
+                        true, true, true, true, true, true, true, true, session);
         assertEquals(400, response.getStatusCode().value());
         assertFalse((Boolean) response.getBody().get("success"));
     }
@@ -113,7 +144,8 @@ class BackupControllerTest {
         MockMultipartFile file = new MockMultipartFile("file", "backup.hez",
                 "application/octet-stream", new byte[]{1, 2, 3, 4, 5});
         ResponseEntity<Map<String, Object>> response =
-                controller.uploadBackup(file, "mypass", true, true, true, true, true, true, true, true, session);
+                controller.uploadBackup(file, "mypass", true, true, true, true,
+                        true, true, true, true, true, true, true, true, session);
         assertEquals(400, response.getStatusCode().value());
         assertFalse((Boolean) response.getBody().get("success"));
     }

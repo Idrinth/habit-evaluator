@@ -28,6 +28,8 @@ public class BackupData {
     private List<MedicationData> medications = new ArrayList<>();
     private List<MedicationLogData> medicationLogs = new ArrayList<>();
     private ReminderSettingsData reminderSettings;
+    private ModuleVisibilityData moduleVisibility;
+    private List<EmergencyPlanStepData> emergencyPlanSteps = new ArrayList<>();
 
     public String getBackupDate() {
         return backupDate;
@@ -163,6 +165,22 @@ public class BackupData {
 
     public void setReminderSettings(ReminderSettingsData reminderSettings) {
         this.reminderSettings = reminderSettings;
+    }
+
+    public ModuleVisibilityData getModuleVisibility() {
+        return moduleVisibility;
+    }
+
+    public void setModuleVisibility(ModuleVisibilityData moduleVisibility) {
+        this.moduleVisibility = moduleVisibility;
+    }
+
+    public List<EmergencyPlanStepData> getEmergencyPlanSteps() {
+        return emergencyPlanSteps;
+    }
+
+    public void setEmergencyPlanSteps(List<EmergencyPlanStepData> emergencyPlanSteps) {
+        this.emergencyPlanSteps = emergencyPlanSteps;
     }
 
     public static class UserData {
@@ -1101,5 +1119,77 @@ public class BackupData {
         public void setNotes(String notes) { this.notes = notes; }
         public String getCreatedAt() { return createdAt; }
         public void setCreatedAt(String createdAt) { this.createdAt = createdAt; }
+    }
+
+    public static class ModuleVisibilityData {
+        private String id;
+        private boolean diaryVisible;
+        private boolean sleepVisible;
+        private boolean emotionsVisible;
+        private boolean pointsVisible;
+        private boolean statisticsVisible;
+        private boolean foodLogVisible;
+        private boolean sportLogVisible;
+        private boolean medicationVisible;
+        private boolean backupVisible;
+        private boolean pdfExportVisible;
+        private boolean activityLogVisible;
+
+        public String getId() { return id; }
+        public void setId(String id) { this.id = id; }
+        public boolean isDiaryVisible() { return diaryVisible; }
+        public void setDiaryVisible(boolean diaryVisible) { this.diaryVisible = diaryVisible; }
+        public boolean isSleepVisible() { return sleepVisible; }
+        public void setSleepVisible(boolean sleepVisible) { this.sleepVisible = sleepVisible; }
+        public boolean isEmotionsVisible() { return emotionsVisible; }
+        public void setEmotionsVisible(boolean emotionsVisible) { this.emotionsVisible = emotionsVisible; }
+        public boolean isPointsVisible() { return pointsVisible; }
+        public void setPointsVisible(boolean pointsVisible) { this.pointsVisible = pointsVisible; }
+        public boolean isStatisticsVisible() { return statisticsVisible; }
+        public void setStatisticsVisible(boolean statisticsVisible) { this.statisticsVisible = statisticsVisible; }
+        public boolean isFoodLogVisible() { return foodLogVisible; }
+        public void setFoodLogVisible(boolean foodLogVisible) { this.foodLogVisible = foodLogVisible; }
+        public boolean isSportLogVisible() { return sportLogVisible; }
+        public void setSportLogVisible(boolean sportLogVisible) { this.sportLogVisible = sportLogVisible; }
+        public boolean isMedicationVisible() { return medicationVisible; }
+        public void setMedicationVisible(boolean medicationVisible) { this.medicationVisible = medicationVisible; }
+        public boolean isBackupVisible() { return backupVisible; }
+        public void setBackupVisible(boolean backupVisible) { this.backupVisible = backupVisible; }
+        public boolean isPdfExportVisible() { return pdfExportVisible; }
+        public void setPdfExportVisible(boolean pdfExportVisible) { this.pdfExportVisible = pdfExportVisible; }
+        public boolean isActivityLogVisible() { return activityLogVisible; }
+        public void setActivityLogVisible(boolean activityLogVisible) { this.activityLogVisible = activityLogVisible; }
+    }
+
+    public static class EmergencyPlanStepData {
+        private String id;
+        private String question;
+        private int stepOrder;
+        private List<EmergencyPlanActionData> actions = new ArrayList<>();
+
+        public String getId() { return id; }
+        public void setId(String id) { this.id = id; }
+        public String getQuestion() { return question; }
+        public void setQuestion(String question) { this.question = question; }
+        public int getStepOrder() { return stepOrder; }
+        public void setStepOrder(int stepOrder) { this.stepOrder = stepOrder; }
+        public List<EmergencyPlanActionData> getActions() { return actions; }
+        public void setActions(List<EmergencyPlanActionData> actions) { this.actions = actions; }
+    }
+
+    public static class EmergencyPlanActionData {
+        private String id;
+        private String actionText;
+        private String phoneNumber;
+        private int actionOrder;
+
+        public String getId() { return id; }
+        public void setId(String id) { this.id = id; }
+        public String getActionText() { return actionText; }
+        public void setActionText(String actionText) { this.actionText = actionText; }
+        public String getPhoneNumber() { return phoneNumber; }
+        public void setPhoneNumber(String phoneNumber) { this.phoneNumber = phoneNumber; }
+        public int getActionOrder() { return actionOrder; }
+        public void setActionOrder(int actionOrder) { this.actionOrder = actionOrder; }
     }
 }

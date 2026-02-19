@@ -157,5 +157,51 @@ class MergeResultTest {
         assertEquals(0, result.getActivityLogsAdded());
         assertEquals(0, result.getMedicationsAdded());
         assertEquals(0, result.getMedicationLogsAdded());
+        assertFalse(result.isModuleVisibilityRestored());
+        assertEquals(0, result.getEmergencyPlanStepsAdded());
+    }
+
+    @Test
+    void testFullConstructorWithModuleVisibilityAndEmergencyPlan() {
+        MergeResult result = new MergeResult(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, true, true, 3);
+        assertEquals(1, result.getCategoriesAdded());
+        assertEquals(2, result.getHabitsAdded());
+        assertEquals(3, result.getHabitsMerged());
+        assertEquals(4, result.getEntriesAdded());
+        assertEquals(5, result.getDiaryEntriesAdded());
+        assertEquals(6, result.getSleepEntriesAdded());
+        assertEquals(7, result.getSportLogsAdded());
+        assertEquals(8, result.getFoodLogsAdded());
+        assertEquals(9, result.getEmotionPairsAdded());
+        assertEquals(10, result.getEmotionEntriesAdded());
+        assertEquals(11, result.getMeetingEntriesAdded());
+        assertEquals(12, result.getActivityLogsAdded());
+        assertEquals(13, result.getMedicationsAdded());
+        assertEquals(14, result.getMedicationLogsAdded());
+        assertTrue(result.isReminderSettingsRestored());
+        assertTrue(result.isModuleVisibilityRestored());
+        assertEquals(3, result.getEmergencyPlanStepsAdded());
+    }
+
+    @Test
+    void testTotalChangesIncludesModuleVisibilityAndEmergencyPlan() {
+        MergeResult result = new MergeResult(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, false, true, 5);
+        // moduleVisibility(1) + emergencyPlanSteps(5) = 6
+        assertEquals(6, result.getTotalChanges());
+    }
+
+    @Test
+    void testToStringIncludesModuleVisibilityAndEmergencyPlan() {
+        MergeResult result = new MergeResult(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, false, true, 2);
+        String str = result.toString();
+        assertTrue(str.contains("module visibility restored=true"));
+        assertTrue(str.contains("emergency plan steps added=2"));
+    }
+
+    @Test
+    void testModuleVisibilityAndEmergencyPlanDefaultZero() {
+        MergeResult result = new MergeResult(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, true);
+        assertFalse(result.isModuleVisibilityRestored());
+        assertEquals(0, result.getEmergencyPlanStepsAdded());
     }
 }
