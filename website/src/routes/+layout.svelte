@@ -114,6 +114,7 @@
 		<a href="/habits/home">{t('nav.home', lang)}</a>
 		<a href="/habits/edit">{t('nav.edit', lang)}</a>
 		<a href="/habits/add">{t('nav.addHabit', lang)}</a>
+		<a href="/categories/manage">{t('nav.manageCategories', lang)}</a>
 		<a href="/categories/add">{t('nav.addCategory', lang)}</a>
 		<a href="/score-rules/add">{t('nav.scoringRules', lang)}</a>
 		{#if mv.pointsVisible}

@@ -155,6 +155,54 @@ paths:
       responses:
         "200":
           description: OK
+  /api/categories/{id}:
+    put:
+      tags:
+      - category-controller
+      operationId: updateCategory
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateCategoryRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/HabitCategory"
+    delete:
+      tags:
+      - category-controller
+      operationId: deleteCategory
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: reassignTo
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: confirm
+        in: query
+        required: false
+        schema:
+          type: boolean
+          default: false
+      responses:
+        "200":
+          description: OK
   /api/sync:
     post:
       tags:
@@ -1392,6 +1440,36 @@ components:
           format: int32
         user:
           $ref: "#/components/schemas/User"
+    CreateCategoryRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        color:
+          type: string
+    HabitCategory:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        color:
+          type: string
+        user:
+          $ref: "#/components/schemas/User"
+        nameTranslations:
+          type: object
+          additionalProperties:
+            type: string
+        descriptionTranslations:
+          type: object
+          additionalProperties:
+            type: string
     SyncData:
       type: object
       properties:
@@ -1626,11 +1704,11 @@ components:
           example: 14:30:00
         user:
           $ref: "#/components/schemas/User"
-        description:
-          type: string
         points:
           type: integer
           format: int32
+        description:
+          type: string
         durationMinutes:
           type: integer
           format: int32
@@ -1645,36 +1723,6 @@ components:
           type: string
         user:
           $ref: "#/components/schemas/User"
-    CreateCategoryRequest:
-      type: object
-      properties:
-        name:
-          type: string
-        description:
-          type: string
-        color:
-          type: string
-    HabitCategory:
-      type: object
-      properties:
-        id:
-          type: string
-        name:
-          type: string
-        description:
-          type: string
-        color:
-          type: string
-        user:
-          $ref: "#/components/schemas/User"
-        nameTranslations:
-          type: object
-          additionalProperties:
-            type: string
-        descriptionTranslations:
-          type: object
-          additionalProperties:
-            type: string
     LoginResponse:
       type: object
       properties:
