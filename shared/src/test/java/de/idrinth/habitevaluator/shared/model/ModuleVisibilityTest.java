@@ -26,6 +26,7 @@ class ModuleVisibilityTest {
         assertTrue(mv.isMedicationVisible());
         assertTrue(mv.isBackupVisible());
         assertTrue(mv.isPdfExportVisible());
+        assertTrue(mv.isActivityLogVisible());
     }
 
     @Test
@@ -96,6 +97,13 @@ class ModuleVisibilityTest {
         ModuleVisibility mv = new ModuleVisibility();
         mv.setPdfExportVisible(false);
         assertFalse(mv.isPdfExportVisible());
+    }
+
+    @Test
+    void testSetActivityLogVisible() {
+        ModuleVisibility mv = new ModuleVisibility();
+        mv.setActivityLogVisible(false);
+        assertFalse(mv.isActivityLogVisible());
     }
 
     @Test

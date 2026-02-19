@@ -112,6 +112,7 @@ settings:
   module_medication: "Medication"
   module_backup: "Backup"
   module_pdf_export: "PDF Export"
+  module_activity_log: "Activity Log"
 
 reminders:
   settings_title: "Reminder Settings"
@@ -345,6 +346,21 @@ medication_log:
   edit_link_save: "Save"
   edit_link_cancel: "Cancel"
   link_updated: "Wikipedia link updated"
+
+activity_log:
+  title: "Activity Log"
+  add_entry: "Add Activity"
+  persons: "Involved Persons"
+  persons_hint: "e.g. Alice, Bob, Charlie"
+  location: "Location"
+  location_hint: "e.g. Park, Office, Gym"
+  start_time: "Start Time"
+  end_time: "End Time"
+  date: "Date"
+  activity: "Activity"
+  activity_hint: "e.g. Hiking, Workshop, Team meeting (optional)"
+  no_entries: "No activity log entries yet."
+  delete: "Delete"
 
 food_log:
   title: "Food Log"

@@ -24,7 +24,8 @@
 		sportLogVisible: true,
 		medicationVisible: true,
 		backupVisible: true,
-		pdfExportVisible: true
+		pdfExportVisible: true,
+		activityLogVisible: true
 	});
 
 	function handleVisibilityChanged(event: Event) {
@@ -135,6 +136,9 @@
 		{/if}
 		{#if mv.medicationVisible}
 			<a href="/medication">{t('nav.medication', lang)}</a>
+		{/if}
+		{#if mv.activityLogVisible}
+			<a href="/activity-log">{t('nav.activityLog', lang)}</a>
 		{/if}
 		{#if mv.emotionsVisible}
 			<a href="/emotions/graph">{t('nav.emotions', lang)}</a>

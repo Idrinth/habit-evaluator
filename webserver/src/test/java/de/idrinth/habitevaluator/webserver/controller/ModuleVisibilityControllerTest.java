@@ -73,6 +73,7 @@ class ModuleVisibilityControllerTest {
         assertTrue(response.getBody().isMedicationVisible());
         assertTrue(response.getBody().isBackupVisible());
         assertTrue(response.getBody().isPdfExportVisible());
+        assertTrue(response.getBody().isActivityLogVisible());
     }
 
     @Test
@@ -148,6 +149,7 @@ class ModuleVisibilityControllerTest {
         incoming.setMedicationVisible(false);
         incoming.setBackupVisible(false);
         incoming.setPdfExportVisible(false);
+        incoming.setActivityLogVisible(false);
 
         ResponseEntity<ModuleVisibility> response = controller.updateSettings(incoming, session);
 
@@ -164,6 +166,7 @@ class ModuleVisibilityControllerTest {
         assertFalse(body.isMedicationVisible());
         assertFalse(body.isBackupVisible());
         assertFalse(body.isPdfExportVisible());
+        assertFalse(body.isActivityLogVisible());
         verify(moduleVisibilityRepository).save(existing);
     }
 }

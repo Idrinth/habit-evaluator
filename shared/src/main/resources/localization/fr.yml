@@ -112,6 +112,7 @@ settings:
   module_medication: "Médicaments"
   module_backup: "Sauvegarde"
   module_pdf_export: "Export PDF"
+  module_activity_log: "Journal d'activités"
 
 reminders:
   settings_title: "Paramètres de rappels"
@@ -345,6 +346,21 @@ medication_log:
   edit_link_save: "Enregistrer"
   edit_link_cancel: "Annuler"
   link_updated: "Lien Wikipédia mis à jour"
+
+activity_log:
+  title: "Journal d'activités"
+  add_entry: "Ajouter une activité"
+  persons: "Personnes impliquées"
+  persons_hint: "p. ex. Alice, Bob, Charlie"
+  location: "Lieu"
+  location_hint: "p. ex. Parc, Bureau, Salle de sport"
+  start_time: "Heure de début"
+  end_time: "Heure de fin"
+  date: "Date"
+  activity: "Activité"
+  activity_hint: "p. ex. Randonnée, Atelier, Réunion d'équipe (facultatif)"
+  no_entries: "Aucune entrée d'activité pour le moment."
+  delete: "Supprimer"
 
 food_log:
   title: "Journal alimentaire"

@@ -26,7 +26,8 @@
 		sportLogVisible: true,
 		medicationVisible: true,
 		backupVisible: true,
-		pdfExportVisible: true
+		pdfExportVisible: true,
+		activityLogVisible: true
 	});
 
 	let error = $state('');
@@ -60,7 +61,8 @@
 				sportLogVisible: visibilityData.sportLogVisible,
 				medicationVisible: visibilityData.medicationVisible,
 				backupVisible: visibilityData.backupVisible,
-				pdfExportVisible: visibilityData.pdfExportVisible
+				pdfExportVisible: visibilityData.pdfExportVisible,
+				activityLogVisible: visibilityData.activityLogVisible
 			};
 		} catch (err) {
 			error = err instanceof Error ? err.message : 'Failed to load settings';
@@ -147,6 +149,10 @@
 			<label class="toggle-row">
 				<input type="checkbox" bind:checked={visibility.pdfExportVisible} />
 				<span>{t('settings.modulePdfExport', lang)}</span>
+			</label>
+			<label class="toggle-row">
+				<input type="checkbox" bind:checked={visibility.activityLogVisible} />
+				<span>{t('settings.module_activity_log', lang)}</span>
 			</label>
 		</section>
 

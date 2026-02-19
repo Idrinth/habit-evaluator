@@ -24,6 +24,7 @@ public class BackupData {
     private List<EmotionPairData> emotionPairs = new ArrayList<>();
     private List<EmotionEntryData> emotionEntries = new ArrayList<>();
     private List<MeetingEntryData> meetingEntries = new ArrayList<>();
+    private List<ActivityLogData> activityLogs = new ArrayList<>();
     private List<MedicationData> medications = new ArrayList<>();
     private List<MedicationLogData> medicationLogs = new ArrayList<>();
     private ReminderSettingsData reminderSettings;
@@ -130,6 +131,14 @@ public class BackupData {
 
     public void setMeetingEntries(List<MeetingEntryData> meetingEntries) {
         this.meetingEntries = meetingEntries;
+    }
+
+    public List<ActivityLogData> getActivityLogs() {
+        return activityLogs;
+    }
+
+    public void setActivityLogs(List<ActivityLogData> activityLogs) {
+        this.activityLogs = activityLogs;
     }
 
     public List<MedicationData> getMedications() {
@@ -886,6 +895,81 @@ public class BackupData {
 
         public void setDate(String date) {
             this.date = date;
+        }
+
+        public String getCreatedAt() {
+            return createdAt;
+        }
+
+        public void setCreatedAt(String createdAt) {
+            this.createdAt = createdAt;
+        }
+    }
+
+    public static class ActivityLogData {
+        private String id;
+        private String persons;
+        private String location;
+        private String startTime;
+        private String endTime;
+        private String date;
+        private String activity;
+        private String createdAt;
+
+        public String getId() {
+            return id;
+        }
+
+        public void setId(String id) {
+            this.id = id;
+        }
+
+        public String getPersons() {
+            return persons;
+        }
+
+        public void setPersons(String persons) {
+            this.persons = persons;
+        }
+
+        public String getLocation() {
+            return location;
+        }
+
+        public void setLocation(String location) {
+            this.location = location;
+        }
+
+        public String getStartTime() {
+            return startTime;
+        }
+
+        public void setStartTime(String startTime) {
+            this.startTime = startTime;
+        }
+
+        public String getEndTime() {
+            return endTime;
+        }
+
+        public void setEndTime(String endTime) {
+            this.endTime = endTime;
+        }
+
+        public String getDate() {
+            return date;
+        }
+
+        public void setDate(String date) {
+            this.date = date;
+        }
+
+        public String getActivity() {
+            return activity;
+        }
+
+        public void setActivity(String activity) {
+            this.activity = activity;
         }
 
         public String getCreatedAt() {

@@ -681,6 +681,37 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/LoginResponse"
+  /api/activity-logs:
+    get:
+      tags:
+      - activity-log-controller
+      operationId: getAllEntries_5
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ActivityLog"
+    post:
+      tags:
+      - activity-log-controller
+      operationId: createEntry_5
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ActivityLog"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
   /api/version:
     get:
       tags:
@@ -1175,6 +1206,20 @@ paths:
       responses:
         "200":
           description: OK
+  /api/activity-logs/{id}:
+    delete:
+      tags:
+      - activity-log-controller
+      operationId: deleteEntry_5
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
 components:
   schemas:
     ReminderSettings:
@@ -1243,6 +1288,8 @@ components:
         backupVisible:
           type: boolean
         pdfExportVisible:
+          type: boolean
+        activityLogVisible:
           type: boolean
     Medication:
       type: object
@@ -1648,6 +1695,34 @@ components:
         password:
           type: string
           minLength: 1
+    ActivityLog:
+      type: object
+      properties:
+        id:
+          type: string
+        persons:
+          type: string
+        location:
+          type: string
+        startTime:
+          type: string
+          example: 14:30:00
+        endTime:
+          type: string
+          example: 14:30:00
+        date:
+          type: string
+          format: date
+        activity:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        user:
+          $ref: "#/components/schemas/User"
+        durationMinutes:
+          type: integer
+          format: int32
     SportLogStats:
       type: object
       properties:

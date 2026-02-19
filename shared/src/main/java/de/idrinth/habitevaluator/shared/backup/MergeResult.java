@@ -16,6 +16,7 @@ public class MergeResult {
     private final int emotionPairsAdded;
     private final int emotionEntriesAdded;
     private final int meetingEntriesAdded;
+    private final int activityLogsAdded;
     private final int medicationsAdded;
     private final int medicationLogsAdded;
     private final boolean reminderSettingsRestored;
@@ -48,14 +49,14 @@ public class MergeResult {
                        boolean reminderSettingsRestored) {
         this(categoriesAdded, habitsAdded, habitsMerged, entriesAdded,
                 diaryEntriesAdded, sleepEntriesAdded, sportLogsAdded, foodLogsAdded,
-                emotionPairsAdded, emotionEntriesAdded, 0, 0, 0, reminderSettingsRestored);
+                emotionPairsAdded, emotionEntriesAdded, 0, 0, 0, 0, reminderSettingsRestored);
     }
 
     public MergeResult(int categoriesAdded, int habitsAdded, int habitsMerged,
                        int entriesAdded, int diaryEntriesAdded, int sleepEntriesAdded,
                        int sportLogsAdded, int foodLogsAdded,
                        int emotionPairsAdded, int emotionEntriesAdded,
-                       int meetingEntriesAdded,
+                       int meetingEntriesAdded, int activityLogsAdded,
                        int medicationsAdded, int medicationLogsAdded,
                        boolean reminderSettingsRestored) {
         this.categoriesAdded = categoriesAdded;
@@ -69,6 +70,7 @@ public class MergeResult {
         this.emotionPairsAdded = emotionPairsAdded;
         this.emotionEntriesAdded = emotionEntriesAdded;
         this.meetingEntriesAdded = meetingEntriesAdded;
+        this.activityLogsAdded = activityLogsAdded;
         this.medicationsAdded = medicationsAdded;
         this.medicationLogsAdded = medicationLogsAdded;
         this.reminderSettingsRestored = reminderSettingsRestored;
@@ -118,6 +120,10 @@ public class MergeResult {
         return meetingEntriesAdded;
     }
 
+    public int getActivityLogsAdded() {
+        return activityLogsAdded;
+    }
+
     public int getMedicationsAdded() {
         return medicationsAdded;
     }
@@ -134,7 +140,7 @@ public class MergeResult {
         return categoriesAdded + habitsAdded + habitsMerged + diaryEntriesAdded
                 + sleepEntriesAdded + sportLogsAdded + foodLogsAdded
                 + emotionPairsAdded + emotionEntriesAdded + meetingEntriesAdded
-                + medicationsAdded + medicationLogsAdded
+                + activityLogsAdded + medicationsAdded + medicationLogsAdded
                 + (reminderSettingsRestored ? 1 : 0);
     }
 
@@ -152,6 +158,7 @@ public class MergeResult {
                 + ", emotion pairs added=" + emotionPairsAdded
                 + ", emotion entries added=" + emotionEntriesAdded
                 + ", meeting entries added=" + meetingEntriesAdded
+                + ", activity logs added=" + activityLogsAdded
                 + ", medications added=" + medicationsAdded
                 + ", medication logs added=" + medicationLogsAdded
                 + ", reminder settings restored=" + reminderSettingsRestored

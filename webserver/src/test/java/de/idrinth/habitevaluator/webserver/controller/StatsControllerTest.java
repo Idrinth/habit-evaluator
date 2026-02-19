@@ -10,6 +10,7 @@ import de.idrinth.habitevaluator.shared.model.HabitCategory;
 import de.idrinth.habitevaluator.shared.model.HabitScore;
 import de.idrinth.habitevaluator.shared.model.SleepEntry;
 import de.idrinth.habitevaluator.shared.model.User;
+import de.idrinth.habitevaluator.shared.repository.ActivityLogRepository;
 import de.idrinth.habitevaluator.shared.repository.DiaryEntryRepository;
 import de.idrinth.habitevaluator.shared.repository.EmotionEntryRepository;
 import de.idrinth.habitevaluator.shared.repository.FoodLogRepository;
@@ -47,6 +48,7 @@ class StatsControllerTest {
     private SportLogRepository sportLogRepository;
     private FoodLogRepository foodLogRepository;
     private MeetingEntryRepository meetingEntryRepository;
+    private ActivityLogRepository activityLogRepository;
     private HabitScoringService scoringService;
     private DiaryService diaryService;
     private EventCorrelationService correlationService;
@@ -64,12 +66,13 @@ class StatsControllerTest {
         sportLogRepository = mock(SportLogRepository.class);
         foodLogRepository = mock(FoodLogRepository.class);
         meetingEntryRepository = mock(MeetingEntryRepository.class);
+        activityLogRepository = mock(ActivityLogRepository.class);
         scoringService = mock(HabitScoringService.class);
         diaryService = mock(DiaryService.class);
         correlationService = mock(EventCorrelationService.class);
         controller = new StatsController(habitRepository, sleepEntryRepository, diaryEntryRepository,
                 emotionEntryRepository, habitCategoryRepository, sportLogRepository, foodLogRepository,
-                meetingEntryRepository, scoringService, diaryService, correlationService);
+                meetingEntryRepository, activityLogRepository, scoringService, diaryService, correlationService);
         session = new MockHttpSession();
         testUser = new User("testuser", "password");
         session.setAttribute("userId", testUser.getId());
@@ -143,9 +146,10 @@ class StatsControllerTest {
         when(emotionEntryRepository.findByUserId(testUser.getId())).thenReturn(new ArrayList<>());
         when(sportLogRepository.findByUserId(testUser.getId())).thenReturn(new ArrayList<>());
         when(meetingEntryRepository.findByUserId(testUser.getId())).thenReturn(new ArrayList<>());
+        when(activityLogRepository.findByUserId(testUser.getId())).thenReturn(new ArrayList<>());
 
         EventCorrelation correlation = new EventCorrelation("Habit: Exercise", "Sleep Hours", 0.75, 30);
-        when(correlationService.calculateCorrelations(any(), any(), any(), any(), any(), any())).thenReturn(List.of(correlation));
+        when(correlationService.calculateCorrelations(any(), any(), any(), any(), any(), any(), any())).thenReturn(List.of(correlation));
 
         ResponseEntity<List<Map<String, Object>>> response = controller.getCorrelations(session);
 

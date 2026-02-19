@@ -112,6 +112,7 @@ settings:
   module_medication: "Medikamente"
   module_backup: "Sicherung"
   module_pdf_export: "PDF-Export"
+  module_activity_log: "Aktivitätsprotokoll"
 
 reminders:
   settings_title: "Erinnerungseinstellungen"
@@ -345,6 +346,21 @@ medication_log:
   edit_link_save: "Speichern"
   edit_link_cancel: "Abbrechen"
   link_updated: "Wikipedia-Link aktualisiert"
+
+activity_log:
+  title: "Aktivitätsprotokoll"
+  add_entry: "Aktivität hinzufügen"
+  persons: "Beteiligte Personen"
+  persons_hint: "z.B. Alice, Bob, Charlie"
+  location: "Ort"
+  location_hint: "z.B. Park, Büro, Fitnessstudio"
+  start_time: "Startzeit"
+  end_time: "Endzeit"
+  date: "Datum"
+  activity: "Aktivität"
+  activity_hint: "z.B. Wandern, Workshop, Teambesprechung (optional)"
+  no_entries: "Noch keine Aktivitätseinträge."
+  delete: "Löschen"
 
 food_log:
   title: "Ernährungsprotokoll"
