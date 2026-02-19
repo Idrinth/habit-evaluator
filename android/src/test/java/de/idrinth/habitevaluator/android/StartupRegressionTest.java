@@ -129,13 +129,14 @@ class StartupRegressionTest {
     void testAllNavigablePageIndicesAreWithinRange() {
         // Every page constant referenced by navigation must be within [0, PAGE_COUNT)
         int[] allPages = {
-                ScreenPagerAdapter.PAGE_EDIT_HABITS,
                 ScreenPagerAdapter.PAGE_HOME,
                 ScreenPagerAdapter.PAGE_DIARY,
                 ScreenPagerAdapter.PAGE_SLEEP,
-                ScreenPagerAdapter.PAGE_STATS,
+                ScreenPagerAdapter.PAGE_EMERGENCY_PLAN,
                 ScreenPagerAdapter.PAGE_EMOTIONAL_STATE,
+                ScreenPagerAdapter.PAGE_EDIT_HABITS,
                 ScreenPagerAdapter.PAGE_ADD_HABIT,
+                ScreenPagerAdapter.PAGE_STATS,
                 ScreenPagerAdapter.PAGE_POINT_DEVELOPMENT,
                 ScreenPagerAdapter.PAGE_ADD_EMOTION_PAIR,
                 ScreenPagerAdapter.PAGE_RECORD_EMOTION_ENTRY,
@@ -146,7 +147,6 @@ class StartupRegressionTest {
                 ScreenPagerAdapter.PAGE_FOOD_LOG,
                 ScreenPagerAdapter.PAGE_MEDICATION_LOG,
                 ScreenPagerAdapter.PAGE_MEDICATION_LIST,
-                ScreenPagerAdapter.PAGE_EMERGENCY_PLAN,
                 ScreenPagerAdapter.PAGE_ACTIVITY_LOG
         };
 
@@ -165,13 +165,14 @@ class StartupRegressionTest {
         // createFragment will silently return a default HomeFragment
         // for that index — or worse, the ViewPager will crash.
         int[] allPages = {
-                ScreenPagerAdapter.PAGE_EDIT_HABITS,
                 ScreenPagerAdapter.PAGE_HOME,
                 ScreenPagerAdapter.PAGE_DIARY,
                 ScreenPagerAdapter.PAGE_SLEEP,
-                ScreenPagerAdapter.PAGE_STATS,
+                ScreenPagerAdapter.PAGE_EMERGENCY_PLAN,
                 ScreenPagerAdapter.PAGE_EMOTIONAL_STATE,
+                ScreenPagerAdapter.PAGE_EDIT_HABITS,
                 ScreenPagerAdapter.PAGE_ADD_HABIT,
+                ScreenPagerAdapter.PAGE_STATS,
                 ScreenPagerAdapter.PAGE_POINT_DEVELOPMENT,
                 ScreenPagerAdapter.PAGE_ADD_EMOTION_PAIR,
                 ScreenPagerAdapter.PAGE_RECORD_EMOTION_ENTRY,
@@ -182,7 +183,6 @@ class StartupRegressionTest {
                 ScreenPagerAdapter.PAGE_FOOD_LOG,
                 ScreenPagerAdapter.PAGE_MEDICATION_LOG,
                 ScreenPagerAdapter.PAGE_MEDICATION_LIST,
-                ScreenPagerAdapter.PAGE_EMERGENCY_PLAN,
                 ScreenPagerAdapter.PAGE_ACTIVITY_LOG
         };
 
@@ -197,13 +197,14 @@ class StartupRegressionTest {
         // The ViewPager2 iterates from 0..PAGE_COUNT-1, so pages must be
         // contiguous to avoid unmapped gaps that would hit the default case.
         int[] allPages = {
-                ScreenPagerAdapter.PAGE_EDIT_HABITS,
                 ScreenPagerAdapter.PAGE_HOME,
                 ScreenPagerAdapter.PAGE_DIARY,
                 ScreenPagerAdapter.PAGE_SLEEP,
-                ScreenPagerAdapter.PAGE_STATS,
+                ScreenPagerAdapter.PAGE_EMERGENCY_PLAN,
                 ScreenPagerAdapter.PAGE_EMOTIONAL_STATE,
+                ScreenPagerAdapter.PAGE_EDIT_HABITS,
                 ScreenPagerAdapter.PAGE_ADD_HABIT,
+                ScreenPagerAdapter.PAGE_STATS,
                 ScreenPagerAdapter.PAGE_POINT_DEVELOPMENT,
                 ScreenPagerAdapter.PAGE_ADD_EMOTION_PAIR,
                 ScreenPagerAdapter.PAGE_RECORD_EMOTION_ENTRY,
@@ -214,7 +215,6 @@ class StartupRegressionTest {
                 ScreenPagerAdapter.PAGE_FOOD_LOG,
                 ScreenPagerAdapter.PAGE_MEDICATION_LOG,
                 ScreenPagerAdapter.PAGE_MEDICATION_LIST,
-                ScreenPagerAdapter.PAGE_EMERGENCY_PLAN,
                 ScreenPagerAdapter.PAGE_ACTIVITY_LOG
         };
 
