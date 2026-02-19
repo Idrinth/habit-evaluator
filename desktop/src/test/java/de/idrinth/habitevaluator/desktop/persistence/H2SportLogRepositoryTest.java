@@ -152,4 +152,75 @@ class H2SportLogRepositoryTest extends H2RepositoryTestBase {
         assertTrue(found.isPresent());
         assertEquals(specificDate, found.get().getDate());
     }
+
+    @Test
+    void testFindDistinctNamesByUserId() {
+        SportLog entry1 = new SportLog("Running", 5.0, "km",
+                LocalTime.of(8, 0), LocalTime.of(9, 0));
+        entry1.setUser(testUser);
+        sportLogRepository.save(entry1);
+
+        SportLog entry2 = new SportLog("Swimming", 2.0, "km",
+                LocalTime.of(10, 0), LocalTime.of(11, 0));
+        entry2.setUser(testUser);
+        sportLogRepository.save(entry2);
+
+        SportLog entry3 = new SportLog("Running", 3.0, "km",
+                LocalTime.of(6, 0), LocalTime.of(6, 30));
+        entry3.setUser(testUser);
+        sportLogRepository.save(entry3);
+
+        List<String> names = sportLogRepository.findDistinctNamesByUserId(testUser.getId());
+        assertEquals(2, names.size());
+        assertTrue(names.contains("Running"));
+        assertTrue(names.contains("Swimming"));
+    }
+
+    @Test
+    void testFindDistinctMeasurementUnitsByUserId() {
+        SportLog entry1 = new SportLog("Running", 5.0, "km",
+                LocalTime.of(8, 0), LocalTime.of(9, 0));
+        entry1.setUser(testUser);
+        sportLogRepository.save(entry1);
+
+        SportLog entry2 = new SportLog("Swimming", 1000, "m",
+                LocalTime.of(10, 0), LocalTime.of(11, 0));
+        entry2.setUser(testUser);
+        sportLogRepository.save(entry2);
+
+        SportLog entry3 = new SportLog("Cycling", 20.0, "km",
+                LocalTime.of(6, 0), LocalTime.of(7, 0));
+        entry3.setUser(testUser);
+        sportLogRepository.save(entry3);
+
+        List<String> units = sportLogRepository.findDistinctMeasurementUnitsByUserId(testUser.getId());
+        assertEquals(2, units.size());
+        assertTrue(units.contains("km"));
+        assertTrue(units.contains("m"));
+    }
+
+    @Test
+    void testFindDistinctNamesByUserIdEmpty() {
+        List<String> names = sportLogRepository.findDistinctNamesByUserId("nonexistent-user-id");
+        assertTrue(names.isEmpty());
+    }
+
+    @Test
+    void testFindDistinctNamesByUserIdIsolatedPerUser() {
+        SportLog entry1 = new SportLog("Running", 5.0, "km",
+                LocalTime.of(8, 0), LocalTime.of(9, 0));
+        entry1.setUser(testUser);
+        sportLogRepository.save(entry1);
+
+        User otherUser = new User("othersportuser2", "password123");
+        userRepository.save(otherUser);
+        SportLog entry2 = new SportLog("Swimming", 2.0, "km",
+                LocalTime.of(10, 0), LocalTime.of(11, 0));
+        entry2.setUser(otherUser);
+        sportLogRepository.save(entry2);
+
+        List<String> names = sportLogRepository.findDistinctNamesByUserId(testUser.getId());
+        assertEquals(1, names.size());
+        assertEquals("Running", names.get(0));
+    }
 }

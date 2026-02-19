@@ -745,6 +745,19 @@ describe('api', () => {
 			expect(globalThis.fetch).toHaveBeenCalledWith('/api/sport-logs/graph', expect.any(Object));
 			expect(result).toEqual(graphData);
 		});
+
+		it('should fetch sport log suggestions', async () => {
+			const suggestions = {
+				names: ['Running', 'Swimming'],
+				units: ['km', 'm']
+			};
+			(globalThis.fetch as Mock).mockReturnValue(mockFetchResponse(suggestions));
+
+			const result = await apiModule.sportLogs.suggestions();
+
+			expect(globalThis.fetch).toHaveBeenCalledWith('/api/sport-logs/suggestions', expect.any(Object));
+			expect(result).toEqual(suggestions);
+		});
 	});
 
 	describe('foodLogs', () => {

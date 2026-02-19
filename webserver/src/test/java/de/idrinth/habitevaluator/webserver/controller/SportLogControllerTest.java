@@ -130,6 +130,47 @@ class SportLogControllerTest {
     }
 
     @Test
+    void testGetSuggestionsUnauthenticated() {
+        MockHttpSession unauthSession = new MockHttpSession();
+        ResponseEntity<Map<String, List<String>>> response = controller.getSuggestions(unauthSession);
+        assertEquals(401, response.getStatusCode().value());
+    }
+
+    @Test
+    void testGetSuggestionsSuccess() {
+        when(sportLogRepository.findDistinctNamesByUserId(testUser.getId()))
+                .thenReturn(List.of("Running", "Swimming"));
+        when(sportLogRepository.findDistinctMeasurementUnitsByUserId(testUser.getId()))
+                .thenReturn(List.of("km", "m"));
+
+        ResponseEntity<Map<String, List<String>>> response = controller.getSuggestions(session);
+
+        assertEquals(200, response.getStatusCode().value());
+        assertNotNull(response.getBody());
+        assertEquals(2, response.getBody().get("names").size());
+        assertEquals("Running", response.getBody().get("names").get(0));
+        assertEquals("Swimming", response.getBody().get("names").get(1));
+        assertEquals(2, response.getBody().get("units").size());
+        assertEquals("km", response.getBody().get("units").get(0));
+        assertEquals("m", response.getBody().get("units").get(1));
+    }
+
+    @Test
+    void testGetSuggestionsEmpty() {
+        when(sportLogRepository.findDistinctNamesByUserId(testUser.getId()))
+                .thenReturn(List.of());
+        when(sportLogRepository.findDistinctMeasurementUnitsByUserId(testUser.getId()))
+                .thenReturn(List.of());
+
+        ResponseEntity<Map<String, List<String>>> response = controller.getSuggestions(session);
+
+        assertEquals(200, response.getStatusCode().value());
+        assertNotNull(response.getBody());
+        assertTrue(response.getBody().get("names").isEmpty());
+        assertTrue(response.getBody().get("units").isEmpty());
+    }
+
+    @Test
     void testGetGraphUnauthenticated() {
         MockHttpSession unauthSession = new MockHttpSession();
         ResponseEntity<Map<String, Object>> response = controller.getGraph(unauthSession);

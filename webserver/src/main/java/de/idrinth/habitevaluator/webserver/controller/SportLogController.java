@@ -36,6 +36,18 @@ public class SportLogController {
         this.sportLogService = sportLogService;
     }
 
+    @GetMapping("/suggestions")
+    public ResponseEntity<Map<String, List<String>>> getSuggestions(HttpSession session) {
+        String userId = (String) session.getAttribute("userId");
+        if (userId == null) {
+            return ResponseEntity.status(401).build();
+        }
+        Map<String, List<String>> suggestions = new HashMap<>();
+        suggestions.put("names", sportLogRepository.findDistinctNamesByUserId(userId));
+        suggestions.put("units", sportLogRepository.findDistinctMeasurementUnitsByUserId(userId));
+        return ResponseEntity.ok(suggestions);
+    }
+
     @GetMapping
     public ResponseEntity<List<SportLog>> getAllEntries(HttpSession session) {
         String userId = (String) session.getAttribute("userId");

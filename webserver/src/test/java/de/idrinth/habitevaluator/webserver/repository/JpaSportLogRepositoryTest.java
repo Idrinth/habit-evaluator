@@ -109,4 +109,66 @@ class JpaSportLogRepositoryTest {
 
         assertFalse(sportLogRepository.findById(saved.getId()).isPresent());
     }
+
+    @Test
+    void testFindDistinctNamesByUserId() {
+        SportLog log1 = new SportLog("Running", 5.0, "km",
+                LocalTime.of(7, 0), LocalTime.of(7, 45));
+        log1.setUser(testUser);
+        sportLogRepository.save(log1);
+
+        SportLog log2 = new SportLog("Swimming", 1.0, "km",
+                LocalTime.of(18, 0), LocalTime.of(19, 0));
+        log2.setUser(testUser);
+        sportLogRepository.save(log2);
+
+        SportLog log3 = new SportLog("Running", 3.0, "km",
+                LocalTime.of(8, 0), LocalTime.of(8, 30));
+        log3.setUser(testUser);
+        sportLogRepository.save(log3);
+
+        List<String> names = sportLogRepository.findDistinctNamesByUserId(testUser.getId());
+
+        assertEquals(2, names.size());
+        assertEquals("Running", names.get(0));
+        assertEquals("Swimming", names.get(1));
+    }
+
+    @Test
+    void testFindDistinctMeasurementUnitsByUserId() {
+        SportLog log1 = new SportLog("Running", 5.0, "km",
+                LocalTime.of(7, 0), LocalTime.of(7, 45));
+        log1.setUser(testUser);
+        sportLogRepository.save(log1);
+
+        SportLog log2 = new SportLog("Swimming", 1000, "m",
+                LocalTime.of(18, 0), LocalTime.of(19, 0));
+        log2.setUser(testUser);
+        sportLogRepository.save(log2);
+
+        SportLog log3 = new SportLog("Cycling", 20.0, "km",
+                LocalTime.of(8, 0), LocalTime.of(9, 0));
+        log3.setUser(testUser);
+        sportLogRepository.save(log3);
+
+        List<String> units = sportLogRepository.findDistinctMeasurementUnitsByUserId(testUser.getId());
+
+        assertEquals(2, units.size());
+        assertEquals("km", units.get(0));
+        assertEquals("m", units.get(1));
+    }
+
+    @Test
+    void testFindDistinctNamesByUserIdEmptyForOtherUser() {
+        SportLog log = new SportLog("Running", 5.0, "km",
+                LocalTime.of(7, 0), LocalTime.of(7, 45));
+        log.setUser(testUser);
+        sportLogRepository.save(log);
+
+        User otherUser = new User("othersportuser2", "password", "othersport2@example.com");
+        otherUser = userRepository.save(otherUser);
+
+        List<String> names = sportLogRepository.findDistinctNamesByUserId(otherUser.getId());
+        assertTrue(names.isEmpty());
+    }
 }

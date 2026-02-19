@@ -152,13 +152,15 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp">
 
-                    <com.google.android.material.textfield.TextInputEditText
+                    <AutoCompleteTextView
                         android:id="@+id/activityNameInput"
+                        style="@style/Widget.MaterialComponents.TextInputEditText.FilledBox"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:hint="@string/sport_log_activity_name"
                         android:inputType="text"
-                        android:maxLines="1" />
+                        android:maxLines="1"
+                        android:completionThreshold="1" />
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <LinearLayout
@@ -187,13 +189,15 @@
                         android:layout_weight="1"
                         android:layout_marginStart="8dp">
 
-                        <com.google.android.material.textfield.TextInputEditText
+                        <AutoCompleteTextView
                             android:id="@+id/measurementUnitInput"
+                            style="@style/Widget.MaterialComponents.TextInputEditText.FilledBox"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:hint="@string/sport_log_measurement_unit"
                             android:inputType="text"
-                            android:maxLines="1" />
+                            android:maxLines="1"
+                            android:completionThreshold="1" />
                     </com.google.android.material.textfield.TextInputLayout>
                 </LinearLayout>
 

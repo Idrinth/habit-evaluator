@@ -767,6 +767,22 @@ paths:
                   type: object
                   additionalProperties:
                     type: object
+  /api/sport-logs/suggestions:
+    get:
+      tags:
+      - sport-log-controller
+      operationId: getSuggestions
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: array
+                  items:
+                    type: string
   /api/sport-logs/stats:
     get:
       tags:
@@ -913,7 +929,7 @@ paths:
     get:
       tags:
       - food-log-controller
-      operationId: getSuggestions
+      operationId: getSuggestions_1
       responses:
         "200":
           description: OK
@@ -1005,7 +1021,7 @@ paths:
     get:
       tags:
       - diary-controller
-      operationId: getSuggestions_1
+      operationId: getSuggestions_2
       responses:
         "200":
           description: OK
