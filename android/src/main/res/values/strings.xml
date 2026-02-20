@@ -361,6 +361,7 @@
     <string name="medication_log_recent">Recent Entries</string>
     <string name="medication_log_delete">Delete</string>
     <string name="medication_log_toggle_form">Toggle add entry form</string>
+    <string name="medication_list_toggle_form">Toggle add medication form</string>
 
     <string name="medication_added">Medication added</string>
     <string name="medication_name_required">Please enter a medication name</string>

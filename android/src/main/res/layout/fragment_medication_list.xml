@@ -32,42 +32,66 @@
                 android:orientation="vertical"
                 android:padding="12dp">
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/medication_add_medication"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:layout_marginBottom="8dp" />
-
-                <EditText
-                    android:id="@+id/newMedicationNameInput"
+                <LinearLayout
+                    android:id="@+id/addEntryHeader"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="@string/medication_name_hint"
-                    android:inputType="text"
-                    android:layout_marginBottom="8dp" />
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
 
-                <EditText
-                    android:id="@+id/newMedicationWikipediaInput"
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/medication_add_medication"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+
+                    <ImageButton
+                        android:id="@+id/toggleFormButton"
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        android:src="@android:drawable/arrow_down_float"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:contentDescription="@string/medication_list_toggle_form" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/addEntryFormContainer"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="@string/medication_wikipedia_hint"
-                    android:inputType="textUri"
-                    android:layout_marginBottom="8dp" />
+                    android:orientation="vertical"
+                    android:visibility="gone">
 
-                <Spinner
-                    android:id="@+id/provisionTypeSpinner"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="8dp" />
+                    <EditText
+                        android:id="@+id/newMedicationNameInput"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="@string/medication_name_hint"
+                        android:inputType="text"
+                        android:layout_marginBottom="8dp" />
 
-                <Button
-                    android:id="@+id/addMedicationButton"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/medication_add_medication"
-                    style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
+                    <EditText
+                        android:id="@+id/newMedicationWikipediaInput"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="@string/medication_wikipedia_hint"
+                        android:inputType="textUri"
+                        android:layout_marginBottom="8dp" />
+
+                    <Spinner
+                        android:id="@+id/provisionTypeSpinner"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="8dp" />
+
+                    <Button
+                        android:id="@+id/addMedicationButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/medication_add_medication"
+                        style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
+                </LinearLayout>
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 

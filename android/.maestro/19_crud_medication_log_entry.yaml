@@ -19,10 +19,19 @@ name: "Add, display and delete a medication log entry"
 # Wait for MedicationListFragment to load
 - scrollUntilVisible:
     element:
-      id: "newMedicationNameInput"
+      id: "toggleFormButton"
     direction: DOWN
     timeout: 10000
 
+# Expand add medication form
+- tapOn:
+    id: "toggleFormButton"
+
+- scrollUntilVisible:
+    element:
+      id: "newMedicationNameInput"
+    direction: DOWN
+    timeout: 5000
 - tapOn:
     id: "newMedicationNameInput"
 - inputText: "TestMedication"
