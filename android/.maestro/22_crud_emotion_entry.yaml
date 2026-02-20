@@ -30,6 +30,12 @@ name: "Add, display and delete an emotion entry"
     id: "saveEmotionPairButton"
 
 # After saving, navigates back to Emotions page
+# Wait for the Emotions page to load
+- extendedWaitUntil:
+    visible:
+        id: "emotionalStateTitle"
+    timeout: 5000
+
 - scrollUntilVisible:
     element:
       text: "Anxious"

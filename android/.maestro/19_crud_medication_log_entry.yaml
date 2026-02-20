@@ -56,6 +56,12 @@ name: "Add, display and delete a medication log entry"
 - tapOn:
     id: "addMedicationButton"
 
+# Wait for the medication to appear in the list
+- extendedWaitUntil:
+    visible:
+        id: "deleteMedicationButton"
+    timeout: 5000
+
 # Verify medication was created
 - scrollUntilVisible:
     element:

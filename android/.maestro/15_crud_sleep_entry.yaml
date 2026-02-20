@@ -33,6 +33,12 @@ name: "Add, display and delete a sleep entry"
 - tapOn:
     id: "addSleepEntryButton"
 
+# Wait for the entry to appear in the list
+- extendedWaitUntil:
+    visible:
+        id: "sleepEntryDeleteButton"
+    timeout: 5000
+
 # Scroll to Recent Entries section and verify
 - scrollUntilVisible:
     element:

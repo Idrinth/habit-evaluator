@@ -85,6 +85,12 @@ name: "Add, display and delete a sport log entry"
 - tapOn:
     id: "addSportLogButton"
 
+# Wait for the entry to appear in the list
+- extendedWaitUntil:
+    visible:
+        id: "sportLogDeleteButton"
+    timeout: 5000
+
 # Verify entry appears in the list
 - scrollUntilVisible:
     element:

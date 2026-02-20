@@ -55,6 +55,12 @@ name: "Add, display and delete an emergency plan step"
 - tapOn:
     id: "addStepButton"
 
+# Wait for the step to appear in the list
+- extendedWaitUntil:
+    visible:
+        id: "deleteStepButton"
+    timeout: 5000
+
 # Verify step appears in the list
 - scrollUntilVisible:
     element:
