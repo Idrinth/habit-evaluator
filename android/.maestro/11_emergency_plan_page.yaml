@@ -22,6 +22,8 @@ name: "Emergency Plan page renders correctly"
 # Expand the add step form
 - tapOn:
     id: "toggleFormButton"
-- assertVisible:
-    id: "questionInput"
+- extendedWaitUntil:
+    visible:
+        id: "questionInput"
+    timeout: 5000
 - assertVisible: "Add Step"

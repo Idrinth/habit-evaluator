@@ -5,5 +5,8 @@ name: "First start dialog and home page"
     clearState: true
 - assertVisible: "Welcome to Habit Evaluator"
 - tapOn: "I understand"
-- assertVisible: "Home"
+- extendedWaitUntil:
+    visible:
+        text: "Home"
+    timeout: 5000
 - assertVisible: "Storage: Local"

@@ -36,7 +36,10 @@ name: "Add, display and delete a habit"
 - tapOn: "New category"
 
 # Category creation dialog appears
-- assertVisible: "Create New Category"
+- extendedWaitUntil:
+    visible:
+        text: "Create New Category"
+    timeout: 5000
 - inputText: "Test Category"
 - tapOn: "OK"
 
@@ -52,12 +55,18 @@ name: "Add, display and delete a habit"
 
 # After saving, navigates back to Home
 # Verify habit appears in the list
-- assertVisible: "Maestro Test Habit"
+- extendedWaitUntil:
+    visible:
+        text: "Maestro Test Habit"
+    timeout: 5000
 
 # Delete the habit (has confirmation dialog)
 - tapOn:
     id: "deleteHabitButton"
-- assertVisible: "Delete Habit"
+- extendedWaitUntil:
+    visible:
+        text: "Delete Habit"
+    timeout: 5000
 - tapOn: "OK"
 
 # Verify habit is removed
