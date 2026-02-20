@@ -31,6 +31,12 @@ name: "Add, display and delete a medication log entry"
 - tapOn:
     id: "toggleFormButton"
 
+# Wait for form to render before scrolling
+- extendedWaitUntil:
+    visible:
+        id: "newMedicationNameInput"
+    timeout: 5000
+
 - scrollUntilVisible:
     element:
       id: "newMedicationNameInput"
@@ -83,6 +89,12 @@ name: "Add, display and delete a medication log entry"
 # Expand add entry form
 - tapOn:
     id: "toggleFormButton"
+
+# Wait for form to render before scrolling
+- extendedWaitUntil:
+    visible:
+        id: "medicationAmountInput"
+    timeout: 5000
 
 # Medication spinner auto-selects the first medication (TestMedication)
 # Fill amount (required)

@@ -17,6 +17,12 @@ name: "Add, display and delete an emergency plan step"
 - tapOn:
     id: "toggleFormButton"
 
+# Wait for form to render before scrolling
+- extendedWaitUntil:
+    visible:
+        id: "questionInput"
+    timeout: 5000
+
 # Fill question (required)
 - scrollUntilVisible:
     element:

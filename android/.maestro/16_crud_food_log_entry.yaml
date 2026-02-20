@@ -26,6 +26,12 @@ name: "Add, display and delete a food log entry"
 - tapOn:
     id: "toggleFormButton"
 
+# Wait for form to render before scrolling
+- extendedWaitUntil:
+    visible:
+        id: "foodItemsInput"
+    timeout: 5000
+
 # Fill food items (required)
 - scrollUntilVisible:
     element:
