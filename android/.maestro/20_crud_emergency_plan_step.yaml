@@ -8,7 +8,10 @@ name: "Add, display and delete an emergency plan step"
 
 # Navigate to Emergency tab
 - tapOn: "Emergency"
-- assertVisible: "Emergency Plan"
+- extendedWaitUntil:
+    visible:
+        text: "Emergency Plan"
+    timeout: 5000
 
 # Expand add step form
 - tapOn:

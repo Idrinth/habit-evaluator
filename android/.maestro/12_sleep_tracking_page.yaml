@@ -10,9 +10,12 @@ name: "Sleep Tracking page renders all elements"
 - tapOn:
     text: "Sleep"
     index: 0
+- extendedWaitUntil:
+    visible:
+        text: "Sleep Tracking"
+    timeout: 5000
 
 # Verify page content
-- assertVisible: "Sleep Tracking"
 - assertVisible:
     id: "sleepDateInput"
 - assertVisible:

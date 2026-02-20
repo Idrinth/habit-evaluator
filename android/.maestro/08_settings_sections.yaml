@@ -9,9 +9,12 @@ name: "Settings page renders all sections"
 # Navigate to Settings
 - tapOn:
     id: "settingsButton"
+- extendedWaitUntil:
+    visible:
+        text: "Storage Settings"
+    timeout: 5000
 
 # Verify storage section
-- assertVisible: "Storage Settings"
 - assertVisible: "Local (on device)"
 
 # Verify theme section

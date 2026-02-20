@@ -8,9 +8,16 @@ name: "Add, display and delete an emotion entry"
 
 # First, create an emotion pair (prerequisite)
 - tapOn: "Emotions"
+- extendedWaitUntil:
+    visible:
+        id: "addEmotionPairButton"
+    timeout: 5000
 - tapOn:
     id: "addEmotionPairButton"
-- assertVisible: "Add Emotion Pair"
+- extendedWaitUntil:
+    visible:
+        text: "Add Emotion Pair"
+    timeout: 5000
 - tapOn:
     id: "negativeLabelInput"
 - inputText: "Anxious"
@@ -34,7 +41,10 @@ name: "Add, display and delete an emotion entry"
     id: "addEmotionEntryButton"
 
 # Now on Record Emotion page
-- assertVisible: "Record Emotion"
+- extendedWaitUntil:
+    visible:
+        text: "Record Emotion"
+    timeout: 5000
 
 # Slider defaults to 0 (neutral), just tap Record
 - tapOn:
@@ -42,6 +52,10 @@ name: "Add, display and delete an emotion entry"
 
 # After recording, navigates back to Emotions page
 # Expand entries for the pair
+- extendedWaitUntil:
+    visible:
+        id: "expandCollapseButton"
+    timeout: 5000
 - tapOn:
     id: "expandCollapseButton"
 

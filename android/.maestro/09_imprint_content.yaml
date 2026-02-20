@@ -9,9 +9,12 @@ name: "Imprint page renders all sections"
 # Navigate to Imprint
 - tapOn:
     id: "imprintButton"
+- extendedWaitUntil:
+    visible:
+        text: "Project legal"
+    timeout: 5000
 
 # Verify content sections
-- assertVisible: "Project legal"
 
 - scrollUntilVisible:
     element:

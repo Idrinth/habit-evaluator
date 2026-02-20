@@ -8,6 +8,10 @@ name: "Add, display and delete a medication"
 
 # Navigate to Diary > Medication List
 - tapOn: "Diary"
+- extendedWaitUntil:
+    visible:
+        text: "Positive Events"
+    timeout: 5000
 - scrollUntilVisible:
     element:
       id: "medicationListCard"

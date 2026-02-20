@@ -8,6 +8,10 @@ name: "Add, display and delete a sport log entry"
 
 # Navigate to Diary > Sport Log
 - tapOn: "Diary"
+- extendedWaitUntil:
+    visible:
+        id: "sportLogCard"
+    timeout: 5000
 - tapOn:
     id: "sportLogCard"
 

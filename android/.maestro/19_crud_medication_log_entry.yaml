@@ -8,6 +8,10 @@ name: "Add, display and delete a medication log entry"
 
 # First, create a medication (prerequisite)
 - tapOn: "Diary"
+- extendedWaitUntil:
+    visible:
+        text: "Positive Events"
+    timeout: 5000
 - scrollUntilVisible:
     element:
       id: "medicationListCard"
@@ -55,6 +59,10 @@ name: "Add, display and delete a medication log entry"
 
 # Navigate back to Diary hub
 - tapOn: "Diary"
+- extendedWaitUntil:
+    visible:
+        text: "Positive Events"
+    timeout: 5000
 
 # Navigate to Medication Log
 - scrollUntilVisible:

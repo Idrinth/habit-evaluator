@@ -10,9 +10,15 @@ name: "Sleep Analysis page is reachable"
 - tapOn:
     text: "Sleep"
     index: 0
-- assertVisible: "Sleep Tracking"
+- extendedWaitUntil:
+    visible:
+        text: "Sleep Tracking"
+    timeout: 5000
 
 # Tap View Analysis button
 - tapOn:
     id: "viewAnalysisButton"
-- assertVisible: "Sleep Analysis"
+- extendedWaitUntil:
+    visible:
+        text: "Sleep Analysis"
+    timeout: 5000
