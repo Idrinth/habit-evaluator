@@ -10,6 +10,7 @@ import de.idrinth.habitevaluator.shared.repository.HabitRepository;
 import de.idrinth.habitevaluator.shared.repository.UserRepository;
 import de.idrinth.habitevaluator.shared.service.HabitEvaluatorService;
 import de.idrinth.habitevaluator.shared.service.HabitScoringService;
+import de.idrinth.habitevaluator.webserver.service.StatsCacheService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -33,15 +34,18 @@ public class HabitController {
     private final UserRepository userRepository;
     private final HabitEvaluatorService evaluatorService;
     private final HabitScoringService scoringService;
+    private final StatsCacheService statsCacheService;
 
     public HabitController(HabitRepository habitRepository, HabitCategoryRepository habitCategoryRepository,
                            UserRepository userRepository,
-                           HabitEvaluatorService evaluatorService, HabitScoringService scoringService) {
+                           HabitEvaluatorService evaluatorService, HabitScoringService scoringService,
+                           StatsCacheService statsCacheService) {
         this.habitRepository = habitRepository;
         this.habitCategoryRepository = habitCategoryRepository;
         this.userRepository = userRepository;
         this.evaluatorService = evaluatorService;
         this.scoringService = scoringService;
+        this.statsCacheService = statsCacheService;
     }
 
     @GetMapping
@@ -76,7 +80,9 @@ public class HabitController {
             return ResponseEntity.status(401).build();
         }
         habit.setUser(userOpt.get());
-        return ResponseEntity.ok(habitRepository.save(habit));
+        Habit saved = habitRepository.save(habit);
+        statsCacheService.invalidateUser(userId);
+        return ResponseEntity.ok(saved);
     }
 
     @PutMapping("/{id}")
@@ -95,7 +101,9 @@ public class HabitController {
         }
         habit.setId(id);
         habit.setUser(existing.getUser());
-        return ResponseEntity.ok(habitRepository.save(habit));
+        Habit saved = habitRepository.save(habit);
+        statsCacheService.invalidateUser(userId);
+        return ResponseEntity.ok(saved);
     }
 
     @DeleteMapping("/{id}")
@@ -121,6 +129,7 @@ public class HabitController {
                 habitCategoryRepository.deleteById(categoryId);
             }
         }
+        statsCacheService.invalidateUser(userId);
         return ResponseEntity.noContent().build();
     }
 
@@ -138,6 +147,7 @@ public class HabitController {
                     }
                     habit.addEntry(entry);
                     habitRepository.save(habit);
+                    statsCacheService.invalidateUser(userId);
                     return ResponseEntity.ok(entry);
                 })
                 .orElse(ResponseEntity.notFound().build());
@@ -156,6 +166,7 @@ public class HabitController {
                 .map(habit -> {
                     if (habit.removeLastEntryForDate(date)) {
                         habitRepository.save(habit);
+                        statsCacheService.invalidateUser(userId);
                         return ResponseEntity.noContent().<Void>build();
                     }
                     return ResponseEntity.notFound().<Void>build();

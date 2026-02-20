@@ -6,6 +6,7 @@ import de.idrinth.habitevaluator.shared.model.User;
 import de.idrinth.habitevaluator.shared.repository.FoodLogRepository;
 import de.idrinth.habitevaluator.shared.repository.FoodTagRepository;
 import de.idrinth.habitevaluator.shared.repository.UserRepository;
+import de.idrinth.habitevaluator.webserver.service.StatsCacheService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,13 +24,16 @@ public class FoodLogController {
     private final FoodLogRepository foodLogRepository;
     private final FoodTagRepository foodTagRepository;
     private final UserRepository userRepository;
+    private final StatsCacheService statsCacheService;
 
     public FoodLogController(FoodLogRepository foodLogRepository,
                              FoodTagRepository foodTagRepository,
-                             UserRepository userRepository) {
+                             UserRepository userRepository,
+                             StatsCacheService statsCacheService) {
         this.foodLogRepository = foodLogRepository;
         this.foodTagRepository = foodTagRepository;
         this.userRepository = userRepository;
+        this.statsCacheService = statsCacheService;
     }
 
     @GetMapping
@@ -54,7 +58,9 @@ public class FoodLogController {
         User user = userOpt.get();
         entry.setUser(user);
         entry.setTags(resolveTagsFromFoodItems(entry, user));
-        return ResponseEntity.ok(foodLogRepository.save(entry));
+        FoodLog saved = foodLogRepository.save(entry);
+        statsCacheService.invalidateUser(userId);
+        return ResponseEntity.ok(saved);
     }
 
     @DeleteMapping("/{id}")
@@ -72,6 +78,7 @@ public class FoodLogController {
             return ResponseEntity.notFound().build();
         }
         foodLogRepository.deleteById(id);
+        statsCacheService.invalidateUser(userId);
         return ResponseEntity.noContent().build();
     }
 
@@ -108,6 +115,7 @@ public class FoodLogController {
                 foodLogRepository.save(entry);
             }
         }
+        statsCacheService.invalidateUser(userId);
         return ResponseEntity.noContent().build();
     }
 

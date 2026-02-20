@@ -7,6 +7,7 @@ import de.idrinth.habitevaluator.shared.model.User;
 import de.idrinth.habitevaluator.shared.repository.MedicationLogRepository;
 import de.idrinth.habitevaluator.shared.repository.MedicationRepository;
 import de.idrinth.habitevaluator.shared.repository.UserRepository;
+import de.idrinth.habitevaluator.webserver.service.StatsCacheService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.ResponseEntity;
@@ -25,6 +26,7 @@ class MedicationControllerTest {
     private MedicationRepository medicationRepository;
     private MedicationLogRepository medicationLogRepository;
     private UserRepository userRepository;
+    private StatsCacheService statsCacheService;
     private MedicationController controller;
     private MockHttpSession session;
     private User testUser;
@@ -34,7 +36,8 @@ class MedicationControllerTest {
         medicationRepository = mock(MedicationRepository.class);
         medicationLogRepository = mock(MedicationLogRepository.class);
         userRepository = mock(UserRepository.class);
-        controller = new MedicationController(medicationRepository, medicationLogRepository, userRepository);
+        statsCacheService = mock(StatsCacheService.class);
+        controller = new MedicationController(medicationRepository, medicationLogRepository, userRepository, statsCacheService);
         session = new MockHttpSession();
         testUser = new User("testuser", "password");
         session.setAttribute("userId", testUser.getId());

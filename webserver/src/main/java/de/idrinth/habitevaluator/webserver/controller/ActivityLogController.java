@@ -4,6 +4,7 @@ import de.idrinth.habitevaluator.shared.model.ActivityLog;
 import de.idrinth.habitevaluator.shared.model.User;
 import de.idrinth.habitevaluator.shared.repository.ActivityLogRepository;
 import de.idrinth.habitevaluator.shared.repository.UserRepository;
+import de.idrinth.habitevaluator.webserver.service.StatsCacheService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,11 +18,14 @@ public class ActivityLogController {
 
     private final ActivityLogRepository activityLogRepository;
     private final UserRepository userRepository;
+    private final StatsCacheService statsCacheService;
 
     public ActivityLogController(ActivityLogRepository activityLogRepository,
-                                 UserRepository userRepository) {
+                                 UserRepository userRepository,
+                                 StatsCacheService statsCacheService) {
         this.activityLogRepository = activityLogRepository;
         this.userRepository = userRepository;
+        this.statsCacheService = statsCacheService;
     }
 
     @GetMapping
@@ -44,7 +48,9 @@ public class ActivityLogController {
             return ResponseEntity.status(401).build();
         }
         entry.setUser(userOpt.get());
-        return ResponseEntity.ok(activityLogRepository.save(entry));
+        ActivityLog saved = activityLogRepository.save(entry);
+        statsCacheService.invalidateUser(userId);
+        return ResponseEntity.ok(saved);
     }
 
     @PutMapping("/{id}")
@@ -82,6 +88,7 @@ public class ActivityLogController {
             return ResponseEntity.notFound().build();
         }
         activityLogRepository.deleteById(id);
+        statsCacheService.invalidateUser(userId);
         return ResponseEntity.noContent().build();
     }
 }

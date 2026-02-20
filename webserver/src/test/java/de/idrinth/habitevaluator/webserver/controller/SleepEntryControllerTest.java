@@ -7,6 +7,7 @@ import de.idrinth.habitevaluator.shared.model.User;
 import de.idrinth.habitevaluator.shared.repository.SleepEntryRepository;
 import de.idrinth.habitevaluator.shared.repository.UserRepository;
 import de.idrinth.habitevaluator.shared.service.SleepEvaluationService;
+import de.idrinth.habitevaluator.webserver.service.StatsCacheService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.ResponseEntity;
@@ -29,6 +30,7 @@ class SleepEntryControllerTest {
     private SleepEntryRepository sleepEntryRepository;
     private UserRepository userRepository;
     private SleepEvaluationService sleepEvaluationService;
+    private StatsCacheService statsCacheService;
     private SleepEntryController controller;
     private MockHttpSession session;
     private User testUser;
@@ -38,7 +40,8 @@ class SleepEntryControllerTest {
         sleepEntryRepository = mock(SleepEntryRepository.class);
         userRepository = mock(UserRepository.class);
         sleepEvaluationService = mock(SleepEvaluationService.class);
-        controller = new SleepEntryController(sleepEntryRepository, userRepository, sleepEvaluationService);
+        statsCacheService = mock(StatsCacheService.class);
+        controller = new SleepEntryController(sleepEntryRepository, userRepository, sleepEvaluationService, statsCacheService);
         session = new MockHttpSession();
         testUser = new User("testuser", "password");
         session.setAttribute("userId", testUser.getId());

@@ -23,6 +23,7 @@ import de.idrinth.habitevaluator.shared.repository.SportLogRepository;
 import de.idrinth.habitevaluator.shared.service.DiaryService;
 import de.idrinth.habitevaluator.shared.service.EventCorrelationService;
 import de.idrinth.habitevaluator.shared.service.HabitScoringService;
+import de.idrinth.habitevaluator.webserver.service.StatsCacheService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.ResponseEntity;
@@ -54,6 +55,7 @@ class StatsControllerTest {
     private HabitScoringService scoringService;
     private DiaryService diaryService;
     private EventCorrelationService correlationService;
+    private StatsCacheService statsCacheService;
     private StatsController controller;
     private MockHttpSession session;
     private User testUser;
@@ -73,10 +75,11 @@ class StatsControllerTest {
         scoringService = mock(HabitScoringService.class);
         diaryService = mock(DiaryService.class);
         correlationService = mock(EventCorrelationService.class);
+        statsCacheService = new StatsCacheService(60_000L);
         controller = new StatsController(habitRepository, sleepEntryRepository, diaryEntryRepository,
                 emotionEntryRepository, habitCategoryRepository, sportLogRepository, foodLogRepository,
                 meetingEntryRepository, activityLogRepository, medicationLogRepository,
-                scoringService, diaryService, correlationService);
+                scoringService, diaryService, correlationService, statsCacheService);
         session = new MockHttpSession();
         testUser = new User("testuser", "password");
         session.setAttribute("userId", testUser.getId());

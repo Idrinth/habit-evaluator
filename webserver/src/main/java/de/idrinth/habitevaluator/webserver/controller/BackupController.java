@@ -21,6 +21,7 @@ import de.idrinth.habitevaluator.shared.repository.ReminderSettingsRepository;
 import de.idrinth.habitevaluator.shared.repository.SleepEntryRepository;
 import de.idrinth.habitevaluator.shared.repository.SportLogRepository;
 import de.idrinth.habitevaluator.shared.repository.UserRepository;
+import de.idrinth.habitevaluator.webserver.service.StatsCacheService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -60,6 +61,7 @@ public class BackupController {
     private final MedicationRepository medicationRepository;
     private final MedicationLogRepository medicationLogRepository;
     private final ModuleVisibilityRepository moduleVisibilityRepository;
+    private final StatsCacheService statsCacheService;
     private final HezBackupService hezBackupService;
 
     public BackupController(HabitRepository habitRepository,
@@ -77,7 +79,8 @@ public class BackupController {
                             ActivityLogRepository activityLogRepository,
                             MedicationRepository medicationRepository,
                             MedicationLogRepository medicationLogRepository,
-                            ModuleVisibilityRepository moduleVisibilityRepository) {
+                            ModuleVisibilityRepository moduleVisibilityRepository,
+                            StatsCacheService statsCacheService) {
         this.habitRepository = habitRepository;
         this.categoryRepository = categoryRepository;
         this.diaryEntryRepository = diaryEntryRepository;
@@ -94,6 +97,7 @@ public class BackupController {
         this.medicationRepository = medicationRepository;
         this.medicationLogRepository = medicationLogRepository;
         this.moduleVisibilityRepository = moduleVisibilityRepository;
+        this.statsCacheService = statsCacheService;
         this.hezBackupService = new HezBackupService();
     }
 
@@ -221,6 +225,7 @@ public class BackupController {
             response.put("medicationLogsAdded", result.getMedicationLogsAdded());
             response.put("reminderSettingsRestored", result.isReminderSettingsRestored());
             response.put("moduleVisibilityRestored", result.isModuleVisibilityRestored());
+            statsCacheService.invalidateUser(userId);
             return ResponseEntity.ok(response);
         } catch (BackupException e) {
             return ResponseEntity.badRequest()

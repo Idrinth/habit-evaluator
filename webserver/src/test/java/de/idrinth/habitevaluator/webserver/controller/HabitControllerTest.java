@@ -11,6 +11,7 @@ import de.idrinth.habitevaluator.shared.repository.HabitRepository;
 import de.idrinth.habitevaluator.shared.repository.UserRepository;
 import de.idrinth.habitevaluator.shared.service.HabitEvaluatorService;
 import de.idrinth.habitevaluator.shared.service.HabitScoringService;
+import de.idrinth.habitevaluator.webserver.service.StatsCacheService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.ResponseEntity;
@@ -34,6 +35,7 @@ class HabitControllerTest {
     private UserRepository userRepository;
     private HabitEvaluatorService evaluatorService;
     private HabitScoringService scoringService;
+    private StatsCacheService statsCacheService;
     private HabitController controller;
     private MockHttpSession session;
     private User testUser;
@@ -45,7 +47,8 @@ class HabitControllerTest {
         userRepository = mock(UserRepository.class);
         evaluatorService = mock(HabitEvaluatorService.class);
         scoringService = mock(HabitScoringService.class);
-        controller = new HabitController(habitRepository, habitCategoryRepository, userRepository, evaluatorService, scoringService);
+        statsCacheService = mock(StatsCacheService.class);
+        controller = new HabitController(habitRepository, habitCategoryRepository, userRepository, evaluatorService, scoringService, statsCacheService);
         session = new MockHttpSession();
         testUser = new User("testuser", "password");
         session.setAttribute("userId", testUser.getId());

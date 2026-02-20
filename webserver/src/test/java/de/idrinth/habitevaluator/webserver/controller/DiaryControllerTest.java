@@ -8,6 +8,7 @@ import de.idrinth.habitevaluator.shared.repository.DiaryEntryRepository;
 import de.idrinth.habitevaluator.shared.repository.DiaryReferenceRepository;
 import de.idrinth.habitevaluator.shared.repository.UserRepository;
 import de.idrinth.habitevaluator.shared.service.DiaryService;
+import de.idrinth.habitevaluator.webserver.service.StatsCacheService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.ResponseEntity;
@@ -31,6 +32,7 @@ class DiaryControllerTest {
     private DiaryReferenceRepository diaryReferenceRepository;
     private UserRepository userRepository;
     private DiaryService diaryService;
+    private StatsCacheService statsCacheService;
     private DiaryController controller;
     private MockHttpSession session;
     private User testUser;
@@ -41,7 +43,8 @@ class DiaryControllerTest {
         diaryReferenceRepository = mock(DiaryReferenceRepository.class);
         userRepository = mock(UserRepository.class);
         diaryService = mock(DiaryService.class);
-        controller = new DiaryController(diaryEntryRepository, diaryReferenceRepository, userRepository, diaryService);
+        statsCacheService = mock(StatsCacheService.class);
+        controller = new DiaryController(diaryEntryRepository, diaryReferenceRepository, userRepository, diaryService, statsCacheService);
         session = new MockHttpSession();
         testUser = new User("testuser", "password");
         session.setAttribute("userId", testUser.getId());

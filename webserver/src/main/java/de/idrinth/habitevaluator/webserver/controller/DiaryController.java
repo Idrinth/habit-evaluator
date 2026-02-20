@@ -7,6 +7,7 @@ import de.idrinth.habitevaluator.shared.repository.DiaryEntryRepository;
 import de.idrinth.habitevaluator.shared.repository.DiaryReferenceRepository;
 import de.idrinth.habitevaluator.shared.repository.UserRepository;
 import de.idrinth.habitevaluator.shared.service.DiaryService;
+import de.idrinth.habitevaluator.webserver.service.StatsCacheService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,15 +26,18 @@ public class DiaryController {
     private final DiaryReferenceRepository diaryReferenceRepository;
     private final UserRepository userRepository;
     private final DiaryService diaryService;
+    private final StatsCacheService statsCacheService;
 
     public DiaryController(DiaryEntryRepository diaryEntryRepository,
                            DiaryReferenceRepository diaryReferenceRepository,
                            UserRepository userRepository,
-                           DiaryService diaryService) {
+                           DiaryService diaryService,
+                           StatsCacheService statsCacheService) {
         this.diaryEntryRepository = diaryEntryRepository;
         this.diaryReferenceRepository = diaryReferenceRepository;
         this.userRepository = userRepository;
         this.diaryService = diaryService;
+        this.statsCacheService = statsCacheService;
     }
 
     /**
@@ -94,7 +98,9 @@ public class DiaryController {
             entry.setLegacyDescription(null);
         }
 
-        return ResponseEntity.ok(diaryEntryRepository.save(entry));
+        DiaryEntry saved = diaryEntryRepository.save(entry);
+        statsCacheService.invalidateUser(userId);
+        return ResponseEntity.ok(saved);
     }
 
     @DeleteMapping("/{id}")
@@ -112,6 +118,7 @@ public class DiaryController {
             return ResponseEntity.notFound().build();
         }
         diaryEntryRepository.deleteById(id);
+        statsCacheService.invalidateUser(userId);
         return ResponseEntity.noContent().build();
     }
 

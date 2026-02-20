@@ -6,6 +6,7 @@ import de.idrinth.habitevaluator.shared.model.HabitEntry;
 import de.idrinth.habitevaluator.shared.model.User;
 import de.idrinth.habitevaluator.shared.repository.HabitRepository;
 import de.idrinth.habitevaluator.shared.repository.UserRepository;
+import de.idrinth.habitevaluator.webserver.service.StatsCacheService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -31,10 +32,13 @@ public class SyncController {
 
     private final HabitRepository habitRepository;
     private final UserRepository userRepository;
+    private final StatsCacheService statsCacheService;
 
-    public SyncController(HabitRepository habitRepository, UserRepository userRepository) {
+    public SyncController(HabitRepository habitRepository, UserRepository userRepository,
+                          StatsCacheService statsCacheService) {
         this.habitRepository = habitRepository;
         this.userRepository = userRepository;
+        this.statsCacheService = statsCacheService;
     }
 
     @PostMapping
@@ -54,6 +58,7 @@ public class SyncController {
         List<Habit> clientHabits = incoming.getHabits();
 
         List<Habit> merged = merge(serverHabits, clientHabits, user);
+        statsCacheService.invalidateUser(userId);
 
         return ResponseEntity.ok(new SyncData(merged));
     }
