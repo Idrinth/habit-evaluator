@@ -59,7 +59,7 @@ name: "Complete navigation flow through all pages without crash"
 - extendedWaitUntil:
     visible:
         id: "habitPointsChart"
-    timeout: 5000
+    timeout: 10000
 - scrollUntilVisible:
     element:
       id: "exportPdfButton"

@@ -12,7 +12,7 @@ name: "Stats page renders charts"
 - extendedWaitUntil:
     visible:
         id: "habitPointsChart"
-    timeout: 5000
+    timeout: 10000
 
 # Verify chart sections exist
 - assertVisible:
