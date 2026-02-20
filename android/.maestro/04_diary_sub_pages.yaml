@@ -13,9 +13,11 @@ name: "Diary navigation cards lead to sub-pages"
 # Positive Events sub-page
 - tapOn:
     id: "positivityDiaryCard"
+- extendedWaitUntil:
+    visible:
+        id: "diaryEntriesRecyclerView"
+    timeout: 5000
 - assertVisible: "Positive Events"
-- assertVisible:
-    id: "diaryEntriesRecyclerView"
 
 # Back to Diary hub
 - tapOn: "Diary"
