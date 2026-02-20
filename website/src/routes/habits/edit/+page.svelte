@@ -132,8 +132,8 @@
 
 			try {
 				await habits.update(eh.id, {
-					name: original.name,
-					description: original.description,
+					name: eh.name,
+					description: eh.description,
 					categoryId: original.categoryId,
 					frequencyType: original.frequencyType,
 					targetFrequency: eh.targetFrequency,
@@ -188,10 +188,17 @@
 						{#each group.habits as habit (habit.id)}
 							<div class="habit-card">
 								<div class="habit-header">
-									<span class="habit-name">{habit.name}</span>
-									{#if habit.description}
-										<span class="habit-description">{habit.description}</span>
-									{/if}
+									<input
+										type="text"
+										class="habit-name-input"
+										bind:value={habit.name}
+									/>
+									<input
+										type="text"
+										class="habit-description-input"
+										placeholder="Description (optional)"
+										bind:value={habit.description}
+									/>
 								</div>
 								<div class="habit-fields">
 									<label class="field">
@@ -288,15 +295,24 @@
 		margin-bottom: 0.5rem;
 	}
 
-	.habit-name {
+	.habit-name-input {
 		font-weight: bold;
 		color: var(--color-text);
+		font-size: 1rem;
+		border: 1px solid var(--color-border-light);
+		border-radius: 3px;
+		padding: 0.25rem 0.4rem;
+		width: 100%;
 	}
 
-	.habit-description {
+	.habit-description-input {
 		font-size: 0.85rem;
 		color: var(--color-text-muted);
 		margin-top: 0.15rem;
+		border: 1px solid var(--color-border-light);
+		border-radius: 3px;
+		padding: 0.25rem 0.4rem;
+		width: 100%;
 	}
 
 	.habit-fields {

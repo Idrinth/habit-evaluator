@@ -116,6 +116,18 @@ public class EditHabitsFragment extends Fragment {
             }
             boolean changed = false;
 
+            if (values.name != null && !values.name.trim().isEmpty()
+                    && !values.name.equals(habit.getName())) {
+                habit.setName(values.name);
+                changed = true;
+            }
+            String newDesc = values.description;
+            String oldDesc = habit.getDescription();
+            if (newDesc == null && oldDesc != null || newDesc != null && !newDesc.equals(oldDesc)) {
+                habit.setDescription(newDesc);
+                changed = true;
+            }
+
             if (values.categoryId != null && !values.categoryId.equals(habit.getCategoryId())) {
                 habit.setCategoryId(values.categoryId);
                 changed = true;
