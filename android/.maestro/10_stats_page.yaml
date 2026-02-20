@@ -9,6 +9,10 @@ name: "Stats page renders charts"
 # Navigate to Stats
 - tapOn:
     id: "statsButton"
+- extendedWaitUntil:
+    visible:
+        id: "habitPointsChart"
+    timeout: 5000
 
 # Verify chart sections exist
 - assertVisible:

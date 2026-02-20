@@ -45,6 +45,10 @@ name: "Complete navigation flow through all pages without crash"
 # Stats
 - tapOn:
     id: "statsButton"
+- extendedWaitUntil:
+    visible:
+        id: "habitPointsChart"
+    timeout: 5000
 - scrollUntilVisible:
     element:
       id: "exportPdfButton"
@@ -101,6 +105,10 @@ name: "Complete navigation flow through all pages without crash"
     id: "medicationLogCard"
 - assertVisible: "Medication Log"
 - tapOn: "Diary"
+- extendedWaitUntil:
+    visible:
+        id: "positivityDiaryCard"
+    timeout: 5000
 
 # Medication List
 - scrollUntilVisible:
@@ -120,6 +128,10 @@ name: "Complete navigation flow through all pages without crash"
     id: "addHabitButton"
 - tapOn:
     id: "addHabitButton"
+- extendedWaitUntil:
+    visible:
+        id: "habitNameInput"
+    timeout: 5000
 - scrollUntilVisible:
     element:
       text: "Add Habit"

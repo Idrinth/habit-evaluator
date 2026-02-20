@@ -47,6 +47,10 @@ name: "Diary navigation cards lead to sub-pages"
 
 # Back to Diary hub
 - tapOn: "Diary"
+- extendedWaitUntil:
+    visible:
+        id: "positivityDiaryCard"
+    timeout: 5000
 
 # Medication List sub-page
 - scrollUntilVisible:
@@ -60,6 +64,10 @@ name: "Diary navigation cards lead to sub-pages"
 
 # Back to Diary hub
 - tapOn: "Diary"
+- extendedWaitUntil:
+    visible:
+        id: "positivityDiaryCard"
+    timeout: 5000
 
 # Activity Log sub-page
 - scrollUntilVisible:

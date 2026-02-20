@@ -12,6 +12,10 @@ name: "Add, display and delete a habit"
     id: "addHabitButton"
 
 # Wait for Add Habit form
+- extendedWaitUntil:
+    visible:
+        id: "habitNameInput"
+    timeout: 5000
 - scrollUntilVisible:
     element:
       text: "Add Habit"
