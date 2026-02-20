@@ -191,6 +191,8 @@ public class MainController {
     @FXML
     private VBox diaryEntriesContainer;
 
+    private final Map<String, TextField> editNameFields = new HashMap<>();
+    private final Map<String, TextField> editDescriptionFields = new HashMap<>();
     private final Map<String, TextField> editTargetFields = new HashMap<>();
     private final Map<String, TextField> editMaxEntriesFields = new HashMap<>();
     private final Map<String, CheckBox> editPositiveScoringBoxes = new HashMap<>();
@@ -910,6 +912,8 @@ public class MainController {
 
     private void refreshEditHabits() {
         editHabitsContainer.getChildren().clear();
+        editNameFields.clear();
+        editDescriptionFields.clear();
         editTargetFields.clear();
         editMaxEntriesFields.clear();
         editPositiveScoringBoxes.clear();
@@ -930,16 +934,18 @@ public class MainController {
             VBox habitBox = new VBox(4);
             habitBox.setStyle("-fx-border-color: #444; -fx-border-radius: 4; -fx-padding: 8; -fx-background-color: #333; -fx-background-radius: 4;");
 
-            Label nameLabel = new Label(habit.getName());
-            nameLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 13px;");
+            TextField nameField = new TextField(habit.getName());
+            nameField.setStyle("-fx-font-weight: bold; -fx-font-size: 13px;");
+            nameField.setPromptText("Habit Name");
 
-            if (habit.getDescription() != null && !habit.getDescription().isEmpty()) {
-                Label descLabel = new Label(habit.getDescription());
-                descLabel.setStyle("-fx-font-size: 11px; -fx-text-fill: #888;");
-                habitBox.getChildren().addAll(nameLabel, descLabel);
-            } else {
-                habitBox.getChildren().add(nameLabel);
-            }
+            TextField descField = new TextField(habit.getDescription() != null ? habit.getDescription() : "");
+            descField.setStyle("-fx-font-size: 11px;");
+            descField.setPromptText("Description (optional)");
+
+            habitBox.getChildren().addAll(nameField, descField);
+
+            editNameFields.put(habit.getId(), nameField);
+            editDescriptionFields.put(habit.getId(), descField);
 
             // Target and max/day row
             TextField targetField = new TextField(String.valueOf(habit.getTargetFrequency()));
@@ -1007,23 +1013,23 @@ public class MainController {
                     String lang = TRANSLATION_LANGUAGES[i];
                     String label = TRANSLATION_LANGUAGE_LABELS[i];
 
-                    TextField nameField = new TextField(
+                    TextField transNameField = new TextField(
                             habit.getNameTranslations().getOrDefault(lang, ""));
-                    nameField.setPrefWidth(150);
-                    nameField.setPromptText("Name (" + label + ")");
+                    transNameField.setPrefWidth(150);
+                    transNameField.setPromptText("Name (" + label + ")");
 
-                    TextField descField = new TextField(
+                    TextField transDescField = new TextField(
                             habit.getDescriptionTranslations().getOrDefault(lang, ""));
-                    descField.setPrefWidth(200);
-                    descField.setPromptText("Description (" + label + ")");
+                    transDescField.setPrefWidth(200);
+                    transDescField.setPromptText("Description (" + label + ")");
 
                     HBox translationRow = new HBox(6,
-                            new Label(label + ":"), nameField, descField);
+                            new Label(label + ":"), transNameField, transDescField);
                     translationRow.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
                     habitBox.getChildren().add(translationRow);
 
-                    nameFields.put(lang, nameField);
-                    descFields.put(lang, descField);
+                    nameFields.put(lang, transNameField);
+                    descFields.put(lang, transDescField);
                 }
 
                 editNameTranslationFields.put(habit.getId(), nameFields);
@@ -1039,6 +1045,30 @@ public class MainController {
         int count = 0;
         for (Habit habit : habits) {
             boolean changed = false;
+
+            TextField nameField = editNameFields.get(habit.getId());
+            if (nameField != null) {
+                String newName = nameField.getText().trim();
+                if (!newName.isEmpty() && !newName.equals(habit.getName())) {
+                    habit.setName(newName);
+                    changed = true;
+                }
+            }
+
+            TextField descField = editDescriptionFields.get(habit.getId());
+            if (descField != null) {
+                String newDesc = descField.getText().trim();
+                String oldDesc = habit.getDescription();
+                if (newDesc.isEmpty()) {
+                    if (oldDesc != null && !oldDesc.isEmpty()) {
+                        habit.setDescription(null);
+                        changed = true;
+                    }
+                } else if (!newDesc.equals(oldDesc)) {
+                    habit.setDescription(newDesc);
+                    changed = true;
+                }
+            }
 
             TextField targetField = editTargetFields.get(habit.getId());
             if (targetField != null) {

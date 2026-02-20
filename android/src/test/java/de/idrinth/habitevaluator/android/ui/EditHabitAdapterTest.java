@@ -91,6 +91,58 @@ class EditHabitAdapterTest {
     }
 
     @Test
+    void testEditedValuesReflectHabitName() {
+        Habit habit = createHabit("Exercise", "Daily exercise", "cat-1");
+        habits.add(habit);
+        EditHabitAdapter adapter = new EditHabitAdapter(habits, false, categories, "en");
+        EditHabitAdapter.EditedHabitValues values = adapter.getEditedValues().get(habit.getId());
+        assertNotNull(values);
+        assertEquals("Exercise", values.name);
+    }
+
+    @Test
+    void testEditedValuesReflectHabitDescription() {
+        Habit habit = createHabit("Exercise", "Daily exercise", "cat-1");
+        habits.add(habit);
+        EditHabitAdapter adapter = new EditHabitAdapter(habits, false, categories, "en");
+        EditHabitAdapter.EditedHabitValues values = adapter.getEditedValues().get(habit.getId());
+        assertNotNull(values);
+        assertEquals("Daily exercise", values.description);
+    }
+
+    @Test
+    void testEditedValuesReflectNullDescription() {
+        Habit habit = createHabit("Exercise", null, "cat-1");
+        habits.add(habit);
+        EditHabitAdapter adapter = new EditHabitAdapter(habits, false, categories, "en");
+        EditHabitAdapter.EditedHabitValues values = adapter.getEditedValues().get(habit.getId());
+        assertNotNull(values);
+        assertNull(values.description);
+    }
+
+    @Test
+    void testEditedValuesNameIsModifiable() {
+        Habit habit = createHabit("Exercise", "Daily exercise", "cat-1");
+        habits.add(habit);
+        EditHabitAdapter adapter = new EditHabitAdapter(habits, false, categories, "en");
+        EditHabitAdapter.EditedHabitValues values = adapter.getEditedValues().get(habit.getId());
+        assertNotNull(values);
+        values.name = "Updated Name";
+        assertEquals("Updated Name", adapter.getEditedValues().get(habit.getId()).name);
+    }
+
+    @Test
+    void testEditedValuesDescriptionIsModifiable() {
+        Habit habit = createHabit("Exercise", "Daily exercise", "cat-1");
+        habits.add(habit);
+        EditHabitAdapter adapter = new EditHabitAdapter(habits, false, categories, "en");
+        EditHabitAdapter.EditedHabitValues values = adapter.getEditedValues().get(habit.getId());
+        assertNotNull(values);
+        values.description = "Updated Description";
+        assertEquals("Updated Description", adapter.getEditedValues().get(habit.getId()).description);
+    }
+
+    @Test
     void testEditedValuesReflectHabitTargetFrequency() {
         Habit habit = createHabit("Exercise", "Daily exercise", "cat-1");
         habit.setTargetFrequency(5);

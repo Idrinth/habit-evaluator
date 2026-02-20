@@ -66,6 +66,8 @@ public class EditHabitAdapter extends RecyclerView.Adapter<EditHabitAdapter.Edit
         for (Habit habit : habits) {
             ScoringRule rule = habit.getScoringRule();
             EditedHabitValues values = new EditedHabitValues(
+                    habit.getName(),
+                    habit.getDescription(),
                     habit.getTargetFrequency(),
                     habit.getMaxEntriesPerDay(),
                     habit.isPositiveScoring(),
@@ -135,11 +137,11 @@ public class EditHabitAdapter extends RecyclerView.Adapter<EditHabitAdapter.Edit
         EditedHabitValues values = editedValues.get(habit.getId());
         Context context = holder.itemView.getContext();
 
-        holder.nameText.setText(habit.getName());
-        holder.descriptionText.setText(habit.getDescription());
-
         // Remove previous watchers
         removeWatchers(holder);
+
+        holder.nameText.setText(values.name);
+        holder.descriptionText.setText(values.description != null ? values.description : "");
 
         // Category spinner
         ArrayAdapter<String> categoryAdapter = new ArrayAdapter<>(context,
@@ -192,6 +194,12 @@ public class EditHabitAdapter extends RecyclerView.Adapter<EditHabitAdapter.Edit
 
         holder.threshold8Watcher = createIntWatcher(val -> values.threshold8 = val);
         holder.threshold8.addTextChangedListener(holder.threshold8Watcher);
+
+        holder.nameWatcher = createStringWatcher(val -> values.name = val);
+        holder.nameText.addTextChangedListener(holder.nameWatcher);
+
+        holder.descriptionWatcher = createStringWatcher(val -> values.description = val.isEmpty() ? null : val);
+        holder.descriptionText.addTextChangedListener(holder.descriptionWatcher);
 
         // Translation fields
         setupTranslationFields(holder, values);
@@ -264,6 +272,12 @@ public class EditHabitAdapter extends RecyclerView.Adapter<EditHabitAdapter.Edit
     }
 
     private void removeWatchers(EditHabitViewHolder holder) {
+        if (holder.nameWatcher != null) {
+            holder.nameText.removeTextChangedListener(holder.nameWatcher);
+        }
+        if (holder.descriptionWatcher != null) {
+            holder.descriptionText.removeTextChangedListener(holder.descriptionWatcher);
+        }
         if (holder.targetWatcher != null) {
             holder.targetFrequency.removeTextChangedListener(holder.targetWatcher);
         }
@@ -393,6 +407,8 @@ public class EditHabitAdapter extends RecyclerView.Adapter<EditHabitAdapter.Edit
     }
 
     public static class EditedHabitValues {
+        public String name;
+        public String description;
         public int targetFrequency;
         public int maxEntriesPerDay;
         public boolean positiveScoring;
@@ -405,9 +421,12 @@ public class EditHabitAdapter extends RecyclerView.Adapter<EditHabitAdapter.Edit
         public Map<String, String> nameTranslations = new HashMap<>();
         public Map<String, String> descriptionTranslations = new HashMap<>();
 
-        public EditedHabitValues(int targetFrequency, int maxEntriesPerDay, boolean positiveScoring,
+        public EditedHabitValues(String name, String description,
+                                 int targetFrequency, int maxEntriesPerDay, boolean positiveScoring,
                                  int threshold1, int threshold2, int threshold4, int threshold8,
                                  String categoryId, FrequencyType frequencyType) {
+            this.name = name;
+            this.description = description;
             this.targetFrequency = targetFrequency;
             this.maxEntriesPerDay = maxEntriesPerDay;
             this.positiveScoring = positiveScoring;
@@ -429,8 +448,8 @@ public class EditHabitAdapter extends RecyclerView.Adapter<EditHabitAdapter.Edit
     }
 
     static class EditHabitViewHolder extends RecyclerView.ViewHolder {
-        private final TextView nameText;
-        private final TextView descriptionText;
+        private final EditText nameText;
+        private final EditText descriptionText;
         private final Spinner categorySpinner;
         private final Spinner frequencyTypeSpinner;
         private final EditText targetFrequency;
@@ -441,6 +460,8 @@ public class EditHabitAdapter extends RecyclerView.Adapter<EditHabitAdapter.Edit
         private final EditText threshold4;
         private final EditText threshold8;
         private final LinearLayout translationsContainer;
+        TextWatcher nameWatcher;
+        TextWatcher descriptionWatcher;
         TextWatcher targetWatcher;
         TextWatcher maxEntriesWatcher;
         TextWatcher threshold1Watcher;
