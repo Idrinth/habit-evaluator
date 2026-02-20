@@ -60,13 +60,18 @@ name: "Add, display and delete an emotion entry"
     id: "expandCollapseButton"
 
 # Verify emotion entry delete button is visible (entry exists)
-- assertVisible:
-    id: "deleteEmotionEntryButton"
+- extendedWaitUntil:
+    visible:
+        id: "deleteEmotionEntryButton"
+    timeout: 5000
 
 # Delete the emotion entry (has confirmation dialog)
 - tapOn:
     id: "deleteEmotionEntryButton"
-- assertVisible: "Delete Emotion Entry"
+- extendedWaitUntil:
+    visible:
+        text: "Delete Emotion Entry"
+    timeout: 5000
 - tapOn: "OK"
 
 # Verify entry is removed

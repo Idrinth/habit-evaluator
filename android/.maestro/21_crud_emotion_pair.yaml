@@ -48,7 +48,10 @@ name: "Add, display and delete an emotion pair"
 # Delete the emotion pair (has confirmation dialog)
 - tapOn:
     id: "deleteEmotionPairButton"
-- assertVisible: "Delete Emotion Pair"
+- extendedWaitUntil:
+    visible:
+        text: "Delete Emotion Pair"
+    timeout: 5000
 - tapOn: "OK"
 
 # Verify pair is removed
