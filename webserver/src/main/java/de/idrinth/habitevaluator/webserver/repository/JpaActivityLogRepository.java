@@ -13,4 +13,10 @@ public interface JpaActivityLogRepository extends JpaRepository<ActivityLog, Str
 
     @Query("SELECT a FROM ActivityLog a WHERE a.user.id = :userId ORDER BY a.date DESC, a.startTime DESC")
     List<ActivityLog> findByUserId(@Param("userId") String userId);
+
+    @Query("SELECT DISTINCT a.location FROM ActivityLog a WHERE a.user.id = :userId ORDER BY a.location")
+    List<String> findDistinctLocationsByUserId(@Param("userId") String userId);
+
+    @Query("SELECT DISTINCT a.activity FROM ActivityLog a WHERE a.user.id = :userId AND a.activity IS NOT NULL ORDER BY a.activity")
+    List<String> findDistinctActivitiesByUserId(@Param("userId") String userId);
 }

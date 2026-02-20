@@ -251,6 +251,52 @@ class SQLiteActivityLogRepositoryTest {
         verify(db).insertWithOnConflict(eq("activity_logs"), isNull(), any(), eq(5));
     }
 
+    @Test
+    void testFindDistinctLocationsByUserId() {
+        Cursor cursor = mock(Cursor.class);
+        when(cursor.moveToNext()).thenReturn(true, true, false);
+        when(cursor.getString(0)).thenReturn("Cafe", "Office");
+        when(db.rawQuery(startsWith("SELECT DISTINCT location FROM activity_logs"), eq(new String[]{"u1"}))).thenReturn(cursor);
+
+        List<String> result = repository.findDistinctLocationsByUserId("u1");
+
+        assertEquals(2, result.size());
+        assertEquals("Cafe", result.get(0));
+        assertEquals("Office", result.get(1));
+    }
+
+    @Test
+    void testFindDistinctLocationsByUserIdEmpty() {
+        Cursor cursor = createEmptyCursor();
+        when(db.rawQuery(startsWith("SELECT DISTINCT location FROM activity_logs"), eq(new String[]{"u1"}))).thenReturn(cursor);
+
+        List<String> result = repository.findDistinctLocationsByUserId("u1");
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    void testFindDistinctActivitiesByUserId() {
+        Cursor cursor = mock(Cursor.class);
+        when(cursor.moveToNext()).thenReturn(true, true, false);
+        when(cursor.getString(0)).thenReturn("Lunch", "Team meeting");
+        when(db.rawQuery(startsWith("SELECT DISTINCT activity FROM activity_logs"), eq(new String[]{"u1"}))).thenReturn(cursor);
+
+        List<String> result = repository.findDistinctActivitiesByUserId("u1");
+
+        assertEquals(2, result.size());
+        assertEquals("Lunch", result.get(0));
+        assertEquals("Team meeting", result.get(1));
+    }
+
+    @Test
+    void testFindDistinctActivitiesByUserIdEmpty() {
+        Cursor cursor = createEmptyCursor();
+        when(db.rawQuery(startsWith("SELECT DISTINCT activity FROM activity_logs"), eq(new String[]{"u1"}))).thenReturn(cursor);
+
+        List<String> result = repository.findDistinctActivitiesByUserId("u1");
+        assertTrue(result.isEmpty());
+    }
+
     private Cursor createActivityLogCursor(String id, String persons, String location, String startTime, String endTime, String date, String activity, String userId, String userName) {
         Cursor cursor = mock(Cursor.class);
         when(cursor.moveToFirst()).thenReturn(true);

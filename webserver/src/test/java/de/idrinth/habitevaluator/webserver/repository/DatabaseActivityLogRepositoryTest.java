@@ -90,4 +90,26 @@ class DatabaseActivityLogRepositoryTest {
         assertEquals(1, result.size());
         verify(jpaRepository).findByUserId("user-1");
     }
+
+    @Test
+    void testFindDistinctLocationsByUserIdDelegatesToJpa() {
+        List<String> locations = List.of("Cafe", "Office");
+        when(jpaRepository.findDistinctLocationsByUserId("user-1")).thenReturn(locations);
+
+        List<String> result = repository.findDistinctLocationsByUserId("user-1");
+
+        assertEquals(2, result.size());
+        verify(jpaRepository).findDistinctLocationsByUserId("user-1");
+    }
+
+    @Test
+    void testFindDistinctActivitiesByUserIdDelegatesToJpa() {
+        List<String> activities = List.of("Lunch", "Team meeting");
+        when(jpaRepository.findDistinctActivitiesByUserId("user-1")).thenReturn(activities);
+
+        List<String> result = repository.findDistinctActivitiesByUserId("user-1");
+
+        assertEquals(2, result.size());
+        verify(jpaRepository).findDistinctActivitiesByUserId("user-1");
+    }
 }

@@ -41,4 +41,22 @@ public class H2ActivityLogRepository implements ActivityLogRepository {
                 "userId",
                 userId);
     }
+
+    @Override
+    public List<String> findDistinctLocationsByUserId(String userId) {
+        return JpaTransactionHelper.findByParameter(
+                String.class,
+                "SELECT DISTINCT a.location FROM ActivityLog a WHERE a.user.id = :userId ORDER BY a.location",
+                "userId",
+                userId);
+    }
+
+    @Override
+    public List<String> findDistinctActivitiesByUserId(String userId) {
+        return JpaTransactionHelper.findByParameter(
+                String.class,
+                "SELECT DISTINCT a.activity FROM ActivityLog a WHERE a.user.id = :userId AND a.activity IS NOT NULL ORDER BY a.activity",
+                "userId",
+                userId);
+    }
 }

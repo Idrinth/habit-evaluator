@@ -85,6 +85,34 @@ public class SQLiteActivityLogRepository implements ActivityLogRepository {
     }
 
     @Override
+    public List<String> findDistinctLocationsByUserId(String userId) {
+        List<String> result = new ArrayList<>();
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        try (Cursor cursor = db.rawQuery(
+                "SELECT DISTINCT location FROM activity_logs WHERE user_id = ? AND location IS NOT NULL AND location != '' ORDER BY location",
+                new String[]{userId})) {
+            while (cursor.moveToNext()) {
+                result.add(cursor.getString(0));
+            }
+        }
+        return result;
+    }
+
+    @Override
+    public List<String> findDistinctActivitiesByUserId(String userId) {
+        List<String> result = new ArrayList<>();
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        try (Cursor cursor = db.rawQuery(
+                "SELECT DISTINCT activity FROM activity_logs WHERE user_id = ? AND activity IS NOT NULL AND activity != '' ORDER BY activity",
+                new String[]{userId})) {
+            while (cursor.moveToNext()) {
+                result.add(cursor.getString(0));
+            }
+        }
+        return result;
+    }
+
+    @Override
     public List<ActivityLog> findByUserId(String userId) {
         List<ActivityLog> result = new ArrayList<>();
         SQLiteDatabase db = dbHelper.getReadableDatabase();

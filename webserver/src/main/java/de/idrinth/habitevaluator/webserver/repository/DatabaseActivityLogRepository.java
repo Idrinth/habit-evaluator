@@ -45,4 +45,14 @@ public class DatabaseActivityLogRepository implements ActivityLogRepository {
     public List<ActivityLog> findByUserId(String userId) {
         return jpaRepository.findByUserId(userId);
     }
+
+    @Override
+    public List<String> findDistinctLocationsByUserId(String userId) {
+        return jpaRepository.findDistinctLocationsByUserId(userId);
+    }
+
+    @Override
+    public List<String> findDistinctActivitiesByUserId(String userId) {
+        return jpaRepository.findDistinctActivitiesByUserId(userId);
+    }
 }

@@ -21,4 +21,8 @@ public interface ActivityLogRepository {
     boolean existsById(String id);
 
     List<ActivityLog> findByUserId(String userId);
+
+    List<String> findDistinctLocationsByUserId(String userId);
+
+    List<String> findDistinctActivitiesByUserId(String userId);
 }
