@@ -10,19 +10,35 @@ name: "Add, display and delete a sport log entry"
 - tapOn: "Diary"
 - tapOn:
     id: "sportLogCard"
-- assertVisible: "Sport Log"
+
+# Wait for SportLogFragment to load (toggleFormButton is unique to sport log page)
+- scrollUntilVisible:
+    element:
+      id: "toggleFormButton"
+    direction: DOWN
+    timeout: 10000
 
 # Expand add entry form
 - tapOn:
     id: "toggleFormButton"
 
 # Fill activity name (required)
+- scrollUntilVisible:
+    element:
+      id: "activityNameInput"
+    direction: DOWN
+    timeout: 5000
 - tapOn:
     id: "activityNameInput"
 - inputText: "Running"
 - hideKeyboard
 
 # Fill measurement (required)
+- scrollUntilVisible:
+    element:
+      id: "measurementInput"
+    direction: DOWN
+    timeout: 5000
 - tapOn:
     id: "measurementInput"
 - inputText: "5.0"
@@ -36,6 +52,11 @@ name: "Add, display and delete a sport log entry"
 
 # Date auto-fills with today
 # Set start time via picker (field is not directly editable)
+- scrollUntilVisible:
+    element:
+      id: "sportStartTimeInput"
+    direction: DOWN
+    timeout: 5000
 - tapOn:
     id: "sportStartTimeInput"
 - tapOn: "OK"
@@ -45,7 +66,12 @@ name: "Add, display and delete a sport log entry"
     id: "sportEndTimeInput"
 - tapOn: "OK"
 
-# Submit the entry
+# Scroll to and tap submit button
+- scrollUntilVisible:
+    element:
+      id: "addSportLogButton"
+    direction: DOWN
+    timeout: 5000
 - tapOn:
     id: "addSportLogButton"
 

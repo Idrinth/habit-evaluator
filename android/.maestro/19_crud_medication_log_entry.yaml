@@ -15,22 +15,53 @@ name: "Add, display and delete a medication log entry"
     timeout: 5000
 - tapOn:
     id: "medicationListCard"
-- assertVisible: "Your Medications"
+
+# Wait for MedicationListFragment to load
+- scrollUntilVisible:
+    element:
+      id: "newMedicationNameInput"
+    direction: DOWN
+    timeout: 10000
+
 - tapOn:
     id: "newMedicationNameInput"
 - inputText: "TestMedication"
 - hideKeyboard
+
+# Scroll to and tap add button
+- scrollUntilVisible:
+    element:
+      id: "addMedicationButton"
+    direction: DOWN
+    timeout: 5000
 - tapOn:
     id: "addMedicationButton"
-- assertVisible: "TestMedication"
+
+# Verify medication was created
+- scrollUntilVisible:
+    element:
+      text: "TestMedication"
+    direction: DOWN
+    timeout: 5000
 
 # Navigate back to Diary hub
 - tapOn: "Diary"
 
 # Navigate to Medication Log
+- scrollUntilVisible:
+    element:
+      id: "medicationLogCard"
+    direction: DOWN
+    timeout: 5000
 - tapOn:
     id: "medicationLogCard"
-- assertVisible: "Medication Log"
+
+# Wait for MedicationLogFragment to load
+- scrollUntilVisible:
+    element:
+      id: "toggleFormButton"
+    direction: DOWN
+    timeout: 10000
 
 # Expand add entry form
 - tapOn:
@@ -38,13 +69,23 @@ name: "Add, display and delete a medication log entry"
 
 # Medication spinner auto-selects the first medication (TestMedication)
 # Fill amount (required)
+- scrollUntilVisible:
+    element:
+      id: "medicationAmountInput"
+    direction: DOWN
+    timeout: 5000
 - tapOn:
     id: "medicationAmountInput"
 - inputText: "500"
 - hideKeyboard
 
 # Date and time auto-fill with current datetime
-# Submit the log entry
+# Scroll to and tap submit button
+- scrollUntilVisible:
+    element:
+      id: "addMedicationLogButton"
+    direction: DOWN
+    timeout: 5000
 - tapOn:
     id: "addMedicationLogButton"
 

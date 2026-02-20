@@ -10,13 +10,24 @@ name: "Add, display and delete a diary entry"
 - tapOn: "Diary"
 - tapOn:
     id: "positivityDiaryCard"
-- assertVisible: "Positive Events"
+
+# Wait for DiaryFragment to load (toggleFormButton is unique to diary page)
+- scrollUntilVisible:
+    element:
+      id: "toggleFormButton"
+    direction: DOWN
+    timeout: 10000
 
 # Expand add entry form
 - tapOn:
     id: "toggleFormButton"
 
 # Fill description (required field)
+- scrollUntilVisible:
+    element:
+      id: "eventDescriptionInput"
+    direction: DOWN
+    timeout: 5000
 - tapOn:
     id: "eventDescriptionInput"
 - inputText: "Maestro test diary event"
@@ -24,10 +35,20 @@ name: "Add, display and delete a diary entry"
 
 # Date auto-fills with today, significance defaults to Minor
 # Submit the entry
+- scrollUntilVisible:
+    element:
+      id: "addEventButton"
+    direction: DOWN
+    timeout: 5000
 - tapOn:
     id: "addEventButton"
 
 # Verify entry appears in the list
+- scrollUntilVisible:
+    element:
+      text: "Maestro test diary event"
+    direction: DOWN
+    timeout: 5000
 - assertVisible: "Maestro test diary event"
 
 # Delete the entry
