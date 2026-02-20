@@ -87,6 +87,7 @@ public class MainActivity extends AppCompatActivity {
     private static de.idrinth.habitevaluator.shared.repository.MedicationLogRepository sharedMedicationLogRepository;
     private static List<de.idrinth.habitevaluator.shared.model.Medication> sharedMedications = new ArrayList<>();
     private static de.idrinth.habitevaluator.shared.repository.EmergencyPlanStepRepository sharedEmergencyPlanStepRepository;
+    private static de.idrinth.habitevaluator.shared.repository.EmergencyPlanActionRepository sharedEmergencyPlanActionRepository;
     private static de.idrinth.habitevaluator.shared.repository.ActivityLogRepository sharedActivityLogRepository;
     private static User sharedLocalUser;
     private static String editHabitId;
@@ -216,6 +217,10 @@ public class MainActivity extends AppCompatActivity {
 
     public static de.idrinth.habitevaluator.shared.repository.EmergencyPlanStepRepository getSharedEmergencyPlanStepRepository() {
         return sharedEmergencyPlanStepRepository;
+    }
+
+    public static de.idrinth.habitevaluator.shared.repository.EmergencyPlanActionRepository getSharedEmergencyPlanActionRepository() {
+        return sharedEmergencyPlanActionRepository;
     }
 
     public static de.idrinth.habitevaluator.shared.repository.ActivityLogRepository getSharedActivityLogRepository() {
@@ -602,6 +607,7 @@ public class MainActivity extends AppCompatActivity {
         sharedMedicationRepository = medicationRepo;
         sharedMedicationLogRepository = medicationLogRepo;
         sharedEmergencyPlanStepRepository = emergencyPlanStepRepo;
+        sharedEmergencyPlanActionRepository = emergencyPlanActionRepo;
         sharedActivityLogRepository = activityLogRepo;
 
         // Migrate legacy JSON files to SQLite if they exist
@@ -678,6 +684,7 @@ public class MainActivity extends AppCompatActivity {
         sharedMedicationRepository = medicationRepo;
         sharedMedicationLogRepository = medicationLogRepo;
         sharedEmergencyPlanStepRepository = emergencyPlanStepRepo;
+        sharedEmergencyPlanActionRepository = emergencyPlanActionRepo;
         sharedActivityLogRepository = activityLogRepo;
 
         // Set local user for local-only data access (diary, sleep, emotions, sport, food, medication, emergency plan, activity log)
