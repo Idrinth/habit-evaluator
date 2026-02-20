@@ -16,14 +16,23 @@ name: "Add, display and delete a medication"
 - tapOn:
     id: "medicationListCard"
 
-# Wait for MedicationListFragment to load (unique element not on diary nav)
+# Wait for MedicationListFragment to load
+- scrollUntilVisible:
+    element:
+      id: "toggleFormButton"
+    direction: DOWN
+    timeout: 10000
+
+# Expand add medication form
+- tapOn:
+    id: "toggleFormButton"
+
+# Fill medication name (required)
 - scrollUntilVisible:
     element:
       id: "newMedicationNameInput"
     direction: DOWN
-    timeout: 10000
-
-# Fill medication name (required)
+    timeout: 5000
 - tapOn:
     id: "newMedicationNameInput"
 - inputText: "Aspirin"
