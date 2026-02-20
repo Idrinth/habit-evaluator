@@ -12,11 +12,28 @@ name: "Imprint page renders all sections"
 
 # Verify content sections
 - assertVisible: "Project legal"
+
+- scrollUntilVisible:
+    element:
+      text: "Contact"
+    direction: DOWN
+    timeout: 5000
 - assertVisible: "Contact"
+
+- scrollUntilVisible:
+    element:
+      text: "License"
+    direction: DOWN
+    timeout: 5000
 - assertVisible: "License"
+
+- scrollUntilVisible:
+    element:
+      text: "Data Protection"
+    direction: DOWN
+    timeout: 5000
 - assertVisible: "Data Protection"
 
-# Scroll to see disclaimers and libraries
 - scrollUntilVisible:
     element:
       text: "Disclaimers"
