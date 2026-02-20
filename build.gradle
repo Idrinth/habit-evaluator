@@ -27,6 +27,7 @@ subprojects {
             useJUnitPlatform()
             finalizedBy jacocoTestReport
             outputs.cacheIf { false }
+            systemProperty 'junit.jupiter.execution.timeout.default', '5m'
         }
 
         jacoco {
