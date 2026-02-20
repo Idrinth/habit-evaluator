@@ -654,15 +654,30 @@ public class SettingsFragment extends Fragment {
                                     throw new BackupException("Could not open backup file");
                                 }
                                 BackupService backupService = new BackupService();
-                                MergeResult result = backupService.mergeBackupFromStream(
-                                        inputStream, password,
+                                de.idrinth.habitevaluator.shared.backup.BackupData backupData =
+                                        backupService.restoreBackupFromStream(inputStream, password);
+                                inputStream.close();
+                                MergeResult result = backupService.mergeBackupData(
+                                        backupData,
                                         MainActivity.getSharedLocalUser(),
                                         MainActivity.getSharedHabitRepository(),
                                         MainActivity.getSharedCategoryRepository(),
                                         MainActivity.getSharedDiaryEntryRepository(),
                                         MainActivity.getSharedSleepEntryRepository(),
+                                        MainActivity.getSharedSportLogRepository(),
+                                        MainActivity.getSharedFoodLogRepository(),
+                                        MainActivity.getSharedFoodTagRepository(),
+                                        MainActivity.getSharedEmotionPairRepository(),
+                                        MainActivity.getSharedEmotionEntryRepository(),
+                                        null,
+                                        MainActivity.getSharedActivityLogRepository(),
+                                        null,
+                                        MainActivity.getSharedMedicationRepository(),
+                                        MainActivity.getSharedMedicationLogRepository(),
+                                        null,
+                                        MainActivity.getSharedEmergencyPlanStepRepository(),
+                                        MainActivity.getSharedEmergencyPlanActionRepository(),
                                         options);
-                                inputStream.close();
                                 if (isAdded()) {
                                     requireActivity().runOnUiThread(() -> {
                                         binding.restoreStatusText.setText(getString(R.string.restore_success,
@@ -695,8 +710,11 @@ public class SettingsFragment extends Fragment {
     }
 
     private void showRestoreOptionsDialog(RestoreOptionsCallback callback) {
-        String[] items = {"Categories", "Habits", "Diary entries", "Sleep entries", "Sport logs", "Food logs"};
-        boolean[] checked = {true, true, true, true, true, true};
+        String[] items = {
+            "Categories", "Habits", "Diary entries", "Sleep entries",
+            "Sport logs", "Food logs", "Emotions", "Medications", "Emergency plan"
+        };
+        boolean[] checked = {true, true, true, true, true, true, true, true, true};
 
         new AlertDialog.Builder(requireContext())
                 .setTitle(R.string.restore_select_types)
@@ -709,6 +727,9 @@ public class SettingsFragment extends Fragment {
                     options.setRestoreSleepEntries(checked[3]);
                     options.setRestoreSportLogs(checked[4]);
                     options.setRestoreFoodLogs(checked[5]);
+                    options.setRestoreEmotionData(checked[6]);
+                    options.setRestoreMedicationData(checked[7]);
+                    options.setRestoreEmergencyPlan(checked[8]);
                     callback.onOptionsSelected(options);
                 })
                 .setNegativeButton(android.R.string.cancel, null)
@@ -741,13 +762,28 @@ public class SettingsFragment extends Fragment {
 
                         new Thread(() -> {
                             try {
-                                MergeResult result = backupService.mergeBackup(
-                                        selectedFile, password,
+                                de.idrinth.habitevaluator.shared.backup.BackupData backupData =
+                                        backupService.restoreBackup(selectedFile, password);
+                                MergeResult result = backupService.mergeBackupData(
+                                        backupData,
                                         MainActivity.getSharedLocalUser(),
                                         MainActivity.getSharedHabitRepository(),
                                         MainActivity.getSharedCategoryRepository(),
                                         MainActivity.getSharedDiaryEntryRepository(),
                                         MainActivity.getSharedSleepEntryRepository(),
+                                        MainActivity.getSharedSportLogRepository(),
+                                        MainActivity.getSharedFoodLogRepository(),
+                                        MainActivity.getSharedFoodTagRepository(),
+                                        MainActivity.getSharedEmotionPairRepository(),
+                                        MainActivity.getSharedEmotionEntryRepository(),
+                                        null,
+                                        MainActivity.getSharedActivityLogRepository(),
+                                        null,
+                                        MainActivity.getSharedMedicationRepository(),
+                                        MainActivity.getSharedMedicationLogRepository(),
+                                        null,
+                                        MainActivity.getSharedEmergencyPlanStepRepository(),
+                                        MainActivity.getSharedEmergencyPlanActionRepository(),
                                         options);
                                 if (isAdded()) {
                                     requireActivity().runOnUiThread(() -> {
@@ -801,7 +837,19 @@ public class SettingsFragment extends Fragment {
                         MainActivity.getSharedHabitRepository(),
                         MainActivity.getSharedCategoryRepository(),
                         MainActivity.getSharedDiaryEntryRepository(),
-                        MainActivity.getSharedSleepEntryRepository());
+                        MainActivity.getSharedSleepEntryRepository(),
+                        MainActivity.getSharedSportLogRepository(),
+                        MainActivity.getSharedFoodLogRepository(),
+                        MainActivity.getSharedEmotionPairRepository(),
+                        MainActivity.getSharedEmotionEntryRepository(),
+                        null,
+                        MainActivity.getSharedActivityLogRepository(),
+                        null,
+                        MainActivity.getSharedMedicationRepository(),
+                        MainActivity.getSharedMedicationLogRepository(),
+                        null,
+                        MainActivity.getSharedEmergencyPlanStepRepository(),
+                        MainActivity.getSharedEmergencyPlanActionRepository());
 
                 if (isAdded()) {
                     requireActivity().runOnUiThread(() -> {
@@ -888,15 +936,31 @@ public class SettingsFragment extends Fragment {
                                 if (inputStream == null) {
                                     throw new BackupException("Could not open file");
                                 }
-                                MergeResult result = hezBackupService.mergeFromHezStream(
-                                        inputStream, password,
+                                de.idrinth.habitevaluator.shared.backup.BackupData backupData =
+                                        hezBackupService.restoreFromHezStream(inputStream, password);
+                                inputStream.close();
+                                BackupService backupService = new BackupService();
+                                MergeResult result = backupService.mergeBackupData(
+                                        backupData,
                                         MainActivity.getSharedLocalUser(),
                                         MainActivity.getSharedHabitRepository(),
                                         MainActivity.getSharedCategoryRepository(),
                                         MainActivity.getSharedDiaryEntryRepository(),
                                         MainActivity.getSharedSleepEntryRepository(),
+                                        MainActivity.getSharedSportLogRepository(),
+                                        MainActivity.getSharedFoodLogRepository(),
+                                        MainActivity.getSharedFoodTagRepository(),
+                                        MainActivity.getSharedEmotionPairRepository(),
+                                        MainActivity.getSharedEmotionEntryRepository(),
+                                        null,
+                                        MainActivity.getSharedActivityLogRepository(),
+                                        null,
+                                        MainActivity.getSharedMedicationRepository(),
+                                        MainActivity.getSharedMedicationLogRepository(),
+                                        null,
+                                        MainActivity.getSharedEmergencyPlanStepRepository(),
+                                        MainActivity.getSharedEmergencyPlanActionRepository(),
                                         options);
-                                inputStream.close();
 
                                 if (isAdded()) {
                                     requireActivity().runOnUiThread(() -> {
