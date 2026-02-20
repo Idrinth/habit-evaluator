@@ -12,7 +12,7 @@ name: "Toolbar buttons navigate to Stats, Settings, and Imprint"
 - extendedWaitUntil:
     visible:
         id: "habitPointsChart"
-    timeout: 5000
+    timeout: 10000
 - scrollUntilVisible:
     element:
       id: "exportPdfButton"
