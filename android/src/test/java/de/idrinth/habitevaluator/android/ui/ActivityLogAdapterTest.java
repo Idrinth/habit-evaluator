@@ -122,12 +122,18 @@ class ActivityLogAdapterTest {
         return new ActivityLog(persons, location, startTime, endTime);
     }
 
-    private static class TestDeleteListener implements ActivityLogAdapter.OnActivityLogDeleteListener {
+    private static class TestDeleteListener implements ActivityLogAdapter.OnActivityLogActionListener {
         ActivityLog lastDeleted;
+        ActivityLog lastEdited;
 
         @Override
         public void onDelete(ActivityLog entry) {
             lastDeleted = entry;
+        }
+
+        @Override
+        public void onEdit(ActivityLog entry) {
+            lastEdited = entry;
         }
     }
 }

@@ -203,6 +203,43 @@ paths:
       responses:
         "200":
           description: OK
+  /api/activity-logs/{id}:
+    put:
+      tags:
+      - activity-log-controller
+      operationId: updateEntry
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ActivityLog"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
+    delete:
+      tags:
+      - activity-log-controller
+      operationId: deleteEntry
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
   /api/sync:
     post:
       tags:
@@ -1164,7 +1201,7 @@ paths:
     delete:
       tags:
       - sport-log-controller
-      operationId: deleteEntry
+      operationId: deleteEntry_1
       parameters:
       - name: id
         in: path
@@ -1178,7 +1215,7 @@ paths:
     delete:
       tags:
       - sleep-entry-controller
-      operationId: deleteEntry_1
+      operationId: deleteEntry_2
       parameters:
       - name: id
         in: path
@@ -1192,7 +1229,7 @@ paths:
     delete:
       tags:
       - meeting-controller
-      operationId: deleteEntry_2
+      operationId: deleteEntry_3
       parameters:
       - name: id
         in: path
@@ -1254,7 +1291,7 @@ paths:
     delete:
       tags:
       - food-log-controller
-      operationId: deleteEntry_3
+      operationId: deleteEntry_4
       parameters:
       - name: id
         in: path
@@ -1268,20 +1305,6 @@ paths:
     delete:
       tags:
       - diary-controller
-      operationId: deleteEntry_4
-      parameters:
-      - name: id
-        in: path
-        required: true
-        schema:
-          type: string
-      responses:
-        "200":
-          description: OK
-  /api/activity-logs/{id}:
-    delete:
-      tags:
-      - activity-log-controller
       operationId: deleteEntry_5
       parameters:
       - name: id
@@ -1494,6 +1517,34 @@ components:
           type: object
           additionalProperties:
             type: string
+    ActivityLog:
+      type: object
+      properties:
+        id:
+          type: string
+        persons:
+          type: string
+        location:
+          type: string
+        startTime:
+          type: string
+          example: 14:30:00
+        endTime:
+          type: string
+          example: 14:30:00
+        date:
+          type: string
+          format: date
+        activity:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        user:
+          $ref: "#/components/schemas/User"
+        durationMinutes:
+          type: integer
+          format: int32
     SyncData:
       type: object
       properties:
@@ -1767,34 +1818,6 @@ components:
         password:
           type: string
           minLength: 1
-    ActivityLog:
-      type: object
-      properties:
-        id:
-          type: string
-        persons:
-          type: string
-        location:
-          type: string
-        startTime:
-          type: string
-          example: 14:30:00
-        endTime:
-          type: string
-          example: 14:30:00
-        date:
-          type: string
-          format: date
-        activity:
-          type: string
-        createdAt:
-          type: string
-          format: date-time
-        user:
-          $ref: "#/components/schemas/User"
-        durationMinutes:
-          type: integer
-          format: int32
     SportLogStats:
       type: object
       properties:

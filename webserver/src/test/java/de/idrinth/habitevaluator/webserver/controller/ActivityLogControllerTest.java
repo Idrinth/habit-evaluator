@@ -81,6 +81,58 @@ class ActivityLogControllerTest {
     }
 
     @Test
+    void testUpdateEntrySuccess() {
+        ActivityLog existing = new ActivityLog("Alice", "Office",
+                LocalTime.of(10, 0), LocalTime.of(11, 0));
+        existing.setUser(testUser);
+        when(activityLogRepository.findById(existing.getId())).thenReturn(Optional.of(existing));
+        when(activityLogRepository.save(any(ActivityLog.class))).thenAnswer(i -> i.getArgument(0));
+
+        ActivityLog updated = new ActivityLog("Alice, Bob", "Park",
+                LocalTime.of(14, 0), LocalTime.of(16, 0));
+        ResponseEntity<?> response = controller.updateEntry(existing.getId(), updated, session);
+
+        assertEquals(200, response.getStatusCode().value());
+        ActivityLog result = (ActivityLog) response.getBody();
+        assertEquals(existing.getId(), result.getId());
+        assertEquals("Alice, Bob", result.getPersons());
+        assertEquals("Park", result.getLocation());
+        assertEquals(testUser, result.getUser());
+        assertEquals(existing.getCreatedAt(), result.getCreatedAt());
+    }
+
+    @Test
+    void testUpdateEntryNotFound() {
+        when(activityLogRepository.findById("nonexistent")).thenReturn(Optional.empty());
+        ActivityLog updated = new ActivityLog("Alice", "Office",
+                LocalTime.of(10, 0), LocalTime.of(11, 0));
+
+        ResponseEntity<?> response = controller.updateEntry("nonexistent", updated, session);
+        assertEquals(404, response.getStatusCode().value());
+    }
+
+    @Test
+    void testUpdateEntryNotOwned() {
+        User otherUser = new User("other", "pass");
+        ActivityLog existing = new ActivityLog("Alice", "Office",
+                LocalTime.of(10, 0), LocalTime.of(11, 0));
+        existing.setUser(otherUser);
+        when(activityLogRepository.findById(existing.getId())).thenReturn(Optional.of(existing));
+
+        ActivityLog updated = new ActivityLog("Bob", "Park",
+                LocalTime.of(14, 0), LocalTime.of(16, 0));
+        ResponseEntity<?> response = controller.updateEntry(existing.getId(), updated, session);
+        assertEquals(404, response.getStatusCode().value());
+    }
+
+    @Test
+    void testUpdateEntryUnauthenticated() {
+        MockHttpSession unauthSession = new MockHttpSession();
+        ResponseEntity<?> response = controller.updateEntry("some-id", new ActivityLog(), unauthSession);
+        assertEquals(401, response.getStatusCode().value());
+    }
+
+    @Test
     void testDeleteEntrySuccess() {
         ActivityLog entry = new ActivityLog("Alice", "Office",
                 LocalTime.of(10, 0), LocalTime.of(11, 0));
