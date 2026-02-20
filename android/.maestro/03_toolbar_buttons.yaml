@@ -11,7 +11,7 @@ name: "Toolbar buttons navigate to Stats, Settings, and Imprint"
     id: "statsButton"
 - extendedWaitUntil:
     visible:
-        id: "habitPointsChart"
+        id: "statsTitle"
     timeout: 10000
 - scrollUntilVisible:
     element:

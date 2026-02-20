@@ -58,7 +58,7 @@ name: "Complete navigation flow through all pages without crash"
     id: "statsButton"
 - extendedWaitUntil:
     visible:
-        id: "habitPointsChart"
+        id: "statsTitle"
     timeout: 10000
 - scrollUntilVisible:
     element:
