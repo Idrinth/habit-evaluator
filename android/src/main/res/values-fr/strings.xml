@@ -421,6 +421,9 @@
     <string name="activity_log_end_time">End time</string>
     <string name="activity_log_date">Date</string>
     <string name="activity_log_activity_hint">Activity (optional)</string>
+    <string name="activity_log_edit">Edit</string>
+    <string name="activity_log_save_edit">Save</string>
+    <string name="activity_log_entry_updated">Activity log entry updated</string>
     <string name="activity_log_delete">Delete</string>
     <string name="activity_log_entry_added">Activity log entry added</string>
     <string name="activity_log_entry_removed">Activity log entry removed</string>
