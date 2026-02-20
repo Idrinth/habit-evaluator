@@ -111,4 +111,74 @@ class JpaActivityLogRepositoryTest {
 
         assertFalse(activityLogRepository.findById(saved.getId()).isPresent());
     }
+
+    @Test
+    void testFindDistinctLocationsByUserId() {
+        ActivityLog entry1 = new ActivityLog("Alice", "Office",
+                LocalTime.of(9, 0), LocalTime.of(10, 0));
+        entry1.setUser(testUser);
+        activityLogRepository.save(entry1);
+
+        ActivityLog entry2 = new ActivityLog("Bob", "Cafe",
+                LocalTime.of(14, 0), LocalTime.of(15, 0));
+        entry2.setUser(testUser);
+        activityLogRepository.save(entry2);
+
+        ActivityLog entry3 = new ActivityLog("Charlie", "Office",
+                LocalTime.of(16, 0), LocalTime.of(17, 0));
+        entry3.setUser(testUser);
+        activityLogRepository.save(entry3);
+
+        List<String> locations = activityLogRepository.findDistinctLocationsByUserId(testUser.getId());
+
+        assertEquals(2, locations.size());
+        assertTrue(locations.contains("Office"));
+        assertTrue(locations.contains("Cafe"));
+    }
+
+    @Test
+    void testFindDistinctActivitiesByUserId() {
+        ActivityLog entry1 = new ActivityLog("Alice", "Office",
+                LocalTime.of(9, 0), LocalTime.of(10, 0));
+        entry1.setUser(testUser);
+        entry1.setActivity("Team meeting");
+        activityLogRepository.save(entry1);
+
+        ActivityLog entry2 = new ActivityLog("Bob", "Cafe",
+                LocalTime.of(14, 0), LocalTime.of(15, 0));
+        entry2.setUser(testUser);
+        entry2.setActivity("Lunch");
+        activityLogRepository.save(entry2);
+
+        ActivityLog entry3 = new ActivityLog("Charlie", "Office",
+                LocalTime.of(16, 0), LocalTime.of(17, 0));
+        entry3.setUser(testUser);
+        entry3.setActivity("Team meeting");
+        activityLogRepository.save(entry3);
+
+        List<String> activities = activityLogRepository.findDistinctActivitiesByUserId(testUser.getId());
+
+        assertEquals(2, activities.size());
+        assertTrue(activities.contains("Team meeting"));
+        assertTrue(activities.contains("Lunch"));
+    }
+
+    @Test
+    void testFindDistinctActivitiesByUserIdExcludesNull() {
+        ActivityLog entry1 = new ActivityLog("Alice", "Office",
+                LocalTime.of(9, 0), LocalTime.of(10, 0));
+        entry1.setUser(testUser);
+        entry1.setActivity("Team meeting");
+        activityLogRepository.save(entry1);
+
+        ActivityLog entry2 = new ActivityLog("Bob", "Cafe",
+                LocalTime.of(14, 0), LocalTime.of(15, 0));
+        entry2.setUser(testUser);
+        activityLogRepository.save(entry2);
+
+        List<String> activities = activityLogRepository.findDistinctActivitiesByUserId(testUser.getId());
+
+        assertEquals(1, activities.size());
+        assertEquals("Team meeting", activities.get(0));
+    }
 }

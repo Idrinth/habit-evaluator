@@ -6,6 +6,8 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.MultiAutoCompleteTextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -19,6 +21,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.TreeSet;
 
 import de.idrinth.habitevaluator.android.databinding.FragmentActivityLogBinding;
 import de.idrinth.habitevaluator.android.ui.ActivityLogAdapter;
@@ -208,6 +211,45 @@ public class ActivityLogFragment extends Fragment implements ActivityLogAdapter.
         }
 
         adapter.notifyDataSetChanged();
+        updateSuggestions();
+    }
+
+    private void updateSuggestions() {
+        ActivityLogRepository repository = MainActivity.getSharedActivityLogRepository();
+        if (repository != null && MainActivity.getSharedLocalUser() != null) {
+            String userId = MainActivity.getSharedLocalUser().getId();
+
+            // Persons: split comma-separated values to get individual person names
+            List<ActivityLog> allEntries = repository.findByUserId(userId);
+            TreeSet<String> personSet = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+            for (ActivityLog entry : allEntries) {
+                if (entry.getPersons() != null && !entry.getPersons().isEmpty()) {
+                    for (String person : entry.getPersons().split(",")) {
+                        String trimmed = person.trim();
+                        if (!trimmed.isEmpty()) {
+                            personSet.add(trimmed);
+                        }
+                    }
+                }
+            }
+            List<String> personSuggestions = new ArrayList<>(personSet);
+            ArrayAdapter<String> personsAdapter = new ArrayAdapter<>(requireContext(),
+                    android.R.layout.simple_dropdown_item_1line, personSuggestions);
+            binding.personsInput.setAdapter(personsAdapter);
+            binding.personsInput.setTokenizer(new MultiAutoCompleteTextView.CommaTokenizer());
+
+            // Locations: distinct single values
+            List<String> locations = repository.findDistinctLocationsByUserId(userId);
+            ArrayAdapter<String> locationAdapter = new ArrayAdapter<>(requireContext(),
+                    android.R.layout.simple_dropdown_item_1line, locations);
+            binding.locationInput.setAdapter(locationAdapter);
+
+            // Activities: distinct single values
+            List<String> activities = repository.findDistinctActivitiesByUserId(userId);
+            ArrayAdapter<String> activityAdapter = new ArrayAdapter<>(requireContext(),
+                    android.R.layout.simple_dropdown_item_1line, activities);
+            binding.activityInput.setAdapter(activityAdapter);
+        }
     }
 
     @Override
