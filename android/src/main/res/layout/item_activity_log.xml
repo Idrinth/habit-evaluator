@@ -66,6 +66,15 @@
             android:textStyle="bold" />
 
         <ImageButton
+            android:id="@+id/activityLogEditButton"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_marginStart="8dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/activity_log_edit"
+            android:src="@android:drawable/ic_menu_edit" />
+
+        <ImageButton
             android:id="@+id/activityLogDeleteButton"
             android:layout_width="36dp"
             android:layout_height="36dp"

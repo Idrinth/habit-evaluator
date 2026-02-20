@@ -642,6 +642,19 @@ export const activityLogs = {
 			body: JSON.stringify(entry)
 		});
 	},
+	update(id: string, entry: {
+		persons: string;
+		location: string;
+		startTime: string;
+		endTime: string;
+		date: string;
+		activity?: string | null;
+	}) {
+		return request<ActivityLog>(`/activity-logs/${id}`, {
+			method: 'PUT',
+			body: JSON.stringify(entry)
+		});
+	},
 	delete(id: string) {
 		return request<void>(`/activity-logs/${id}`, { method: 'DELETE' });
 	}

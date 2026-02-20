@@ -47,6 +47,26 @@ public class ActivityLogController {
         return ResponseEntity.ok(activityLogRepository.save(entry));
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateEntry(@PathVariable String id, @RequestBody ActivityLog entry, HttpSession session) {
+        String userId = (String) session.getAttribute("userId");
+        if (userId == null) {
+            return ResponseEntity.status(401).build();
+        }
+        Optional<ActivityLog> existingOpt = activityLogRepository.findById(id);
+        if (existingOpt.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        ActivityLog existing = existingOpt.get();
+        if (existing.getUser() == null || !userId.equals(existing.getUser().getId())) {
+            return ResponseEntity.notFound().build();
+        }
+        entry.setId(id);
+        entry.setUser(existing.getUser());
+        entry.setCreatedAt(existing.getCreatedAt());
+        return ResponseEntity.ok(activityLogRepository.save(entry));
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteEntry(@PathVariable String id, HttpSession session) {
         String userId = (String) session.getAttribute("userId");

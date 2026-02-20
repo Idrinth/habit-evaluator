@@ -420,6 +420,9 @@
     <string name="activity_log_end_time">Heure de fin</string>
     <string name="activity_log_date">Date</string>
     <string name="activity_log_activity_hint">Activité (facultatif)</string>
+    <string name="activity_log_edit">Modifier</string>
+    <string name="activity_log_save_edit">Enregistrer</string>
+    <string name="activity_log_entry_updated">Entrée d\'activité mise à jour</string>
     <string name="activity_log_delete">Supprimer</string>
     <string name="activity_log_entry_added">Entrée d\'activité ajoutée</string>
     <string name="activity_log_entry_removed">Entrée d\'activité supprimée</string>

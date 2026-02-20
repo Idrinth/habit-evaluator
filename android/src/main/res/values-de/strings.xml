@@ -420,6 +420,9 @@
     <string name="activity_log_end_time">Endzeit</string>
     <string name="activity_log_date">Datum</string>
     <string name="activity_log_activity_hint">Aktivität (optional)</string>
+    <string name="activity_log_edit">Bearbeiten</string>
+    <string name="activity_log_save_edit">Speichern</string>
+    <string name="activity_log_entry_updated">Aktivitätseintrag aktualisiert</string>
     <string name="activity_log_delete">Löschen</string>
     <string name="activity_log_entry_added">Aktivitätseintrag hinzugefügt</string>
     <string name="activity_log_entry_removed">Aktivitätseintrag entfernt</string>

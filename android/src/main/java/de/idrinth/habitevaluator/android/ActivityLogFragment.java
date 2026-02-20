@@ -28,7 +28,7 @@ import de.idrinth.habitevaluator.android.ui.ActivityLogAdapter;
 import de.idrinth.habitevaluator.shared.model.ActivityLog;
 import de.idrinth.habitevaluator.shared.repository.ActivityLogRepository;
 
-public class ActivityLogFragment extends Fragment implements ActivityLogAdapter.OnActivityLogDeleteListener {
+public class ActivityLogFragment extends Fragment implements ActivityLogAdapter.OnActivityLogActionListener {
 
     static final String DATE_PATTERN = "yyyy-MM-dd";
     static final String TIME_PATTERN = "HH:mm";
@@ -41,6 +41,7 @@ public class ActivityLogFragment extends Fragment implements ActivityLogAdapter.
     private LocalDate selectedDate;
     private LocalTime selectedStartTime;
     private LocalTime selectedEndTime;
+    private ActivityLog editingEntry;
 
     @Nullable
     @Override
@@ -61,7 +62,7 @@ public class ActivityLogFragment extends Fragment implements ActivityLogAdapter.
         setupDatePicker();
         setupTimePickers();
         setupFormToggle();
-        binding.addActivityLogButton.setOnClickListener(v -> addActivityLog());
+        binding.addActivityLogButton.setOnClickListener(v -> handleSubmit());
         loadEntries();
     }
 
@@ -88,6 +89,9 @@ public class ActivityLogFragment extends Fragment implements ActivityLogAdapter.
         binding.toggleFormButton.setImageResource(isVisible
                 ? android.R.drawable.arrow_down_float
                 : android.R.drawable.arrow_up_float);
+        if (isVisible) {
+            cancelEdit();
+        }
     }
 
     private void setupDatePicker() {
@@ -139,7 +143,7 @@ public class ActivityLogFragment extends Fragment implements ActivityLogAdapter.
         dialog.show();
     }
 
-    private void addActivityLog() {
+    private void handleSubmit() {
         String persons = binding.personsInput.getText() != null
                 ? binding.personsInput.getText().toString().trim() : "";
         String location = binding.locationInput.getText() != null
@@ -158,20 +162,41 @@ public class ActivityLogFragment extends Fragment implements ActivityLogAdapter.
             return;
         }
 
-        ActivityLog entry = new ActivityLog(persons, location, selectedStartTime, selectedEndTime, selectedDate);
-        entry.setUser(MainActivity.getSharedLocalUser());
-
         String activity = binding.activityInput.getText() != null
                 ? binding.activityInput.getText().toString().trim() : "";
-        if (!activity.isEmpty()) {
-            entry.setActivity(activity);
-        }
 
         ActivityLogRepository repository = MainActivity.getSharedActivityLogRepository();
-        if (repository != null) {
-            repository.save(entry);
+
+        if (editingEntry != null) {
+            editingEntry.setPersons(persons);
+            editingEntry.setLocation(location);
+            editingEntry.setStartTime(selectedStartTime);
+            editingEntry.setEndTime(selectedEndTime);
+            editingEntry.setDate(selectedDate);
+            editingEntry.setActivity(activity.isEmpty() ? null : activity);
+
+            if (repository != null) {
+                repository.save(editingEntry);
+            }
+            Toast.makeText(requireContext(), R.string.activity_log_entry_updated, Toast.LENGTH_SHORT).show();
+        } else {
+            ActivityLog entry = new ActivityLog(persons, location, selectedStartTime, selectedEndTime, selectedDate);
+            entry.setUser(MainActivity.getSharedLocalUser());
+            if (!activity.isEmpty()) {
+                entry.setActivity(activity);
+            }
+            if (repository != null) {
+                repository.save(entry);
+            }
+            Toast.makeText(requireContext(), R.string.activity_log_entry_added, Toast.LENGTH_SHORT).show();
         }
 
+        clearForm();
+        loadEntries();
+    }
+
+    private void clearForm() {
+        editingEntry = null;
         binding.personsInput.setText("");
         binding.locationInput.setText("");
         binding.activityInput.setText("");
@@ -182,11 +207,43 @@ public class ActivityLogFragment extends Fragment implements ActivityLogAdapter.
         selectedDate = LocalDate.now();
         binding.activityDateInput.setText(selectedDate.format(DATE_FORMAT));
 
+        binding.addActivityLogButton.setText(R.string.activity_log_add_entry);
         binding.addEntryFormContainer.setVisibility(View.GONE);
         binding.toggleFormButton.setImageResource(android.R.drawable.arrow_down_float);
+    }
 
-        Toast.makeText(requireContext(), R.string.activity_log_entry_added, Toast.LENGTH_SHORT).show();
-        loadEntries();
+    private void cancelEdit() {
+        if (editingEntry != null) {
+            editingEntry = null;
+            binding.addActivityLogButton.setText(R.string.activity_log_add_entry);
+            binding.personsInput.setText("");
+            binding.locationInput.setText("");
+            binding.activityInput.setText("");
+            selectedStartTime = null;
+            selectedEndTime = null;
+            binding.activityStartTimeInput.setText("");
+            binding.activityEndTimeInput.setText("");
+            selectedDate = LocalDate.now();
+            binding.activityDateInput.setText(selectedDate.format(DATE_FORMAT));
+        }
+    }
+
+    @Override
+    public void onEdit(ActivityLog entry) {
+        editingEntry = entry;
+        binding.personsInput.setText(entry.getPersons());
+        binding.locationInput.setText(entry.getLocation());
+        selectedDate = entry.getDate();
+        binding.activityDateInput.setText(selectedDate.format(DATE_FORMAT));
+        selectedStartTime = entry.getStartTime();
+        selectedEndTime = entry.getEndTime();
+        binding.activityStartTimeInput.setText(selectedStartTime != null ? selectedStartTime.format(TIME_FORMAT) : "");
+        binding.activityEndTimeInput.setText(selectedEndTime != null ? selectedEndTime.format(TIME_FORMAT) : "");
+        binding.activityInput.setText(entry.getActivity() != null ? entry.getActivity() : "");
+
+        binding.addActivityLogButton.setText(R.string.activity_log_save_edit);
+        binding.addEntryFormContainer.setVisibility(View.VISIBLE);
+        binding.toggleFormButton.setImageResource(android.R.drawable.arrow_up_float);
     }
 
     @Override
@@ -194,6 +251,9 @@ public class ActivityLogFragment extends Fragment implements ActivityLogAdapter.
         ActivityLogRepository repository = MainActivity.getSharedActivityLogRepository();
         if (repository != null) {
             repository.deleteById(entry.getId());
+        }
+        if (editingEntry != null && editingEntry.getId().equals(entry.getId())) {
+            cancelEdit();
         }
         Toast.makeText(requireContext(), R.string.activity_log_entry_removed, Toast.LENGTH_SHORT).show();
         loadEntries();

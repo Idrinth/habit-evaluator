@@ -18,17 +18,21 @@ import de.idrinth.habitevaluator.shared.model.ActivityLog;
 public class ActivityLogAdapter extends RecyclerView.Adapter<ActivityLogAdapter.ViewHolder> {
 
     private final List<ActivityLog> entries;
-    private final OnActivityLogDeleteListener deleteListener;
+    private final OnActivityLogActionListener actionListener;
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     private static final DateTimeFormatter TIME_FORMAT = DateTimeFormatter.ofPattern("HH:mm");
 
-    public interface OnActivityLogDeleteListener {
-        void onDelete(ActivityLog entry);
+    public interface OnActivityLogDeleteListener extends OnActivityLogActionListener {
     }
 
-    public ActivityLogAdapter(List<ActivityLog> entries, OnActivityLogDeleteListener deleteListener) {
+    public interface OnActivityLogActionListener {
+        void onDelete(ActivityLog entry);
+        void onEdit(ActivityLog entry);
+    }
+
+    public ActivityLogAdapter(List<ActivityLog> entries, OnActivityLogActionListener actionListener) {
         this.entries = entries;
-        this.deleteListener = deleteListener;
+        this.actionListener = actionListener;
     }
 
     @NonNull
@@ -65,9 +69,15 @@ public class ActivityLogAdapter extends RecyclerView.Adapter<ActivityLogAdapter.
             holder.activity.setVisibility(View.GONE);
         }
 
+        holder.editButton.setOnClickListener(v -> {
+            if (actionListener != null) {
+                actionListener.onEdit(entry);
+            }
+        });
+
         holder.deleteButton.setOnClickListener(v -> {
-            if (deleteListener != null) {
-                deleteListener.onDelete(entry);
+            if (actionListener != null) {
+                actionListener.onDelete(entry);
             }
         });
     }
@@ -84,6 +94,7 @@ public class ActivityLogAdapter extends RecyclerView.Adapter<ActivityLogAdapter.
         final TextView time;
         final TextView activity;
         final TextView duration;
+        final View editButton;
         final View deleteButton;
 
         ViewHolder(@NonNull View itemView) {
@@ -94,6 +105,7 @@ public class ActivityLogAdapter extends RecyclerView.Adapter<ActivityLogAdapter.
             time = itemView.findViewById(R.id.activityLogTime);
             activity = itemView.findViewById(R.id.activityLogActivity);
             duration = itemView.findViewById(R.id.activityLogDuration);
+            editButton = itemView.findViewById(R.id.activityLogEditButton);
             deleteButton = itemView.findViewById(R.id.activityLogDeleteButton);
         }
     }
