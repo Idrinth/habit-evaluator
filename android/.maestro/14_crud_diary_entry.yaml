@@ -53,6 +53,12 @@ name: "Add, display and delete a diary entry"
 - tapOn:
     id: "addEventButton"
 
+# Wait for the entry to appear in the list
+- extendedWaitUntil:
+    visible:
+        id: "diaryEntryDeleteButton"
+    timeout: 5000
+
 # Verify entry appears in the list
 - scrollUntilVisible:
     element:

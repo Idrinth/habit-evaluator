@@ -58,6 +58,12 @@ name: "Add, display and delete a medication"
 - tapOn:
     id: "addMedicationButton"
 
+# Wait for the medication to appear in the list
+- extendedWaitUntil:
+    visible:
+        id: "deleteMedicationButton"
+    timeout: 5000
+
 # Verify medication appears in the list
 - scrollUntilVisible:
     element:
