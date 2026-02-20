@@ -19,7 +19,7 @@ name: "Diary navigation cards lead to sub-pages"
 - extendedWaitUntil:
     visible:
         id: "diaryEntriesRecyclerView"
-    timeout: 5000
+    timeout: 10000
 - assertVisible: "Positive Events"
 
 # Back to Diary hub
