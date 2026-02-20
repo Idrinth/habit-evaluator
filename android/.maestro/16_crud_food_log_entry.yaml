@@ -8,6 +8,10 @@ name: "Add, display and delete a food log entry"
 
 # Navigate to Diary > Food Log
 - tapOn: "Diary"
+- extendedWaitUntil:
+    visible:
+        id: "foodLogCard"
+    timeout: 5000
 - tapOn:
     id: "foodLogCard"
 

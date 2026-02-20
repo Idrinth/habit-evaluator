@@ -8,10 +8,15 @@ name: "Add Emotion Pair page is reachable"
 
 # Navigate to Emotions tab
 - tapOn: "Emotions"
-- assertVisible:
-    id: "emotionalStateTitle"
+- extendedWaitUntil:
+    visible:
+        id: "emotionalStateTitle"
+    timeout: 5000
 
 # Tap add emotion pair button
 - tapOn:
     id: "addEmotionPairButton"
-- assertVisible: "Add Emotion Pair"
+- extendedWaitUntil:
+    visible:
+        text: "Add Emotion Pair"
+    timeout: 5000

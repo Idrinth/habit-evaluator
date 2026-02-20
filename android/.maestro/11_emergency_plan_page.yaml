@@ -8,9 +8,12 @@ name: "Emergency Plan page renders correctly"
 
 # Navigate to Emergency tab
 - tapOn: "Emergency"
+- extendedWaitUntil:
+    visible:
+        text: "Emergency Plan"
+    timeout: 5000
 
 # Verify page content
-- assertVisible: "Emergency Plan"
 - assertVisible:
     id: "stepsRecyclerView"
 - assertVisible:

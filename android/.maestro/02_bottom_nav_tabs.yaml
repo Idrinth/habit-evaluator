@@ -11,7 +11,10 @@ name: "Bottom navigation tabs are reachable"
 
 # Diary tab
 - tapOn: "Diary"
-- assertVisible: "Positive Events"
+- extendedWaitUntil:
+    visible:
+        text: "Positive Events"
+    timeout: 5000
 - assertVisible: "Sport Log"
 - assertVisible: "Food Log"
 - assertVisible: "Medication Log"
@@ -23,17 +26,28 @@ name: "Bottom navigation tabs are reachable"
 - tapOn:
     text: "Sleep"
     index: 0
-- assertVisible: "Sleep Tracking"
+- extendedWaitUntil:
+    visible:
+        text: "Sleep Tracking"
+    timeout: 5000
 
 # Emergency tab
 - tapOn: "Emergency"
-- assertVisible: "Emergency Plan"
+- extendedWaitUntil:
+    visible:
+        text: "Emergency Plan"
+    timeout: 5000
 
 # Emotions tab
 - tapOn: "Emotions"
-- assertVisible:
-    id: "emotionalStateTitle"
+- extendedWaitUntil:
+    visible:
+        id: "emotionalStateTitle"
+    timeout: 5000
 
 # Back to Home
 - tapOn: "Home"
-- assertVisible: "Home"
+- extendedWaitUntil:
+    visible:
+        text: "Home"
+    timeout: 5000

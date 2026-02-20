@@ -8,6 +8,10 @@ name: "Add, display and delete a diary entry"
 
 # Navigate to Diary > Positive Events
 - tapOn: "Diary"
+- extendedWaitUntil:
+    visible:
+        id: "positivityDiaryCard"
+    timeout: 5000
 - tapOn:
     id: "positivityDiaryCard"
 

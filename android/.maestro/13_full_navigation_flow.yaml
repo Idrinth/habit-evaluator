@@ -17,7 +17,10 @@ name: "Complete navigation flow through all pages without crash"
 
 # Diary hub
 - tapOn: "Diary"
-- assertVisible: "Positive Events"
+- extendedWaitUntil:
+    visible:
+        text: "Positive Events"
+    timeout: 5000
 - assertVisible: "Sport Log"
 - assertVisible: "Food Log"
 - assertVisible: "Medication Log"
@@ -29,16 +32,24 @@ name: "Complete navigation flow through all pages without crash"
 - tapOn:
     text: "Sleep"
     index: 0
-- assertVisible: "Sleep Tracking"
+- extendedWaitUntil:
+    visible:
+        text: "Sleep Tracking"
+    timeout: 5000
 
 # Emergency
 - tapOn: "Emergency"
-- assertVisible: "Emergency Plan"
+- extendedWaitUntil:
+    visible:
+        text: "Emergency Plan"
+    timeout: 5000
 
 # Emotions
 - tapOn: "Emotions"
-- assertVisible:
-    id: "emotionalStateTitle"
+- extendedWaitUntil:
+    visible:
+        id: "emotionalStateTitle"
+    timeout: 5000
 
 # === Toolbar Buttons ===
 
@@ -62,7 +73,10 @@ name: "Complete navigation flow through all pages without crash"
 # Settings
 - tapOn:
     id: "settingsButton"
-- assertVisible: "Storage Settings"
+- extendedWaitUntil:
+    visible:
+        text: "Storage Settings"
+    timeout: 5000
 - scrollUntilVisible:
     element:
       text: "Save Settings"
@@ -73,37 +87,66 @@ name: "Complete navigation flow through all pages without crash"
 # Imprint
 - tapOn:
     id: "imprintButton"
-- assertVisible: "Project legal"
+- extendedWaitUntil:
+    visible:
+        text: "Project legal"
+    timeout: 5000
 
 # === Diary Sub-Pages ===
 
 # Go to Diary hub first
 - tapOn: "Diary"
-- assertVisible:
-    id: "positivityDiaryCard"
+- extendedWaitUntil:
+    visible:
+        id: "positivityDiaryCard"
+    timeout: 5000
 
 # Positive Events
 - tapOn:
     id: "positivityDiaryCard"
-- assertVisible: "Positive Events"
+- extendedWaitUntil:
+    visible:
+        text: "Positive Events"
+    timeout: 5000
 - tapOn: "Diary"
+- extendedWaitUntil:
+    visible:
+        id: "positivityDiaryCard"
+    timeout: 5000
 
 # Sport Log
 - tapOn:
     id: "sportLogCard"
-- assertVisible: "Sport Log"
+- extendedWaitUntil:
+    visible:
+        text: "Sport Log"
+    timeout: 5000
 - tapOn: "Diary"
+- extendedWaitUntil:
+    visible:
+        id: "positivityDiaryCard"
+    timeout: 5000
 
 # Food Log
 - tapOn:
     id: "foodLogCard"
-- assertVisible: "Food Log"
+- extendedWaitUntil:
+    visible:
+        text: "Food Log"
+    timeout: 5000
 - tapOn: "Diary"
+- extendedWaitUntil:
+    visible:
+        id: "positivityDiaryCard"
+    timeout: 5000
 
 # Medication Log
 - tapOn:
     id: "medicationLogCard"
-- assertVisible: "Medication Log"
+- extendedWaitUntil:
+    visible:
+        text: "Medication Log"
+    timeout: 5000
 - tapOn: "Diary"
 - extendedWaitUntil:
     visible:
@@ -118,14 +161,19 @@ name: "Complete navigation flow through all pages without crash"
     timeout: 5000
 - tapOn:
     id: "medicationListCard"
-- assertVisible: "Your Medications"
+- extendedWaitUntil:
+    visible:
+        text: "Your Medications"
+    timeout: 5000
 
 # === Sub-Pages from Fragments ===
 
 # Add Habit from Home
 - tapOn: "Home"
-- assertVisible:
-    id: "addHabitButton"
+- extendedWaitUntil:
+    visible:
+        id: "addHabitButton"
+    timeout: 5000
 - tapOn:
     id: "addHabitButton"
 - extendedWaitUntil:
@@ -139,17 +187,34 @@ name: "Complete navigation flow through all pages without crash"
 
 # Add Emotion Pair from Emotions
 - tapOn: "Emotions"
+- extendedWaitUntil:
+    visible:
+        id: "addEmotionPairButton"
+    timeout: 5000
 - tapOn:
     id: "addEmotionPairButton"
-- assertVisible: "Add Emotion Pair"
+- extendedWaitUntil:
+    visible:
+        text: "Add Emotion Pair"
+    timeout: 5000
 
 # Sleep Analysis from Sleep
 - tapOn:
     text: "Sleep"
     index: 0
+- extendedWaitUntil:
+    visible:
+        id: "viewAnalysisButton"
+    timeout: 5000
 - tapOn:
     id: "viewAnalysisButton"
-- assertVisible: "Sleep Analysis"
+- extendedWaitUntil:
+    visible:
+        text: "Sleep Analysis"
+    timeout: 5000
 # Go back from activity
 - back
-- assertVisible: "Sleep Tracking"
+- extendedWaitUntil:
+    visible:
+        text: "Sleep Tracking"
+    timeout: 5000

@@ -10,9 +10,12 @@ name: "Add, display and delete a sleep entry"
 - tapOn:
     text: "Sleep"
     index: 0
+- extendedWaitUntil:
+    visible:
+        text: "Sleep Tracking"
+    timeout: 5000
 
 # Verify page content
-- assertVisible: "Sleep Tracking"
 
 # Date auto-fills with today
 # Fill from time (direct text input, no picker)

@@ -26,7 +26,10 @@ name: "Toolbar buttons navigate to Stats, Settings, and Imprint"
 # Settings page via toolbar button
 - tapOn:
     id: "settingsButton"
-- assertVisible: "Storage Settings"
+- extendedWaitUntil:
+    visible:
+        text: "Storage Settings"
+    timeout: 5000
 - assertVisible: "Theme Settings"
 - scrollUntilVisible:
     element:
@@ -38,6 +41,9 @@ name: "Toolbar buttons navigate to Stats, Settings, and Imprint"
 # Imprint page via toolbar button
 - tapOn:
     id: "imprintButton"
-- assertVisible: "Project legal"
+- extendedWaitUntil:
+    visible:
+        text: "Project legal"
+    timeout: 5000
 - assertVisible: "License"
 - assertVisible: "Data Protection"
