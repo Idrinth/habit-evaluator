@@ -274,8 +274,11 @@ public class MainActivity extends AppCompatActivity {
         sharedHabits = habits;
 
         SharedPreferences prefs = getSharedPreferences(SettingsActivity.PREFS_NAME, MODE_PRIVATE);
-        if (!prefs.getBoolean(SettingsActivity.KEY_FIRST_START_COMPLETED, false)) {
-            binding.welcomeOverlay.setVisibility(android.view.View.VISIBLE);
+        if (prefs.getBoolean(SettingsActivity.KEY_FIRST_START_COMPLETED, false)) {
+            binding.welcomeOverlay.setVisibility(android.view.View.GONE);
+            initializeStorage();
+            completeSetup();
+        } else {
             binding.welcomeMessage.setText(getString(R.string.first_start_not_professional_help)
                     + "\n\n"
                     + getString(R.string.first_start_no_data_sharing));
@@ -285,9 +288,6 @@ public class MainActivity extends AppCompatActivity {
                 initializeStorage();
                 completeSetup();
             });
-        } else {
-            initializeStorage();
-            completeSetup();
         }
     }
 
