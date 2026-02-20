@@ -12,6 +12,10 @@ name: "Add Habit page is reachable"
     id: "addHabitButton"
 - tapOn:
     id: "addHabitButton"
+- extendedWaitUntil:
+    visible:
+        id: "habitNameInput"
+    timeout: 5000
 - scrollUntilVisible:
     element:
       text: "Add Habit"
