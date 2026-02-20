@@ -15,6 +15,11 @@ name: "Add, display and delete an emergency plan step"
     id: "toggleFormButton"
 
 # Fill question (required)
+- scrollUntilVisible:
+    element:
+      id: "questionInput"
+    direction: DOWN
+    timeout: 5000
 - tapOn:
     id: "questionInput"
 - inputText: "Did you take your medication today?"
@@ -22,12 +27,22 @@ name: "Add, display and delete an emergency plan step"
 
 # One action row is added by default on form open
 # Fill action text in the default row (required)
+- scrollUntilVisible:
+    element:
+      id: "rowActionInput"
+    direction: DOWN
+    timeout: 5000
 - tapOn:
     id: "rowActionInput"
 - inputText: "Take your medication now"
 - hideKeyboard
 
-# Submit the step
+# Scroll to and tap submit button
+- scrollUntilVisible:
+    element:
+      id: "addStepButton"
+    direction: DOWN
+    timeout: 5000
 - tapOn:
     id: "addStepButton"
 

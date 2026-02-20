@@ -15,7 +15,13 @@ name: "Add, display and delete a medication"
     timeout: 5000
 - tapOn:
     id: "medicationListCard"
-- assertVisible: "Your Medications"
+
+# Wait for MedicationListFragment to load (unique element not on diary nav)
+- scrollUntilVisible:
+    element:
+      id: "newMedicationNameInput"
+    direction: DOWN
+    timeout: 10000
 
 # Fill medication name (required)
 - tapOn:
@@ -24,11 +30,21 @@ name: "Add, display and delete a medication"
 - hideKeyboard
 
 # Provision type defaults to first option (Pill)
-# Submit
+# Scroll to and tap submit button
+- scrollUntilVisible:
+    element:
+      id: "addMedicationButton"
+    direction: DOWN
+    timeout: 5000
 - tapOn:
     id: "addMedicationButton"
 
 # Verify medication appears in the list
+- scrollUntilVisible:
+    element:
+      text: "Aspirin"
+    direction: DOWN
+    timeout: 5000
 - assertVisible: "Aspirin"
 
 # Delete the medication

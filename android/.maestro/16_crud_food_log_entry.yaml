@@ -10,26 +10,47 @@ name: "Add, display and delete a food log entry"
 - tapOn: "Diary"
 - tapOn:
     id: "foodLogCard"
-- assertVisible: "Food Log"
+
+# Wait for FoodLogFragment to load (toggleFormButton is unique to food log page)
+- scrollUntilVisible:
+    element:
+      id: "toggleFormButton"
+    direction: DOWN
+    timeout: 10000
 
 # Expand add entry form
 - tapOn:
     id: "toggleFormButton"
 
 # Fill food items (required)
+- scrollUntilVisible:
+    element:
+      id: "foodItemsInput"
+    direction: DOWN
+    timeout: 5000
 - tapOn:
     id: "foodItemsInput"
 - inputText: "Rice, Chicken"
 - hideKeyboard
 
 # Fill kcal (required)
+- scrollUntilVisible:
+    element:
+      id: "kcalInput"
+    direction: DOWN
+    timeout: 5000
 - tapOn:
     id: "kcalInput"
 - inputText: "500"
 - hideKeyboard
 
 # Date and time auto-fill with current datetime
-# Submit the entry
+# Scroll to and tap submit button
+- scrollUntilVisible:
+    element:
+      id: "addFoodLogButton"
+    direction: DOWN
+    timeout: 5000
 - tapOn:
     id: "addFoodLogButton"
 
