@@ -31,6 +31,12 @@ name: "Add, display and delete a medication"
 - tapOn:
     id: "toggleFormButton"
 
+# Wait for form to render before scrolling
+- extendedWaitUntil:
+    visible:
+        id: "newMedicationNameInput"
+    timeout: 5000
+
 # Fill medication name (required)
 - scrollUntilVisible:
     element:

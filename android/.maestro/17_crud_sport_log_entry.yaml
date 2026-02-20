@@ -26,6 +26,12 @@ name: "Add, display and delete a sport log entry"
 - tapOn:
     id: "toggleFormButton"
 
+# Wait for form to render before scrolling
+- extendedWaitUntil:
+    visible:
+        id: "activityNameInput"
+    timeout: 5000
+
 # Fill activity name (required)
 - scrollUntilVisible:
     element:
