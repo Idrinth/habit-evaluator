@@ -11,7 +11,7 @@ name: "Stats page renders charts"
     id: "statsButton"
 - extendedWaitUntil:
     visible:
-        id: "habitPointsChart"
+        id: "statsTitle"
     timeout: 10000
 
 # Verify chart sections exist
