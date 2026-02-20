@@ -411,4 +411,21 @@
     <string name="emergency_dialogue_finish">Beenden</string>
     <string name="emergency_dialogue_progress">Frage %1$d von %2$d</string>
     <string name="emergency_dialogue_complete">Sie haben alle Schritte abgeschlossen.</string>
+    <string name="activity_log_title">Aktivitätsprotokoll</string>
+    <string name="activity_log_add_entry">Hinzufügen</string>
+    <string name="activity_log_toggle_form">Eingabeformular ein-/ausblenden</string>
+    <string name="activity_log_persons_hint">Personen (z.B. Alice, Bob)</string>
+    <string name="activity_log_location_hint">Ort</string>
+    <string name="activity_log_start_time">Startzeit</string>
+    <string name="activity_log_end_time">Endzeit</string>
+    <string name="activity_log_date">Datum</string>
+    <string name="activity_log_activity_hint">Aktivität (optional)</string>
+    <string name="activity_log_delete">Löschen</string>
+    <string name="activity_log_entry_added">Aktivitätseintrag hinzugefügt</string>
+    <string name="activity_log_entry_removed">Aktivitätseintrag entfernt</string>
+    <string name="activity_log_persons_required">Bitte Personen eingeben</string>
+    <string name="activity_log_location_required">Bitte einen Ort eingeben</string>
+    <string name="activity_log_time_required">Bitte Start- und Endzeit auswählen</string>
+    <string name="activity_log_duration">%d min</string>
+    <string name="diary_navigation_activity_log_description">Aktivitäten mit Personen, Orten und Zeiten protokollieren</string>
 </resources>
