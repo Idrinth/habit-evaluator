@@ -25,6 +25,7 @@ import de.idrinth.habitevaluator.shared.repository.SportLogRepository;
 import de.idrinth.habitevaluator.shared.service.DiaryService;
 import de.idrinth.habitevaluator.shared.service.EventCorrelationService;
 import de.idrinth.habitevaluator.shared.service.HabitScoringService;
+import de.idrinth.habitevaluator.webserver.service.StatsCacheService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -61,6 +62,7 @@ public class StatsController {
     private final HabitScoringService scoringService;
     private final DiaryService diaryService;
     private final EventCorrelationService correlationService;
+    private final StatsCacheService statsCacheService;
 
     public StatsController(HabitRepository habitRepository,
                            SleepEntryRepository sleepEntryRepository,
@@ -74,7 +76,8 @@ public class StatsController {
                            MedicationLogRepository medicationLogRepository,
                            HabitScoringService scoringService,
                            DiaryService diaryService,
-                           EventCorrelationService correlationService) {
+                           EventCorrelationService correlationService,
+                           StatsCacheService statsCacheService) {
         this.habitRepository = habitRepository;
         this.sleepEntryRepository = sleepEntryRepository;
         this.diaryEntryRepository = diaryEntryRepository;
@@ -88,6 +91,7 @@ public class StatsController {
         this.scoringService = scoringService;
         this.diaryService = diaryService;
         this.correlationService = correlationService;
+        this.statsCacheService = statsCacheService;
     }
 
     @GetMapping("/dashboard")
@@ -95,6 +99,11 @@ public class StatsController {
         String userId = (String) session.getAttribute("userId");
         if (userId == null) {
             return ResponseEntity.status(401).build();
+        }
+
+        Map<String, Object> cached = statsCacheService.getCachedMap(userId, StatsCacheService.DASHBOARD);
+        if (cached != null) {
+            return ResponseEntity.ok(cached);
         }
 
         LocalDate today = LocalDate.now();
@@ -112,6 +121,7 @@ public class StatsController {
         result.put("sleepDuration", calculateSleepDuration(userId, startDate, today));
         result.put("sleepEntries", calculateSleepEntries(userId, startDate, today));
 
+        statsCacheService.putMap(userId, StatsCacheService.DASHBOARD, result);
         return ResponseEntity.ok(result);
     }
 
@@ -172,6 +182,11 @@ public class StatsController {
             return ResponseEntity.status(401).build();
         }
 
+        Map<String, Object> cached = statsCacheService.getCachedMap(userId, StatsCacheService.DAILY_TIMELINE);
+        if (cached != null) {
+            return ResponseEntity.ok(cached);
+        }
+
         LocalDate today = LocalDate.now();
         LocalDate startDate = today.minusDays(DAYS - 1);
 
@@ -228,6 +243,7 @@ public class StatsController {
         result.put("labels", labels);
         result.put("habits", habitTimelines);
 
+        statsCacheService.putMap(userId, StatsCacheService.DAILY_TIMELINE, result);
         return ResponseEntity.ok(result);
     }
 
@@ -236,6 +252,11 @@ public class StatsController {
         String userId = (String) session.getAttribute("userId");
         if (userId == null) {
             return ResponseEntity.status(401).build();
+        }
+
+        List<Map<String, Object>> cached = statsCacheService.getCachedList(userId, StatsCacheService.CORRELATIONS);
+        if (cached != null) {
+            return ResponseEntity.ok(cached);
         }
 
         List<Habit> habits = habitRepository.findByUserId(userId);
@@ -262,6 +283,7 @@ public class StatsController {
             result.add(entry);
         }
 
+        statsCacheService.putList(userId, StatsCacheService.CORRELATIONS, result);
         return ResponseEntity.ok(result);
     }
 
@@ -270,6 +292,11 @@ public class StatsController {
         String userId = (String) session.getAttribute("userId");
         if (userId == null) {
             return ResponseEntity.status(401).build();
+        }
+
+        Map<String, Object> cached = statsCacheService.getCachedMap(userId, StatsCacheService.EMOTION_SCATTER);
+        if (cached != null) {
+            return ResponseEntity.ok(cached);
         }
 
         LocalDate today = LocalDate.now();
@@ -335,6 +362,7 @@ public class StatsController {
         result.put("labels", labels);
         result.put("pairs", pairScatters);
 
+        statsCacheService.putMap(userId, StatsCacheService.EMOTION_SCATTER, result);
         return ResponseEntity.ok(result);
     }
 
@@ -343,6 +371,11 @@ public class StatsController {
         String userId = (String) session.getAttribute("userId");
         if (userId == null) {
             return ResponseEntity.status(401).build();
+        }
+
+        Map<String, Object> cached = statsCacheService.getCachedMap(userId, StatsCacheService.FOOD_DISTRIBUTION);
+        if (cached != null) {
+            return ResponseEntity.ok(cached);
         }
 
         LocalDate today = LocalDate.now();
@@ -386,6 +419,7 @@ public class StatsController {
         result.put("avgKcal", avgKcal);
         result.put("avgCarbs", avgCarbs);
 
+        statsCacheService.putMap(userId, StatsCacheService.FOOD_DISTRIBUTION, result);
         return ResponseEntity.ok(result);
     }
 }

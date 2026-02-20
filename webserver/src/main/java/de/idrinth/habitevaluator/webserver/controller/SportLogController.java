@@ -6,6 +6,7 @@ import de.idrinth.habitevaluator.shared.model.User;
 import de.idrinth.habitevaluator.shared.repository.SportLogRepository;
 import de.idrinth.habitevaluator.shared.repository.UserRepository;
 import de.idrinth.habitevaluator.shared.service.SportLogService;
+import de.idrinth.habitevaluator.webserver.service.StatsCacheService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -27,13 +28,16 @@ public class SportLogController {
     private final SportLogRepository sportLogRepository;
     private final UserRepository userRepository;
     private final SportLogService sportLogService;
+    private final StatsCacheService statsCacheService;
 
     public SportLogController(SportLogRepository sportLogRepository,
                               UserRepository userRepository,
-                              SportLogService sportLogService) {
+                              SportLogService sportLogService,
+                              StatsCacheService statsCacheService) {
         this.sportLogRepository = sportLogRepository;
         this.userRepository = userRepository;
         this.sportLogService = sportLogService;
+        this.statsCacheService = statsCacheService;
     }
 
     @GetMapping("/suggestions")
@@ -80,7 +84,9 @@ public class SportLogController {
             return ResponseEntity.badRequest().body(error);
         }
 
-        return ResponseEntity.ok(sportLogRepository.save(entry));
+        SportLog saved = sportLogRepository.save(entry);
+        statsCacheService.invalidateUser(userId);
+        return ResponseEntity.ok(saved);
     }
 
     @DeleteMapping("/{id}")
@@ -98,6 +104,7 @@ public class SportLogController {
             return ResponseEntity.notFound().build();
         }
         sportLogRepository.deleteById(id);
+        statsCacheService.invalidateUser(userId);
         return ResponseEntity.noContent().build();
     }
 

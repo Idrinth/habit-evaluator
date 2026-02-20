@@ -17,6 +17,7 @@ import de.idrinth.habitevaluator.shared.repository.ReminderSettingsRepository;
 import de.idrinth.habitevaluator.shared.repository.SleepEntryRepository;
 import de.idrinth.habitevaluator.shared.repository.SportLogRepository;
 import de.idrinth.habitevaluator.shared.repository.UserRepository;
+import de.idrinth.habitevaluator.webserver.service.StatsCacheService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.ResponseEntity;
@@ -47,6 +48,7 @@ class BackupControllerTest {
     private MedicationRepository medicationRepository;
     private MedicationLogRepository medicationLogRepository;
     private ModuleVisibilityRepository moduleVisibilityRepository;
+    private StatsCacheService statsCacheService;
     private BackupController controller;
     private MockHttpSession session;
     private User testUser;
@@ -69,6 +71,7 @@ class BackupControllerTest {
         medicationRepository = mock(MedicationRepository.class);
         medicationLogRepository = mock(MedicationLogRepository.class);
         moduleVisibilityRepository = mock(ModuleVisibilityRepository.class);
+        statsCacheService = mock(StatsCacheService.class);
         controller = new BackupController(
                 habitRepository, categoryRepository, diaryEntryRepository,
                 sleepEntryRepository, userRepository, emotionPairRepository,
@@ -76,7 +79,7 @@ class BackupControllerTest {
                 sportLogRepository, foodLogRepository, foodTagRepository,
                 meetingEntryRepository, activityLogRepository,
                 medicationRepository, medicationLogRepository,
-                moduleVisibilityRepository);
+                moduleVisibilityRepository, statsCacheService);
         session = new MockHttpSession();
         testUser = new User("testuser", "password");
         session.setAttribute("userId", testUser.getId());

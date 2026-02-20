@@ -6,6 +6,7 @@ import de.idrinth.habitevaluator.shared.model.User;
 import de.idrinth.habitevaluator.shared.repository.FoodLogRepository;
 import de.idrinth.habitevaluator.shared.repository.FoodTagRepository;
 import de.idrinth.habitevaluator.shared.repository.UserRepository;
+import de.idrinth.habitevaluator.webserver.service.StatsCacheService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.ResponseEntity;
@@ -25,6 +26,7 @@ class FoodLogControllerTest {
     private FoodLogRepository foodLogRepository;
     private FoodTagRepository foodTagRepository;
     private UserRepository userRepository;
+    private StatsCacheService statsCacheService;
     private FoodLogController controller;
     private MockHttpSession session;
     private User testUser;
@@ -34,7 +36,8 @@ class FoodLogControllerTest {
         foodLogRepository = mock(FoodLogRepository.class);
         foodTagRepository = mock(FoodTagRepository.class);
         userRepository = mock(UserRepository.class);
-        controller = new FoodLogController(foodLogRepository, foodTagRepository, userRepository);
+        statsCacheService = mock(StatsCacheService.class);
+        controller = new FoodLogController(foodLogRepository, foodTagRepository, userRepository, statsCacheService);
         session = new MockHttpSession();
         testUser = new User("testuser", "password");
         session.setAttribute("userId", testUser.getId());

@@ -6,6 +6,7 @@ import de.idrinth.habitevaluator.shared.model.User;
 import de.idrinth.habitevaluator.shared.repository.SportLogRepository;
 import de.idrinth.habitevaluator.shared.repository.UserRepository;
 import de.idrinth.habitevaluator.shared.service.SportLogService;
+import de.idrinth.habitevaluator.webserver.service.StatsCacheService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.ResponseEntity;
@@ -27,6 +28,7 @@ class SportLogControllerTest {
     private SportLogRepository sportLogRepository;
     private UserRepository userRepository;
     private SportLogService sportLogService;
+    private StatsCacheService statsCacheService;
     private SportLogController controller;
     private MockHttpSession session;
     private User testUser;
@@ -36,7 +38,8 @@ class SportLogControllerTest {
         sportLogRepository = mock(SportLogRepository.class);
         userRepository = mock(UserRepository.class);
         sportLogService = mock(SportLogService.class);
-        controller = new SportLogController(sportLogRepository, userRepository, sportLogService);
+        statsCacheService = mock(StatsCacheService.class);
+        controller = new SportLogController(sportLogRepository, userRepository, sportLogService, statsCacheService);
         session = new MockHttpSession();
         testUser = new User("testuser", "password");
         session.setAttribute("userId", testUser.getId());

@@ -6,6 +6,7 @@ import de.idrinth.habitevaluator.shared.model.User;
 import de.idrinth.habitevaluator.shared.repository.HabitCategoryRepository;
 import de.idrinth.habitevaluator.shared.repository.HabitRepository;
 import de.idrinth.habitevaluator.shared.repository.UserRepository;
+import de.idrinth.habitevaluator.webserver.service.StatsCacheService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,11 +21,14 @@ public class CategoryController {
     private final HabitCategoryRepository habitCategoryRepository;
     private final HabitRepository habitRepository;
     private final UserRepository userRepository;
+    private final StatsCacheService statsCacheService;
 
-    public CategoryController(HabitCategoryRepository habitCategoryRepository, HabitRepository habitRepository, UserRepository userRepository) {
+    public CategoryController(HabitCategoryRepository habitCategoryRepository, HabitRepository habitRepository,
+                              UserRepository userRepository, StatsCacheService statsCacheService) {
         this.habitCategoryRepository = habitCategoryRepository;
         this.habitRepository = habitRepository;
         this.userRepository = userRepository;
+        this.statsCacheService = statsCacheService;
     }
 
     @GetMapping
@@ -120,6 +124,7 @@ public class CategoryController {
             }
         }
         habitCategoryRepository.deleteById(id);
+        statsCacheService.invalidateUser(userId);
         return ResponseEntity.noContent().build();
     }
 

@@ -7,6 +7,7 @@ import de.idrinth.habitevaluator.shared.model.User;
 import de.idrinth.habitevaluator.shared.repository.SleepEntryRepository;
 import de.idrinth.habitevaluator.shared.repository.UserRepository;
 import de.idrinth.habitevaluator.shared.service.SleepEvaluationService;
+import de.idrinth.habitevaluator.webserver.service.StatsCacheService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,13 +24,16 @@ public class SleepEntryController {
     private final SleepEntryRepository sleepEntryRepository;
     private final UserRepository userRepository;
     private final SleepEvaluationService sleepEvaluationService;
+    private final StatsCacheService statsCacheService;
 
     public SleepEntryController(SleepEntryRepository sleepEntryRepository,
                                 UserRepository userRepository,
-                                SleepEvaluationService sleepEvaluationService) {
+                                SleepEvaluationService sleepEvaluationService,
+                                StatsCacheService statsCacheService) {
         this.sleepEntryRepository = sleepEntryRepository;
         this.userRepository = userRepository;
         this.sleepEvaluationService = sleepEvaluationService;
+        this.statsCacheService = statsCacheService;
     }
 
     @GetMapping
@@ -60,7 +64,9 @@ public class SleepEntryController {
             return ResponseEntity.badRequest().body(error);
         }
 
-        return ResponseEntity.ok(sleepEntryRepository.save(entry));
+        SleepEntry saved = sleepEntryRepository.save(entry);
+        statsCacheService.invalidateUser(userId);
+        return ResponseEntity.ok(saved);
     }
 
     @DeleteMapping("/{id}")
@@ -78,6 +84,7 @@ public class SleepEntryController {
             return ResponseEntity.notFound().build();
         }
         sleepEntryRepository.deleteById(id);
+        statsCacheService.invalidateUser(userId);
         return ResponseEntity.noContent().build();
     }
 

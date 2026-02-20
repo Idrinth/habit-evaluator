@@ -6,6 +6,7 @@ import de.idrinth.habitevaluator.shared.service.HabitEvaluatorService;
 import de.idrinth.habitevaluator.shared.service.HabitScoringService;
 import de.idrinth.habitevaluator.shared.service.SleepEvaluationService;
 import de.idrinth.habitevaluator.shared.service.SportLogService;
+import de.idrinth.habitevaluator.webserver.service.StatsCacheService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -66,6 +67,14 @@ class AppConfigTest {
 
         assertNotNull(service);
         assertInstanceOf(SportLogService.class, service);
+    }
+
+    @Test
+    void testStatsCacheServiceBeanCreated() {
+        StatsCacheService service = appConfig.statsCacheService();
+
+        assertNotNull(service);
+        assertInstanceOf(StatsCacheService.class, service);
     }
 
     @Test

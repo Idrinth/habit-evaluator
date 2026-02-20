@@ -6,6 +6,7 @@ import de.idrinth.habitevaluator.shared.model.HabitEntry;
 import de.idrinth.habitevaluator.shared.model.User;
 import de.idrinth.habitevaluator.shared.repository.HabitRepository;
 import de.idrinth.habitevaluator.shared.repository.UserRepository;
+import de.idrinth.habitevaluator.webserver.service.StatsCacheService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +24,7 @@ class SyncControllerTest {
 
     private HabitRepository habitRepository;
     private UserRepository userRepository;
+    private StatsCacheService statsCacheService;
     private SyncController controller;
     private MockHttpSession session;
     private User testUser;
@@ -31,7 +33,8 @@ class SyncControllerTest {
     void setUp() {
         habitRepository = mock(HabitRepository.class);
         userRepository = mock(UserRepository.class);
-        controller = new SyncController(habitRepository, userRepository);
+        statsCacheService = mock(StatsCacheService.class);
+        controller = new SyncController(habitRepository, userRepository, statsCacheService);
         session = new MockHttpSession();
         testUser = new User("testuser", "password");
         session.setAttribute("userId", testUser.getId());
