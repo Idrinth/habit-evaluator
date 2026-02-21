@@ -98,6 +98,9 @@ name: "Complete navigation flow through all pages without crash"
 
 # === Diary Sub-Pages ===
 
+# Wait for ViewPager animation to fully settle before section change
+- waitForAnimationToEnd
+
 # Go to Diary hub first
 - tapOn: "Diary"
 - extendedWaitUntil:
@@ -112,11 +115,13 @@ name: "Complete navigation flow through all pages without crash"
     visible:
         text: "Positive Events"
     timeout: 5000
+- waitForAnimationToEnd
 - tapOn: "Diary"
 - extendedWaitUntil:
     visible:
         id: "positivityDiaryCard"
     timeout: 5000
+- waitForAnimationToEnd
 
 # Sport Log
 - tapOn:
@@ -125,11 +130,13 @@ name: "Complete navigation flow through all pages without crash"
     visible:
         text: "Sport Log"
     timeout: 5000
+- waitForAnimationToEnd
 - tapOn: "Diary"
 - extendedWaitUntil:
     visible:
         id: "positivityDiaryCard"
     timeout: 5000
+- waitForAnimationToEnd
 
 # Food Log
 - tapOn:
@@ -138,11 +145,13 @@ name: "Complete navigation flow through all pages without crash"
     visible:
         text: "Food Log"
     timeout: 5000
+- waitForAnimationToEnd
 - tapOn: "Diary"
 - extendedWaitUntil:
     visible:
         id: "positivityDiaryCard"
     timeout: 5000
+- waitForAnimationToEnd
 
 # Medication Log
 - tapOn:
@@ -151,11 +160,13 @@ name: "Complete navigation flow through all pages without crash"
     visible:
         text: "Medication Log"
     timeout: 5000
+- waitForAnimationToEnd
 - tapOn: "Diary"
 - extendedWaitUntil:
     visible:
         id: "positivityDiaryCard"
     timeout: 5000
+- waitForAnimationToEnd
 
 # Medication List
 - scrollUntilVisible:
@@ -172,12 +183,16 @@ name: "Complete navigation flow through all pages without crash"
 
 # === Sub-Pages from Fragments ===
 
+# Wait for ViewPager animation to fully settle before section change
+- waitForAnimationToEnd
+
 # Add Habit from Home
 - tapOn: "Home"
 - extendedWaitUntil:
     visible:
         id: "addHabitButton"
     timeout: 5000
+- waitForAnimationToEnd
 - tapOn:
     id: "addHabitButton"
 - extendedWaitUntil:
@@ -195,6 +210,7 @@ name: "Complete navigation flow through all pages without crash"
     visible:
         id: "addEmotionPairButton"
     timeout: 5000
+- waitForAnimationToEnd
 - tapOn:
     id: "addEmotionPairButton"
 - extendedWaitUntil:
@@ -210,6 +226,7 @@ name: "Complete navigation flow through all pages without crash"
     visible:
         id: "viewAnalysisButton"
     timeout: 5000
+- waitForAnimationToEnd
 - tapOn:
     id: "viewAnalysisButton"
 - extendedWaitUntil:
