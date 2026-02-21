@@ -54,6 +54,9 @@ name: "Complete navigation flow through all pages without crash"
 
 # === Toolbar Buttons ===
 
+# Wait for ViewPager animation to fully settle before toolbar navigation
+- waitForAnimationToEnd
+
 # Stats
 - tapOn:
     id: "statsButton"
