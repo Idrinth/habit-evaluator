@@ -5,6 +5,10 @@ name: "Toolbar buttons navigate to Stats, Settings, and Imprint"
     clearState: true
 - assertVisible: "Welcome to Habit Evaluator"
 - tapOn: "I understand"
+- extendedWaitUntil:
+    visible:
+        id: "addHabitButton"
+    timeout: 5000
 
 # Stats page via toolbar button
 - tapOn:

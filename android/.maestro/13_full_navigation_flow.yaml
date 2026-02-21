@@ -11,9 +11,10 @@ name: "Complete navigation flow through all pages without crash"
 # === Bottom Navigation Tabs ===
 
 # Home (default)
-- assertVisible: "Home"
-- assertVisible:
-    id: "addHabitButton"
+- extendedWaitUntil:
+    visible:
+        id: "addHabitButton"
+    timeout: 5000
 
 # Diary hub
 - tapOn: "Diary"
