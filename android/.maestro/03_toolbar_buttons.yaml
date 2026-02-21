@@ -11,6 +11,7 @@ name: "Toolbar buttons navigate to Stats, Settings, and Imprint"
     timeout: 5000
 
 # Stats page via toolbar button
+- waitForAnimationToEnd
 - tapOn:
     id: "statsButton"
 - extendedWaitUntil:
