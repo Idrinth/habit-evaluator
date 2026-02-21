@@ -432,19 +432,19 @@ public class MainActivity extends AppCompatActivity {
             int id = item.getItemId();
             if (id == R.id.nav_home) {
                 programmaticNavigationTarget = ScreenPagerAdapter.PAGE_HOME;
-                binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_HOME, true);
+                binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_HOME, false);
             } else if (id == R.id.nav_diary) {
                 programmaticNavigationTarget = ScreenPagerAdapter.PAGE_DIARY;
-                binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_DIARY, true);
+                binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_DIARY, false);
             } else if (id == R.id.nav_emotions) {
                 programmaticNavigationTarget = ScreenPagerAdapter.PAGE_EMOTIONAL_STATE;
-                binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_EMOTIONAL_STATE, true);
+                binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_EMOTIONAL_STATE, false);
             } else if (id == R.id.nav_sleep) {
                 programmaticNavigationTarget = ScreenPagerAdapter.PAGE_SLEEP;
-                binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_SLEEP, true);
+                binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_SLEEP, false);
             } else if (id == R.id.nav_emergency_plan) {
                 programmaticNavigationTarget = ScreenPagerAdapter.PAGE_EMERGENCY_PLAN;
-                binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_EMERGENCY_PLAN, true);
+                binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_EMERGENCY_PLAN, false);
             }
         });
     }
@@ -500,27 +500,27 @@ public class MainActivity extends AppCompatActivity {
 
     public void navigateToPositivityDiary() {
         programmaticNavigationTarget = ScreenPagerAdapter.PAGE_POSITIVITY_DIARY;
-        binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_POSITIVITY_DIARY, true);
+        binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_POSITIVITY_DIARY, false);
     }
 
     public void navigateToSportLog() {
         programmaticNavigationTarget = ScreenPagerAdapter.PAGE_SPORT_LOG;
-        binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_SPORT_LOG, true);
+        binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_SPORT_LOG, false);
     }
 
     public void navigateToFoodLog() {
         programmaticNavigationTarget = ScreenPagerAdapter.PAGE_FOOD_LOG;
-        binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_FOOD_LOG, true);
+        binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_FOOD_LOG, false);
     }
 
     public void navigateToMedicationLog() {
         programmaticNavigationTarget = ScreenPagerAdapter.PAGE_MEDICATION_LOG;
-        binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_MEDICATION_LOG, true);
+        binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_MEDICATION_LOG, false);
     }
 
     public void navigateToMedicationList() {
         programmaticNavigationTarget = ScreenPagerAdapter.PAGE_MEDICATION_LIST;
-        binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_MEDICATION_LIST, true);
+        binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_MEDICATION_LIST, false);
     }
 
     public void navigateToEmergencyPlan() {
@@ -530,7 +530,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void navigateToActivityLog() {
         programmaticNavigationTarget = ScreenPagerAdapter.PAGE_ACTIVITY_LOG;
-        binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_ACTIVITY_LOG, true);
+        binding.viewPager.setCurrentItem(ScreenPagerAdapter.PAGE_ACTIVITY_LOG, false);
     }
 
     public void onSettingsChanged() {
