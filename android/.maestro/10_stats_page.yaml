@@ -11,6 +11,7 @@ name: "Stats page renders charts"
     timeout: 5000
 
 # Navigate to Stats
+- waitForAnimationToEnd
 - tapOn:
     id: "statsButton"
 - extendedWaitUntil:
