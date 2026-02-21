@@ -5,6 +5,10 @@ name: "Add, display and delete an emotion entry"
     clearState: true
 - assertVisible: "Welcome to Habit Evaluator"
 - tapOn: "I understand"
+- extendedWaitUntil:
+    visible:
+        text: "Home"
+    timeout: 5000
 
 # First, create an emotion pair (prerequisite)
 - tapOn: "Emotions"
