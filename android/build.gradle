@@ -176,7 +176,7 @@ tasks.withType(Test).configureEach {
 }
 
 tasks.register('jacocoTestReport', JacocoReport) {
-    dependsOn 'testLollipopDebugUnitTest', 'testOreoDebugUnitTest', 'testTiramisuDebugUnitTest'
+    mustRunAfter 'testLollipopDebugUnitTest', 'testOreoDebugUnitTest', 'testTiramisuDebugUnitTest'
 
     reports {
         xml.required = true
