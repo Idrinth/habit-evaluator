@@ -95,7 +95,7 @@ fun EmotionLineChart(
 
                     // Draw line from previous
                     if (prevOffset != null) {
-                        drawLine(linePaint, prevOffset!!, current, strokeWidth = 2.dp.toPx())
+                        drawLine(linePaint, prevOffset, current, strokeWidth = 2.dp.toPx())
                     }
 
                     // Draw dot

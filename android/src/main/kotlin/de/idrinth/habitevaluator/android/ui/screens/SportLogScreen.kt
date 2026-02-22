@@ -265,7 +265,7 @@ fun SportLogScreen(viewModel: AppViewModel) {
                         val st = entry.startTime?.format(timeFormat) ?: ""
                         val et = entry.endTime?.format(timeFormat) ?: ""
                         if (st.isNotEmpty() || et.isNotEmpty()) Text("$st - $et", style = MaterialTheme.typography.bodySmall)
-                        if (entry.measurement != null && entry.measurement > 0) {
+                        if (entry.measurement > 0) {
                             Text("${entry.measurement} ${entry.measurementUnit ?: ""}", style = MaterialTheme.typography.bodySmall)
                         }
                         entry.notes?.let { if (it.isNotBlank()) Text(it, style = MaterialTheme.typography.bodySmall) }

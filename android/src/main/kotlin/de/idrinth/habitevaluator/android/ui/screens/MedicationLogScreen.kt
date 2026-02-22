@@ -23,6 +23,7 @@ import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ExposedDropdownMenuAnchorType
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -186,7 +187,7 @@ fun MedicationLogScreen(viewModel: AppViewModel) {
                             readOnly = true,
                             label = { Text(stringResource(R.string.medication)) },
                             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = medDropdownExpanded) },
-                            modifier = Modifier.menuAnchor().fillMaxWidth()
+                            modifier = Modifier.menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable).fillMaxWidth()
                         )
                         ExposedDropdownMenu(
                             expanded = medDropdownExpanded,

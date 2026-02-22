@@ -27,7 +27,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.MenuAnchorType
+import androidx.compose.material3.ExposedDropdownMenuAnchorType
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -100,7 +100,7 @@ fun HomeScreen(viewModel: AppViewModel, navController: NavController) {
                         readOnly = true,
                         trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = categoryExpanded) },
                         modifier = Modifier
-                            .menuAnchor(MenuAnchorType.PrimaryNotEditable)
+                            .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable)
                             .fillMaxWidth()
                     )
                     ExposedDropdownMenu(expanded = categoryExpanded, onDismissRequest = { categoryExpanded = false }) {

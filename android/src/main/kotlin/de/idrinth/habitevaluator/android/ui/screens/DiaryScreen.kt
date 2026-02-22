@@ -24,7 +24,7 @@ import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.MenuAnchorType
+import androidx.compose.material3.ExposedDropdownMenuAnchorType
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -111,7 +111,7 @@ fun DiaryScreen(viewModel: AppViewModel) {
                                 value = significance.name, onValueChange = {}, readOnly = true,
                                 label = { Text(stringResource(R.string.significance)) },
                                 trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = sigExpanded) },
-                                modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable).fillMaxWidth()
+                                modifier = Modifier.menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable).fillMaxWidth()
                             )
                             ExposedDropdownMenu(expanded = sigExpanded, onDismissRequest = { sigExpanded = false }) {
                                 EventSignificance.entries.forEach { sig ->
