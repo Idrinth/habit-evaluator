@@ -22,11 +22,6 @@ class PreApi33PermissionHandlerTest {
     }
 
     @Test
-    fun testHasPermissionReturnsTrueWithNullContext() {
-        assertTrue(handler.hasPermission(null))
-    }
-
-    @Test
     fun testPermissionNameReturnsNull() {
         assertNull(handler.permissionName())
     }

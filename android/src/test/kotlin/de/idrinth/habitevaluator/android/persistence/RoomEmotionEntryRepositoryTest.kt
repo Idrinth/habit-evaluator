@@ -1,179 +1,151 @@
 package de.idrinth.habitevaluator.android.persistence
 
-import androidx.room.Room
-import androidx.test.core.app.ApplicationProvider
-import androidx.test.ext.junit.runners.AndroidJUnit4
-import de.idrinth.habitevaluator.shared.model.EmotionEntry
-import de.idrinth.habitevaluator.shared.model.EmotionPair
-import de.idrinth.habitevaluator.shared.model.User
-import org.junit.After
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertNotNull
-import org.junit.Assert.assertNull
-import org.junit.Assert.assertTrue
-import org.junit.Before
-import org.junit.Test
-import org.junit.runner.RunWith
-import java.time.LocalDateTime
-import java.util.UUID
+import kotlinx.coroutines.test.runTest
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Assertions.assertNull
+import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.mockito.Mockito.any
+import org.mockito.Mockito.mock
+import org.mockito.Mockito.verify
+import org.mockito.Mockito.`when`
 
-@RunWith(AndroidJUnit4::class)
 class RoomEmotionEntryRepositoryTest {
 
-    private lateinit var database: AppDatabase
+    private lateinit var dao: EmotionDao
     private lateinit var repository: RoomEmotionEntryRepository
-    private lateinit var pairRepository: RoomEmotionPairRepository
 
-    @Before
+    @BeforeEach
     fun setUp() {
-        database = Room.inMemoryDatabaseBuilder(
-            ApplicationProvider.getApplicationContext(),
-            AppDatabase::class.java
-        ).allowMainThreadQueries().build()
-        repository = RoomEmotionEntryRepository(database.emotionDao())
-        pairRepository = RoomEmotionPairRepository(database.emotionDao())
+        dao = mock(EmotionDao::class.java)
+        repository = RoomEmotionEntryRepository(dao)
     }
 
-    @After
-    fun tearDown() {
-        database.close()
-    }
+    private fun createPairEntity(
+        id: String = "p1",
+        negativeLabel: String = "Sad",
+        positiveLabel: String = "Happy",
+        userId: String = "u1"
+    ) = EmotionPairEntity(
+        id = id, negativeLabel = negativeLabel, positiveLabel = positiveLabel,
+        userId = userId, userName = "testuser"
+    )
 
-    private fun createUser(id: String = "u1", username: String = "testuser"): User {
-        val user = User()
-        user.id = id
-        user.username = username
-        return user
-    }
-
-    private fun createPair(userId: String = "u1"): EmotionPair {
-        val pair = EmotionPair()
-        pair.id = UUID.randomUUID().toString()
-        pair.negativeLabel = "Sad"
-        pair.positiveLabel = "Happy"
-        pair.user = createUser(userId)
-        return pair
-    }
-
-    private fun createEntry(
-        pair: EmotionPair,
+    private fun createEntryEntity(
+        id: String = "ee1",
+        emotionPairId: String = "p1",
         strength: Int = 5,
         notes: String? = null,
         userId: String = "u1"
-    ): EmotionEntry {
-        val entry = EmotionEntry()
-        entry.id = UUID.randomUUID().toString()
+    ) = EmotionEntryEntity(
+        id = id, emotionPairId = emotionPairId, strength = strength,
+        recordedAt = "2024-06-15T10:00:00", notes = notes,
+        userId = userId, userName = "testuser"
+    )
+
+    @Test
+    fun testSaveReturnsEntry() = runTest {
+        val pair = de.idrinth.habitevaluator.shared.model.EmotionPair()
+        pair.id = "p1"
+        pair.negativeLabel = "Sad"
+        pair.positiveLabel = "Happy"
+        val entry = de.idrinth.habitevaluator.shared.model.EmotionEntry()
+        entry.id = "ee1"
         entry.emotionPair = pair
-        entry.strength = strength
-        entry.recordedAt = LocalDateTime.of(2024, 6, 15, 10, 0)
-        entry.notes = notes
-        entry.user = createUser(userId)
-        return entry
-    }
+        entry.strength = 5
+        entry.recordedAt = java.time.LocalDateTime.of(2024, 6, 15, 10, 0)
+        val user = de.idrinth.habitevaluator.shared.model.User()
+        user.id = "u1"
+        user.username = "testuser"
+        entry.user = user
 
-    @Test
-    fun testSaveReturnsEntry() {
-        val pair = createPair()
-        pairRepository.save(pair)
-        val entry = createEntry(pair)
         val result = repository.save(entry)
-        assertEquals(entry.id, result.id)
+        assertEquals("ee1", result.id)
+        verify(dao).insertEntry(any(EmotionEntryEntity::class.java) ?: createEntryEntity())
     }
 
     @Test
-    fun testSaveAndFindById() {
-        val pair = createPair()
-        pairRepository.save(pair)
-        val entry = createEntry(pair, strength = 7, notes = "Feeling great")
-        repository.save(entry)
+    fun testFindByIdReturnsEntryWithPair() = runTest {
+        val entryEntity = createEntryEntity(strength = 7, notes = "Feeling great")
+        val pairEntity = createPairEntity()
+        `when`(dao.findEntryById("ee1")).thenReturn(entryEntity)
+        `when`(dao.findPairById("p1")).thenReturn(pairEntity)
 
-        val found = repository.findById(entry.id)
+        val found = repository.findById("ee1")
         assertTrue(found.isPresent)
         assertEquals(7, found.get().strength)
         assertEquals("Feeling great", found.get().notes)
         assertNotNull(found.get().emotionPair)
-        assertEquals(pair.id, found.get().emotionPair.id)
+        assertEquals("p1", found.get().emotionPair.id)
     }
 
     @Test
-    fun testFindByIdNotFound() {
+    fun testFindByIdNotFound() = runTest {
+        `when`(dao.findEntryById("nonexistent")).thenReturn(null)
+
         val result = repository.findById("nonexistent")
         assertFalse(result.isPresent)
     }
 
     @Test
-    fun testFindByIdReturnsEmptyWhenPairNotFound() {
-        // Save an entry referencing a pair that doesn't exist in DB
-        val pair = createPair()
-        // Do NOT save the pair to the database
-        val entry = createEntry(pair)
-        repository.save(entry)
+    fun testFindByIdReturnsEmptyWhenPairNotFound() = runTest {
+        val entryEntity = createEntryEntity()
+        `when`(dao.findEntryById("ee1")).thenReturn(entryEntity)
+        `when`(dao.findPairById("p1")).thenReturn(null)
 
-        val found = repository.findById(entry.id)
-        // The entity exists but the pair cannot be resolved, so result is empty
+        val found = repository.findById("ee1")
         assertFalse(found.isPresent)
     }
 
     @Test
-    fun testFindByIdWithUser() {
-        val pair = createPair(userId = "u1")
-        pairRepository.save(pair)
-        val entry = createEntry(pair, userId = "u1")
-        repository.save(entry)
+    fun testFindByIdWithUser() = runTest {
+        val entryEntity = createEntryEntity()
+        val pairEntity = createPairEntity()
+        `when`(dao.findEntryById("ee1")).thenReturn(entryEntity)
+        `when`(dao.findPairById("p1")).thenReturn(pairEntity)
 
-        val found = repository.findById(entry.id)
+        val found = repository.findById("ee1")
         assertTrue(found.isPresent)
         assertNotNull(found.get().user)
         assertEquals("u1", found.get().user.id)
     }
 
     @Test
-    fun testFindAll() {
-        val pair = createPair()
-        pairRepository.save(pair)
-        val entry1 = createEntry(pair, strength = 3)
-        val entry2 = createEntry(pair, strength = 7)
-        repository.save(entry1)
-        repository.save(entry2)
+    fun testFindAll() = runTest {
+        val e1 = createEntryEntity(id = "ee1", strength = 3)
+        val e2 = createEntryEntity(id = "ee2", strength = 7)
+        val pairEntity = createPairEntity()
+        `when`(dao.findAllEntries()).thenReturn(listOf(e1, e2))
+        `when`(dao.findPairById("p1")).thenReturn(pairEntity)
 
         val all = repository.findAll()
         assertEquals(2, all.size)
     }
 
     @Test
-    fun testFindAllEmpty() {
+    fun testFindAllEmpty() = runTest {
+        `when`(dao.findAllEntries()).thenReturn(emptyList())
+
         val result = repository.findAll()
         assertTrue(result.isEmpty())
     }
 
     @Test
-    fun testDeleteById() {
-        val pair = createPair()
-        pairRepository.save(pair)
-        val entry = createEntry(pair)
-        repository.save(entry)
-
-        assertTrue(repository.findById(entry.id).isPresent)
-
-        repository.deleteById(entry.id)
-
-        assertFalse(repository.findById(entry.id).isPresent)
+    fun testDeleteById() = runTest {
+        repository.deleteById("ee1")
+        verify(dao).deleteEntryById("ee1")
     }
 
     @Test
-    fun testFindByUserId() {
-        val pair1 = createPair("u1")
-        val pair2 = createPair("u2")
-        pairRepository.save(pair1)
-        pairRepository.save(pair2)
-
-        val entry1 = createEntry(pair1, userId = "u1")
-        val entry2 = createEntry(pair1, userId = "u1")
-        val entry3 = createEntry(pair2, userId = "u2")
-        repository.save(entry1)
-        repository.save(entry2)
-        repository.save(entry3)
+    fun testFindByUserId() = runTest {
+        val pairEntity = createPairEntity(userId = "u1")
+        val e1 = createEntryEntity(id = "ee1", userId = "u1")
+        val e2 = createEntryEntity(id = "ee2", userId = "u1")
+        `when`(dao.findPairsByUserId("u1")).thenReturn(listOf(pairEntity))
+        `when`(dao.findEntriesByUserId("u1")).thenReturn(listOf(e1, e2))
 
         val result = repository.findByUserId("u1")
         assertEquals(2, result.size)
@@ -181,31 +153,34 @@ class RoomEmotionEntryRepositoryTest {
     }
 
     @Test
-    fun testFindByUserIdEmpty() {
+    fun testFindByUserIdEmpty() = runTest {
+        `when`(dao.findPairsByUserId("u99")).thenReturn(emptyList())
+        `when`(dao.findEntriesByUserId("u99")).thenReturn(emptyList())
+
         val result = repository.findByUserId("u99")
         assertTrue(result.isEmpty())
     }
 
     @Test
-    fun testSaveWithNullNotes() {
-        val pair = createPair()
-        pairRepository.save(pair)
-        val entry = createEntry(pair, notes = null)
-        repository.save(entry)
+    fun testFindByIdWithNullNotes() = runTest {
+        val entryEntity = createEntryEntity(notes = null)
+        val pairEntity = createPairEntity()
+        `when`(dao.findEntryById("ee1")).thenReturn(entryEntity)
+        `when`(dao.findPairById("p1")).thenReturn(pairEntity)
 
-        val found = repository.findById(entry.id)
+        val found = repository.findById("ee1")
         assertTrue(found.isPresent)
         assertNull(found.get().notes)
     }
 
     @Test
-    fun testSaveWithNegativeStrength() {
-        val pair = createPair()
-        pairRepository.save(pair)
-        val entry = createEntry(pair, strength = -5)
-        repository.save(entry)
+    fun testFindByIdWithNegativeStrength() = runTest {
+        val entryEntity = createEntryEntity(strength = -5)
+        val pairEntity = createPairEntity()
+        `when`(dao.findEntryById("ee1")).thenReturn(entryEntity)
+        `when`(dao.findPairById("p1")).thenReturn(pairEntity)
 
-        val found = repository.findById(entry.id)
+        val found = repository.findById("ee1")
         assertTrue(found.isPresent)
         assertEquals(-5, found.get().strength)
     }

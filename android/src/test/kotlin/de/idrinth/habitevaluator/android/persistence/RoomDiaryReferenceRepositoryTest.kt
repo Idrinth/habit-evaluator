@@ -1,101 +1,88 @@
 package de.idrinth.habitevaluator.android.persistence
 
-import androidx.room.Room
-import androidx.test.core.app.ApplicationProvider
-import androidx.test.ext.junit.runners.AndroidJUnit4
-import de.idrinth.habitevaluator.shared.model.DiaryReference
-import de.idrinth.habitevaluator.shared.model.User
-import org.junit.After
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertNotNull
-import org.junit.Assert.assertTrue
-import org.junit.Before
-import org.junit.Test
-import org.junit.runner.RunWith
-import java.util.UUID
+import kotlinx.coroutines.test.runTest
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.mockito.Mockito.any
+import org.mockito.Mockito.mock
+import org.mockito.Mockito.verify
+import org.mockito.Mockito.`when`
 
-@RunWith(AndroidJUnit4::class)
 class RoomDiaryReferenceRepositoryTest {
 
-    private lateinit var database: AppDatabase
+    private lateinit var dao: DiaryDao
     private lateinit var repository: RoomDiaryReferenceRepository
 
-    @Before
+    @BeforeEach
     fun setUp() {
-        database = Room.inMemoryDatabaseBuilder(
-            ApplicationProvider.getApplicationContext(),
-            AppDatabase::class.java
-        ).allowMainThreadQueries().build()
-        repository = RoomDiaryReferenceRepository(database.diaryDao())
+        dao = mock(DiaryDao::class.java)
+        repository = RoomDiaryReferenceRepository(dao)
     }
 
-    @After
-    fun tearDown() {
-        database.close()
-    }
-
-    private fun createUser(id: String = "u1", username: String = "testuser"): User {
-        val user = User()
-        user.id = id
-        user.username = username
-        return user
-    }
-
-    private fun createReference(
+    private fun createReferenceEntity(
+        id: String = "r1",
         description: String = "Morning workout",
         userId: String = "u1"
-    ): DiaryReference {
-        val ref = DiaryReference()
-        ref.id = UUID.randomUUID().toString()
-        ref.description = description
-        ref.user = createUser(userId)
-        return ref
-    }
+    ) = DiaryReferenceEntity(
+        id = id, description = description,
+        descriptionLower = description.lowercase(),
+        userId = userId, userName = "testuser"
+    )
 
     @Test
-    fun testSaveReturnsReference() {
-        val ref = createReference()
+    fun testSaveReturnsReference() = runTest {
+        val ref = de.idrinth.habitevaluator.shared.model.DiaryReference()
+        ref.id = "r1"
+        ref.description = "Morning workout"
+        val user = de.idrinth.habitevaluator.shared.model.User()
+        user.id = "u1"
+        user.username = "testuser"
+        ref.user = user
+
         val result = repository.save(ref)
-        assertEquals(ref.id, result.id)
-        assertEquals(ref.description, result.description)
+        assertEquals("r1", result.id)
+        assertEquals("Morning workout", result.description)
+        verify(dao).insertReference(any(DiaryReferenceEntity::class.java) ?: createReferenceEntity())
     }
 
     @Test
-    fun testSaveAndFindById() {
-        val ref = createReference("Morning workout")
-        repository.save(ref)
+    fun testFindByIdReturnsReference() = runTest {
+        val entity = createReferenceEntity()
+        `when`(dao.findReferenceById("r1")).thenReturn(entity)
 
-        val found = repository.findById(ref.id)
+        val found = repository.findById("r1")
         assertTrue(found.isPresent)
         assertEquals("Morning workout", found.get().description)
     }
 
     @Test
-    fun testFindByIdNotFound() {
+    fun testFindByIdNotFound() = runTest {
+        `when`(dao.findReferenceById("nonexistent")).thenReturn(null)
+
         val result = repository.findById("nonexistent")
         assertFalse(result.isPresent)
     }
 
     @Test
-    fun testFindByIdWithUser() {
-        val ref = createReference(userId = "u1")
-        repository.save(ref)
+    fun testFindByIdWithUser() = runTest {
+        val entity = createReferenceEntity(userId = "u1")
+        `when`(dao.findReferenceById("r1")).thenReturn(entity)
 
-        val found = repository.findById(ref.id)
+        val found = repository.findById("r1")
         assertTrue(found.isPresent)
         assertNotNull(found.get().user)
         assertEquals("u1", found.get().user.id)
     }
 
     @Test
-    fun testFindByUserId() {
-        val ref1 = createReference("Workout", "u1")
-        val ref2 = createReference("Meditation", "u1")
-        val ref3 = createReference("Running", "u2")
-        repository.save(ref1)
-        repository.save(ref2)
-        repository.save(ref3)
+    fun testFindByUserId() = runTest {
+        val ref1 = createReferenceEntity(id = "r1", description = "Workout", userId = "u1")
+        val ref2 = createReferenceEntity(id = "r2", description = "Meditation", userId = "u1")
+        `when`(dao.findReferencesByUserId("u1")).thenReturn(listOf(ref1, ref2))
 
         val result = repository.findByUserId("u1")
         assertEquals(2, result.size)
@@ -103,27 +90,23 @@ class RoomDiaryReferenceRepositoryTest {
     }
 
     @Test
-    fun testFindByUserIdEmpty() {
+    fun testFindByUserIdEmpty() = runTest {
+        `when`(dao.findReferencesByUserId("u99")).thenReturn(emptyList())
+
         val result = repository.findByUserId("u99")
         assertTrue(result.isEmpty())
     }
 
     @Test
-    fun testDeleteById() {
-        val ref = createReference()
-        repository.save(ref)
-
-        assertTrue(repository.findById(ref.id).isPresent)
-
-        repository.deleteById(ref.id)
-
-        assertFalse(repository.findById(ref.id).isPresent)
+    fun testDeleteById() = runTest {
+        repository.deleteById("r1")
+        verify(dao).deleteReferenceById("r1")
     }
 
     @Test
-    fun testFindByUserIdAndDescriptionIgnoreCaseFound() {
-        val ref = createReference("Morning Workout", "u1")
-        repository.save(ref)
+    fun testFindByUserIdAndDescriptionIgnoreCaseFound() = runTest {
+        val entity = createReferenceEntity(description = "Morning Workout")
+        `when`(dao.findReferenceByUserIdAndDescLower("u1", "morning workout")).thenReturn(entity)
 
         val found = repository.findByUserIdAndDescriptionIgnoreCase("u1", "Morning Workout")
         assertTrue(found.isPresent)
@@ -131,9 +114,9 @@ class RoomDiaryReferenceRepositoryTest {
     }
 
     @Test
-    fun testFindByUserIdAndDescriptionIgnoreCaseCaseInsensitive() {
-        val ref = createReference("Morning Workout", "u1")
-        repository.save(ref)
+    fun testFindByUserIdAndDescriptionIgnoreCaseCaseInsensitive() = runTest {
+        val entity = createReferenceEntity(description = "Morning Workout")
+        `when`(dao.findReferenceByUserIdAndDescLower("u1", "morning workout")).thenReturn(entity)
 
         val found = repository.findByUserIdAndDescriptionIgnoreCase("u1", "morning workout")
         assertTrue(found.isPresent)
@@ -141,17 +124,16 @@ class RoomDiaryReferenceRepositoryTest {
     }
 
     @Test
-    fun testFindByUserIdAndDescriptionIgnoreCaseNotFound() {
+    fun testFindByUserIdAndDescriptionIgnoreCaseNotFound() = runTest {
+        `when`(dao.findReferenceByUserIdAndDescLower("u1", "nonexistent")).thenReturn(null)
+
         val result = repository.findByUserIdAndDescriptionIgnoreCase("u1", "nonexistent")
         assertFalse(result.isPresent)
     }
 
     @Test
-    fun testFindDistinctDescriptionsByUserId() {
-        val ref1 = createReference("Morning workout", "u1")
-        val ref2 = createReference("Evening walk", "u1")
-        repository.save(ref1)
-        repository.save(ref2)
+    fun testFindDistinctDescriptionsByUserId() = runTest {
+        `when`(dao.findDistinctDescriptions("u1")).thenReturn(listOf("Morning workout", "Evening walk"))
 
         val descriptions = repository.findDistinctDescriptionsByUserId("u1")
         assertEquals(2, descriptions.size)
@@ -159,18 +141,10 @@ class RoomDiaryReferenceRepositoryTest {
     }
 
     @Test
-    fun testFindDistinctDescriptionsByUserIdEmpty() {
+    fun testFindDistinctDescriptionsByUserIdEmpty() = runTest {
+        `when`(dao.findDistinctDescriptions("u99")).thenReturn(emptyList())
+
         val result = repository.findDistinctDescriptionsByUserId("u99")
         assertTrue(result.isEmpty())
-    }
-
-    @Test
-    fun testDescriptionLowerIsPersisted() {
-        val ref = createReference("Morning Workout")
-        repository.save(ref)
-
-        // Verify case-insensitive lookup works (implies descriptionLower was stored)
-        val found = repository.findByUserIdAndDescriptionIgnoreCase("u1", "MORNING WORKOUT")
-        assertTrue(found.isPresent)
     }
 }

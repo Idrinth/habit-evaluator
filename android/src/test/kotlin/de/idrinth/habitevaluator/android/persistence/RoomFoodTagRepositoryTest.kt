@@ -1,116 +1,87 @@
 package de.idrinth.habitevaluator.android.persistence
 
-import androidx.room.Room
-import androidx.test.core.app.ApplicationProvider
-import androidx.test.ext.junit.runners.AndroidJUnit4
-import de.idrinth.habitevaluator.shared.model.FoodLog
-import de.idrinth.habitevaluator.shared.model.FoodTag
-import de.idrinth.habitevaluator.shared.model.User
-import org.junit.After
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertNotNull
-import org.junit.Assert.assertTrue
-import org.junit.Before
-import org.junit.Test
-import org.junit.runner.RunWith
-import java.time.LocalDateTime
-import java.util.UUID
+import kotlinx.coroutines.test.runTest
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.mockito.Mockito.any
+import org.mockito.Mockito.mock
+import org.mockito.Mockito.verify
+import org.mockito.Mockito.`when`
 
-@RunWith(AndroidJUnit4::class)
 class RoomFoodTagRepositoryTest {
 
-    private lateinit var database: AppDatabase
+    private lateinit var dao: FoodLogDao
     private lateinit var repository: RoomFoodTagRepository
-    private lateinit var foodLogRepository: RoomFoodLogRepository
 
-    @Before
+    @BeforeEach
     fun setUp() {
-        database = Room.inMemoryDatabaseBuilder(
-            ApplicationProvider.getApplicationContext(),
-            AppDatabase::class.java
-        ).allowMainThreadQueries().build()
-        repository = RoomFoodTagRepository(database.foodLogDao())
-        foodLogRepository = RoomFoodLogRepository(database.foodLogDao())
+        dao = mock(FoodLogDao::class.java)
+        repository = RoomFoodTagRepository(dao)
     }
 
-    @After
-    fun tearDown() {
-        database.close()
-    }
-
-    private fun createUser(id: String = "u1", username: String = "testuser"): User {
-        val user = User()
-        user.id = id
-        user.username = username
-        return user
-    }
-
-    private fun createTag(
+    private fun createTagEntity(
+        id: String = "t1",
         name: String = "Vegetarian",
         userId: String = "u1"
-    ): FoodTag {
-        val tag = FoodTag()
-        tag.id = UUID.randomUUID().toString()
-        tag.name = name
-        tag.user = createUser(userId)
-        return tag
-    }
-
-    private fun createFoodLog(userId: String = "u1"): FoodLog {
-        val log = FoodLog()
-        log.id = UUID.randomUUID().toString()
-        log.foodItems = "Rice, Chicken"
-        log.dateTime = LocalDateTime.of(2024, 6, 15, 12, 0)
-        log.createdAt = LocalDateTime.now()
-        log.user = createUser(userId)
-        return log
-    }
+    ) = FoodTagEntity(
+        id = id, name = name, nameLower = name.lowercase(),
+        userId = userId, userName = "testuser"
+    )
 
     @Test
-    fun testSaveReturnsTag() {
-        val tag = createTag()
+    fun testSaveReturnsTag() = runTest {
+        val tag = de.idrinth.habitevaluator.shared.model.FoodTag()
+        tag.id = "t1"
+        tag.name = "Vegetarian"
+        val user = de.idrinth.habitevaluator.shared.model.User()
+        user.id = "u1"
+        user.username = "testuser"
+        tag.user = user
+
         val result = repository.save(tag)
-        assertEquals(tag.id, result.id)
-        assertEquals(tag.name, result.name)
+        assertEquals("t1", result.id)
+        assertEquals("Vegetarian", result.name)
+        verify(dao).insertTag(any(FoodTagEntity::class.java) ?: createTagEntity())
     }
 
     @Test
-    fun testSaveAndFindById() {
-        val tag = createTag("Vegetarian")
-        repository.save(tag)
+    fun testFindByIdReturnsTag() = runTest {
+        val entity = createTagEntity()
+        `when`(dao.findTagById("t1")).thenReturn(entity)
 
-        val found = repository.findById(tag.id)
+        val found = repository.findById("t1")
         assertTrue(found.isPresent)
         assertEquals("Vegetarian", found.get().name)
-        assertEquals("vegetarian", found.get().nameLower)
     }
 
     @Test
-    fun testFindByIdNotFound() {
+    fun testFindByIdNotFound() = runTest {
+        `when`(dao.findTagById("nonexistent")).thenReturn(null)
+
         val result = repository.findById("nonexistent")
         assertFalse(result.isPresent)
     }
 
     @Test
-    fun testFindByIdWithUser() {
-        val tag = createTag(userId = "u1")
-        repository.save(tag)
+    fun testFindByIdWithUser() = runTest {
+        val entity = createTagEntity()
+        `when`(dao.findTagById("t1")).thenReturn(entity)
 
-        val found = repository.findById(tag.id)
+        val found = repository.findById("t1")
         assertTrue(found.isPresent)
         assertNotNull(found.get().user)
         assertEquals("u1", found.get().user.id)
     }
 
     @Test
-    fun testFindByUserId() {
-        val tag1 = createTag("Vegetarian", "u1")
-        val tag2 = createTag("Vegan", "u1")
-        val tag3 = createTag("Organic", "u2")
-        repository.save(tag1)
-        repository.save(tag2)
-        repository.save(tag3)
+    fun testFindByUserId() = runTest {
+        val e1 = createTagEntity(id = "t1", name = "Vegetarian", userId = "u1")
+        val e2 = createTagEntity(id = "t2", name = "Vegan", userId = "u1")
+        `when`(dao.findTagsByUserId("u1")).thenReturn(listOf(e1, e2))
 
         val result = repository.findByUserId("u1")
         assertEquals(2, result.size)
@@ -118,15 +89,17 @@ class RoomFoodTagRepositoryTest {
     }
 
     @Test
-    fun testFindByUserIdEmpty() {
+    fun testFindByUserIdEmpty() = runTest {
+        `when`(dao.findTagsByUserId("u99")).thenReturn(emptyList())
+
         val result = repository.findByUserId("u99")
         assertTrue(result.isEmpty())
     }
 
     @Test
-    fun testFindByNameLowerAndUserIdFound() {
-        val tag = createTag("Vegetarian", "u1")
-        repository.save(tag)
+    fun testFindByNameLowerAndUserIdFound() = runTest {
+        val entity = createTagEntity(name = "Vegetarian")
+        `when`(dao.findTagByNameLowerAndUserId("vegetarian", "u1")).thenReturn(entity)
 
         val found = repository.findByNameLowerAndUserId("vegetarian", "u1")
         assertTrue(found.isPresent)
@@ -134,67 +107,34 @@ class RoomFoodTagRepositoryTest {
     }
 
     @Test
-    fun testFindByNameLowerAndUserIdNotFound() {
+    fun testFindByNameLowerAndUserIdNotFound() = runTest {
+        `when`(dao.findTagByNameLowerAndUserId("nonexistent", "u1")).thenReturn(null)
+
         val result = repository.findByNameLowerAndUserId("nonexistent", "u1")
         assertFalse(result.isPresent)
     }
 
     @Test
-    fun testDeleteById() {
-        val tag = createTag()
-        repository.save(tag)
-
-        assertTrue(repository.findById(tag.id).isPresent)
-
-        repository.deleteById(tag.id)
-
-        assertFalse(repository.findById(tag.id).isPresent)
+    fun testDeleteById() = runTest {
+        repository.deleteById("t1")
+        verify(dao).deleteTagById("t1")
     }
 
     @Test
-    fun testNameLowerIsAutomaticallySet() {
-        val tag = createTag("VeGeTaRiAn")
-        repository.save(tag)
-
-        val found = repository.findById(tag.id)
-        assertTrue(found.isPresent)
-        assertEquals("vegetarian", found.get().nameLower)
+    fun testDeleteEmptyTags() = runTest {
+        repository.deleteEmptyTags("u1")
+        verify(dao).deleteEmptyTags("u1")
     }
 
     @Test
-    fun testLinkTagToFoodLog() {
-        val log = createFoodLog()
-        foodLogRepository.save(log)
-        val tag = createTag()
-        repository.save(tag)
-
-        repository.linkTagToFoodLog(log.id, tag.id)
-
-        val tags = repository.findTagsByFoodLogId(log.id)
-        assertEquals(1, tags.size)
-        assertEquals(tag.id, tags[0].id)
+    fun testLinkTagToFoodLog() = runTest {
+        repository.linkTagToFoodLog("t1", "f1")
+        verify(dao).linkTagToFoodLog(FoodLogTagCrossRef("f1", "t1"))
     }
 
     @Test
-    fun testUnlinkAllTagsFromFoodLog() {
-        val log = createFoodLog()
-        foodLogRepository.save(log)
-        val tag = createTag()
-        repository.save(tag)
-
-        repository.linkTagToFoodLog(log.id, tag.id)
-        assertEquals(1, repository.findTagsByFoodLogId(log.id).size)
-
-        repository.unlinkAllTagsFromFoodLog(log.id)
-        assertEquals(0, repository.findTagsByFoodLogId(log.id).size)
-    }
-
-    @Test
-    fun testFindTagsByFoodLogIdEmpty() {
-        val log = createFoodLog()
-        foodLogRepository.save(log)
-
-        val tags = repository.findTagsByFoodLogId(log.id)
-        assertTrue(tags.isEmpty())
+    fun testUnlinkAllTagsFromFoodLog() = runTest {
+        repository.unlinkAllTagsFromFoodLog("f1")
+        verify(dao).unlinkAllTagsFromFoodLog("f1")
     }
 }

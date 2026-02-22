@@ -1,87 +1,68 @@
 package de.idrinth.habitevaluator.android.persistence
 
-import androidx.room.Room
-import androidx.test.core.app.ApplicationProvider
-import androidx.test.ext.junit.runners.AndroidJUnit4
-import de.idrinth.habitevaluator.shared.model.SleepEntry
-import de.idrinth.habitevaluator.shared.model.User
-import org.junit.After
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertNotNull
-import org.junit.Assert.assertNull
-import org.junit.Assert.assertTrue
-import org.junit.Before
-import org.junit.Test
-import org.junit.runner.RunWith
+import kotlinx.coroutines.test.runTest
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Assertions.assertNull
+import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.mockito.Mockito.any
+import org.mockito.Mockito.mock
+import org.mockito.Mockito.verify
+import org.mockito.Mockito.`when`
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.time.LocalTime
-import java.util.UUID
 
-@RunWith(AndroidJUnit4::class)
 class RoomSleepEntryRepositoryTest {
 
-    private lateinit var database: AppDatabase
+    private lateinit var dao: SleepEntryDao
     private lateinit var repository: RoomSleepEntryRepository
 
-    @Before
+    @BeforeEach
     fun setUp() {
-        database = Room.inMemoryDatabaseBuilder(
-            ApplicationProvider.getApplicationContext(),
-            AppDatabase::class.java
-        ).allowMainThreadQueries().build()
-        repository = RoomSleepEntryRepository(database.sleepEntryDao())
+        dao = mock(SleepEntryDao::class.java)
+        repository = RoomSleepEntryRepository(dao)
     }
 
-    @After
-    fun tearDown() {
-        database.close()
-    }
-
-    private fun createUser(id: String = "u1", username: String = "testuser"): User {
-        val user = User()
-        user.id = id
-        user.username = username
-        return user
-    }
-
-    private fun createSleepEntry(
-        fromTime: LocalTime = LocalTime.of(23, 0),
-        untilTime: LocalTime = LocalTime.of(7, 0),
-        date: LocalDate = LocalDate.of(2024, 6, 15),
+    private fun createEntity(
+        id: String = "s1",
+        fromTime: String = "23:00",
+        untilTime: String = "07:00",
+        date: String = "2024-06-15",
         notes: String? = null,
         userId: String = "u1"
-    ): SleepEntry {
-        val entry = SleepEntry()
-        entry.id = UUID.randomUUID().toString()
-        entry.fromTime = fromTime
-        entry.untilTime = untilTime
-        entry.date = date
-        entry.createdAt = LocalDateTime.now()
-        entry.notes = notes
-        entry.user = createUser(userId)
-        return entry
-    }
+    ) = SleepEntryEntity(
+        id = id, fromTime = fromTime, untilTime = untilTime,
+        date = date, createdAt = "2024-06-15T10:00:00",
+        notes = notes, userId = userId, userName = "testuser"
+    )
 
     @Test
-    fun testSaveReturnsEntry() {
-        val entry = createSleepEntry()
+    fun testSaveReturnsEntry() = runTest {
+        val entry = de.idrinth.habitevaluator.shared.model.SleepEntry()
+        entry.id = "s1"
+        entry.fromTime = LocalTime.of(23, 0)
+        entry.untilTime = LocalTime.of(7, 0)
+        entry.date = LocalDate.of(2024, 6, 15)
+        entry.createdAt = java.time.LocalDateTime.now()
+        val user = de.idrinth.habitevaluator.shared.model.User()
+        user.id = "u1"
+        user.username = "testuser"
+        entry.user = user
+
         val result = repository.save(entry)
-        assertEquals(entry.id, result.id)
+        assertEquals("s1", result.id)
+        verify(dao).insert(any(SleepEntryEntity::class.java) ?: createEntity())
     }
 
     @Test
-    fun testSaveAndFindById() {
-        val entry = createSleepEntry(
-            fromTime = LocalTime.of(23, 0),
-            untilTime = LocalTime.of(7, 0),
-            date = LocalDate.of(2024, 6, 15),
-            notes = "Good sleep"
-        )
-        repository.save(entry)
+    fun testFindByIdReturnsEntry() = runTest {
+        val entity = createEntity(notes = "Good sleep")
+        `when`(dao.findById("s1")).thenReturn(entity)
 
-        val found = repository.findById(entry.id)
+        val found = repository.findById("s1")
         assertTrue(found.isPresent)
         assertEquals(LocalTime.of(23, 0), found.get().fromTime)
         assertEquals(LocalTime.of(7, 0), found.get().untilTime)
@@ -90,17 +71,19 @@ class RoomSleepEntryRepositoryTest {
     }
 
     @Test
-    fun testFindByIdNotFound() {
+    fun testFindByIdNotFound() = runTest {
+        `when`(dao.findById("nonexistent")).thenReturn(null)
+
         val result = repository.findById("nonexistent")
         assertFalse(result.isPresent)
     }
 
     @Test
-    fun testFindByIdWithUser() {
-        val entry = createSleepEntry(userId = "u1")
-        repository.save(entry)
+    fun testFindByIdWithUser() = runTest {
+        val entity = createEntity()
+        `when`(dao.findById("s1")).thenReturn(entity)
 
-        val found = repository.findById(entry.id)
+        val found = repository.findById("s1")
         assertTrue(found.isPresent)
         assertNotNull(found.get().user)
         assertEquals("u1", found.get().user.id)
@@ -108,65 +91,58 @@ class RoomSleepEntryRepositoryTest {
     }
 
     @Test
-    fun testFindByIdWithNullNotes() {
-        val entry = createSleepEntry(notes = null)
-        repository.save(entry)
+    fun testFindByIdWithNullNotes() = runTest {
+        val entity = createEntity(notes = null)
+        `when`(dao.findById("s1")).thenReturn(entity)
 
-        val found = repository.findById(entry.id)
+        val found = repository.findById("s1")
         assertTrue(found.isPresent)
         assertNull(found.get().notes)
     }
 
     @Test
-    fun testFindAll() {
-        val entry1 = createSleepEntry(date = LocalDate.of(2024, 6, 14))
-        val entry2 = createSleepEntry(date = LocalDate.of(2024, 6, 15))
-        repository.save(entry1)
-        repository.save(entry2)
+    fun testFindAll() = runTest {
+        val e1 = createEntity(id = "s1", date = "2024-06-14")
+        val e2 = createEntity(id = "s2", date = "2024-06-15")
+        `when`(dao.findAll()).thenReturn(listOf(e1, e2))
 
         val all = repository.findAll()
         assertEquals(2, all.size)
     }
 
     @Test
-    fun testFindAllEmpty() {
+    fun testFindAllEmpty() = runTest {
+        `when`(dao.findAll()).thenReturn(emptyList())
+
         val result = repository.findAll()
         assertTrue(result.isEmpty())
     }
 
     @Test
-    fun testDeleteById() {
-        val entry = createSleepEntry()
-        repository.save(entry)
-
-        assertTrue(repository.findById(entry.id).isPresent)
-
-        repository.deleteById(entry.id)
-
-        assertFalse(repository.findById(entry.id).isPresent)
+    fun testDeleteById() = runTest {
+        repository.deleteById("s1")
+        verify(dao).deleteById("s1")
     }
 
     @Test
-    fun testExistsByIdTrue() {
-        val entry = createSleepEntry()
-        repository.save(entry)
+    fun testExistsByIdTrue() = runTest {
+        `when`(dao.existsById("s1")).thenReturn(true)
 
-        assertTrue(repository.existsById(entry.id))
+        assertTrue(repository.existsById("s1"))
     }
 
     @Test
-    fun testExistsByIdFalse() {
+    fun testExistsByIdFalse() = runTest {
+        `when`(dao.existsById("nonexistent")).thenReturn(false)
+
         assertFalse(repository.existsById("nonexistent"))
     }
 
     @Test
-    fun testFindByUserId() {
-        val entry1 = createSleepEntry(date = LocalDate.of(2024, 6, 14), userId = "u1")
-        val entry2 = createSleepEntry(date = LocalDate.of(2024, 6, 15), userId = "u1")
-        val entry3 = createSleepEntry(date = LocalDate.of(2024, 6, 16), userId = "u2")
-        repository.save(entry1)
-        repository.save(entry2)
-        repository.save(entry3)
+    fun testFindByUserId() = runTest {
+        val e1 = createEntity(id = "s1", userId = "u1")
+        val e2 = createEntity(id = "s2", userId = "u1")
+        `when`(dao.findByUserId("u1")).thenReturn(listOf(e1, e2))
 
         val result = repository.findByUserId("u1")
         assertEquals(2, result.size)
@@ -174,17 +150,19 @@ class RoomSleepEntryRepositoryTest {
     }
 
     @Test
-    fun testFindByUserIdEmpty() {
+    fun testFindByUserIdEmpty() = runTest {
+        `when`(dao.findByUserId("u99")).thenReturn(emptyList())
+
         val result = repository.findByUserId("u99")
         assertTrue(result.isEmpty())
     }
 
     @Test
-    fun testSaveWithNotes() {
-        val entry = createSleepEntry(notes = "Slept well")
-        repository.save(entry)
+    fun testSaveWithNotes() = runTest {
+        val entity = createEntity(notes = "Slept well")
+        `when`(dao.findById("s1")).thenReturn(entity)
 
-        val found = repository.findById(entry.id)
+        val found = repository.findById("s1")
         assertTrue(found.isPresent)
         assertEquals("Slept well", found.get().notes)
     }

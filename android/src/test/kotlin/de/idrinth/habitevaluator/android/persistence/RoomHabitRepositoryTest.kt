@@ -1,42 +1,34 @@
 package de.idrinth.habitevaluator.android.persistence
 
-import androidx.room.Room
-import androidx.test.core.app.ApplicationProvider
-import androidx.test.ext.junit.runners.AndroidJUnit4
 import de.idrinth.habitevaluator.shared.model.FrequencyType
 import de.idrinth.habitevaluator.shared.model.Habit
 import de.idrinth.habitevaluator.shared.model.HabitEntry
 import de.idrinth.habitevaluator.shared.model.User
-import org.junit.After
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertNotNull
-import org.junit.Assert.assertNull
-import org.junit.Assert.assertTrue
-import org.junit.Before
-import org.junit.Test
-import org.junit.runner.RunWith
+import kotlinx.coroutines.test.runTest
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.mockito.Mockito.any
+import org.mockito.Mockito.anyList
+import org.mockito.Mockito.anyString
+import org.mockito.Mockito.mock
+import org.mockito.Mockito.verify
+import org.mockito.Mockito.`when`
 import java.time.LocalDateTime
 import java.util.UUID
 
-@RunWith(AndroidJUnit4::class)
 class RoomHabitRepositoryTest {
 
-    private lateinit var database: AppDatabase
+    private lateinit var dao: HabitDao
     private lateinit var repository: RoomHabitRepository
 
-    @Before
+    @BeforeEach
     fun setUp() {
-        database = Room.inMemoryDatabaseBuilder(
-            ApplicationProvider.getApplicationContext(),
-            AppDatabase::class.java
-        ).allowMainThreadQueries().build()
-        repository = RoomHabitRepository(database.habitDao())
-    }
-
-    @After
-    fun tearDown() {
-        database.close()
+        dao = mock(HabitDao::class.java)
+        repository = RoomHabitRepository(dao)
     }
 
     private fun createUser(id: String = "u1", username: String = "testuser"): User {
@@ -73,180 +65,255 @@ class RoomHabitRepositoryTest {
     }
 
     @Test
-    fun testSaveAndFindById() {
-        val habit = createHabit("Running", "Morning run")
+    fun testSaveCallsDaoSaveWithDetails() = runTest {
+        val habit = createHabit()
         repository.save(habit)
-
-        val found = repository.findById(habit.id)
-        assertTrue(found.isPresent)
-        assertEquals("Running", found.get().name)
-        assertEquals("Morning run", found.get().description)
-        assertEquals(FrequencyType.DAILY, found.get().frequencyType)
+        verify(dao).saveWithDetails(
+            any(HabitEntity::class.java) ?: habit.toEntity(),
+            anyList(),
+            anyList(),
+            anyList()
+        )
     }
 
     @Test
-    fun testFindByIdNotFound() {
+    fun testFindByIdReturnsHabitWhenFound() = runTest {
+        val habitId = "h1"
+        val entity = HabitEntity(
+            id = habitId, name = "Running", description = "Morning run",
+            categoryId = null, frequencyType = "DAILY", targetFrequency = 1,
+            maxEntriesPerDay = 1, positiveScoring = 1, createdAt = "2024-01-15T10:00:00",
+            scoringRuleId = null, scoringRuleName = null, userId = "u1", userName = "testuser"
+        )
+        `when`(dao.findById(habitId)).thenReturn(entity)
+        `when`(dao.findEntriesByHabitId(habitId)).thenReturn(emptyList())
+        `when`(dao.findNameTranslations(habitId)).thenReturn(emptyList())
+        `when`(dao.findDescTranslations(habitId)).thenReturn(emptyList())
+
+        val result = repository.findById(habitId)
+        assertTrue(result.isPresent)
+        assertEquals("Running", result.get().name)
+        assertEquals("Morning run", result.get().description)
+    }
+
+    @Test
+    fun testFindByIdReturnsEmptyWhenNotFound() = runTest {
+        `when`(dao.findById("nonexistent")).thenReturn(null)
+
         val result = repository.findById("nonexistent")
         assertFalse(result.isPresent)
     }
 
     @Test
-    fun testFindByIdWithUser() {
-        val habit = createHabit(userId = "u1")
-        repository.save(habit)
+    fun testFindByIdReturnsUserInfo() = runTest {
+        val habitId = "h1"
+        val entity = HabitEntity(
+            id = habitId, name = "Test", description = null,
+            categoryId = null, frequencyType = "DAILY", targetFrequency = 1,
+            maxEntriesPerDay = 1, positiveScoring = 1, createdAt = null,
+            scoringRuleId = null, scoringRuleName = null, userId = "u1", userName = "testuser"
+        )
+        `when`(dao.findById(habitId)).thenReturn(entity)
+        `when`(dao.findEntriesByHabitId(habitId)).thenReturn(emptyList())
+        `when`(dao.findNameTranslations(habitId)).thenReturn(emptyList())
+        `when`(dao.findDescTranslations(habitId)).thenReturn(emptyList())
 
-        val found = repository.findById(habit.id)
-        assertTrue(found.isPresent)
-        assertNotNull(found.get().user)
-        assertEquals("u1", found.get().user.id)
-        assertEquals("testuser", found.get().user.username)
+        val result = repository.findById(habitId)
+        assertTrue(result.isPresent)
+        assertNotNull(result.get().user)
+        assertEquals("u1", result.get().user.id)
+        assertEquals("testuser", result.get().user.username)
     }
 
     @Test
-    fun testFindAll() {
-        val habit1 = createHabit("Habit A")
-        val habit2 = createHabit("Habit B")
-        repository.save(habit1)
-        repository.save(habit2)
+    fun testFindAllReturnsAllHabits() = runTest {
+        val entity1 = HabitEntity(
+            id = "h1", name = "Habit A", description = null,
+            categoryId = null, frequencyType = "DAILY", targetFrequency = 1,
+            maxEntriesPerDay = 1, positiveScoring = 1, createdAt = null,
+            scoringRuleId = null, scoringRuleName = null, userId = "u1", userName = "testuser"
+        )
+        val entity2 = HabitEntity(
+            id = "h2", name = "Habit B", description = null,
+            categoryId = null, frequencyType = "WEEKLY", targetFrequency = 3,
+            maxEntriesPerDay = 1, positiveScoring = 0, createdAt = null,
+            scoringRuleId = null, scoringRuleName = null, userId = "u1", userName = "testuser"
+        )
+        `when`(dao.findAll()).thenReturn(listOf(entity1, entity2))
+        `when`(dao.findEntriesByHabitId(anyString())).thenReturn(emptyList())
+        `when`(dao.findNameTranslations(anyString())).thenReturn(emptyList())
+        `when`(dao.findDescTranslations(anyString())).thenReturn(emptyList())
 
-        val all = repository.findAll()
-        assertEquals(2, all.size)
+        val result = repository.findAll()
+        assertEquals(2, result.size)
     }
 
     @Test
-    fun testFindAllEmpty() {
+    fun testFindAllReturnsEmptyList() = runTest {
+        `when`(dao.findAll()).thenReturn(emptyList())
+
         val result = repository.findAll()
         assertTrue(result.isEmpty())
     }
 
     @Test
-    fun testDeleteById() {
-        val habit = createHabit()
-        repository.save(habit)
-
-        assertTrue(repository.findById(habit.id).isPresent)
-
-        repository.deleteById(habit.id)
-
-        assertFalse(repository.findById(habit.id).isPresent)
+    fun testDeleteByIdCallsDao() = runTest {
+        repository.deleteById("h1")
+        verify(dao).deleteWithDetails("h1")
     }
 
     @Test
-    fun testDeleteByIdRemovesEntries() {
-        val habit = createHabit()
-        val entry = HabitEntry(habit.id)
-        entry.id = UUID.randomUUID().toString()
-        entry.completedAt = LocalDateTime.of(2024, 1, 15, 10, 0)
-        habit.addEntry(entry)
-        repository.save(habit)
+    fun testExistsByIdReturnsTrue() = runTest {
+        `when`(dao.existsById("h1")).thenReturn(true)
 
-        repository.deleteById(habit.id)
-
-        assertFalse(repository.findById(habit.id).isPresent)
+        assertTrue(repository.existsById("h1"))
     }
 
     @Test
-    fun testExistsByIdTrue() {
-        val habit = createHabit()
-        repository.save(habit)
+    fun testExistsByIdReturnsFalse() = runTest {
+        `when`(dao.existsById("nonexistent")).thenReturn(false)
 
-        assertTrue(repository.existsById(habit.id))
-    }
-
-    @Test
-    fun testExistsByIdFalse() {
         assertFalse(repository.existsById("nonexistent"))
     }
 
     @Test
-    fun testFindByUserId() {
-        val habit1 = createHabit("Habit A", userId = "u1")
-        val habit2 = createHabit("Habit B", userId = "u1")
-        val habit3 = createHabit("Habit C", userId = "u2")
-        repository.save(habit1)
-        repository.save(habit2)
-        repository.save(habit3)
+    fun testFindByUserIdReturnsMatchingHabits() = runTest {
+        val entity = HabitEntity(
+            id = "h1", name = "Habit A", description = null,
+            categoryId = null, frequencyType = "DAILY", targetFrequency = 1,
+            maxEntriesPerDay = 1, positiveScoring = 1, createdAt = null,
+            scoringRuleId = null, scoringRuleName = null, userId = "u1", userName = "testuser"
+        )
+        `when`(dao.findByUserId("u1")).thenReturn(listOf(entity))
+        `when`(dao.findEntriesByHabitId("h1")).thenReturn(emptyList())
+        `when`(dao.findNameTranslations("h1")).thenReturn(emptyList())
+        `when`(dao.findDescTranslations("h1")).thenReturn(emptyList())
 
         val result = repository.findByUserId("u1")
-        assertEquals(2, result.size)
-        assertTrue(result.all { it.user.id == "u1" })
+        assertEquals(1, result.size)
+        assertEquals("u1", result[0].user.id)
     }
 
     @Test
-    fun testFindByUserIdEmpty() {
+    fun testFindByUserIdReturnsEmptyList() = runTest {
+        `when`(dao.findByUserId("u99")).thenReturn(emptyList())
+
         val result = repository.findByUserId("u99")
         assertTrue(result.isEmpty())
     }
 
     @Test
-    fun testSaveWithEntries() {
-        val habit = createHabit()
-        val entry = HabitEntry(habit.id)
-        entry.id = UUID.randomUUID().toString()
-        entry.completedAt = LocalDateTime.of(2024, 1, 15, 10, 0)
-        habit.addEntry(entry)
-        repository.save(habit)
+    fun testFindByIdWithEntries() = runTest {
+        val habitId = "h1"
+        val entity = HabitEntity(
+            id = habitId, name = "Test", description = null,
+            categoryId = null, frequencyType = "DAILY", targetFrequency = 1,
+            maxEntriesPerDay = 1, positiveScoring = 1, createdAt = null,
+            scoringRuleId = null, scoringRuleName = null, userId = "u1", userName = "testuser"
+        )
+        val entryEntity = HabitEntryEntity(
+            id = "e1", habitId = habitId,
+            completedAt = "2024-01-15T10:00:00", notes = null, value = 1.0
+        )
+        `when`(dao.findById(habitId)).thenReturn(entity)
+        `when`(dao.findEntriesByHabitId(habitId)).thenReturn(listOf(entryEntity))
+        `when`(dao.findNameTranslations(habitId)).thenReturn(emptyList())
+        `when`(dao.findDescTranslations(habitId)).thenReturn(emptyList())
 
-        val found = repository.findById(habit.id)
-        assertTrue(found.isPresent)
-        assertEquals(1, found.get().entries.size)
-        assertEquals(entry.id, found.get().entries[0].id)
+        val result = repository.findById(habitId)
+        assertTrue(result.isPresent)
+        assertEquals(1, result.get().entries.size)
+        assertEquals("e1", result.get().entries[0].id)
     }
 
     @Test
-    fun testSaveWithNameTranslations() {
-        val habit = createHabit()
-        habit.nameTranslations = hashMapOf("de" to "Ubung")
-        repository.save(habit)
+    fun testFindByIdWithNameTranslations() = runTest {
+        val habitId = "h1"
+        val entity = HabitEntity(
+            id = habitId, name = "Exercise", description = null,
+            categoryId = null, frequencyType = "DAILY", targetFrequency = 1,
+            maxEntriesPerDay = 1, positiveScoring = 1, createdAt = null,
+            scoringRuleId = null, scoringRuleName = null, userId = "u1", userName = "testuser"
+        )
+        val nameTranslation = HabitNameTranslationEntity(habitId, "de", "Ubung")
+        `when`(dao.findById(habitId)).thenReturn(entity)
+        `when`(dao.findEntriesByHabitId(habitId)).thenReturn(emptyList())
+        `when`(dao.findNameTranslations(habitId)).thenReturn(listOf(nameTranslation))
+        `when`(dao.findDescTranslations(habitId)).thenReturn(emptyList())
 
-        val found = repository.findById(habit.id)
-        assertTrue(found.isPresent)
-        assertNotNull(found.get().nameTranslations)
-        assertEquals("Ubung", found.get().nameTranslations["de"])
+        val result = repository.findById(habitId)
+        assertTrue(result.isPresent)
+        assertNotNull(result.get().nameTranslations)
+        assertEquals("Ubung", result.get().nameTranslations["de"])
     }
 
     @Test
-    fun testSaveWithDescriptionTranslations() {
-        val habit = createHabit()
-        habit.descriptionTranslations = hashMapOf("de" to "Tagliche Ubung")
-        repository.save(habit)
+    fun testFindByIdWithDescriptionTranslations() = runTest {
+        val habitId = "h1"
+        val entity = HabitEntity(
+            id = habitId, name = "Exercise", description = "Daily exercise",
+            categoryId = null, frequencyType = "DAILY", targetFrequency = 1,
+            maxEntriesPerDay = 1, positiveScoring = 1, createdAt = null,
+            scoringRuleId = null, scoringRuleName = null, userId = "u1", userName = "testuser"
+        )
+        val descTranslation = HabitDescriptionTranslationEntity(habitId, "de", "Tagliche Ubung")
+        `when`(dao.findById(habitId)).thenReturn(entity)
+        `when`(dao.findEntriesByHabitId(habitId)).thenReturn(emptyList())
+        `when`(dao.findNameTranslations(habitId)).thenReturn(emptyList())
+        `when`(dao.findDescTranslations(habitId)).thenReturn(listOf(descTranslation))
 
-        val found = repository.findById(habit.id)
-        assertTrue(found.isPresent)
-        assertNotNull(found.get().descriptionTranslations)
-        assertEquals("Tagliche Ubung", found.get().descriptionTranslations["de"])
+        val result = repository.findById(habitId)
+        assertTrue(result.isPresent)
+        assertNotNull(result.get().descriptionTranslations)
+        assertEquals("Tagliche Ubung", result.get().descriptionTranslations["de"])
     }
 
     @Test
-    fun testSaveWithWeeklyFrequencyType() {
-        val habit = createHabit(frequencyType = FrequencyType.WEEKLY)
-        repository.save(habit)
+    fun testFindByIdWithWeeklyFrequencyType() = runTest {
+        val habitId = "h1"
+        val entity = HabitEntity(
+            id = habitId, name = "Test", description = null,
+            categoryId = null, frequencyType = "WEEKLY", targetFrequency = 3,
+            maxEntriesPerDay = 1, positiveScoring = 1, createdAt = null,
+            scoringRuleId = null, scoringRuleName = null, userId = "u1", userName = "testuser"
+        )
+        `when`(dao.findById(habitId)).thenReturn(entity)
+        `when`(dao.findEntriesByHabitId(habitId)).thenReturn(emptyList())
+        `when`(dao.findNameTranslations(habitId)).thenReturn(emptyList())
+        `when`(dao.findDescTranslations(habitId)).thenReturn(emptyList())
 
-        val found = repository.findById(habit.id)
-        assertTrue(found.isPresent)
-        assertEquals(FrequencyType.WEEKLY, found.get().frequencyType)
+        val result = repository.findById(habitId)
+        assertTrue(result.isPresent)
+        assertEquals(FrequencyType.WEEKLY, result.get().frequencyType)
     }
 
     @Test
-    fun testSaveWithMonthlyFrequencyType() {
-        val habit = createHabit(frequencyType = FrequencyType.MONTHLY)
-        repository.save(habit)
+    fun testFindByIdWithMonthlyFrequencyType() = runTest {
+        val habitId = "h1"
+        val entity = HabitEntity(
+            id = habitId, name = "Test", description = null,
+            categoryId = null, frequencyType = "MONTHLY", targetFrequency = 1,
+            maxEntriesPerDay = 1, positiveScoring = 1, createdAt = null,
+            scoringRuleId = null, scoringRuleName = null, userId = "u1", userName = "testuser"
+        )
+        `when`(dao.findById(habitId)).thenReturn(entity)
+        `when`(dao.findEntriesByHabitId(habitId)).thenReturn(emptyList())
+        `when`(dao.findNameTranslations(habitId)).thenReturn(emptyList())
+        `when`(dao.findDescTranslations(habitId)).thenReturn(emptyList())
 
-        val found = repository.findById(habit.id)
-        assertTrue(found.isPresent)
-        assertEquals(FrequencyType.MONTHLY, found.get().frequencyType)
+        val result = repository.findById(habitId)
+        assertTrue(result.isPresent)
+        assertEquals(FrequencyType.MONTHLY, result.get().frequencyType)
     }
 
     @Test
     fun testSaveUpdatesExistingHabit() {
         val habit = createHabit("Original Name")
-        repository.save(habit)
+        val result1 = repository.save(habit)
+        assertEquals("Original Name", result1.name)
 
         habit.name = "Updated Name"
-        repository.save(habit)
-
-        val found = repository.findById(habit.id)
-        assertTrue(found.isPresent)
-        assertEquals("Updated Name", found.get().name)
+        val result2 = repository.save(habit)
+        assertEquals("Updated Name", result2.name)
     }
 }

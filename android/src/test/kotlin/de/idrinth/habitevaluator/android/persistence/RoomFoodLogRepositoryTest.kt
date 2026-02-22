@@ -1,86 +1,68 @@
 package de.idrinth.habitevaluator.android.persistence
 
-import androidx.room.Room
-import androidx.test.core.app.ApplicationProvider
-import androidx.test.ext.junit.runners.AndroidJUnit4
-import de.idrinth.habitevaluator.shared.model.FoodLog
-import de.idrinth.habitevaluator.shared.model.User
-import org.junit.After
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertNotNull
-import org.junit.Assert.assertNull
-import org.junit.Assert.assertTrue
-import org.junit.Before
-import org.junit.Test
-import org.junit.runner.RunWith
-import java.time.LocalDateTime
-import java.util.UUID
+import kotlinx.coroutines.test.runTest
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Assertions.assertNull
+import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.mockito.Mockito.any
+import org.mockito.Mockito.mock
+import org.mockito.Mockito.verify
+import org.mockito.Mockito.`when`
 
-@RunWith(AndroidJUnit4::class)
 class RoomFoodLogRepositoryTest {
 
-    private lateinit var database: AppDatabase
+    private lateinit var dao: FoodLogDao
     private lateinit var repository: RoomFoodLogRepository
 
-    @Before
+    @BeforeEach
     fun setUp() {
-        database = Room.inMemoryDatabaseBuilder(
-            ApplicationProvider.getApplicationContext(),
-            AppDatabase::class.java
-        ).allowMainThreadQueries().build()
-        repository = RoomFoodLogRepository(database.foodLogDao())
+        dao = mock(FoodLogDao::class.java)
+        repository = RoomFoodLogRepository(dao)
     }
 
-    @After
-    fun tearDown() {
-        database.close()
-    }
-
-    private fun createUser(id: String = "u1", username: String = "testuser"): User {
-        val user = User()
-        user.id = id
-        user.username = username
-        return user
-    }
-
-    private fun createFoodLog(
+    private fun createEntity(
+        id: String = "f1",
         carbohydrates: Double? = 25.0,
         kcal: Int? = 300,
-        foodItems: String = "Rice, Chicken",
+        foodItems: String? = "Rice, Chicken",
         notes: String? = null,
         userId: String = "u1"
-    ): FoodLog {
-        val log = FoodLog()
-        log.id = UUID.randomUUID().toString()
-        log.carbohydrates = carbohydrates
-        log.kcal = kcal
-        log.foodItems = foodItems
-        log.dateTime = LocalDateTime.of(2024, 6, 15, 12, 0)
-        log.createdAt = LocalDateTime.now()
-        log.notes = notes
-        log.user = createUser(userId)
-        return log
-    }
+    ) = FoodLogEntity(
+        id = id, carbohydrates = carbohydrates, kcal = kcal,
+        dateTime = "2024-06-15T12:00:00", foodItems = foodItems,
+        createdAt = "2024-06-15T12:00:00", notes = notes,
+        userId = userId, userName = "testuser"
+    )
 
     @Test
-    fun testSaveReturnsEntry() {
-        val log = createFoodLog()
+    fun testSaveReturnsEntry() = runTest {
+        val log = de.idrinth.habitevaluator.shared.model.FoodLog()
+        log.id = "f1"
+        log.carbohydrates = 25.0
+        log.kcal = 300
+        log.foodItems = "Rice, Chicken"
+        log.dateTime = java.time.LocalDateTime.of(2024, 6, 15, 12, 0)
+        log.createdAt = java.time.LocalDateTime.now()
+        val user = de.idrinth.habitevaluator.shared.model.User()
+        user.id = "u1"
+        user.username = "testuser"
+        log.user = user
+
         val result = repository.save(log)
-        assertEquals(log.id, result.id)
+        assertEquals("f1", result.id)
+        verify(dao).insert(any(FoodLogEntity::class.java) ?: createEntity())
     }
 
     @Test
-    fun testSaveAndFindById() {
-        val log = createFoodLog(
-            carbohydrates = 25.5,
-            kcal = 350,
-            foodItems = "Rice, Chicken",
-            notes = "Lunch"
-        )
-        repository.save(log)
+    fun testFindByIdReturnsEntry() = runTest {
+        val entity = createEntity(carbohydrates = 25.5, kcal = 350, foodItems = "Rice, Chicken", notes = "Lunch")
+        `when`(dao.findById("f1")).thenReturn(entity)
 
-        val found = repository.findById(log.id)
+        val found = repository.findById("f1")
         assertTrue(found.isPresent)
         assertEquals(25.5, found.get().carbohydrates!!, 0.01)
         assertEquals(350, found.get().kcal)
@@ -89,83 +71,79 @@ class RoomFoodLogRepositoryTest {
     }
 
     @Test
-    fun testFindByIdNotFound() {
+    fun testFindByIdNotFound() = runTest {
+        `when`(dao.findById("nonexistent")).thenReturn(null)
+
         val result = repository.findById("nonexistent")
         assertFalse(result.isPresent)
     }
 
     @Test
-    fun testFindByIdWithNullCarbohydratesAndKcal() {
-        val log = createFoodLog(carbohydrates = null, kcal = null, foodItems = "Snack")
-        repository.save(log)
+    fun testFindByIdWithNullCarbohydratesAndKcal() = runTest {
+        val entity = createEntity(carbohydrates = null, kcal = null, foodItems = "Snack")
+        `when`(dao.findById("f1")).thenReturn(entity)
 
-        val found = repository.findById(log.id)
+        val found = repository.findById("f1")
         assertTrue(found.isPresent)
         assertNull(found.get().carbohydrates)
         assertNull(found.get().kcal)
     }
 
     @Test
-    fun testFindByIdWithUser() {
-        val log = createFoodLog(userId = "u1")
-        repository.save(log)
+    fun testFindByIdWithUser() = runTest {
+        val entity = createEntity()
+        `when`(dao.findById("f1")).thenReturn(entity)
 
-        val found = repository.findById(log.id)
+        val found = repository.findById("f1")
         assertTrue(found.isPresent)
         assertNotNull(found.get().user)
         assertEquals("u1", found.get().user.id)
     }
 
     @Test
-    fun testFindAll() {
-        val log1 = createFoodLog(foodItems = "Rice")
-        val log2 = createFoodLog(foodItems = "Pasta")
-        repository.save(log1)
-        repository.save(log2)
+    fun testFindAll() = runTest {
+        val e1 = createEntity(id = "f1", foodItems = "Rice")
+        val e2 = createEntity(id = "f2", foodItems = "Pasta")
+        `when`(dao.findAll()).thenReturn(listOf(e1, e2))
 
         val all = repository.findAll()
         assertEquals(2, all.size)
     }
 
     @Test
-    fun testFindAllEmpty() {
+    fun testFindAllEmpty() = runTest {
+        `when`(dao.findAll()).thenReturn(emptyList())
+
         val result = repository.findAll()
         assertTrue(result.isEmpty())
     }
 
     @Test
-    fun testDeleteById() {
-        val log = createFoodLog()
-        repository.save(log)
-
-        assertTrue(repository.findById(log.id).isPresent)
-
-        repository.deleteById(log.id)
-
-        assertFalse(repository.findById(log.id).isPresent)
+    fun testDeleteByIdUnlinksTagsThenDeletes() = runTest {
+        repository.deleteById("f1")
+        verify(dao).unlinkAllTagsFromFoodLog("f1")
+        verify(dao).deleteById("f1")
     }
 
     @Test
-    fun testExistsByIdTrue() {
-        val log = createFoodLog()
-        repository.save(log)
+    fun testExistsByIdTrue() = runTest {
+        `when`(dao.existsById("f1")).thenReturn(true)
 
-        assertTrue(repository.existsById(log.id))
+        assertTrue(repository.existsById("f1"))
     }
 
     @Test
-    fun testExistsByIdFalse() {
+    fun testExistsByIdFalse() = runTest {
+        `when`(dao.existsById("nonexistent")).thenReturn(false)
+
         assertFalse(repository.existsById("nonexistent"))
     }
 
     @Test
-    fun testFindByUserId() {
-        val log1 = createFoodLog(foodItems = "Rice", userId = "u1")
-        val log2 = createFoodLog(foodItems = "Pasta", userId = "u1")
-        val log3 = createFoodLog(foodItems = "Salad", userId = "u2")
-        repository.save(log1)
-        repository.save(log2)
-        repository.save(log3)
+    fun testFindByUserId() = runTest {
+        val e1 = createEntity(id = "f1", foodItems = "Rice", userId = "u1")
+        val e2 = createEntity(id = "f2", foodItems = "Pasta", userId = "u1")
+        `when`(dao.findByUserId("u1")).thenReturn(listOf(e1, e2))
 
         val result = repository.findByUserId("u1")
         assertEquals(2, result.size)
@@ -173,17 +151,19 @@ class RoomFoodLogRepositoryTest {
     }
 
     @Test
-    fun testFindByUserIdEmpty() {
+    fun testFindByUserIdEmpty() = runTest {
+        `when`(dao.findByUserId("u99")).thenReturn(emptyList())
+
         val result = repository.findByUserId("u99")
         assertTrue(result.isEmpty())
     }
 
     @Test
-    fun testSaveWithNullFieldsDoesNotThrow() {
-        val log = createFoodLog(carbohydrates = null, kcal = null, notes = null)
-        repository.save(log)
+    fun testFindByIdWithAllNullOptionalFields() = runTest {
+        val entity = createEntity(carbohydrates = null, kcal = null, notes = null)
+        `when`(dao.findById("f1")).thenReturn(entity)
 
-        val found = repository.findById(log.id)
+        val found = repository.findById("f1")
         assertTrue(found.isPresent)
         assertNull(found.get().carbohydrates)
         assertNull(found.get().kcal)
@@ -191,11 +171,11 @@ class RoomFoodLogRepositoryTest {
     }
 
     @Test
-    fun testSaveWithUserAttached() {
-        val log = createFoodLog(userId = "u1")
-        repository.save(log)
+    fun testFindByIdUserAttached() = runTest {
+        val entity = createEntity()
+        `when`(dao.findById("f1")).thenReturn(entity)
 
-        val found = repository.findById(log.id)
+        val found = repository.findById("f1")
         assertTrue(found.isPresent)
         assertNotNull(found.get().user)
         assertEquals("u1", found.get().user.id)

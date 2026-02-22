@@ -1,45 +1,31 @@
 package de.idrinth.habitevaluator.android.persistence
 
-import androidx.room.Room
-import androidx.test.core.app.ApplicationProvider
-import androidx.test.ext.junit.runners.AndroidJUnit4
 import de.idrinth.habitevaluator.shared.model.HabitCategory
 import de.idrinth.habitevaluator.shared.model.User
-import org.junit.After
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertNotNull
-import org.junit.Assert.assertTrue
-import org.junit.Before
-import org.junit.Test
-import org.junit.runner.RunWith
+import kotlinx.coroutines.test.runTest
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.mockito.Mockito.any
+import org.mockito.Mockito.anyList
+import org.mockito.Mockito.anyString
+import org.mockito.Mockito.mock
+import org.mockito.Mockito.verify
+import org.mockito.Mockito.`when`
 import java.util.UUID
 
-@RunWith(AndroidJUnit4::class)
 class RoomHabitCategoryRepositoryTest {
 
-    private lateinit var database: AppDatabase
+    private lateinit var dao: HabitCategoryDao
     private lateinit var repository: RoomHabitCategoryRepository
 
-    @Before
+    @BeforeEach
     fun setUp() {
-        database = Room.inMemoryDatabaseBuilder(
-            ApplicationProvider.getApplicationContext(),
-            AppDatabase::class.java
-        ).allowMainThreadQueries().build()
-        repository = RoomHabitCategoryRepository(database.habitCategoryDao())
-    }
-
-    @After
-    fun tearDown() {
-        database.close()
-    }
-
-    private fun createUser(id: String = "u1", username: String = "testuser"): User {
-        val user = User()
-        user.id = id
-        user.username = username
-        return user
+        dao = mock(HabitCategoryDao::class.java)
+        repository = RoomHabitCategoryRepository(dao)
     }
 
     private fun createCategory(
@@ -53,7 +39,10 @@ class RoomHabitCategoryRepositoryTest {
         category.name = name
         category.description = description
         category.color = color
-        category.user = createUser(userId)
+        val user = User()
+        user.id = userId
+        user.username = "testuser"
+        category.user = user
         return category
     }
 
@@ -66,11 +55,27 @@ class RoomHabitCategoryRepositoryTest {
     }
 
     @Test
-    fun testSaveAndFindById() {
-        val category = createCategory("Health", "Health habits", "#FF0000")
+    fun testSaveCallsDaoSaveWithDetails() = runTest {
+        val category = createCategory()
         repository.save(category)
+        verify(dao).saveWithDetails(
+            any(HabitCategoryEntity::class.java) ?: category.toEntity(),
+            anyList(),
+            anyList()
+        )
+    }
 
-        val found = repository.findById(category.id)
+    @Test
+    fun testFindByIdReturnsCategory() = runTest {
+        val entity = HabitCategoryEntity(
+            id = "c1", name = "Health", description = "Health habits",
+            color = "#FF0000", userId = "u1", userName = "testuser"
+        )
+        `when`(dao.findById("c1")).thenReturn(entity)
+        `when`(dao.findNameTranslations("c1")).thenReturn(emptyList())
+        `when`(dao.findDescTranslations("c1")).thenReturn(emptyList())
+
+        val found = repository.findById("c1")
         assertTrue(found.isPresent)
         assertEquals("Health", found.get().name)
         assertEquals("Health habits", found.get().description)
@@ -78,17 +83,24 @@ class RoomHabitCategoryRepositoryTest {
     }
 
     @Test
-    fun testFindByIdNotFound() {
+    fun testFindByIdNotFound() = runTest {
+        `when`(dao.findById("nonexistent")).thenReturn(null)
+
         val result = repository.findById("nonexistent")
         assertFalse(result.isPresent)
     }
 
     @Test
-    fun testFindByIdWithUser() {
-        val category = createCategory(userId = "u1")
-        repository.save(category)
+    fun testFindByIdWithUser() = runTest {
+        val entity = HabitCategoryEntity(
+            id = "c1", name = "Health", description = null,
+            color = null, userId = "u1", userName = "testuser"
+        )
+        `when`(dao.findById("c1")).thenReturn(entity)
+        `when`(dao.findNameTranslations("c1")).thenReturn(emptyList())
+        `when`(dao.findDescTranslations("c1")).thenReturn(emptyList())
 
-        val found = repository.findById(category.id)
+        val found = repository.findById("c1")
         assertTrue(found.isPresent)
         assertNotNull(found.get().user)
         assertEquals("u1", found.get().user.id)
@@ -96,55 +108,64 @@ class RoomHabitCategoryRepositoryTest {
     }
 
     @Test
-    fun testFindAll() {
-        val cat1 = createCategory("Category A")
-        val cat2 = createCategory("Category B")
-        repository.save(cat1)
-        repository.save(cat2)
+    fun testFindAll() = runTest {
+        val entity1 = HabitCategoryEntity(
+            id = "c1", name = "Category A", description = null,
+            color = null, userId = "u1", userName = "testuser"
+        )
+        val entity2 = HabitCategoryEntity(
+            id = "c2", name = "Category B", description = null,
+            color = null, userId = "u1", userName = "testuser"
+        )
+        `when`(dao.findAll()).thenReturn(listOf(entity1, entity2))
+        `when`(dao.findNameTranslations(anyString())).thenReturn(emptyList())
+        `when`(dao.findDescTranslations(anyString())).thenReturn(emptyList())
 
         val all = repository.findAll()
         assertEquals(2, all.size)
     }
 
     @Test
-    fun testFindAllEmpty() {
+    fun testFindAllEmpty() = runTest {
+        `when`(dao.findAll()).thenReturn(emptyList())
+
         val result = repository.findAll()
         assertTrue(result.isEmpty())
     }
 
     @Test
-    fun testDeleteById() {
-        val category = createCategory()
-        repository.save(category)
-
-        assertTrue(repository.findById(category.id).isPresent)
-
-        repository.deleteById(category.id)
-
-        assertFalse(repository.findById(category.id).isPresent)
+    fun testDeleteById() = runTest {
+        repository.deleteById("c1")
+        verify(dao).deleteWithDetails("c1")
     }
 
     @Test
-    fun testExistsByIdTrue() {
-        val category = createCategory()
-        repository.save(category)
+    fun testExistsByIdTrue() = runTest {
+        `when`(dao.existsById("c1")).thenReturn(true)
 
-        assertTrue(repository.existsById(category.id))
+        assertTrue(repository.existsById("c1"))
     }
 
     @Test
-    fun testExistsByIdFalse() {
+    fun testExistsByIdFalse() = runTest {
+        `when`(dao.existsById("nonexistent")).thenReturn(false)
+
         assertFalse(repository.existsById("nonexistent"))
     }
 
     @Test
-    fun testFindByUserId() {
-        val cat1 = createCategory("Cat A", userId = "u1")
-        val cat2 = createCategory("Cat B", userId = "u1")
-        val cat3 = createCategory("Cat C", userId = "u2")
-        repository.save(cat1)
-        repository.save(cat2)
-        repository.save(cat3)
+    fun testFindByUserId() = runTest {
+        val entity1 = HabitCategoryEntity(
+            id = "c1", name = "Cat A", description = null,
+            color = null, userId = "u1", userName = "testuser"
+        )
+        val entity2 = HabitCategoryEntity(
+            id = "c2", name = "Cat B", description = null,
+            color = null, userId = "u1", userName = "testuser"
+        )
+        `when`(dao.findByUserId("u1")).thenReturn(listOf(entity1, entity2))
+        `when`(dao.findNameTranslations(anyString())).thenReturn(emptyList())
+        `when`(dao.findDescTranslations(anyString())).thenReturn(emptyList())
 
         val result = repository.findByUserId("u1")
         assertEquals(2, result.size)
@@ -152,30 +173,42 @@ class RoomHabitCategoryRepositoryTest {
     }
 
     @Test
-    fun testFindByUserIdEmpty() {
+    fun testFindByUserIdEmpty() = runTest {
+        `when`(dao.findByUserId("u99")).thenReturn(emptyList())
+
         val result = repository.findByUserId("u99")
         assertTrue(result.isEmpty())
     }
 
     @Test
-    fun testSaveWithNameTranslations() {
-        val category = createCategory()
-        category.nameTranslations = hashMapOf("de" to "Gesundheit")
-        repository.save(category)
+    fun testFindByIdWithNameTranslations() = runTest {
+        val entity = HabitCategoryEntity(
+            id = "c1", name = "Health", description = null,
+            color = null, userId = "u1", userName = "testuser"
+        )
+        val nameTranslation = CategoryNameTranslationEntity("c1", "de", "Gesundheit")
+        `when`(dao.findById("c1")).thenReturn(entity)
+        `when`(dao.findNameTranslations("c1")).thenReturn(listOf(nameTranslation))
+        `when`(dao.findDescTranslations("c1")).thenReturn(emptyList())
 
-        val found = repository.findById(category.id)
+        val found = repository.findById("c1")
         assertTrue(found.isPresent)
         assertNotNull(found.get().nameTranslations)
         assertEquals("Gesundheit", found.get().nameTranslations["de"])
     }
 
     @Test
-    fun testSaveWithDescriptionTranslations() {
-        val category = createCategory()
-        category.descriptionTranslations = hashMapOf("de" to "Gesundheitsbezogene Gewohnheiten")
-        repository.save(category)
+    fun testFindByIdWithDescriptionTranslations() = runTest {
+        val entity = HabitCategoryEntity(
+            id = "c1", name = "Health", description = "Health related",
+            color = null, userId = "u1", userName = "testuser"
+        )
+        val descTranslation = CategoryDescriptionTranslationEntity("c1", "de", "Gesundheitsbezogene Gewohnheiten")
+        `when`(dao.findById("c1")).thenReturn(entity)
+        `when`(dao.findNameTranslations("c1")).thenReturn(emptyList())
+        `when`(dao.findDescTranslations("c1")).thenReturn(listOf(descTranslation))
 
-        val found = repository.findById(category.id)
+        val found = repository.findById("c1")
         assertTrue(found.isPresent)
         assertNotNull(found.get().descriptionTranslations)
         assertEquals("Gesundheitsbezogene Gewohnheiten", found.get().descriptionTranslations["de"])
@@ -184,13 +217,11 @@ class RoomHabitCategoryRepositoryTest {
     @Test
     fun testSaveUpdatesExistingCategory() {
         val category = createCategory("Original Name")
-        repository.save(category)
+        val result1 = repository.save(category)
+        assertEquals("Original Name", result1.name)
 
         category.name = "Updated Name"
-        repository.save(category)
-
-        val found = repository.findById(category.id)
-        assertTrue(found.isPresent)
-        assertEquals("Updated Name", found.get().name)
+        val result2 = repository.save(category)
+        assertEquals("Updated Name", result2.name)
     }
 }

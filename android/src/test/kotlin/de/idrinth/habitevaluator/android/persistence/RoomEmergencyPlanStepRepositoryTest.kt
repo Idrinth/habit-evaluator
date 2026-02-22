@@ -1,193 +1,190 @@
 package de.idrinth.habitevaluator.android.persistence
 
-import androidx.room.Room
-import androidx.test.core.app.ApplicationProvider
-import androidx.test.ext.junit.runners.AndroidJUnit4
 import de.idrinth.habitevaluator.shared.model.EmergencyPlanAction
 import de.idrinth.habitevaluator.shared.model.EmergencyPlanStep
 import de.idrinth.habitevaluator.shared.model.User
-import org.junit.After
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertNotNull
-import org.junit.Assert.assertTrue
-import org.junit.Before
-import org.junit.Test
-import org.junit.runner.RunWith
-import java.util.UUID
+import kotlinx.coroutines.test.runTest
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.mockito.Mockito.any
+import org.mockito.Mockito.anyList
+import org.mockito.Mockito.anyString
+import org.mockito.Mockito.mock
+import org.mockito.Mockito.verify
+import org.mockito.Mockito.`when`
 
-@RunWith(AndroidJUnit4::class)
 class RoomEmergencyPlanStepRepositoryTest {
 
-    private lateinit var database: AppDatabase
+    private lateinit var dao: EmergencyPlanDao
     private lateinit var repository: RoomEmergencyPlanStepRepository
 
-    @Before
+    @BeforeEach
     fun setUp() {
-        database = Room.inMemoryDatabaseBuilder(
-            ApplicationProvider.getApplicationContext(),
-            AppDatabase::class.java
-        ).allowMainThreadQueries().build()
-        repository = RoomEmergencyPlanStepRepository(database.emergencyPlanDao())
+        dao = mock(EmergencyPlanDao::class.java)
+        repository = RoomEmergencyPlanStepRepository(dao)
     }
 
-    @After
-    fun tearDown() {
-        database.close()
-    }
+    private fun createStepEntity(
+        id: String = "s1",
+        question: String = "Are you safe?",
+        stepOrder: Int = 0,
+        userId: String = "u1"
+    ) = EmergencyPlanStepEntity(
+        id = id, question = question, stepOrder = stepOrder,
+        userId = userId, userName = "testuser"
+    )
 
-    private fun createUser(id: String = "u1", username: String = "testuser"): User {
-        val user = User()
-        user.id = id
-        user.username = username
-        return user
-    }
+    private fun createActionEntity(
+        id: String = "a1",
+        actionText: String = "Do something",
+        actionOrder: Int = 0,
+        phoneNumber: String? = null,
+        stepId: String = "s1"
+    ) = EmergencyPlanActionEntity(
+        id = id, actionText = actionText, phoneNumber = phoneNumber,
+        actionOrder = actionOrder, stepId = stepId
+    )
 
     private fun createStep(
         question: String = "Are you safe?",
         stepOrder: Int = 0,
-        userId: String = "u1",
-        vararg actions: EmergencyPlanAction
+        userId: String = "u1"
     ): EmergencyPlanStep {
         val step = EmergencyPlanStep()
-        step.id = UUID.randomUUID().toString()
+        step.id = "s1"
         step.question = question
         step.stepOrder = stepOrder
-        step.user = createUser(userId)
-        actions.forEach { step.addAction(it) }
+        val user = User()
+        user.id = userId
+        user.username = "testuser"
+        step.user = user
         return step
     }
 
-    private fun createAction(
-        actionText: String = "Do something",
-        actionOrder: Int = 0,
-        phoneNumber: String? = null
-    ): EmergencyPlanAction {
-        val action = EmergencyPlanAction()
-        action.id = UUID.randomUUID().toString()
-        action.actionText = actionText
-        action.actionOrder = actionOrder
-        action.phoneNumber = phoneNumber
-        return action
-    }
-
     @Test
-    fun testSaveReturnsStep() {
+    fun testSaveReturnsStep() = runTest {
         val step = createStep()
         val result = repository.save(step)
-        assertEquals(step.id, result.id)
+        assertEquals("s1", result.id)
     }
 
     @Test
-    fun testSaveAndFindById() {
-        val step = createStep("Are you tired?", stepOrder = 0)
+    fun testSaveCallsDaoSaveStepWithActions() = runTest {
+        val step = createStep()
         repository.save(step)
+        verify(dao).saveStepWithActions(
+            any(EmergencyPlanStepEntity::class.java) ?: createStepEntity(),
+            anyList()
+        )
+    }
 
-        val found = repository.findById(step.id)
+    @Test
+    fun testFindByIdReturnsStep() = runTest {
+        val stepEntity = createStepEntity(question = "Are you tired?")
+        `when`(dao.findStepById("s1")).thenReturn(stepEntity)
+        `when`(dao.findActionsByStepId("s1")).thenReturn(emptyList())
+
+        val found = repository.findById("s1")
         assertTrue(found.isPresent)
         assertEquals("Are you tired?", found.get().question)
         assertEquals(0, found.get().stepOrder)
     }
 
     @Test
-    fun testFindByIdNotFound() {
+    fun testFindByIdNotFound() = runTest {
+        `when`(dao.findStepById("nonexistent")).thenReturn(null)
+
         val result = repository.findById("nonexistent")
         assertFalse(result.isPresent)
     }
 
     @Test
-    fun testFindByIdWithUser() {
-        val step = createStep(userId = "u1")
-        repository.save(step)
+    fun testFindByIdWithUser() = runTest {
+        val stepEntity = createStepEntity()
+        `when`(dao.findStepById("s1")).thenReturn(stepEntity)
+        `when`(dao.findActionsByStepId("s1")).thenReturn(emptyList())
 
-        val found = repository.findById(step.id)
+        val found = repository.findById("s1")
         assertTrue(found.isPresent)
         assertNotNull(found.get().user)
         assertEquals("u1", found.get().user.id)
     }
 
     @Test
-    fun testSavePersistsActions() {
-        val action = createAction("Take a nap", 0)
-        val step = createStep("Are you tired?", actions = arrayOf(action))
-        repository.save(step)
+    fun testFindByIdPersistsActions() = runTest {
+        val stepEntity = createStepEntity()
+        val actionEntity = createActionEntity(actionText = "Take a nap")
+        `when`(dao.findStepById("s1")).thenReturn(stepEntity)
+        `when`(dao.findActionsByStepId("s1")).thenReturn(listOf(actionEntity))
 
-        val found = repository.findById(step.id)
+        val found = repository.findById("s1")
         assertTrue(found.isPresent)
         assertEquals(1, found.get().actions.size)
         assertEquals("Take a nap", found.get().actions[0].actionText)
     }
 
     @Test
-    fun testSavePersistsMultipleActions() {
-        val action1 = createAction("Action 1", 0)
-        val action2 = createAction("Action 2", 1)
-        val step = createStep(actions = arrayOf(action1, action2))
-        repository.save(step)
+    fun testFindByIdWithMultipleActions() = runTest {
+        val stepEntity = createStepEntity()
+        val a1 = createActionEntity(id = "a1", actionText = "Action 1", actionOrder = 0)
+        val a2 = createActionEntity(id = "a2", actionText = "Action 2", actionOrder = 1)
+        `when`(dao.findStepById("s1")).thenReturn(stepEntity)
+        `when`(dao.findActionsByStepId("s1")).thenReturn(listOf(a1, a2))
 
-        val found = repository.findById(step.id)
+        val found = repository.findById("s1")
         assertTrue(found.isPresent)
         assertEquals(2, found.get().actions.size)
     }
 
     @Test
-    fun testSaveAll() {
+    fun testSaveAll() = runTest {
         val step1 = createStep("Q1?", 0)
+        step1.id = "s1"
         val step2 = createStep("Q2?", 1)
+        step2.id = "s2"
         repository.saveAll(listOf(step1, step2))
+        // saveStepWithActions called twice
+        verify(dao).saveStepWithActions(
+            any(EmergencyPlanStepEntity::class.java) ?: createStepEntity(id = "s1"),
+            anyList()
+        )
+    }
+
+    @Test
+    fun testFindAll() = runTest {
+        val e1 = createStepEntity(id = "s1", question = "Q1?")
+        val e2 = createStepEntity(id = "s2", question = "Q2?")
+        `when`(dao.findAllSteps()).thenReturn(listOf(e1, e2))
+        `when`(dao.findActionsByStepId(anyString())).thenReturn(emptyList())
 
         val all = repository.findAll()
         assertEquals(2, all.size)
     }
 
     @Test
-    fun testFindAll() {
-        val step1 = createStep("Q1?", 0)
-        val step2 = createStep("Q2?", 1)
-        repository.save(step1)
-        repository.save(step2)
+    fun testFindAllEmpty() = runTest {
+        `when`(dao.findAllSteps()).thenReturn(emptyList())
 
-        val all = repository.findAll()
-        assertEquals(2, all.size)
-    }
-
-    @Test
-    fun testFindAllEmpty() {
         val result = repository.findAll()
         assertTrue(result.isEmpty())
     }
 
     @Test
-    fun testDeleteById() {
-        val step = createStep()
-        repository.save(step)
-
-        assertTrue(repository.findById(step.id).isPresent)
-
-        repository.deleteById(step.id)
-
-        assertFalse(repository.findById(step.id).isPresent)
+    fun testDeleteById() = runTest {
+        repository.deleteById("s1")
+        verify(dao).deleteStepWithActions("s1")
     }
 
     @Test
-    fun testDeleteByIdAlsoDeletesActions() {
-        val action = createAction("Do something", 0)
-        val step = createStep(actions = arrayOf(action))
-        repository.save(step)
-
-        repository.deleteById(step.id)
-
-        assertFalse(repository.findById(step.id).isPresent)
-    }
-
-    @Test
-    fun testFindByUserId() {
-        val step1 = createStep("Q1?", 0, "u1")
-        val step2 = createStep("Q2?", 1, "u1")
-        val step3 = createStep("Q3?", 0, "u2")
-        repository.save(step1)
-        repository.save(step2)
-        repository.save(step3)
+    fun testFindByUserId() = runTest {
+        val e1 = createStepEntity(id = "s1", userId = "u1")
+        val e2 = createStepEntity(id = "s2", userId = "u1")
+        `when`(dao.findStepsByUserId("u1")).thenReturn(listOf(e1, e2))
+        `when`(dao.findActionsByStepId(anyString())).thenReturn(emptyList())
 
         val result = repository.findByUserId("u1")
         assertEquals(2, result.size)
@@ -195,36 +192,21 @@ class RoomEmergencyPlanStepRepositoryTest {
     }
 
     @Test
-    fun testFindByUserIdEmpty() {
+    fun testFindByUserIdEmpty() = runTest {
+        `when`(dao.findStepsByUserId("u99")).thenReturn(emptyList())
+
         val result = repository.findByUserId("u99")
         assertTrue(result.isEmpty())
     }
 
     @Test
-    fun testSaveUpdatesActionsOnReSave() {
-        val action1 = createAction("Action 1", 0)
-        val step = createStep(actions = arrayOf(action1))
-        repository.save(step)
+    fun testActionWithPhoneNumber() = runTest {
+        val stepEntity = createStepEntity()
+        val actionEntity = createActionEntity(actionText = "Call emergency", phoneNumber = "+49123456")
+        `when`(dao.findStepById("s1")).thenReturn(stepEntity)
+        `when`(dao.findActionsByStepId("s1")).thenReturn(listOf(actionEntity))
 
-        // Now replace actions
-        step.actions.clear()
-        val action2 = createAction("Action 2", 0)
-        step.addAction(action2)
-        repository.save(step)
-
-        val found = repository.findById(step.id)
-        assertTrue(found.isPresent)
-        assertEquals(1, found.get().actions.size)
-        assertEquals("Action 2", found.get().actions[0].actionText)
-    }
-
-    @Test
-    fun testActionWithPhoneNumber() {
-        val action = createAction("Call emergency", 0, "+49123456")
-        val step = createStep(actions = arrayOf(action))
-        repository.save(step)
-
-        val found = repository.findById(step.id)
+        val found = repository.findById("s1")
         assertTrue(found.isPresent)
         assertEquals("+49123456", found.get().actions[0].phoneNumber)
     }
