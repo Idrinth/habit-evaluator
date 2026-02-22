@@ -190,12 +190,10 @@ tasks.register('jacocoTestReport', JacocoReport) {
         '**/databinding/**'
     ]
 
-    def debugTree = fileTree(
-        dir: layout.buildDirectory.dir("tmp/kotlin-classes/tiramisuDebug"),
-        excludes: fileFilter
-    )
-
-    classDirectories.setFrom(debugTree)
+    classDirectories.setFrom(files(
+        fileTree(dir: layout.buildDirectory.dir("tmp/kotlin-classes/tiramisuDebug"), excludes: fileFilter),
+        fileTree(dir: layout.buildDirectory.dir("intermediates/classes/tiramisuDebug"), excludes: fileFilter)
+    ))
     sourceDirectories.setFrom(files('src/main/kotlin'))
     executionData.setFrom(fileTree(
         dir: layout.buildDirectory,
