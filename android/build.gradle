@@ -173,6 +173,7 @@ tasks.withType(Test).configureEach {
 
 tasks.register('jacocoTestReport', JacocoReport) {
     mustRunAfter 'testLollipopDebugUnitTest', 'testOreoDebugUnitTest', 'testTiramisuDebugUnitTest'
+    outputs.cacheIf { false }
 
     reports {
         xml.required = true
@@ -191,20 +192,17 @@ tasks.register('jacocoTestReport', JacocoReport) {
     ]
 
     classDirectories.setFrom(files(
+        fileTree(dir: layout.buildDirectory.dir("tmp/kotlin-classes/lollipopDebug"), excludes: fileFilter),
+        fileTree(dir: layout.buildDirectory.dir("tmp/kotlin-classes/oreoDebug"), excludes: fileFilter),
         fileTree(dir: layout.buildDirectory.dir("tmp/kotlin-classes/tiramisuDebug"), excludes: fileFilter),
+        fileTree(dir: layout.buildDirectory.dir("intermediates/classes/lollipopDebug"), excludes: fileFilter),
+        fileTree(dir: layout.buildDirectory.dir("intermediates/classes/oreoDebug"), excludes: fileFilter),
         fileTree(dir: layout.buildDirectory.dir("intermediates/classes/tiramisuDebug"), excludes: fileFilter)
     ))
     sourceDirectories.setFrom(files('src/main/kotlin'))
     executionData.setFrom(fileTree(
         dir: layout.buildDirectory,
-        includes: [
-            'jacoco/testLollipopDebugUnitTest.exec',
-            'jacoco/testOreoDebugUnitTest.exec',
-            'jacoco/testTiramisuDebugUnitTest.exec',
-            'outputs/unit_test_code_coverage/lollipopDebugUnitTest/testLollipopDebugUnitTest.exec',
-            'outputs/unit_test_code_coverage/oreoDebugUnitTest/testOreoDebugUnitTest.exec',
-            'outputs/unit_test_code_coverage/tiramisuDebugUnitTest/testTiramisuDebugUnitTest.exec'
-        ]
+        includes: ['**/*.exec']
     ))
 }
 

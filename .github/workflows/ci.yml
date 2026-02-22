@@ -135,8 +135,12 @@ jobs:
           :android:testOreoDebugUnitTest
           :android:testTiramisuDebugUnitTest
 
+      - name: Debug - find JaCoCo exec files
+        run: find android/build -name '*.exec' -type f 2>/dev/null || echo 'No .exec files found'
+        if: always()
+
       - name: Generate coverage report
-        run: ./gradlew :android:jacocoTestReport
+        run: ./gradlew :android:jacocoTestReport --info 2>&1 | tail -50
         if: always()
 
       - name: Upload coverage report
