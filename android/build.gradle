@@ -1,11 +1,14 @@
 plugins {
     id 'com.android.application' version '9.0.1'
+    id 'org.jetbrains.kotlin.plugin.compose' version '2.3.0'
+    id 'com.google.devtools.ksp' version '2.3.5'
+    id 'androidx.room' version '2.8.4'
     id 'jacoco'
 }
 
 android {
     namespace 'de.idrinth.habitevaluator.android'
-    compileSdk 35
+    compileSdk 36
 
     defaultConfig {
         applicationId "de.idrinth.habitevaluator.android"
@@ -70,7 +73,7 @@ android {
     }
 
     buildFeatures {
-        viewBinding true
+        compose true
         buildConfig true
     }
 
@@ -90,6 +93,10 @@ android {
     }
 }
 
+room {
+    schemaDirectory("$projectDir/schemas")
+}
+
 dependencies {
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.4'
 
@@ -101,18 +108,41 @@ dependencies {
     // SLF4J no-op implementation to prevent service lookup failures on Android
     implementation 'org.slf4j:slf4j-nop:2.0.17'
 
-    // AndroidX
+    // Kotlin Coroutines
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2'
+
+    // Jetpack Compose (BOM)
+    def composeBom = platform('androidx.compose:compose-bom:2026.01.01')
+    implementation composeBom
+    testImplementation composeBom
+    androidTestImplementation composeBom
+    implementation 'androidx.compose.ui:ui'
+    implementation 'androidx.compose.ui:ui-graphics'
+    implementation 'androidx.compose.ui:ui-tooling-preview'
+    implementation 'androidx.compose.material3:material3'
+    implementation 'androidx.compose.material:material-icons-extended'
+    debugImplementation 'androidx.compose.ui:ui-tooling'
+    debugImplementation 'androidx.compose.ui:ui-test-manifest'
+
+    // Activity & Navigation Compose
+    implementation 'androidx.activity:activity-compose:1.12.4'
+    implementation 'androidx.navigation:navigation-compose:2.9.7'
+
+    // Lifecycle (ViewModel + Compose)
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-compose:2.10.0'
+    implementation 'androidx.lifecycle:lifecycle-runtime-compose:2.10.0'
+
+    // Room
+    implementation 'androidx.room:room-runtime:2.8.4'
+    ksp 'androidx.room:room-compiler:2.8.4'
+
+    // OpenPDF for PDF generation
+    implementation 'com.github.librepdf:openpdf:1.3.35'
+
+    // AndroidX (kept for AppCompat locale/theme, Material XML theme, DocumentFile SAF backup)
     implementation 'androidx.documentfile:documentfile:1.0.1'
     implementation 'androidx.appcompat:appcompat:1.7.1'
     implementation 'com.google.android.material:material:1.11.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.2.1'
-    implementation 'androidx.recyclerview:recyclerview:1.4.0'
-    implementation 'androidx.cardview:cardview:1.0.0'
-    implementation 'androidx.viewpager2:viewpager2:1.1.0'
-
-    // Lifecycle
-    implementation 'androidx.lifecycle:lifecycle-viewmodel:2.7.0'
-    implementation 'androidx.lifecycle:lifecycle-livedata:2.7.0'
 
     // JaCoCo agent runtime for Maestro coverage collection in debug builds
     debugImplementation 'org.jacoco:org.jacoco.agent:0.8.13:runtime'
@@ -121,7 +151,9 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     testImplementation 'org.mockito:mockito-core:5.11.0'
+    testImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-test:1.10.2'
     testImplementation 'jakarta.persistence:jakarta.persistence-api:3.1.0'
+    testImplementation 'androidx.room:room-testing:2.8.4'
     androidTestImplementation 'androidx.test:core:1.5.0'
     androidTestImplementation 'androidx.test:runner:1.5.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
@@ -163,12 +195,12 @@ tasks.register('jacocoTestReport', JacocoReport) {
     ]
 
     def debugTree = fileTree(
-        dir: layout.buildDirectory.dir("intermediates/javac/tiramisuDebug/compileTiramisuDebugJavaWithJavac/classes"),
+        dir: layout.buildDirectory.dir("tmp/kotlin-classes/tiramisuDebug"),
         excludes: fileFilter
     )
 
     classDirectories.setFrom(debugTree)
-    sourceDirectories.setFrom(files('src/main/java'))
+    sourceDirectories.setFrom(files('src/main/kotlin'))
     executionData.setFrom(fileTree(
         dir: layout.buildDirectory,
         includes: [
@@ -211,7 +243,7 @@ tasks.register('jacocoMaestroReport', JacocoReport) {
     )
 
     classDirectories.setFrom(debugTree)
-    sourceDirectories.setFrom(files('src/main/java'))
+    sourceDirectories.setFrom(files('src/main/kotlin'))
     executionData.setFrom(
         fileTree(
             dir: layout.buildDirectory.dir("maestro-coverage"),
@@ -260,9 +292,9 @@ if (project.hasProperty('maestroCoverage')) {
     afterEvaluate {
         debugVariantNames.each { variantName ->
             def variantCapName = variantName.capitalize()
-            def compileTaskName = "compile${variantCapName}JavaWithJavac"
-            def compileTask = tasks.named(compileTaskName, JavaCompile)
-            def classesDir = compileTask.flatMap { it.destinationDirectory }
+            def compileTaskName = "compile${variantCapName}Kotlin"
+            def compileTask = tasks.named(compileTaskName)
+            def classesDir = layout.buildDirectory.dir("tmp/kotlin-classes/${variantName}")
             def originalClassesDir = layout.buildDirectory.dir("maestro-original-classes")
 
             def instrumentTask = tasks.register("jacocoOfflineInstrument${variantCapName}") {

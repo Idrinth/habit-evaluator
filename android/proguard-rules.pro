@@ -8,7 +8,7 @@
 -keep class de.idrinth.habitevaluator.shared.api.** { *; }
 -keep class de.idrinth.habitevaluator.shared.repository.** { *; }
 
-# Keep Android persistence classes for filesystem storage
+# Keep Android persistence classes
 -keep class de.idrinth.habitevaluator.android.persistence.** { *; }
 
 # Keep Gson classes and ensure reflection-based serialization works
@@ -19,6 +19,27 @@
     <init>();
     <fields>;
 }
+
+# Kotlin metadata for reflection
+-keep class kotlin.Metadata { *; }
+-keepclassmembers class * {
+    @kotlin.Metadata *;
+}
+
+# Coroutines
+-keepnames class kotlinx.coroutines.internal.MainDispatcherFactory {}
+-keepnames class kotlinx.coroutines.CoroutineExceptionHandler {}
+-keepclassmembers class kotlinx.coroutines.** {
+    volatile <fields>;
+}
+
+# Room
+-keep class * extends androidx.room.RoomDatabase
+-keepclassmembers class * extends androidx.room.RoomDatabase {
+    abstract <methods>;
+}
+-keep @androidx.room.Entity class *
+-keep @androidx.room.Dao interface *
 
 # Suppress warnings for server-side annotations not present on Android
 -dontwarn jakarta.persistence.**

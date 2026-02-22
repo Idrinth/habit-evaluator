@@ -451,4 +451,181 @@
     <string name="activity_log_time_required">Please select both start and end times</string>
     <string name="activity_log_duration">%d min</string>
     <string name="diary_navigation_activity_log_description">Log activities with persons, locations, and times</string>
+
+    <!-- Compose screen short-form strings -->
+    <string name="home">Home</string>
+    <string name="diary">Diary</string>
+    <string name="emotions">Emotions</string>
+    <string name="emergency_plan">Emergency Plan</string>
+    <string name="imprint">Project Legal</string>
+    <string name="statistics">Statistics</string>
+    <string name="sleep_duration">Sleep Duration</string>
+    <string name="diary_points">Diary Points</string>
+    <string name="habit_points">Habit Points</string>
+    <string name="export_pdf">Export PDF</string>
+    <string name="view_correlations">View Correlations</string>
+    <string name="habit_not_found">Habit not found</string>
+    <string name="week">Week</string>
+    <string name="month">Month</string>
+    <string name="daily_points_title">Daily Points</string>
+    <string name="storage_mode">Storage Mode</string>
+    <string name="local_storage">Local (on device)</string>
+    <string name="remote_storage">Remote API Server</string>
+    <string name="api_url">Server URL</string>
+    <string name="username">Username</string>
+    <string name="password">Password</string>
+    <string name="theme">Theme</string>
+    <string name="system_default">System default</string>
+    <string name="light">Light</string>
+    <string name="dark">Dark</string>
+    <string name="language">Language</string>
+    <string name="module_visibility">Module Visibility</string>
+    <string name="delete">Delete</string>
+    <string name="edit">Edit</string>
+    <string name="cancel">Cancel</string>
+    <string name="notes">Notes</string>
+    <string name="date">Date</string>
+    <string name="date_time">Date &amp; Time</string>
+    <string name="start_time">Start Time</string>
+    <string name="end_time">End Time</string>
+    <string name="add_entry">Add Entry</string>
+    <string name="edit_entry">Edit Entry</string>
+    <string name="save_edit">Save Edit</string>
+
+    <!-- Food log screen -->
+    <string name="food_log">Food Log</string>
+    <string name="food_items">Food items</string>
+    <string name="food_items_required">Please enter at least one food item</string>
+    <string name="kcal">Kcal</string>
+    <string name="carbohydrates">Carbohydrates (g)</string>
+    <string name="invalid_kcal">Please enter a valid kcal value</string>
+    <string name="invalid_carbs">Please enter a valid carbohydrates value</string>
+
+    <!-- Sport log screen -->
+    <string name="sport_log">Sport Log</string>
+    <string name="activity_name">Activity name</string>
+    <string name="activity_name_required">Please enter an activity name</string>
+    <string name="measurement">Measurement</string>
+    <string name="measurement_unit">Unit</string>
+    <string name="invalid_measurement">Please enter a valid measurement</string>
+    <string name="unit_required">Please enter a measurement unit</string>
+    <string name="times_required">Please select both start and end times</string>
+    <string name="weekly_stats">Weekly Stats</string>
+    <string name="monthly_stats">Monthly Stats</string>
+    <string name="entries">Entries</string>
+
+    <!-- Medication screens -->
+    <string name="medication_list">Your Medications</string>
+    <string name="medication_log">Medication Log</string>
+    <string name="add_medication">Add Medication</string>
+    <string name="medication_name">Medication name</string>
+    <string name="pill">Pill (mg)</string>
+    <string name="liquid_drops">Liquid (drops)</string>
+    <string name="liquid_ml">Liquid (ml)</string>
+    <string name="provision_type">Provision Type</string>
+    <string name="wikipedia_link">Wikipedia link</string>
+    <string name="edit_link">Edit Link</string>
+    <string name="edit_wikipedia_link">Edit Wikipedia Link</string>
+    <string name="medication">Medication</string>
+    <string name="dose_amount">Amount</string>
+    <string name="no_medications_defined">No medications available. Please add a medication first.</string>
+    <string name="select_medication">Please select a medication</string>
+    <string name="invalid_amount">Please enter a valid amount</string>
+
+    <!-- Emergency plan screen -->
+    <string name="start_dialogue">Start Dialogue</string>
+    <string name="add_step">Add Step</string>
+    <string name="edit_step">Edit Step</string>
+    <string name="update_step">Update Step</string>
+    <string name="question">Question</string>
+    <string name="question_required">Please enter a question</string>
+    <string name="actions">Actions</string>
+    <string name="action_text">Action text</string>
+    <string name="action_required">Please enter at least one action</string>
+    <string name="phone_number">Phone number</string>
+    <string name="add_action">Add Action</string>
+    <string name="remove">Remove</string>
+    <string name="move_up">Move Up</string>
+    <string name="move_down">Move Down</string>
+    <string name="no_dialer">No phone app available</string>
+    <string name="copied">Copied to clipboard</string>
+    <string name="copy">Copy</string>
+    <string name="call">Call</string>
+
+    <!-- Activity log screen -->
+    <string name="activity_log">Activity Log</string>
+    <string name="persons">Persons</string>
+    <string name="persons_required">Please enter persons</string>
+    <string name="location">Location</string>
+    <string name="location_required">Please enter a location</string>
+    <string name="activity_description">Activity (optional)</string>
+
+    <!-- Home screen -->
+    <string name="all_habits">All Habits</string>
+    <string name="no_habits_yet">No habits yet</string>
+    <string name="complete">Complete</string>
+    <string name="category">Category</string>
+    <string name="hide_form">Hide Form</string>
+    <string name="show_form">Show Form</string>
+    <string name="no_category">No Category</string>
+
+    <!-- Add/Edit habit screen -->
+    <string name="habit_name">Habit Name</string>
+    <string name="habit_name_required">Please enter a habit name</string>
+    <string name="description">Description</string>
+    <string name="description_required">Please enter a description</string>
+    <string name="frequency_type">Frequency Type</string>
+    <string name="target_frequency">Target Frequency</string>
+    <string name="max_entries_per_day">Max Entries Per Day</string>
+    <string name="submit">Submit</string>
+
+    <!-- Emotion screens -->
+    <string name="no_emotion_pairs">No emotion pairs yet</string>
+    <string name="record">Record</string>
+    <string name="emotion_pair_not_found">Emotion pair not found</string>
+    <string name="negative_label">Negative label</string>
+    <string name="positive_label">Positive label</string>
+    <string name="labels_required">Please enter both labels</string>
+
+    <!-- Diary screen -->
+    <string name="significance">Significance</string>
+    <string name="positivity_diary">Positivity Diary</string>
+
+    <!-- Sleep screen -->
+    <string name="sleep_overlap">This entry overlaps with an existing sleep entry</string>
+    <string name="sleep_analysis">Sleep Analysis</string>
+    <string name="sleep_distribution">Sleep Distribution</string>
+    <string name="interruptions">Interruptions</string>
+
+    <!-- PDF export screen -->
+    <string name="pdf_export">PDF Export</string>
+    <string name="from_date">From date</string>
+    <string name="to_date">To date</string>
+    <string name="include_habits">Include Habits</string>
+    <string name="include_diary">Include Diary</string>
+    <string name="include_sleep">Include Sleep</string>
+    <string name="include_emotions">Include Emotions</string>
+    <string name="select_at_least_one">Please select at least one section</string>
+    <string name="generating">Generating PDF…</string>
+    <string name="export_success">PDF exported successfully</string>
+    <string name="export_error">PDF export failed</string>
+
+    <!-- Correlation screen -->
+    <string name="correlations">Correlations</string>
+    <string name="source">Source</string>
+    <string name="target">Target</string>
+    <string name="no_correlations">Not enough data for correlations</string>
+    <string name="correlation_disclaimer">Correlation does not imply causation. Weak correlations should be interpreted with caution.</string>
+    <string name="strong">Strong</string>
+    <string name="moderate">Moderate</string>
+    <string name="weak">Weak</string>
+
+    <!-- Emergency dialogue screen -->
+    <string name="dialogue_complete">You have completed all steps.</string>
+    <string name="step">Step</string>
+    <string name="of">of</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="next">Next</string>
+    <string name="finish">Finish</string>
 </resources>
