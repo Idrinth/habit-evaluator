@@ -191,7 +191,7 @@ fun DiaryReferenceEntity.toModel(): DiaryReference {
 
 fun DiaryEntry.toEntity(): DiaryEntryEntity = DiaryEntryEntity(
     id = id,
-    legacyDescription = null,
+    legacyDescription = legacyDescription,
     diaryReferenceId = diaryReference?.id,
     significance = significance?.name ?: EventSignificance.NORMAL.name,
     eventDate = eventDate?.format(DATE_FORMAT) ?: LocalDate.now().format(DATE_FORMAT),
@@ -211,6 +211,7 @@ fun DiaryEntryEntity.toModel(reference: DiaryReference?): DiaryEntry {
     entry.endTime = parseTimeOrNull(endTime)
     entry.createdAt = parseDateTimeOrNull(createdAt)
     entry.diaryReference = reference
+    entry.legacyDescription = legacyDescription
     val u = User()
     u.id = userId
     u.username = userName
