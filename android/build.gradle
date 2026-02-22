@@ -24,7 +24,7 @@ android {
     productFlavors {
         lollipop {
             dimension "apiLevel"
-            minSdk 21
+            minSdk 23
             versionCode = (System.getenv("ANDROID_VERSION_CODE") ?: "1").toInteger() * 100 + 21
         }
         oreo {
