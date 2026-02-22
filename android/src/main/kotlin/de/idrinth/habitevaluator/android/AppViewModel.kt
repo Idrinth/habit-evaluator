@@ -10,6 +10,7 @@ import androidx.lifecycle.viewModelScope
 import com.google.gson.reflect.TypeToken
 import de.idrinth.habitevaluator.android.persistence.AppDatabase
 import de.idrinth.habitevaluator.android.persistence.JsonToRoomMigration
+import de.idrinth.habitevaluator.android.persistence.LegacySqliteToRoomMigration
 import de.idrinth.habitevaluator.android.persistence.RoomActivityLogRepository
 import de.idrinth.habitevaluator.android.persistence.RoomDiaryEntryRepository
 import de.idrinth.habitevaluator.android.persistence.RoomDiaryReferenceRepository
@@ -172,28 +173,51 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
         _habitRepository.value = roomHabitRepository
         _categoryRepository.value = roomCategoryRepository
 
-        // Migrate legacy JSON files to Room if they exist
-        val storageDir = File(getApplication<Application>().filesDir, "habit-data")
-        val migration = JsonToRoomMigration(
-            storageDir,
-            roomHabitRepository,
-            roomCategoryRepository,
-            roomDiaryReferenceRepository,
-            roomDiaryEntryRepository,
-            roomSleepEntryRepository,
-            roomEmotionPairRepository,
-            roomEmotionEntryRepository
-        )
-        if (migration.needsMigration()) {
-            migration.migrate()
-        }
+        viewModelScope.launch(Dispatchers.IO) {
+            // Migrate legacy SQLiteHelper database to Room if it exists
+            val context = getApplication<Application>()
+            if (AppDatabase.hasLegacyDatabase(context)) {
+                val legacyMigration = LegacySqliteToRoomMigration(
+                    AppDatabase.getLegacyDatabasePath(context),
+                    db.habitDao(),
+                    db.habitCategoryDao(),
+                    db.diaryDao(),
+                    db.sleepEntryDao(),
+                    db.emotionDao(),
+                    db.foodLogDao(),
+                    db.sportLogDao(),
+                    db.medicationDao(),
+                    db.emergencyPlanDao(),
+                    db.activityLogDao()
+                )
+                legacyMigration.migrate()
+            }
 
-        _storageInitialized.value = true
-        loadCategories()
-        loadHabits()
-        loadSleepEntries()
-        loadEmotionPairs()
-        loadMedications()
+            // Migrate legacy JSON files to Room if they exist
+            val storageDir = File(context.filesDir, "habit-data")
+            val migration = JsonToRoomMigration(
+                storageDir,
+                roomHabitRepository,
+                roomCategoryRepository,
+                roomDiaryReferenceRepository,
+                roomDiaryEntryRepository,
+                roomSleepEntryRepository,
+                roomEmotionPairRepository,
+                roomEmotionEntryRepository
+            )
+            if (migration.needsMigration()) {
+                migration.migrate()
+            }
+
+            withContext(Dispatchers.Main) {
+                _storageInitialized.value = true
+            }
+            loadCategories()
+            loadHabits()
+            loadSleepEntries()
+            loadEmotionPairs()
+            loadMedications()
+        }
     }
 
     private fun initializeRemoteStorage(prefs: android.content.SharedPreferences) {
@@ -204,23 +228,41 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
         // Set local user for local-only data
         _localUser.value = getOrCreateLocalUser()
 
-        // Migrate legacy JSON files
-        val migrationDir = File(getApplication<Application>().filesDir, "habit-data")
-        val migration = JsonToRoomMigration(
-            migrationDir,
-            roomHabitRepository,
-            roomCategoryRepository,
-            roomDiaryReferenceRepository,
-            roomDiaryEntryRepository,
-            roomSleepEntryRepository,
-            roomEmotionPairRepository,
-            roomEmotionEntryRepository
-        )
-        if (migration.needsMigration()) {
-            migration.migrate()
-        }
-
         viewModelScope.launch(Dispatchers.IO) {
+            // Migrate legacy SQLiteHelper database to Room if it exists
+            val context = getApplication<Application>()
+            if (AppDatabase.hasLegacyDatabase(context)) {
+                val legacyMigration = LegacySqliteToRoomMigration(
+                    AppDatabase.getLegacyDatabasePath(context),
+                    db.habitDao(),
+                    db.habitCategoryDao(),
+                    db.diaryDao(),
+                    db.sleepEntryDao(),
+                    db.emotionDao(),
+                    db.foodLogDao(),
+                    db.sportLogDao(),
+                    db.medicationDao(),
+                    db.emergencyPlanDao(),
+                    db.activityLogDao()
+                )
+                legacyMigration.migrate()
+            }
+
+            // Migrate legacy JSON files
+            val migrationDir = File(context.filesDir, "habit-data")
+            val migration = JsonToRoomMigration(
+                migrationDir,
+                roomHabitRepository,
+                roomCategoryRepository,
+                roomDiaryReferenceRepository,
+                roomDiaryEntryRepository,
+                roomSleepEntryRepository,
+                roomEmotionPairRepository,
+                roomEmotionEntryRepository
+            )
+            if (migration.needsMigration()) {
+                migration.migrate()
+            }
             try {
                 val client = ApiClient(url)
                 val loggedIn = client.login(username, password)

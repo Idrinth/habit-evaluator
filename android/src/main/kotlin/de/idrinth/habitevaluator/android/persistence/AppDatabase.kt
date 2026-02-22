@@ -1,9 +1,11 @@
 package de.idrinth.habitevaluator.android.persistence
 
 import android.content.Context
+import android.database.sqlite.SQLiteDatabase
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import java.io.File
 
 @Database(
     entities = [
@@ -45,16 +47,70 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun activityLogDao(): ActivityLogDao
 
     companion object {
+        private const val DATABASE_NAME = "habit_evaluator.db"
+        private const val LEGACY_DATABASE_NAME = "habit_evaluator_legacy.db"
+
         @Volatile
         private var instance: AppDatabase? = null
 
         fun getInstance(context: Context): AppDatabase =
             instance ?: synchronized(this) {
-                instance ?: Room.databaseBuilder(
-                    context.applicationContext,
-                    AppDatabase::class.java,
-                    "habit_evaluator.db"
-                ).build().also { instance = it }
+                instance ?: buildDatabase(context).also { instance = it }
             }
+
+        fun hasLegacyDatabase(context: Context): Boolean {
+            return context.getDatabasePath(LEGACY_DATABASE_NAME).exists()
+        }
+
+        fun getLegacyDatabasePath(context: Context): File {
+            return context.getDatabasePath(LEGACY_DATABASE_NAME)
+        }
+
+        private fun buildDatabase(context: Context): AppDatabase {
+            handlePreRoomDatabase(context)
+            @Suppress("DEPRECATION")
+            return Room.databaseBuilder(
+                context.applicationContext,
+                AppDatabase::class.java,
+                DATABASE_NAME
+            ).fallbackToDestructiveMigration().build()
+        }
+
+        private fun handlePreRoomDatabase(context: Context) {
+            val dbFile = context.getDatabasePath(DATABASE_NAME)
+            if (!dbFile.exists()) return
+
+            if (!isRoomDatabase(dbFile)) {
+                val legacyFile = context.getDatabasePath(LEGACY_DATABASE_NAME)
+                dbFile.renameTo(legacyFile)
+                File(dbFile.path + "-wal").let { wal ->
+                    if (wal.exists()) wal.renameTo(File(legacyFile.path + "-wal"))
+                }
+                File(dbFile.path + "-shm").let { shm ->
+                    if (shm.exists()) shm.renameTo(File(legacyFile.path + "-shm"))
+                }
+                File(dbFile.path + "-journal").let { journal ->
+                    if (journal.exists()) journal.renameTo(File(legacyFile.path + "-journal"))
+                }
+            }
+        }
+
+        private fun isRoomDatabase(dbFile: File): Boolean {
+            return try {
+                val db = SQLiteDatabase.openDatabase(
+                    dbFile.path, null, SQLiteDatabase.OPEN_READONLY
+                )
+                val cursor = db.rawQuery(
+                    "SELECT name FROM sqlite_master WHERE type='table' AND name='room_master_table'",
+                    null
+                )
+                val hasRoomTable = cursor.count > 0
+                cursor.close()
+                db.close()
+                hasRoomTable
+            } catch (_: Exception) {
+                false
+            }
+        }
     }
 }
