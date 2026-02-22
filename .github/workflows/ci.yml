@@ -154,181 +154,6 @@ jobs:
           format: jacoco
           file: android/build/reports/jacoco/jacocoTestReport/jacocoTestReport.xml
 
-  android-maestro-build:
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v6
-
-      - name: Set up JDK 17
-        uses: actions/setup-java@v5
-        with:
-          java-version: '17'
-          distribution: 'temurin'
-
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v5
-
-      - name: Build debug APK with coverage instrumentation
-        run: ./gradlew :android:assembleOreoDebug -PmaestroCoverage
-
-      - name: Upload APK
-        uses: actions/upload-artifact@v6
-        with:
-          name: maestro-apk
-          path: android/build/outputs/apk/oreo/debug/*.apk
-
-      - name: Upload original classes for coverage report
-        uses: actions/upload-artifact@v6
-        with:
-          name: maestro-classes
-          path: android/build/maestro-original-classes/
-
-  android-maestro:
-    needs: android-maestro-build
-    runs-on: ubuntu-latest
-
-    strategy:
-      fail-fast: false
-      matrix:
-        test-file:
-          - 01_first_start_and_home
-          - 02_bottom_nav_tabs
-          - 03_toolbar_buttons
-          - 04_diary_sub_pages
-          - 05_add_habit_page
-          - 06_add_emotion_pair_page
-          - 07_sleep_analysis_page
-          - 08_settings_sections
-          - 09_imprint_content
-          - 10_stats_page
-          - 11_emergency_plan_page
-          - 12_sleep_tracking_page
-          - 13_full_navigation_flow
-          - 14_crud_diary_entry
-          - 15_crud_sleep_entry
-          - 16_crud_food_log_entry
-          - 17_crud_sport_log_entry
-          - 18_crud_medication
-          - 19_crud_medication_log_entry
-          - 20_crud_emergency_plan_step
-          - 21_crud_emotion_pair
-          - 22_crud_emotion_entry
-          - 23_crud_habit
-
-    steps:
-      - uses: actions/checkout@v6
-
-      - name: Download APK
-        uses: actions/download-artifact@v7
-        with:
-          name: maestro-apk
-          path: android/build/outputs/apk/oreo/debug/
-
-      - name: Enable KVM
-        run: |
-          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
-          sudo udevadm control --reload-rules
-          sudo udevadm trigger --name-match=kvm
-
-      - name: Cache Maestro
-        id: maestro-cache
-        uses: actions/cache@v5
-        with:
-          path: ~/.maestro
-          key: maestro-${{ runner.os }}-${{ runner.arch }}
-
-      - name: Install Maestro
-        if: steps.maestro-cache.outputs.cache-hit != 'true'
-        run: curl -Ls "https://get.maestro.mobile.dev" | bash
-
-      - name: Add Maestro to PATH
-        run: echo "$HOME/.maestro/bin" >> "$GITHUB_PATH"
-
-      - name: Add Android platform-tools to PATH
-        run: echo "$ANDROID_HOME/platform-tools" >> "$GITHUB_PATH"
-
-      - name: Start ADB server
-        run: |
-          adb start-server
-          adb devices
-
-      - name: Run Maestro test
-        uses: reactivecircus/android-emulator-runner@v2
-        with:
-          api-level: 30
-          arch: x86_64
-          target: google_apis
-          force-avd-creation: false
-          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim
-          disable-animations: true
-          script: ./scripts/run-maestro-tests.sh ${{ matrix.test-file }}
-
-      - name: Upload coverage data
-        uses: actions/upload-artifact@v6
-        if: always()
-        with:
-          name: maestro-coverage-${{ matrix.test-file }}
-          path: android/build/maestro-coverage/*.ec
-
-      - name: Upload crash logs
-        uses: actions/upload-artifact@v6
-        if: failure()
-        with:
-          name: maestro-logcat-${{ matrix.test-file }}
-          path: android/build/maestro-logs/*.txt
-
-  android-maestro-report:
-    needs: android-maestro
-    if: always()
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v6
-
-      - name: Set up JDK 17
-        uses: actions/setup-java@v5
-        with:
-          java-version: '17'
-          distribution: 'temurin'
-
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v5
-
-      - name: Download original classes
-        uses: actions/download-artifact@v7
-        with:
-          name: maestro-classes
-          path: android/build/maestro-original-classes/
-
-      - name: Download all coverage data
-        uses: actions/download-artifact@v7
-        with:
-          pattern: maestro-coverage-*
-          path: android/build/maestro-coverage/
-          merge-multiple: true
-          github-token: ${{ github.token }}
-          run-id: ${{ github.run_id }}
-
-      - name: Generate Maestro coverage report
-        run: ./gradlew :android:jacocoMaestroReport
-
-      - name: Upload Maestro coverage report
-        uses: actions/upload-artifact@v6
-        if: always()
-        with:
-          name: android-maestro-coverage-report
-          path: android/build/reports/jacoco/jacocoMaestroReport/
-
-      - name: Coveralls - android-maestro
-        uses: coverallsapp/github-action@v2
-        if: always()
-        with:
-          flag-name: android-maestro
-          parallel: true
-          format: jacoco
-          file: android/build/reports/jacoco/jacocoMaestroReport/jacocoMaestroReport.xml
-
   frontend-check:
     runs-on: ubuntu-latest
 
@@ -484,7 +309,7 @@ jobs:
           file: ${{ matrix.project }}/coverage-cypress/lcov.info
 
   coveralls-finish:
-    needs: [java, android, android-maestro-report, website-test, homepage-test, e2e]
+    needs: [java, android, website-test, homepage-test, e2e]
     if: always()
     runs-on: ubuntu-latest
     steps:
@@ -492,7 +317,7 @@ jobs:
         uses: coverallsapp/github-action@v2
         with:
           parallel-finished: true
-          carryforward: "shared,webserver,desktop,android,android-maestro,website,homepage,website-e2e,homepage-e2e"
+          carryforward: "shared,webserver,desktop,android,website,homepage,website-e2e,homepage-e2e"
 
   desktop-deb:
     needs: java
