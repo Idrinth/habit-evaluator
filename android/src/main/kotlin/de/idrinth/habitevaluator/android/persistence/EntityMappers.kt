@@ -29,6 +29,18 @@ private val DT_FORMAT: DateTimeFormatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME
 private val DATE_FORMAT: DateTimeFormatter = DateTimeFormatter.ISO_LOCAL_DATE
 private val TIME_FORMAT: DateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm")
 
+private fun parseTimeOrNull(value: String?): LocalTime? =
+    if (value.isNullOrEmpty()) null
+    else try { LocalTime.parse(value, TIME_FORMAT) } catch (_: Exception) { null }
+
+private fun parseDateOrNull(value: String?): LocalDate? =
+    if (value.isNullOrEmpty()) null
+    else try { LocalDate.parse(value, DATE_FORMAT) } catch (_: Exception) { null }
+
+private fun parseDateTimeOrNull(value: String?): LocalDateTime? =
+    if (value.isNullOrEmpty()) null
+    else try { LocalDateTime.parse(value, DT_FORMAT) } catch (_: Exception) { null }
+
 // ── Habit ──
 
 fun Habit.toEntity(): HabitEntity = HabitEntity(
@@ -81,7 +93,7 @@ fun HabitEntity.toModel(
     habit.targetFrequency = targetFrequency
     habit.maxEntriesPerDay = maxEntriesPerDay
     habit.isPositiveScoring = positiveScoring == 1
-    createdAt?.let { habit.createdAt = LocalDateTime.parse(it, DT_FORMAT) }
+    habit.createdAt = parseDateTimeOrNull(createdAt)
     val user = User()
     user.id = userId
     user.username = userName
@@ -89,7 +101,7 @@ fun HabitEntity.toModel(
     entries.forEach { e ->
         val entry = HabitEntry(id)
         entry.id = e.id
-        entry.completedAt = LocalDateTime.parse(e.completedAt, DT_FORMAT)
+        entry.completedAt = parseDateTimeOrNull(e.completedAt) ?: LocalDateTime.now()
         entry.notes = e.notes
         entry.value = e.value.toInt()
         habit.addEntry(entry)
@@ -194,10 +206,10 @@ fun DiaryEntryEntity.toModel(reference: DiaryReference?): DiaryEntry {
     val entry = DiaryEntry()
     entry.id = id
     entry.significance = try { EventSignificance.valueOf(significance) } catch (_: Exception) { EventSignificance.NORMAL }
-    entry.eventDate = LocalDate.parse(eventDate, DATE_FORMAT)
-    startTime?.let { entry.startTime = LocalTime.parse(it, TIME_FORMAT) }
-    endTime?.let { entry.endTime = LocalTime.parse(it, TIME_FORMAT) }
-    entry.createdAt = LocalDateTime.parse(createdAt, DT_FORMAT)
+    entry.eventDate = parseDateOrNull(eventDate)
+    entry.startTime = parseTimeOrNull(startTime)
+    entry.endTime = parseTimeOrNull(endTime)
+    entry.createdAt = parseDateTimeOrNull(createdAt)
     entry.diaryReference = reference
     val u = User()
     u.id = userId
@@ -222,10 +234,10 @@ fun SleepEntry.toEntity(): SleepEntryEntity = SleepEntryEntity(
 fun SleepEntryEntity.toModel(): SleepEntry {
     val entry = SleepEntry()
     entry.id = id
-    entry.fromTime = LocalTime.parse(fromTime, TIME_FORMAT)
-    entry.untilTime = LocalTime.parse(untilTime, TIME_FORMAT)
-    entry.date = LocalDate.parse(date, DATE_FORMAT)
-    entry.createdAt = LocalDateTime.parse(createdAt, DT_FORMAT)
+    entry.fromTime = parseTimeOrNull(fromTime)
+    entry.untilTime = parseTimeOrNull(untilTime)
+    entry.date = parseDateOrNull(date)
+    entry.createdAt = parseDateTimeOrNull(createdAt)
     entry.notes = notes
     val u = User()
     u.id = userId
@@ -274,7 +286,7 @@ fun EmotionEntryEntity.toModel(pair: EmotionPair?): EmotionEntry? {
     entry.id = id
     entry.emotionPair = pair
     entry.strength = strength
-    entry.recordedAt = LocalDateTime.parse(recordedAt, DT_FORMAT)
+    entry.recordedAt = parseDateTimeOrNull(recordedAt)
     entry.notes = notes
     val u = User()
     u.id = userId
@@ -305,10 +317,10 @@ fun SportLogEntity.toModel(): SportLog {
     log.name = name
     log.measurement = measurement ?: 0.0
     log.measurementUnit = measurementUnit
-    startTime?.let { log.startTime = LocalTime.parse(it, TIME_FORMAT) }
-    endTime?.let { log.endTime = LocalTime.parse(it, TIME_FORMAT) }
-    log.date = LocalDate.parse(date, DATE_FORMAT)
-    log.createdAt = LocalDateTime.parse(createdAt, DT_FORMAT)
+    log.startTime = parseTimeOrNull(startTime)
+    log.endTime = parseTimeOrNull(endTime)
+    log.date = parseDateOrNull(date)
+    log.createdAt = parseDateTimeOrNull(createdAt)
     log.notes = notes
     val u = User()
     u.id = userId
@@ -336,9 +348,9 @@ fun FoodLogEntity.toModel(): FoodLog {
     log.id = id
     log.carbohydrates = carbohydrates
     log.kcal = kcal
-    log.dateTime = LocalDateTime.parse(dateTime, DT_FORMAT)
+    log.dateTime = parseDateTimeOrNull(dateTime)
     log.foodItems = foodItems
-    log.createdAt = LocalDateTime.parse(createdAt, DT_FORMAT)
+    log.createdAt = parseDateTimeOrNull(createdAt)
     log.notes = notes
     val u = User()
     u.id = userId
@@ -410,8 +422,8 @@ fun MedicationLogEntity.toModel(medication: Medication?): MedicationLog {
     log.id = id
     log.medication = medication
     log.amount = amount
-    log.takenAt = LocalDateTime.parse(takenAt, DT_FORMAT)
-    log.createdAt = LocalDateTime.parse(createdAt, DT_FORMAT)
+    log.takenAt = parseDateTimeOrNull(takenAt)
+    log.createdAt = parseDateTimeOrNull(createdAt)
     log.notes = notes
     val u = User()
     u.id = userId
@@ -483,11 +495,11 @@ fun ActivityLogEntity.toModel(): ActivityLog {
     log.id = id
     log.persons = persons
     log.location = location
-    log.startTime = LocalTime.parse(startTime, TIME_FORMAT)
-    log.endTime = LocalTime.parse(endTime, TIME_FORMAT)
-    log.date = LocalDate.parse(date, DATE_FORMAT)
+    log.startTime = parseTimeOrNull(startTime)
+    log.endTime = parseTimeOrNull(endTime)
+    log.date = parseDateOrNull(date)
     log.activity = activity
-    log.createdAt = LocalDateTime.parse(createdAt, DT_FORMAT)
+    log.createdAt = parseDateTimeOrNull(createdAt)
     val u = User()
     u.id = userId
     u.username = userName
