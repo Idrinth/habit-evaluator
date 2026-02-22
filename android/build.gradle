@@ -191,11 +191,12 @@ tasks.register('jacocoTestReport', JacocoReport) {
         '**/databinding/**'
     ]
 
-    classDirectories.setFrom(
-        fileTree(dir: layout.buildDirectory, excludes: fileFilter).matching {
-            include '**/de/idrinth/**/*.class'
-        }
-    )
+    def builtInKotlinc = layout.buildDirectory.dir("intermediates/built_in_kotlinc")
+    classDirectories.setFrom(files(
+        fileTree(dir: builtInKotlinc.map { it.dir("lollipopDebug/compileLollipopDebugKotlin/classes") }, excludes: fileFilter),
+        fileTree(dir: builtInKotlinc.map { it.dir("oreoDebug/compileOreoDebugKotlin/classes") }, excludes: fileFilter),
+        fileTree(dir: builtInKotlinc.map { it.dir("tiramisuDebug/compileTiramisuDebugKotlin/classes") }, excludes: fileFilter)
+    ))
     sourceDirectories.setFrom(files('src/main/kotlin'))
     executionData.setFrom(fileTree(
         dir: layout.buildDirectory,
