@@ -135,17 +135,8 @@ jobs:
           :android:testOreoDebugUnitTest
           :android:testTiramisuDebugUnitTest
 
-      - name: Debug - find JaCoCo exec files and class directories
-        if: always()
-        run: |
-          echo "=== .exec files ==="
-          find android/build -name '*.exec' -type f 2>/dev/null || echo 'No .exec files found'
-          echo ""
-          echo "=== Directories containing .class files ==="
-          find android/build -name '*.class' -type f 2>/dev/null | head -30 | sed 's|/[^/]*\.class$||' | sort -u
-
       - name: Generate coverage report
-        run: ./gradlew :android:jacocoTestReport --info --stacktrace
+        run: ./gradlew :android:jacocoTestReport
         if: always()
 
       - name: Upload coverage report
