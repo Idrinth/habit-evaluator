@@ -145,7 +145,7 @@ jobs:
           find android/build -name '*.class' -type f 2>/dev/null | head -30 | sed 's|/[^/]*\.class$||' | sort -u
 
       - name: Generate coverage report
-        run: ./gradlew :android:jacocoTestReport --info
+        run: ./gradlew :android:jacocoTestReport --info --stacktrace
         if: always()
 
       - name: Upload coverage report
