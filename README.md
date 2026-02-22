@@ -1,6 +1,6 @@
 # habit-evaluator
 
-[![Crowdin](https://badges.crowdin.net/habit-evaluator/localized.svg)](https://crowdin.com/project/habit-evaluator) [![Coverage Status](https://coveralls.io/repos/github/Idrinth/habit-evaluator/badge.svg?branch=claude/add-coveralls-workflow-rQrdw)](https://coveralls.io/github/Idrinth/habit-evaluator?branch=claude/add-coveralls-workflow-rQrdw)
+[![Crowdin](https://badges.crowdin.net/habit-evaluator/localized.svg)](https://crowdin.com/project/habit-evaluator) [![Coverage Status](https://coveralls.io/repos/github/Idrinth/habit-evaluator/badge.svg?branch=the-one)](https://coveralls.io/github/Idrinth/habit-evaluator?branch=the-one)
 
 A privacy-focused, multi-platform habit tracker for analysing and evaluating your personal data — without leaking it anywhere.
 
