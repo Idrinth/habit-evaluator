@@ -30,6 +30,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -131,7 +132,7 @@ private fun AppContent(viewModel: AppViewModel) {
                 bottomNavItems.forEach { item ->
                     NavigationBarItem(
                         icon = { Icon(item.icon, contentDescription = stringResource(item.labelRes)) },
-                        label = { Text(stringResource(item.labelRes)) },
+                        label = { Text(stringResource(item.labelRes), textAlign = TextAlign.Center) },
                         selected = currentRoute == item.screen.route,
                         onClick = {
                             navController.navigate(item.screen.route) {
