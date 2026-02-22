@@ -1,17 +1,21 @@
 package de.idrinth.habitevaluator.android
 
 import android.app.AlarmManager
+import android.app.PendingIntent
 import android.content.Context
 import android.content.SharedPreferences
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.*
+import org.mockito.MockedStatic
 import org.mockito.Mockito.*
 
 class ReminderSchedulerTest {
 
     private lateinit var context: Context
     private lateinit var prefs: SharedPreferences
+    private lateinit var pendingIntentMockedStatic: MockedStatic<PendingIntent>
 
     @BeforeEach
     fun setUp() {
@@ -19,6 +23,16 @@ class ReminderSchedulerTest {
         prefs = mock(SharedPreferences::class.java)
         `when`(context.getSharedPreferences(SettingsConstants.PREFS_NAME, Context.MODE_PRIVATE))
             .thenReturn(prefs)
+
+        pendingIntentMockedStatic = mockStatic(PendingIntent::class.java)
+        pendingIntentMockedStatic.`when`<PendingIntent> {
+            PendingIntent.getBroadcast(any(), anyInt(), any(), anyInt())
+        }.thenReturn(mock(PendingIntent::class.java))
+    }
+
+    @AfterEach
+    fun tearDown() {
+        pendingIntentMockedStatic.close()
     }
 
     @Test
@@ -101,8 +115,7 @@ class ReminderSchedulerTest {
         ReminderScheduler.rescheduleAll(context)
 
         // When disabled, sleep + diary are cancelled (1 each) + 10 emotion slots = 12 cancels
-        // PendingIntent.getBroadcast returns null with returnDefaultValues, so cancel is called with null
-        verify(alarmManager, times(12)).cancel(isNull<android.app.PendingIntent>())
+        verify(alarmManager, times(12)).cancel(any<PendingIntent>())
     }
 
     @Test
@@ -124,7 +137,7 @@ class ReminderSchedulerTest {
 
         ReminderScheduler.rescheduleAll(context)
 
-        // 10 emotion slots cancelled + 3 emotion reminders scheduled
+        // 3 emotion reminders scheduled
         verify(alarmManager, times(3)).setInexactRepeating(
             eq(AlarmManager.RTC_WAKEUP), anyLong(), eq(AlarmManager.INTERVAL_DAY), any())
     }

@@ -14,6 +14,7 @@ import org.mockito.Mockito.any
 import org.mockito.Mockito.anyList
 import org.mockito.Mockito.anyString
 import org.mockito.Mockito.mock
+import org.mockito.Mockito.times
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.`when`
 
@@ -148,7 +149,7 @@ class RoomEmergencyPlanStepRepositoryTest {
         step2.id = "s2"
         repository.saveAll(listOf(step1, step2))
         // saveStepWithActions called twice
-        verify(dao).saveStepWithActions(
+        verify(dao, times(2)).saveStepWithActions(
             any(EmergencyPlanStepEntity::class.java) ?: createStepEntity(id = "s1"),
             anyList()
         )

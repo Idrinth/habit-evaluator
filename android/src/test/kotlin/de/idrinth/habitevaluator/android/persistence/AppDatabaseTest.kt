@@ -1,63 +1,22 @@
 package de.idrinth.habitevaluator.android.persistence
 
-import androidx.room.Database
+import androidx.room.RoomDatabase
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 
 /**
- * Tests for AppDatabase annotation metadata and abstract DAO accessor declarations.
- * Uses reflection instead of an in-memory Room database.
+ * Tests for AppDatabase abstract DAO accessor declarations using reflection.
+ * Note: Room's @Database annotation has CLASS retention and cannot be read
+ * at runtime, so annotation-level assertions (version, entities, exportSchema)
+ * are not testable via reflection.
  */
 class AppDatabaseTest {
 
     @Test
-    fun testCurrentDatabaseVersion() {
-        val annotation = AppDatabase::class.java.getAnnotation(Database::class.java)
-        assertNotNull(annotation)
-        assertEquals(10, annotation!!.version)
-    }
-
-    @Test
-    fun testExportSchemaEnabled() {
-        val annotation = AppDatabase::class.java.getAnnotation(Database::class.java)
-        assertNotNull(annotation)
-        assertTrue(annotation!!.exportSchema)
-    }
-
-    @Test
-    fun testDatabaseEntityCount() {
-        val annotation = AppDatabase::class.java.getAnnotation(Database::class.java)
-        assertNotNull(annotation)
-        assertEquals(21, annotation!!.entities.size)
-    }
-
-    @Test
-    fun testDatabaseEntitiesContainExpectedClasses() {
-        val annotation = AppDatabase::class.java.getAnnotation(Database::class.java)!!
-        val entityNames = annotation.entities.map { it.simpleName }
-        assertTrue(entityNames.contains("HabitEntity"))
-        assertTrue(entityNames.contains("HabitEntryEntity"))
-        assertTrue(entityNames.contains("HabitNameTranslationEntity"))
-        assertTrue(entityNames.contains("HabitDescriptionTranslationEntity"))
-        assertTrue(entityNames.contains("HabitCategoryEntity"))
-        assertTrue(entityNames.contains("CategoryNameTranslationEntity"))
-        assertTrue(entityNames.contains("CategoryDescriptionTranslationEntity"))
-        assertTrue(entityNames.contains("DiaryReferenceEntity"))
-        assertTrue(entityNames.contains("DiaryEntryEntity"))
-        assertTrue(entityNames.contains("SleepEntryEntity"))
-        assertTrue(entityNames.contains("EmotionPairEntity"))
-        assertTrue(entityNames.contains("EmotionEntryEntity"))
-        assertTrue(entityNames.contains("SportLogEntity"))
-        assertTrue(entityNames.contains("FoodLogEntity"))
-        assertTrue(entityNames.contains("FoodTagEntity"))
-        assertTrue(entityNames.contains("FoodLogTagCrossRef"))
-        assertTrue(entityNames.contains("MedicationEntity"))
-        assertTrue(entityNames.contains("MedicationLogEntity"))
-        assertTrue(entityNames.contains("EmergencyPlanStepEntity"))
-        assertTrue(entityNames.contains("EmergencyPlanActionEntity"))
-        assertTrue(entityNames.contains("ActivityLogEntity"))
+    fun testExtendsRoomDatabase() {
+        assertTrue(RoomDatabase::class.java.isAssignableFrom(AppDatabase::class.java))
     }
 
     @Test
