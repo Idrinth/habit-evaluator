@@ -16,8 +16,10 @@ class EmotionScatterChartTest {
     data class ScatterEntry(val hourOfDay: Float, val strength: Float)
 
     data class ScatterPair(val pairLabel: String?, val entries: MutableList<ScatterEntry>) {
-        constructor(label: String?, entriesList: List<ScatterEntry>?) :
-            this(label, entriesList?.toMutableList() ?: mutableListOf())
+        companion object {
+            fun fromList(label: String?, entriesList: List<ScatterEntry>?): ScatterPair =
+                ScatterPair(label, entriesList?.toMutableList() ?: mutableListOf())
+        }
     }
 
     @Test
@@ -102,7 +104,7 @@ class EmotionScatterChartTest {
 
     @Test
     fun testScatterPairWithNullEntries() {
-        val pair = ScatterPair("Test", null as List<ScatterEntry>?)
+        val pair = ScatterPair.fromList("Test", null)
         assertNotNull(pair.entries)
         assertTrue(pair.entries.isEmpty())
     }
