@@ -13,4 +13,7 @@ public interface JpaMeetingEntryRepository extends JpaRepository<MeetingEntry, S
 
     @Query("SELECT m FROM MeetingEntry m WHERE m.user.id = :userId ORDER BY m.date DESC, m.startTime DESC")
     List<MeetingEntry> findByUserId(@Param("userId") String userId);
+
+    @Query("SELECT DISTINCT m.place FROM MeetingEntry m WHERE m.user.id = :userId ORDER BY m.place")
+    List<String> findDistinctPlacesByUserId(@Param("userId") String userId);
 }

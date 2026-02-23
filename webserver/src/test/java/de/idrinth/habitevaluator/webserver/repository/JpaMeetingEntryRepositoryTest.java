@@ -111,4 +111,42 @@ class JpaMeetingEntryRepositoryTest {
 
         assertFalse(meetingEntryRepository.findById(saved.getId()).isPresent());
     }
+
+    @Test
+    void testFindDistinctPlacesByUserId() {
+        MeetingEntry entry1 = new MeetingEntry("Office", "Alice",
+                LocalTime.of(9, 0), LocalTime.of(10, 0));
+        entry1.setUser(testUser);
+        meetingEntryRepository.save(entry1);
+
+        MeetingEntry entry2 = new MeetingEntry("Park", "Bob",
+                LocalTime.of(14, 0), LocalTime.of(15, 0));
+        entry2.setUser(testUser);
+        meetingEntryRepository.save(entry2);
+
+        MeetingEntry entry3 = new MeetingEntry("Office", "Charlie",
+                LocalTime.of(16, 0), LocalTime.of(17, 0));
+        entry3.setUser(testUser);
+        meetingEntryRepository.save(entry3);
+
+        List<String> places = meetingEntryRepository.findDistinctPlacesByUserId(testUser.getId());
+
+        assertEquals(2, places.size());
+        assertTrue(places.contains("Office"));
+        assertTrue(places.contains("Park"));
+    }
+
+    @Test
+    void testFindDistinctPlacesByUserIdEmptyForOtherUser() {
+        MeetingEntry entry = new MeetingEntry("Office", "Alice",
+                LocalTime.of(9, 0), LocalTime.of(10, 0));
+        entry.setUser(testUser);
+        meetingEntryRepository.save(entry);
+
+        User otherUser = new User("otherplacesuser", "password", "otherplaces@example.com");
+        otherUser = userRepository.save(otherUser);
+
+        List<String> places = meetingEntryRepository.findDistinctPlacesByUserId(otherUser.getId());
+        assertTrue(places.isEmpty());
+    }
 }

@@ -9,8 +9,12 @@ import jakarta.servlet.http.HttpSession;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/activity-logs")
@@ -26,6 +30,29 @@ public class ActivityLogController {
         this.activityLogRepository = activityLogRepository;
         this.userRepository = userRepository;
         this.statsCacheService = statsCacheService;
+    }
+
+    @GetMapping("/suggestions")
+    public ResponseEntity<Map<String, List<String>>> getSuggestions(HttpSession session) {
+        String userId = (String) session.getAttribute("userId");
+        if (userId == null) {
+            return ResponseEntity.status(401).build();
+        }
+        List<ActivityLog> entries = activityLogRepository.findByUserId(userId);
+        List<String> persons = entries.stream()
+                .map(ActivityLog::getPersons)
+                .filter(p -> p != null && !p.isBlank())
+                .flatMap(p -> Arrays.stream(p.split(",")))
+                .map(String::trim)
+                .filter(p -> !p.isEmpty())
+                .distinct()
+                .sorted()
+                .collect(Collectors.toList());
+        Map<String, List<String>> suggestions = new HashMap<>();
+        suggestions.put("persons", persons);
+        suggestions.put("locations", activityLogRepository.findDistinctLocationsByUserId(userId));
+        suggestions.put("activities", activityLogRepository.findDistinctActivitiesByUserId(userId));
+        return ResponseEntity.ok(suggestions);
     }
 
     @GetMapping

@@ -625,6 +625,12 @@ export interface ActivityLog {
 	durationMinutes: number | null;
 }
 
+export interface ActivityLogSuggestions {
+	persons: string[];
+	locations: string[];
+	activities: string[];
+}
+
 export const activityLogs = {
 	list() {
 		return request<ActivityLog[]>('/activity-logs');
@@ -657,6 +663,9 @@ export const activityLogs = {
 	},
 	delete(id: string) {
 		return request<void>(`/activity-logs/${id}`, { method: 'DELETE' });
+	},
+	suggestions() {
+		return request<ActivityLogSuggestions>('/activity-logs/suggestions');
 	}
 };
 

@@ -9,8 +9,12 @@ import jakarta.servlet.http.HttpSession;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/meetings")
@@ -26,6 +30,28 @@ public class MeetingController {
         this.meetingEntryRepository = meetingEntryRepository;
         this.userRepository = userRepository;
         this.statsCacheService = statsCacheService;
+    }
+
+    @GetMapping("/suggestions")
+    public ResponseEntity<Map<String, List<String>>> getSuggestions(HttpSession session) {
+        String userId = (String) session.getAttribute("userId");
+        if (userId == null) {
+            return ResponseEntity.status(401).build();
+        }
+        List<MeetingEntry> entries = meetingEntryRepository.findByUserId(userId);
+        List<String> attendants = entries.stream()
+                .map(MeetingEntry::getAttendants)
+                .filter(a -> a != null && !a.isBlank())
+                .flatMap(a -> Arrays.stream(a.split(",")))
+                .map(String::trim)
+                .filter(a -> !a.isEmpty())
+                .distinct()
+                .sorted()
+                .collect(Collectors.toList());
+        Map<String, List<String>> suggestions = new HashMap<>();
+        suggestions.put("attendants", attendants);
+        suggestions.put("places", meetingEntryRepository.findDistinctPlacesByUserId(userId));
+        return ResponseEntity.ok(suggestions);
     }
 
     @GetMapping
