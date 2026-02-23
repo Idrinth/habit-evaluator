@@ -223,3 +223,52 @@ data class ActivityLogEntity(
     @ColumnInfo(name = "user_id") val userId: String,
     @ColumnInfo(name = "user_name") val userName: String
 )
+
+@Entity(tableName = "planner_activities", indices = [Index("user_id")])
+data class PlannerActivityEntity(
+    @PrimaryKey @ColumnInfo(name = "id") val id: String,
+    @ColumnInfo(name = "name") val name: String,
+    @ColumnInfo(name = "description") val description: String?,
+    @ColumnInfo(name = "created_at") val createdAt: String,
+    @ColumnInfo(name = "user_id") val userId: String,
+    @ColumnInfo(name = "user_name") val userName: String
+)
+
+@Entity(tableName = "planner_groups", indices = [Index("user_id")])
+data class PlannerGroupEntity(
+    @PrimaryKey @ColumnInfo(name = "id") val id: String,
+    @ColumnInfo(name = "name") val name: String,
+    @ColumnInfo(name = "description") val description: String?,
+    @ColumnInfo(name = "created_at") val createdAt: String,
+    @ColumnInfo(name = "user_id") val userId: String,
+    @ColumnInfo(name = "user_name") val userName: String
+)
+
+@Entity(tableName = "planner_activity_group_links", primaryKeys = ["activity_id", "group_id"])
+data class PlannerActivityGroupLinkEntity(
+    @ColumnInfo(name = "activity_id") val activityId: String,
+    @ColumnInfo(name = "group_id") val groupId: String
+)
+
+@Entity(tableName = "week_planner_slots", indices = [Index("user_id"), Index("group_id")])
+data class WeekPlannerSlotEntity(
+    @PrimaryKey @ColumnInfo(name = "id") val id: String,
+    @ColumnInfo(name = "day_of_week") val dayOfWeek: Int,
+    @ColumnInfo(name = "hour") val hour: Int,
+    @ColumnInfo(name = "group_id") val groupId: String?,
+    @ColumnInfo(name = "user_id") val userId: String,
+    @ColumnInfo(name = "user_name") val userName: String
+)
+
+@Entity(tableName = "slot_confirmations", indices = [Index("user_id"), Index("slot_id"), Index("activity_id")])
+data class SlotConfirmationEntity(
+    @PrimaryKey @ColumnInfo(name = "id") val id: String,
+    @ColumnInfo(name = "slot_id") val slotId: String?,
+    @ColumnInfo(name = "activity_id") val activityId: String?,
+    @ColumnInfo(name = "group_id") val groupId: String?,
+    @ColumnInfo(name = "confirmed") val confirmed: Boolean,
+    @ColumnInfo(name = "date") val date: String,
+    @ColumnInfo(name = "created_at") val createdAt: String,
+    @ColumnInfo(name = "user_id") val userId: String,
+    @ColumnInfo(name = "user_name") val userName: String
+)

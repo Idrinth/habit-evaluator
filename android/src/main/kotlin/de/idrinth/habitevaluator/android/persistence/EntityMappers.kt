@@ -17,9 +17,13 @@ import de.idrinth.habitevaluator.shared.model.HabitEntry
 import de.idrinth.habitevaluator.shared.model.Medication
 import de.idrinth.habitevaluator.shared.model.MedicationLog
 import de.idrinth.habitevaluator.shared.model.MedicationProvisionType
+import de.idrinth.habitevaluator.shared.model.PlannerActivity
+import de.idrinth.habitevaluator.shared.model.PlannerGroup
+import de.idrinth.habitevaluator.shared.model.SlotConfirmation
 import de.idrinth.habitevaluator.shared.model.SleepEntry
 import de.idrinth.habitevaluator.shared.model.SportLog
 import de.idrinth.habitevaluator.shared.model.User
+import de.idrinth.habitevaluator.shared.model.WeekPlannerSlot
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
@@ -506,4 +510,114 @@ fun ActivityLogEntity.toModel(): ActivityLog {
     u.username = userName
     log.user = u
     return log
+}
+
+// ── PlannerActivity ──
+
+fun PlannerActivity.toEntity(): PlannerActivityEntity = PlannerActivityEntity(
+    id = id,
+    name = name ?: "",
+    description = description,
+    createdAt = createdAt?.format(DT_FORMAT) ?: LocalDateTime.now().format(DT_FORMAT),
+    userId = user?.id ?: "",
+    userName = user?.username ?: ""
+)
+
+fun PlannerActivity.toGroupIds(): List<String> =
+    groups?.map { it.id } ?: emptyList()
+
+fun PlannerActivityEntity.toModel(groups: Set<PlannerGroup> = emptySet()): PlannerActivity {
+    val activity = PlannerActivity()
+    activity.id = id
+    activity.name = name
+    activity.description = description
+    activity.createdAt = parseDateTimeOrNull(createdAt)
+    activity.groups = groups.toMutableSet().let { java.util.HashSet(it) }
+    val u = User()
+    u.id = userId
+    u.username = userName
+    activity.user = u
+    return activity
+}
+
+// ── PlannerGroup ──
+
+fun PlannerGroup.toEntity(): PlannerGroupEntity = PlannerGroupEntity(
+    id = id,
+    name = name ?: "",
+    description = description,
+    createdAt = createdAt?.format(DT_FORMAT) ?: LocalDateTime.now().format(DT_FORMAT),
+    userId = user?.id ?: "",
+    userName = user?.username ?: ""
+)
+
+fun PlannerGroupEntity.toModel(): PlannerGroup {
+    val group = PlannerGroup()
+    group.id = id
+    group.name = name
+    group.description = description
+    group.createdAt = parseDateTimeOrNull(createdAt)
+    val u = User()
+    u.id = userId
+    u.username = userName
+    group.user = u
+    return group
+}
+
+// ── WeekPlannerSlot ──
+
+fun WeekPlannerSlot.toEntity(): WeekPlannerSlotEntity = WeekPlannerSlotEntity(
+    id = id,
+    dayOfWeek = dayOfWeek,
+    hour = hour,
+    groupId = group?.id,
+    userId = user?.id ?: "",
+    userName = user?.username ?: ""
+)
+
+fun WeekPlannerSlotEntity.toModel(group: PlannerGroup? = null): WeekPlannerSlot {
+    val slot = WeekPlannerSlot()
+    slot.id = id
+    slot.dayOfWeek = dayOfWeek
+    slot.hour = hour
+    slot.group = group
+    val u = User()
+    u.id = userId
+    u.username = userName
+    slot.user = u
+    return slot
+}
+
+// ── SlotConfirmation ──
+
+fun SlotConfirmation.toEntity(): SlotConfirmationEntity = SlotConfirmationEntity(
+    id = id,
+    slotId = slot?.id,
+    activityId = activity?.id,
+    groupId = group?.id,
+    confirmed = isConfirmed,
+    date = date?.format(DATE_FORMAT) ?: LocalDate.now().format(DATE_FORMAT),
+    createdAt = createdAt?.format(DT_FORMAT) ?: LocalDateTime.now().format(DT_FORMAT),
+    userId = user?.id ?: "",
+    userName = user?.username ?: ""
+)
+
+fun SlotConfirmationEntity.toModel(
+    slot: WeekPlannerSlot? = null,
+    activity: PlannerActivity? = null,
+    group: PlannerGroup? = null
+): SlotConfirmation {
+    val confirmation = SlotConfirmation()
+    confirmation.id = id
+    confirmation.slot = slot
+    confirmation.activity = activity
+    confirmation.group = group
+    confirmation.isConfirmed = confirmed
+    confirmation.date = parseDateOrNull(date)
+    confirmation.createdAt = parseDateTimeOrNull(createdAt)
+    val u = User()
+    u.id = userId
+    u.username = userName
+    confirmation.user = u
+    return confirmation
 }

@@ -29,9 +29,14 @@ import java.io.File
         MedicationLogEntity::class,
         EmergencyPlanStepEntity::class,
         EmergencyPlanActionEntity::class,
-        ActivityLogEntity::class
+        ActivityLogEntity::class,
+        PlannerActivityEntity::class,
+        PlannerGroupEntity::class,
+        PlannerActivityGroupLinkEntity::class,
+        WeekPlannerSlotEntity::class,
+        SlotConfirmationEntity::class
     ],
-    version = 10,
+    version = 11,
     exportSchema = true
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -45,6 +50,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun medicationDao(): MedicationDao
     abstract fun emergencyPlanDao(): EmergencyPlanDao
     abstract fun activityLogDao(): ActivityLogDao
+    abstract fun dayPlannerDao(): DayPlannerDao
 
     companion object {
         private const val DATABASE_NAME = "habit_evaluator.db"

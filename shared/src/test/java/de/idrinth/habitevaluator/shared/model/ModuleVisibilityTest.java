@@ -27,6 +27,7 @@ class ModuleVisibilityTest {
         assertTrue(mv.isBackupVisible());
         assertTrue(mv.isPdfExportVisible());
         assertTrue(mv.isActivityLogVisible());
+        assertTrue(mv.isDayPlannerVisible());
     }
 
     @Test
@@ -104,6 +105,13 @@ class ModuleVisibilityTest {
         ModuleVisibility mv = new ModuleVisibility();
         mv.setActivityLogVisible(false);
         assertFalse(mv.isActivityLogVisible());
+    }
+
+    @Test
+    void testSetDayPlannerVisible() {
+        ModuleVisibility mv = new ModuleVisibility();
+        mv.setDayPlannerVisible(false);
+        assertFalse(mv.isDayPlannerVisible());
     }
 
     @Test

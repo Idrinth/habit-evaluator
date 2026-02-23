@@ -635,4 +635,26 @@
     <string name="no">No</string>
     <string name="next">Next</string>
     <string name="finish">Finish</string>
+
+    <!-- Day Planner -->
+    <string name="planner_week_planner_title">Week Planner</string>
+    <string name="planner_groups_title">Planner Groups</string>
+    <string name="planner_activities_title">Planner Activities</string>
+    <string name="planner_add_group">Add Group</string>
+    <string name="planner_add_activity">Add Activity</string>
+    <string name="planner_group_name">Group name</string>
+    <string name="planner_activity_name">Activity name</string>
+    <string name="planner_group_name_required">Please enter a group name</string>
+    <string name="planner_activity_name_required">Please enter an activity name</string>
+    <string name="planner_no_groups">No groups yet. Add a group first.</string>
+    <string name="planner_no_activities">No activities yet. Add an activity first.</string>
+    <string name="planner_select_groups">Assign to groups</string>
+    <string name="planner_groups_label">Groups</string>
+    <string name="planner_unassigned">—</string>
+    <string name="planner_assign_group">Assign group to %s</string>
+    <string name="planner_none">None</string>
+    <string name="planner_week_summary">Week: %1$d / %2$d slots filled</string>
+    <string name="module_day_planner">Day Planner</string>
+    <string name="diary_navigation_planner_description">Plan your week with randomized activity suggestions</string>
+    <string name="day_planner">Day Planner</string>
 </resources>

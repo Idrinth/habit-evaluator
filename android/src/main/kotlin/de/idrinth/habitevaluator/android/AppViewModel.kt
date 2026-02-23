@@ -25,7 +25,11 @@ import de.idrinth.habitevaluator.android.persistence.RoomHabitRepository
 import de.idrinth.habitevaluator.android.persistence.RoomMedicationLogRepository
 import de.idrinth.habitevaluator.android.persistence.RoomMedicationRepository
 import de.idrinth.habitevaluator.android.persistence.RoomSleepEntryRepository
+import de.idrinth.habitevaluator.android.persistence.RoomPlannerActivityRepository
+import de.idrinth.habitevaluator.android.persistence.RoomPlannerGroupRepository
+import de.idrinth.habitevaluator.android.persistence.RoomSlotConfirmationRepository
 import de.idrinth.habitevaluator.android.persistence.RoomSportLogRepository
+import de.idrinth.habitevaluator.android.persistence.RoomWeekPlannerSlotRepository
 import de.idrinth.habitevaluator.shared.api.ApiClient
 import de.idrinth.habitevaluator.shared.api.RemoteHabitRepository
 import de.idrinth.habitevaluator.shared.api.RemoteUserRepository
@@ -55,7 +59,11 @@ import de.idrinth.habitevaluator.shared.repository.HabitRepository
 import de.idrinth.habitevaluator.shared.repository.MedicationLogRepository
 import de.idrinth.habitevaluator.shared.repository.MedicationRepository
 import de.idrinth.habitevaluator.shared.repository.SleepEntryRepository
+import de.idrinth.habitevaluator.shared.repository.PlannerActivityRepository
+import de.idrinth.habitevaluator.shared.repository.PlannerGroupRepository
+import de.idrinth.habitevaluator.shared.repository.SlotConfirmationRepository
 import de.idrinth.habitevaluator.shared.repository.SportLogRepository
+import de.idrinth.habitevaluator.shared.repository.WeekPlannerSlotRepository
 import de.idrinth.habitevaluator.shared.service.DefaultDataInitializer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -91,6 +99,10 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
     val roomEmergencyPlanStepRepository = RoomEmergencyPlanStepRepository(db.emergencyPlanDao())
     val roomEmergencyPlanActionRepository = RoomEmergencyPlanActionRepository(db.emergencyPlanDao())
     val roomActivityLogRepository = RoomActivityLogRepository(db.activityLogDao())
+    val roomPlannerActivityRepository = RoomPlannerActivityRepository(db.dayPlannerDao())
+    val roomPlannerGroupRepository = RoomPlannerGroupRepository(db.dayPlannerDao())
+    val roomWeekPlannerSlotRepository = RoomWeekPlannerSlotRepository(db.dayPlannerDao())
+    val roomSlotConfirmationRepository = RoomSlotConfirmationRepository(db.dayPlannerDao())
 
     // Active repositories (may point to remote when in remote mode)
     private val _habitRepository = MutableStateFlow<HabitRepository>(roomHabitRepository)
@@ -112,6 +124,10 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
     val emergencyPlanStepRepository: EmergencyPlanStepRepository get() = roomEmergencyPlanStepRepository
     val emergencyPlanActionRepository: EmergencyPlanActionRepository get() = roomEmergencyPlanActionRepository
     val activityLogRepository: ActivityLogRepository get() = roomActivityLogRepository
+    val plannerActivityRepository: PlannerActivityRepository get() = roomPlannerActivityRepository
+    val plannerGroupRepository: PlannerGroupRepository get() = roomPlannerGroupRepository
+    val weekPlannerSlotRepository: WeekPlannerSlotRepository get() = roomWeekPlannerSlotRepository
+    val slotConfirmationRepository: SlotConfirmationRepository get() = roomSlotConfirmationRepository
 
     // Observable state
     private val _habits = MutableStateFlow<List<Habit>>(emptyList())

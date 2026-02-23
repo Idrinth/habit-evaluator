@@ -477,3 +477,133 @@ interface ActivityLogDao {
     @Query("SELECT DISTINCT activity FROM activity_logs WHERE user_id = :userId AND activity IS NOT NULL ORDER BY activity COLLATE NOCASE")
     suspend fun findDistinctActivities(userId: String): List<String>
 }
+
+@Dao
+interface DayPlannerDao {
+    // Planner Activities
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertActivity(activity: PlannerActivityEntity)
+
+    @Query("SELECT * FROM planner_activities WHERE id = :id")
+    suspend fun findActivityById(id: String): PlannerActivityEntity?
+
+    @Query("SELECT * FROM planner_activities")
+    suspend fun findAllActivities(): List<PlannerActivityEntity>
+
+    @Query("SELECT * FROM planner_activities WHERE user_id = :userId ORDER BY name COLLATE NOCASE")
+    suspend fun findActivitiesByUserId(userId: String): List<PlannerActivityEntity>
+
+    @Query("SELECT * FROM planner_activities WHERE user_id = :userId ORDER BY name COLLATE NOCASE")
+    fun observeActivitiesByUserId(userId: String): Flow<List<PlannerActivityEntity>>
+
+    @Query("DELETE FROM planner_activities WHERE id = :id")
+    suspend fun deleteActivityById(id: String)
+
+    @Query("SELECT EXISTS(SELECT 1 FROM planner_activities WHERE id = :id)")
+    suspend fun activityExistsById(id: String): Boolean
+
+    // Activity-Group Links
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insertActivityGroupLink(link: PlannerActivityGroupLinkEntity)
+
+    @Query("DELETE FROM planner_activity_group_links WHERE activity_id = :activityId")
+    suspend fun deleteLinksForActivity(activityId: String)
+
+    @Query("DELETE FROM planner_activity_group_links WHERE group_id = :groupId")
+    suspend fun deleteLinksForGroup(groupId: String)
+
+    @Query("SELECT group_id FROM planner_activity_group_links WHERE activity_id = :activityId")
+    suspend fun findGroupIdsForActivity(activityId: String): List<String>
+
+    @Query(
+        """SELECT pa.* FROM planner_activities pa
+        INNER JOIN planner_activity_group_links pagl ON pa.id = pagl.activity_id
+        WHERE pagl.group_id = :groupId ORDER BY pa.name COLLATE NOCASE"""
+    )
+    suspend fun findActivitiesByGroupId(groupId: String): List<PlannerActivityEntity>
+
+    @Transaction
+    suspend fun saveActivityWithLinks(activity: PlannerActivityEntity, groupIds: List<String>) {
+        insertActivity(activity)
+        deleteLinksForActivity(activity.id)
+        groupIds.forEach { insertActivityGroupLink(PlannerActivityGroupLinkEntity(activity.id, it)) }
+    }
+
+    @Transaction
+    suspend fun deleteActivityWithLinks(id: String) {
+        deleteLinksForActivity(id)
+        deleteActivityById(id)
+    }
+
+    // Planner Groups
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertGroup(group: PlannerGroupEntity)
+
+    @Query("SELECT * FROM planner_groups WHERE id = :id")
+    suspend fun findGroupById(id: String): PlannerGroupEntity?
+
+    @Query("SELECT * FROM planner_groups")
+    suspend fun findAllGroups(): List<PlannerGroupEntity>
+
+    @Query("SELECT * FROM planner_groups WHERE user_id = :userId ORDER BY name COLLATE NOCASE")
+    suspend fun findGroupsByUserId(userId: String): List<PlannerGroupEntity>
+
+    @Query("SELECT * FROM planner_groups WHERE user_id = :userId ORDER BY name COLLATE NOCASE")
+    fun observeGroupsByUserId(userId: String): Flow<List<PlannerGroupEntity>>
+
+    @Query("DELETE FROM planner_groups WHERE id = :id")
+    suspend fun deleteGroupById(id: String)
+
+    @Query("SELECT EXISTS(SELECT 1 FROM planner_groups WHERE id = :id)")
+    suspend fun groupExistsById(id: String): Boolean
+
+    @Transaction
+    suspend fun deleteGroupWithLinks(id: String) {
+        deleteLinksForGroup(id)
+        deleteGroupById(id)
+    }
+
+    // Week Planner Slots
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertSlot(slot: WeekPlannerSlotEntity)
+
+    @Query("SELECT * FROM week_planner_slots WHERE id = :id")
+    suspend fun findSlotById(id: String): WeekPlannerSlotEntity?
+
+    @Query("SELECT * FROM week_planner_slots")
+    suspend fun findAllSlots(): List<WeekPlannerSlotEntity>
+
+    @Query("SELECT * FROM week_planner_slots WHERE user_id = :userId ORDER BY day_of_week, hour")
+    suspend fun findSlotsByUserId(userId: String): List<WeekPlannerSlotEntity>
+
+    @Query("SELECT * FROM week_planner_slots WHERE user_id = :userId ORDER BY day_of_week, hour")
+    fun observeSlotsByUserId(userId: String): Flow<List<WeekPlannerSlotEntity>>
+
+    @Query("SELECT * FROM week_planner_slots WHERE user_id = :userId AND day_of_week = :dayOfWeek ORDER BY hour")
+    suspend fun findSlotsByUserIdAndDayOfWeek(userId: String, dayOfWeek: Int): List<WeekPlannerSlotEntity>
+
+    @Query("DELETE FROM week_planner_slots WHERE id = :id")
+    suspend fun deleteSlotById(id: String)
+
+    @Query("SELECT EXISTS(SELECT 1 FROM week_planner_slots WHERE id = :id)")
+    suspend fun slotExistsById(id: String): Boolean
+
+    // Slot Confirmations
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertConfirmation(confirmation: SlotConfirmationEntity)
+
+    @Query("SELECT * FROM slot_confirmations WHERE id = :id")
+    suspend fun findConfirmationById(id: String): SlotConfirmationEntity?
+
+    @Query("SELECT * FROM slot_confirmations")
+    suspend fun findAllConfirmations(): List<SlotConfirmationEntity>
+
+    @Query("SELECT * FROM slot_confirmations WHERE user_id = :userId ORDER BY date DESC, created_at DESC")
+    suspend fun findConfirmationsByUserId(userId: String): List<SlotConfirmationEntity>
+
+    @Query("DELETE FROM slot_confirmations WHERE id = :id")
+    suspend fun deleteConfirmationById(id: String)
+
+    @Query("SELECT EXISTS(SELECT 1 FROM slot_confirmations WHERE id = :id)")
+    suspend fun confirmationExistsById(id: String): Boolean
+}

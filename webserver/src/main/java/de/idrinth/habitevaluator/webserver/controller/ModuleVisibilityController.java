@@ -59,6 +59,7 @@ public class ModuleVisibilityController {
         settings.setBackupVisible(incoming.isBackupVisible());
         settings.setPdfExportVisible(incoming.isPdfExportVisible());
         settings.setActivityLogVisible(incoming.isActivityLogVisible());
+        settings.setDayPlannerVisible(incoming.isDayPlannerVisible());
         return ResponseEntity.ok(moduleVisibilityRepository.save(settings));
     }
 }
