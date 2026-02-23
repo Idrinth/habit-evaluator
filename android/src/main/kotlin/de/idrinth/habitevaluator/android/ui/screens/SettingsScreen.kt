@@ -54,7 +54,13 @@ fun SettingsScreen(viewModel: AppViewModel, navController: NavController) {
     var diaryVisible by remember { mutableStateOf(prefs.getBoolean(SettingsConstants.KEY_MODULE_DIARY_VISIBLE, true)) }
     var sleepVisible by remember { mutableStateOf(prefs.getBoolean(SettingsConstants.KEY_MODULE_SLEEP_VISIBLE, true)) }
     var emotionsVisible by remember { mutableStateOf(prefs.getBoolean(SettingsConstants.KEY_MODULE_EMOTIONS_VISIBLE, true)) }
+    var pointsVisible by remember { mutableStateOf(prefs.getBoolean(SettingsConstants.KEY_MODULE_POINTS_VISIBLE, true)) }
     var statsVisible by remember { mutableStateOf(prefs.getBoolean(SettingsConstants.KEY_MODULE_STATISTICS_VISIBLE, true)) }
+    var foodLogVisible by remember { mutableStateOf(prefs.getBoolean(SettingsConstants.KEY_MODULE_FOOD_LOG_VISIBLE, true)) }
+    var sportLogVisible by remember { mutableStateOf(prefs.getBoolean(SettingsConstants.KEY_MODULE_SPORT_LOG_VISIBLE, true)) }
+    var medicationVisible by remember { mutableStateOf(prefs.getBoolean(SettingsConstants.KEY_MODULE_MEDICATION_VISIBLE, true)) }
+    var backupVisible by remember { mutableStateOf(prefs.getBoolean(SettingsConstants.KEY_MODULE_BACKUP_VISIBLE, true)) }
+    var pdfExportVisible by remember { mutableStateOf(prefs.getBoolean(SettingsConstants.KEY_MODULE_PDF_EXPORT_VISIBLE, true)) }
 
     Column(
         modifier = Modifier
@@ -110,10 +116,16 @@ fun SettingsScreen(viewModel: AppViewModel, navController: NavController) {
         Card(modifier = Modifier.fillMaxWidth()) {
             Column(modifier = Modifier.padding(16.dp)) {
                 Text(stringResource(R.string.module_visibility), style = MaterialTheme.typography.titleMedium)
-                LabeledSwitch(stringResource(R.string.diary), diaryVisible) { diaryVisible = it }
-                LabeledSwitch(stringResource(R.string.sleep_tracking), sleepVisible) { sleepVisible = it }
-                LabeledSwitch(stringResource(R.string.emotions), emotionsVisible) { emotionsVisible = it }
-                LabeledSwitch(stringResource(R.string.statistics), statsVisible) { statsVisible = it }
+                LabeledSwitch(stringResource(R.string.module_diary), diaryVisible) { diaryVisible = it }
+                LabeledSwitch(stringResource(R.string.module_sleep), sleepVisible) { sleepVisible = it }
+                LabeledSwitch(stringResource(R.string.module_emotions), emotionsVisible) { emotionsVisible = it }
+                LabeledSwitch(stringResource(R.string.module_points), pointsVisible) { pointsVisible = it }
+                LabeledSwitch(stringResource(R.string.module_statistics), statsVisible) { statsVisible = it }
+                LabeledSwitch(stringResource(R.string.module_food_log), foodLogVisible) { foodLogVisible = it }
+                LabeledSwitch(stringResource(R.string.module_sport_log), sportLogVisible) { sportLogVisible = it }
+                LabeledSwitch(stringResource(R.string.module_medication), medicationVisible) { medicationVisible = it }
+                LabeledSwitch(stringResource(R.string.module_backup), backupVisible) { backupVisible = it }
+                LabeledSwitch(stringResource(R.string.module_pdf_export), pdfExportVisible) { pdfExportVisible = it }
             }
         }
 
@@ -130,7 +142,13 @@ fun SettingsScreen(viewModel: AppViewModel, navController: NavController) {
                     .putBoolean(SettingsConstants.KEY_MODULE_DIARY_VISIBLE, diaryVisible)
                     .putBoolean(SettingsConstants.KEY_MODULE_SLEEP_VISIBLE, sleepVisible)
                     .putBoolean(SettingsConstants.KEY_MODULE_EMOTIONS_VISIBLE, emotionsVisible)
+                    .putBoolean(SettingsConstants.KEY_MODULE_POINTS_VISIBLE, pointsVisible)
                     .putBoolean(SettingsConstants.KEY_MODULE_STATISTICS_VISIBLE, statsVisible)
+                    .putBoolean(SettingsConstants.KEY_MODULE_FOOD_LOG_VISIBLE, foodLogVisible)
+                    .putBoolean(SettingsConstants.KEY_MODULE_SPORT_LOG_VISIBLE, sportLogVisible)
+                    .putBoolean(SettingsConstants.KEY_MODULE_MEDICATION_VISIBLE, medicationVisible)
+                    .putBoolean(SettingsConstants.KEY_MODULE_BACKUP_VISIBLE, backupVisible)
+                    .putBoolean(SettingsConstants.KEY_MODULE_PDF_EXPORT_VISIBLE, pdfExportVisible)
                     .apply()
                 SettingsConstants.applyThemeMode(themeMode)
                 SettingsConstants.applyLanguage(language)
