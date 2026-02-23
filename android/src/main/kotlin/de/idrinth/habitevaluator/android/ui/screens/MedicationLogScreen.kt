@@ -233,7 +233,7 @@ fun MedicationLogScreen(viewModel: AppViewModel) {
                 Card(modifier = Modifier.fillMaxWidth()) {
                     Column(modifier = Modifier.padding(12.dp)) {
                         Text(entry.medication?.name ?: "", style = MaterialTheme.typography.bodyLarge)
-                        Text("${entry.amount} ${entry.medication?.provisionType?.name ?: ""}", style = MaterialTheme.typography.bodyMedium)
+                        Text("${entry.amount} ${entry.medication?.unit ?: ""}", style = MaterialTheme.typography.bodyMedium)
                         entry.takenAt?.let { Text(it.format(dateTimeFormat), style = MaterialTheme.typography.bodySmall) }
                         entry.notes?.let { if (it.isNotBlank()) Text(it, style = MaterialTheme.typography.bodySmall) }
                         TextButton(onClick = {
