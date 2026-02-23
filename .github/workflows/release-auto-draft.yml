@@ -58,11 +58,7 @@ jobs:
         run: |
           gh release list --limit 200 --json tagName,isDraft --jq '.[] | select(.isDraft) | .tagName' | while read -r TAG; do
             for ATTEMPT in 1 2 3 4; do
-              if gh release delete "$TAG" --yes --cleanup-tag 2>/dev/null; then
-                break
-              fi
               if gh release delete "$TAG" --yes 2>/dev/null; then
-                git push --delete origin "$TAG" 2>/dev/null || true
                 break
               fi
               if [ "$ATTEMPT" -lt 4 ]; then
