@@ -13,6 +13,22 @@ class MedicationLogScreenTest {
     companion object {
         const val DT_DISPLAY_PATTERN = "yyyy-MM-dd HH:mm"
         val DT_DISPLAY_FORMAT: DateTimeFormatter = DateTimeFormatter.ofPattern(DT_DISPLAY_PATTERN)
+
+        /**
+         * Replication of dose parsing logic from MedicationLogScreen.
+         * Returns the parsed dose as a Double, or null if invalid.
+         */
+        fun parseDose(input: String): Double? {
+            return input.toDoubleOrNull()
+        }
+
+        /**
+         * Replication of dose display formatting from MedicationLogScreen.
+         * Formats the dose amount with the medication unit string.
+         */
+        fun formatDoseDisplay(amount: Double, unit: String?): String {
+            return "$amount ${unit ?: ""}"
+        }
     }
 
     @Test
@@ -81,5 +97,64 @@ class MedicationLogScreenTest {
         assertTrue(DT_DISPLAY_PATTERN.contains("dd"))
         assertTrue(DT_DISPLAY_PATTERN.contains("HH"))
         assertTrue(DT_DISPLAY_PATTERN.contains("mm"))
+    }
+
+    // --- Dose parsing tests ---
+
+    @Test
+    fun testParseDoseValidInteger() {
+        assertEquals(2.0, parseDose("2")!!, 0.001)
+    }
+
+    @Test
+    fun testParseDoseValidDecimal() {
+        assertEquals(1.5, parseDose("1.5")!!, 0.001)
+    }
+
+    @Test
+    fun testParseDoseInvalidReturnsNull() {
+        assertNull(parseDose("abc"))
+    }
+
+    @Test
+    fun testParseDoseEmptyReturnsNull() {
+        assertNull(parseDose(""))
+    }
+
+    @Test
+    fun testParseDoseZero() {
+        assertEquals(0.0, parseDose("0")!!, 0.001)
+    }
+
+    @Test
+    fun testParseDoseNegative() {
+        assertEquals(-1.0, parseDose("-1")!!, 0.001)
+    }
+
+    @Test
+    fun testParseDoseSmallDecimal() {
+        assertEquals(0.25, parseDose("0.25")!!, 0.001)
+    }
+
+    // --- Dose display formatting tests ---
+
+    @Test
+    fun testFormatDoseDisplayWithUnit() {
+        assertEquals("2.0 pills", formatDoseDisplay(2.0, "pills"))
+    }
+
+    @Test
+    fun testFormatDoseDisplayNullUnit() {
+        assertEquals("1.5 ", formatDoseDisplay(1.5, null))
+    }
+
+    @Test
+    fun testFormatDoseDisplayEmptyUnit() {
+        assertEquals("3.0 ", formatDoseDisplay(3.0, ""))
+    }
+
+    @Test
+    fun testFormatDoseDisplayZeroDose() {
+        assertEquals("0.0 ml", formatDoseDisplay(0.0, "ml"))
     }
 }

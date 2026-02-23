@@ -16,6 +16,22 @@ class SportLogScreenTest {
         const val TIME_PATTERN = "HH:mm"
         val DATE_FORMAT: DateTimeFormatter = DateTimeFormatter.ofPattern(DATE_PATTERN)
         val TIME_FORMAT: DateTimeFormatter = DateTimeFormatter.ofPattern(TIME_PATTERN)
+
+        /**
+         * Replication of measurement validation logic from SportLogScreen.
+         * Returns null if valid, "invalid_measurement" if measurement is non-blank but not a number,
+         * "unit_required" if measurement is a valid number but unit is blank.
+         */
+        fun validateMeasurement(measurement: String, unit: String): String? {
+            val measureVal = measurement.toDoubleOrNull()
+            if (measurement.isNotBlank() && measureVal == null) {
+                return "invalid_measurement"
+            }
+            if (measureVal != null && unit.isBlank()) {
+                return "unit_required"
+            }
+            return null
+        }
     }
 
     @Test
@@ -126,5 +142,52 @@ class SportLogScreenTest {
     @Test
     fun testDatePatternMatchesSleepTrackingScreenPattern() {
         assertEquals(SleepTrackingScreenTest.DATE_PATTERN, DATE_PATTERN)
+    }
+
+    // --- Measurement validation tests ---
+
+    @Test
+    fun testValidateMeasurementValidWithUnit() {
+        assertNull(validateMeasurement("10.5", "km"))
+    }
+
+    @Test
+    fun testValidateMeasurementEmptyMeasurementNoUnit() {
+        assertNull(validateMeasurement("", ""))
+    }
+
+    @Test
+    fun testValidateMeasurementBlankMeasurementNoUnit() {
+        assertNull(validateMeasurement("   ", ""))
+    }
+
+    @Test
+    fun testValidateMeasurementInvalidNumber() {
+        assertEquals("invalid_measurement", validateMeasurement("abc", "km"))
+    }
+
+    @Test
+    fun testValidateMeasurementValidNumberNoUnit() {
+        assertEquals("unit_required", validateMeasurement("10.5", ""))
+    }
+
+    @Test
+    fun testValidateMeasurementValidNumberBlankUnit() {
+        assertEquals("unit_required", validateMeasurement("10.5", "   "))
+    }
+
+    @Test
+    fun testValidateMeasurementZeroWithUnit() {
+        assertNull(validateMeasurement("0", "reps"))
+    }
+
+    @Test
+    fun testValidateMeasurementNegativeWithUnit() {
+        assertNull(validateMeasurement("-5.0", "meters"))
+    }
+
+    @Test
+    fun testValidateMeasurementIntegerWithUnit() {
+        assertNull(validateMeasurement("100", "pushups"))
     }
 }

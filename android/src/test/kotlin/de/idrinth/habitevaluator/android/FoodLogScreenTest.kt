@@ -19,6 +19,32 @@ class FoodLogScreenTest {
         val DATE_FORMAT: DateTimeFormatter = DateTimeFormatter.ofPattern(DATE_PATTERN)
         val TIME_FORMAT: DateTimeFormatter = DateTimeFormatter.ofPattern(TIME_PATTERN)
         val DT_DISPLAY_FORMAT: DateTimeFormatter = DateTimeFormatter.ofPattern(DT_DISPLAY_PATTERN)
+
+        /**
+         * Replication of food tag splitting logic from FoodLogScreen.
+         * Splits a comma-separated string into trimmed, non-empty tags.
+         */
+        fun splitFoodTags(items: String): List<String> {
+            return items.split(",").map { it.trim() }.filter { it.isNotEmpty() }
+        }
+
+        /**
+         * Replication of kcal parsing logic from FoodLogScreen.
+         * Returns the parsed integer if non-blank and valid, null if blank, null if invalid.
+         */
+        fun parseKcal(input: String): Int? {
+            if (input.isBlank()) return null
+            return input.toIntOrNull()
+        }
+
+        /**
+         * Replication of carbs parsing logic from FoodLogScreen.
+         * Returns the parsed double if non-blank and valid, null if blank, null if invalid.
+         */
+        fun parseCarbs(input: String): Double? {
+            if (input.isBlank()) return null
+            return input.toDoubleOrNull()
+        }
     }
 
     @Test
@@ -155,5 +181,125 @@ class FoodLogScreenTest {
     fun testTimeFormatMidnight() {
         val time = LocalTime.of(0, 0)
         assertEquals("00:00", TIME_FORMAT.format(time))
+    }
+
+    // --- Tag splitting logic tests ---
+
+    @Test
+    fun testSplitFoodTagsSingleItem() {
+        val result = splitFoodTags("apple")
+        assertEquals(listOf("apple"), result)
+    }
+
+    @Test
+    fun testSplitFoodTagsMultipleItems() {
+        val result = splitFoodTags("apple, banana, cherry")
+        assertEquals(listOf("apple", "banana", "cherry"), result)
+    }
+
+    @Test
+    fun testSplitFoodTagsTrimsWhitespace() {
+        val result = splitFoodTags("  apple ,  banana  , cherry  ")
+        assertEquals(listOf("apple", "banana", "cherry"), result)
+    }
+
+    @Test
+    fun testSplitFoodTagsFiltersEmpty() {
+        val result = splitFoodTags("apple,,banana,,,cherry")
+        assertEquals(listOf("apple", "banana", "cherry"), result)
+    }
+
+    @Test
+    fun testSplitFoodTagsEmptyString() {
+        val result = splitFoodTags("")
+        assertTrue(result.isEmpty())
+    }
+
+    @Test
+    fun testSplitFoodTagsOnlyCommas() {
+        val result = splitFoodTags(",,,")
+        assertTrue(result.isEmpty())
+    }
+
+    @Test
+    fun testSplitFoodTagsWhitespaceOnly() {
+        val result = splitFoodTags("   ")
+        assertTrue(result.isEmpty())
+    }
+
+    @Test
+    fun testSplitFoodTagsCommasAndSpacesOnly() {
+        val result = splitFoodTags(" , , , ")
+        assertTrue(result.isEmpty())
+    }
+
+    @Test
+    fun testSplitFoodTagsSingleItemWithTrailingComma() {
+        val result = splitFoodTags("apple,")
+        assertEquals(listOf("apple"), result)
+    }
+
+    // --- Kcal validation tests ---
+
+    @Test
+    fun testParseKcalValidInteger() {
+        assertEquals(250, parseKcal("250"))
+    }
+
+    @Test
+    fun testParseKcalEmptyReturnsNull() {
+        assertNull(parseKcal(""))
+    }
+
+    @Test
+    fun testParseKcalBlankReturnsNull() {
+        assertNull(parseKcal("   "))
+    }
+
+    @Test
+    fun testParseKcalInvalidReturnsNull() {
+        assertNull(parseKcal("abc"))
+    }
+
+    @Test
+    fun testParseKcalZero() {
+        assertEquals(0, parseKcal("0"))
+    }
+
+    @Test
+    fun testParseKcalDecimalReturnsNull() {
+        assertNull(parseKcal("250.5"))
+    }
+
+    // --- Carbs validation tests ---
+
+    @Test
+    fun testParseCarbsValidDouble() {
+        assertEquals(30.5, parseCarbs("30.5")!!, 0.001)
+    }
+
+    @Test
+    fun testParseCarbsEmptyReturnsNull() {
+        assertNull(parseCarbs(""))
+    }
+
+    @Test
+    fun testParseCarbsBlankReturnsNull() {
+        assertNull(parseCarbs("   "))
+    }
+
+    @Test
+    fun testParseCarbsInvalidReturnsNull() {
+        assertNull(parseCarbs("abc"))
+    }
+
+    @Test
+    fun testParseCarbsInteger() {
+        assertEquals(30.0, parseCarbs("30")!!, 0.001)
+    }
+
+    @Test
+    fun testParseCarbsZero() {
+        assertEquals(0.0, parseCarbs("0")!!, 0.001)
     }
 }
