@@ -141,9 +141,11 @@ fun HomeScreen(viewModel: AppViewModel, navController: NavController) {
                             habit = habit,
                             onComplete = {
                                 scope.launch(Dispatchers.IO) {
-                                    val entry = HabitEntry()
-                                    habit.addEntry(entry)
-                                    viewModel.habitRepository.value.save(habit)
+                                    if (!habit.hasReachedDailyLimit(LocalDate.now())) {
+                                        val entry = HabitEntry()
+                                        habit.addEntry(entry)
+                                        viewModel.habitRepository.value.save(habit)
+                                    }
                                     withContext(Dispatchers.Main) { viewModel.loadHabits() }
                                 }
                             },
@@ -249,6 +251,7 @@ private fun HabitEvaluationCard(
     }
     val maxPerDay = habit.maxEntriesPerDay
     val limitReached = maxPerDay > 0 && todayCount >= maxPerDay
+    var isProcessing by remember(habit.entries?.size) { mutableStateOf(false) }
 
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(16.dp)) {
@@ -281,7 +284,7 @@ private fun HabitEvaluationCard(
 
             Spacer(Modifier.height(12.dp))
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                Button(onClick = onComplete, enabled = !limitReached, modifier = Modifier.weight(1f)) {
+                Button(onClick = { isProcessing = true; onComplete() }, enabled = !limitReached && !isProcessing, modifier = Modifier.weight(1f)) {
                     Text(stringResource(R.string.complete))
                 }
                 Button(onClick = onRemoveCompletion, modifier = Modifier.weight(1f)) {
