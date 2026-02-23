@@ -327,6 +327,24 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    suspend fun saveCategory(category: HabitCategory) {
+        if (_usingRemoteStorage.value && apiClient != null) {
+            val request = mapOf(
+                "name" to (category.name ?: ""),
+                "description" to (category.description ?: ""),
+                "color" to (category.color ?: "")
+            )
+            apiClient?.post<HabitCategory>(
+                "/api/categories",
+                request,
+                object : TypeToken<HabitCategory>() {}.type
+            )
+        } else {
+            _categoryRepository.value?.save(category)
+        }
+        loadCategories()
+    }
+
     fun loadCategories() {
         viewModelScope.launch(Dispatchers.IO) {
             val cats = if (_usingRemoteStorage.value && apiClient != null) {

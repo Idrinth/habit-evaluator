@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -20,6 +21,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ExposedDropdownMenuAnchorType
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -37,6 +39,7 @@ import de.idrinth.habitevaluator.android.AppViewModel
 import de.idrinth.habitevaluator.android.R
 import de.idrinth.habitevaluator.shared.model.FrequencyType
 import de.idrinth.habitevaluator.shared.model.Habit
+import de.idrinth.habitevaluator.shared.model.HabitCategory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -58,6 +61,46 @@ fun AddHabitScreen(viewModel: AppViewModel, navController: NavController) {
     var positiveScoring by remember { mutableStateOf(true) }
     var catExpanded by remember { mutableStateOf(false) }
     var freqExpanded by remember { mutableStateOf(false) }
+    var showNewCategoryDialog by remember { mutableStateOf(false) }
+    var newCategoryName by remember { mutableStateOf("") }
+
+    if (showNewCategoryDialog) {
+        AlertDialog(
+            onDismissRequest = { showNewCategoryDialog = false },
+            title = { Text(stringResource(R.string.new_category_dialog_title)) },
+            text = {
+                OutlinedTextField(
+                    value = newCategoryName,
+                    onValueChange = { newCategoryName = it },
+                    label = { Text(stringResource(R.string.new_category_hint)) },
+                    modifier = Modifier.fillMaxWidth()
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    if (newCategoryName.isBlank()) {
+                        Toast.makeText(context, R.string.category_name_required, Toast.LENGTH_SHORT).show()
+                        return@TextButton
+                    }
+                    val cat = HabitCategory(newCategoryName.trim())
+                    cat.user = currentUser
+                    scope.launch(Dispatchers.IO) {
+                        viewModel.saveCategory(cat)
+                        withContext(Dispatchers.Main) {
+                            categoryId = cat.id
+                            newCategoryName = ""
+                            showNewCategoryDialog = false
+                        }
+                    }
+                }) { Text(stringResource(R.string.submit)) }
+            },
+            dismissButton = {
+                TextButton(onClick = { showNewCategoryDialog = false; newCategoryName = "" }) {
+                    Text(stringResource(R.string.cancel))
+                }
+            }
+        )
+    }
 
     Column(
         modifier = Modifier
@@ -81,19 +124,19 @@ fun AddHabitScreen(viewModel: AppViewModel, navController: NavController) {
 
         ExposedDropdownMenuBox(expanded = catExpanded, onExpandedChange = { catExpanded = it }) {
             OutlinedTextField(
-                value = categories.find { it.id == categoryId }?.name ?: stringResource(R.string.no_category),
+                value = categories.find { it.id == categoryId }?.name ?: stringResource(R.string.select_category_prompt),
                 onValueChange = {}, readOnly = true,
                 label = { Text(stringResource(R.string.category)) },
                 trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = catExpanded) },
                 modifier = Modifier.menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable).fillMaxWidth()
             )
             ExposedDropdownMenu(expanded = catExpanded, onDismissRequest = { catExpanded = false }) {
-                DropdownMenuItem(text = { Text(stringResource(R.string.no_category)) },
-                    onClick = { categoryId = null; catExpanded = false })
                 categories.forEach { cat ->
                     DropdownMenuItem(text = { Text(cat.name ?: "") },
                         onClick = { categoryId = cat.id; catExpanded = false })
                 }
+                DropdownMenuItem(text = { Text(stringResource(R.string.new_category)) },
+                    onClick = { catExpanded = false; showNewCategoryDialog = true })
             }
         }
 
@@ -132,6 +175,10 @@ fun AddHabitScreen(viewModel: AppViewModel, navController: NavController) {
             onClick = {
                 if (name.isBlank()) {
                     Toast.makeText(context, R.string.habit_name_required, Toast.LENGTH_SHORT).show()
+                    return@Button
+                }
+                if (categoryId == null) {
+                    Toast.makeText(context, R.string.category_required, Toast.LENGTH_SHORT).show()
                     return@Button
                 }
                 val habit = Habit(name.trim(), description.trim())
