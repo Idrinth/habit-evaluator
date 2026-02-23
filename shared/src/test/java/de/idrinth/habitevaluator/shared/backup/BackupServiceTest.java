@@ -1869,6 +1869,16 @@ class BackupServiceTest {
             }
             return result;
         }
+
+        @Override
+        public List<String> findDistinctPlacesByUserId(String userId) {
+            return entries.stream()
+                    .filter(e -> e.getUser() != null && e.getUser().getId().equals(userId))
+                    .map(MeetingEntry::getPlace)
+                    .filter(place -> place != null && !place.isEmpty())
+                    .distinct()
+                    .collect(java.util.stream.Collectors.toList());
+        }
     }
 
     private static class InMemoryMedicationRepository implements MedicationRepository {
