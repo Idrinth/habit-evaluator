@@ -213,7 +213,7 @@ class EmotionScatterChartTest {
     // ── getLegendHeight formula ──────────────────────────────────────────────
 
     private fun getLegendHeight(pairCount: Int): Float {
-        val rows = (pairCount + 2) / 3
+        val rows = (pairCount + 1) / 2
         return if (rows == 0) 0f else rows * 24f + 16f
     }
 
@@ -224,25 +224,26 @@ class EmotionScatterChartTest {
 
     @Test
     fun testGetLegendHeightWithOnePair() {
+        // (1 + 1) / 2 = 1 row => 40
         assertEquals(40f, getLegendHeight(1), 0.001f)
     }
 
     @Test
     fun testGetLegendHeightWithThreePairs() {
-        // (3 + 2) / 3 = 1 row => 40
-        assertEquals(40f, getLegendHeight(3), 0.001f)
+        // (3 + 1) / 2 = 2 rows => 64
+        assertEquals(64f, getLegendHeight(3), 0.001f)
     }
 
     @Test
     fun testGetLegendHeightWithFourPairs() {
-        // (4 + 2) / 3 = 2 rows => 64
+        // (4 + 1) / 2 = 2 rows => 64
         assertEquals(64f, getLegendHeight(4), 0.001f)
     }
 
     @Test
     fun testGetLegendHeightWithTenPairs() {
-        // (10 + 2) / 3 = 4 rows => 112
-        assertEquals(112f, getLegendHeight(10), 0.001f)
+        // (10 + 1) / 2 = 5 rows => 136
+        assertEquals(136f, getLegendHeight(10), 0.001f)
     }
 
     // ── Hour labels ──────────────────────────────────────────────────────────

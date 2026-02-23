@@ -62,7 +62,7 @@ fun StatsScreen(viewModel: AppViewModel, navController: NavController) {
 
     val today = LocalDate.now()
     val startDate = today.minusDays(29)
-    val labelFormat = remember { DateTimeFormatter.ofPattern("MM/dd") }
+    val labelFormat = remember { DateTimeFormatter.ofPattern("yyyy-MM-dd") }
 
     LaunchedEffect(localUser) {
         val userId = localUser?.id ?: return@LaunchedEffect
@@ -129,7 +129,7 @@ fun StatsScreen(viewModel: AppViewModel, navController: NavController) {
         if (dates.isEmpty()) return@remember emptyList()
         val minDate = dates.min()
         val maxDate = today
-        val formatter = DateTimeFormatter.ofPattern("MM-dd")
+        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
         generateSequence(minDate) { it.plusDays(1) }
             .takeWhile { !it.isAfter(maxDate) }
             .map { it.format(formatter) }
@@ -213,7 +213,7 @@ fun StatsScreen(viewModel: AppViewModel, navController: NavController) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Text(stringResource(R.string.emotion_scatter_title), style = MaterialTheme.typography.titleMedium)
                     Spacer(Modifier.height(8.dp))
-                    val legendRows = kotlin.math.ceil(scatterPairs.size.toFloat() / 3).toInt()
+                    val legendRows = kotlin.math.ceil(scatterPairs.size.toFloat() / 2).toInt()
                     val legendHeight = legendRows * 24 + 16
                     EmotionScatterChart(
                         pairs = scatterPairs,
@@ -229,7 +229,7 @@ fun StatsScreen(viewModel: AppViewModel, navController: NavController) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Text(stringResource(R.string.emotion_development_title), style = MaterialTheme.typography.titleMedium)
                     Spacer(Modifier.height(8.dp))
-                    val legendRows = kotlin.math.ceil(lineChartPairNames.size.toFloat() / 3).toInt()
+                    val legendRows = kotlin.math.ceil(lineChartPairNames.size.toFloat() / 2).toInt()
                     val legendHeight = legendRows * 24 + 16
                     val chartWidth = max(lineChartLabels.size * 12, 300)
                     Row(
