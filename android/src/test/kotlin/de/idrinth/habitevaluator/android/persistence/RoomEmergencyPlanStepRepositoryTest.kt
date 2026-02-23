@@ -201,6 +201,56 @@ class RoomEmergencyPlanStepRepositoryTest {
     }
 
     @Test
+    fun testLoadedActionsHaveStepBackReference() = runTest {
+        val stepEntity = createStepEntity()
+        val actionEntity = createActionEntity(actionText = "Call someone")
+        `when`(dao.findStepById("s1")).thenReturn(stepEntity)
+        `when`(dao.findActionsByStepId("s1")).thenReturn(listOf(actionEntity))
+
+        val found = repository.findById("s1")
+        assertTrue(found.isPresent)
+        val action = found.get().actions[0]
+        assertNotNull(action.step)
+        assertEquals("s1", action.step.id)
+    }
+
+    @Test
+    fun testFindByUserIdActionsHaveStepBackReference() = runTest {
+        val stepEntity = createStepEntity()
+        val actionEntity = createActionEntity(actionText = "Call someone")
+        `when`(dao.findStepsByUserId("u1")).thenReturn(listOf(stepEntity))
+        `when`(dao.findActionsByStepId("s1")).thenReturn(listOf(actionEntity))
+
+        val result = repository.findByUserId("u1")
+        assertEquals(1, result.size)
+        val action = result[0].actions[0]
+        assertNotNull(action.step)
+        assertEquals("s1", action.step.id)
+    }
+
+    @Test
+    fun testSaveAfterLoadPreservesActions() = runTest {
+        val stepEntity = createStepEntity()
+        val actionEntity = createActionEntity(actionText = "Take a break")
+        `when`(dao.findStepsByUserId("u1")).thenReturn(listOf(stepEntity))
+        `when`(dao.findActionsByStepId("s1")).thenReturn(listOf(actionEntity))
+
+        val loaded = repository.findByUserId("u1")
+        val step = loaded[0]
+        assertEquals(1, step.actions.size)
+        assertNotNull(step.actions[0].step)
+        assertEquals("s1", step.actions[0].step.id)
+
+        step.stepOrder = 5
+        repository.save(step)
+
+        verify(dao, times(1)).saveStepWithActions(
+            any(EmergencyPlanStepEntity::class.java) ?: createStepEntity(),
+            anyList()
+        )
+    }
+
+    @Test
     fun testActionWithPhoneNumber() = runTest {
         val stepEntity = createStepEntity()
         val actionEntity = createActionEntity(actionText = "Call emergency", phoneNumber = "+49123456")
