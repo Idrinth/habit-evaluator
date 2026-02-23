@@ -61,6 +61,9 @@ public class ModuleVisibility {
     @Column(name = "activity_log_visible", nullable = false)
     private boolean activityLogVisible;
 
+    @Column(name = "day_planner_visible", nullable = false)
+    private boolean dayPlannerVisible;
+
     public ModuleVisibility() {
         this.id = UUID.randomUUID().toString();
         this.diaryVisible = true;
@@ -74,6 +77,7 @@ public class ModuleVisibility {
         this.backupVisible = true;
         this.pdfExportVisible = true;
         this.activityLogVisible = true;
+        this.dayPlannerVisible = true;
     }
 
     public String getId() {
@@ -178,6 +182,14 @@ public class ModuleVisibility {
 
     public void setActivityLogVisible(boolean activityLogVisible) {
         this.activityLogVisible = activityLogVisible;
+    }
+
+    public boolean isDayPlannerVisible() {
+        return dayPlannerVisible;
+    }
+
+    public void setDayPlannerVisible(boolean dayPlannerVisible) {
+        this.dayPlannerVisible = dayPlannerVisible;
     }
 
     @Override
