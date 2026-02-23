@@ -65,7 +65,7 @@ fun DiaryScreen(viewModel: AppViewModel) {
     var date by remember { mutableStateOf(LocalDate.now()) }
     var significance by remember { mutableStateOf(EventSignificance.NORMAL) }
     var sigExpanded by remember { mutableStateOf(false) }
-    var formVisible by remember { mutableStateOf(true) }
+    var formVisible by remember { mutableStateOf(false) }
 
     val diaryService = remember { DiaryService() }
 
