@@ -59,7 +59,7 @@ fun SleepTrackingScreen(viewModel: AppViewModel) {
     var fromTime by remember { mutableStateOf(LocalTime.of(23, 0)) }
     var untilTime by remember { mutableStateOf(LocalTime.of(7, 0)) }
     var notes by remember { mutableStateOf("") }
-    var formVisible by remember { mutableStateOf(true) }
+    var formVisible by remember { mutableStateOf(false) }
 
     LazyColumn(
         modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),

@@ -603,17 +603,17 @@ class MaestroFormValidationTest {
     // ── Form toggle default state ─────────────────────────────────────────
 
     @Test
-    fun testSleepFormDefaultVisibleIsTrue() {
-        // SleepTrackingScreen initializes formVisible = true
-        val formVisible = true
-        assertTrue(formVisible)
+    fun testSleepFormDefaultVisibleIsFalse() {
+        // SleepTrackingScreen initializes formVisible = false
+        val formVisible = false
+        assertFalse(formVisible)
     }
 
     @Test
-    fun testDiaryFormDefaultVisibleIsTrue() {
-        // DiaryScreen initializes formVisible = true
-        val formVisible = true
-        assertTrue(formVisible)
+    fun testDiaryFormDefaultVisibleIsFalse() {
+        // DiaryScreen initializes formVisible = false
+        val formVisible = false
+        assertFalse(formVisible)
     }
 
     @Test
