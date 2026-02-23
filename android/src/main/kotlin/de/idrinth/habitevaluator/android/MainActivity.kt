@@ -115,13 +115,28 @@ private fun AppContent(viewModel: AppViewModel) {
                     titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
                 ),
                 actions = {
-                    IconButton(onClick = { navController.navigate(Screen.Stats.route) }) {
+                    IconButton(onClick = {
+                        navController.navigate(Screen.Stats.route) {
+                            popUpTo(Screen.Home.route) { inclusive = false }
+                            launchSingleTop = true
+                        }
+                    }) {
                         Icon(Icons.AutoMirrored.Filled.List, contentDescription = stringResource(R.string.statistics))
                     }
-                    IconButton(onClick = { navController.navigate(Screen.Settings.route) }) {
+                    IconButton(onClick = {
+                        navController.navigate(Screen.Settings.route) {
+                            popUpTo(Screen.Home.route) { inclusive = false }
+                            launchSingleTop = true
+                        }
+                    }) {
                         Icon(Icons.Filled.Settings, contentDescription = stringResource(R.string.settings))
                     }
-                    IconButton(onClick = { navController.navigate(Screen.Imprint.route) }) {
+                    IconButton(onClick = {
+                        navController.navigate(Screen.Imprint.route) {
+                            popUpTo(Screen.Home.route) { inclusive = false }
+                            launchSingleTop = true
+                        }
+                    }) {
                         Icon(Icons.Filled.Info, contentDescription = stringResource(R.string.imprint))
                     }
                 }
@@ -136,9 +151,8 @@ private fun AppContent(viewModel: AppViewModel) {
                         selected = currentRoute == item.screen.route,
                         onClick = {
                             navController.navigate(item.screen.route) {
-                                popUpTo(Screen.Home.route) { saveState = true }
+                                popUpTo(Screen.Home.route) { inclusive = false }
                                 launchSingleTop = true
-                                restoreState = item.screen != Screen.Diary
                             }
                         }
                     )
