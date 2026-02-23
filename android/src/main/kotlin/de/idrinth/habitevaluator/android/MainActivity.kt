@@ -138,7 +138,7 @@ private fun AppContent(viewModel: AppViewModel) {
                             navController.navigate(item.screen.route) {
                                 popUpTo(Screen.Home.route) { saveState = true }
                                 launchSingleTop = true
-                                restoreState = true
+                                restoreState = item.screen != Screen.Diary
                             }
                         }
                     )
