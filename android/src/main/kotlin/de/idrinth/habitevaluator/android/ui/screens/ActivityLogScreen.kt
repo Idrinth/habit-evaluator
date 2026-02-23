@@ -3,7 +3,6 @@ package de.idrinth.habitevaluator.android.ui.screens
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import android.widget.Toast
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -15,11 +14,17 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Button
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -30,10 +35,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import de.idrinth.habitevaluator.android.AppViewModel
@@ -132,47 +135,69 @@ fun ActivityLogScreen(viewModel: AppViewModel) {
         }
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-    ) {
-        Text(stringResource(R.string.activity_log), style = MaterialTheme.typography.headlineMedium)
-        Spacer(Modifier.height(8.dp))
-
-        // Toggle form
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable {
-                    if (formExpanded && editingEntry != null) resetForm()
-                    else formExpanded = !formExpanded
-                }
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    if (editingEntry != null) stringResource(R.string.edit_entry) else stringResource(R.string.add_entry),
-                    style = MaterialTheme.typography.titleMedium
-                )
-                Icon(
-                    painter = painterResource(
-                        if (formExpanded) android.R.drawable.arrow_up_float
-                        else android.R.drawable.arrow_down_float
-                    ),
-                    contentDescription = null
-                )
+    Scaffold(
+        floatingActionButton = {
+            FloatingActionButton(onClick = {
+                resetForm()
+                formExpanded = true
+            }) {
+                Icon(Icons.Default.Add, contentDescription = stringResource(R.string.add_entry))
             }
         }
+    ) { padding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+                .padding(16.dp)
+        ) {
+            Text(stringResource(R.string.activity_log), style = MaterialTheme.typography.headlineMedium)
+            Spacer(Modifier.height(8.dp))
 
-        AnimatedVisibility(visible = formExpanded) {
-            Card(modifier = Modifier.fillMaxWidth().padding(top = 8.dp)) {
-                Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            LazyColumn(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                items(entries, key = { it.id }) { entry ->
+                    Card(modifier = Modifier.fillMaxWidth()) {
+                        Column(modifier = Modifier.padding(12.dp)) {
+                            Text(entry.persons ?: "", style = MaterialTheme.typography.bodyLarge)
+                            Text(entry.location ?: "", style = MaterialTheme.typography.bodyMedium)
+                            entry.date?.let { Text(it.format(dateFormat), style = MaterialTheme.typography.bodySmall) }
+                            val st = entry.startTime?.format(timeFormat) ?: ""
+                            val et = entry.endTime?.format(timeFormat) ?: ""
+                            if (st.isNotEmpty() || et.isNotEmpty()) Text("$st - $et", style = MaterialTheme.typography.bodySmall)
+                            entry.activity?.let { if (it.isNotBlank()) Text(it, style = MaterialTheme.typography.bodySmall) }
+                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                TextButton(onClick = { startEdit(entry) }) { Text(stringResource(R.string.edit)) }
+                                TextButton(onClick = {
+                                    scope.launch(Dispatchers.IO) {
+                                        if (editingEntry?.id == entry.id) {
+                                            withContext(Dispatchers.Main) { resetForm() }
+                                        }
+                                        viewModel.activityLogRepository.deleteById(entry.id)
+                                        loadEntries()
+                                    }
+                                }) { Text(stringResource(R.string.delete)) }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    if (formExpanded) {
+        AlertDialog(
+            onDismissRequest = { resetForm() },
+            title = {
+                Text(if (editingEntry != null) stringResource(R.string.edit_entry) else stringResource(R.string.add_entry))
+            },
+            text = {
+                Column(
+                    modifier = Modifier.verticalScroll(rememberScrollState()),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
                     OutlinedTextField(
                         value = date.format(dateFormat),
                         onValueChange = {},
@@ -232,49 +257,18 @@ fun ActivityLogScreen(viewModel: AppViewModel) {
                         label = { Text(stringResource(R.string.activity_description)) },
                         modifier = Modifier.fillMaxWidth()
                     )
-                    Button(onClick = { saveEntry() }, modifier = Modifier.fillMaxWidth()) {
-                        Text(if (editingEntry != null) stringResource(R.string.save_edit) else stringResource(R.string.add_entry))
-                    }
-                    if (editingEntry != null) {
-                        TextButton(onClick = { resetForm() }, modifier = Modifier.fillMaxWidth()) {
-                            Text(stringResource(R.string.cancel))
-                        }
-                    }
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { saveEntry() }) {
+                    Text(if (editingEntry != null) stringResource(R.string.save_edit) else stringResource(R.string.add_entry))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { resetForm() }) {
+                    Text(stringResource(R.string.cancel))
                 }
             }
-        }
-
-        Spacer(Modifier.height(8.dp))
-
-        LazyColumn(
-            modifier = Modifier.weight(1f),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            items(entries, key = { it.id }) { entry ->
-                Card(modifier = Modifier.fillMaxWidth()) {
-                    Column(modifier = Modifier.padding(12.dp)) {
-                        Text(entry.persons ?: "", style = MaterialTheme.typography.bodyLarge)
-                        Text(entry.location ?: "", style = MaterialTheme.typography.bodyMedium)
-                        entry.date?.let { Text(it.format(dateFormat), style = MaterialTheme.typography.bodySmall) }
-                        val st = entry.startTime?.format(timeFormat) ?: ""
-                        val et = entry.endTime?.format(timeFormat) ?: ""
-                        if (st.isNotEmpty() || et.isNotEmpty()) Text("$st - $et", style = MaterialTheme.typography.bodySmall)
-                        entry.activity?.let { if (it.isNotBlank()) Text(it, style = MaterialTheme.typography.bodySmall) }
-                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            TextButton(onClick = { startEdit(entry) }) { Text(stringResource(R.string.edit)) }
-                            TextButton(onClick = {
-                                scope.launch(Dispatchers.IO) {
-                                    if (editingEntry?.id == entry.id) {
-                                        withContext(Dispatchers.Main) { resetForm() }
-                                    }
-                                    viewModel.activityLogRepository.deleteById(entry.id)
-                                    loadEntries()
-                                }
-                            }) { Text(stringResource(R.string.delete)) }
-                        }
-                    }
-                }
-            }
-        }
+        )
     }
 }
