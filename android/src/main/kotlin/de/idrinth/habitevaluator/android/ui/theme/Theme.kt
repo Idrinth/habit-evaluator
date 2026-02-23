@@ -28,7 +28,7 @@ private val LightColorScheme = lightColorScheme(
 
 private val DarkColorScheme = darkColorScheme(
     primary = PrimaryDarkTheme,
-    onPrimary = TextPrimary,
+    onPrimary = White,
     primaryContainer = PrimaryDarkDark,
     onPrimaryContainer = PrimaryLight,
     secondary = AccentDark,
