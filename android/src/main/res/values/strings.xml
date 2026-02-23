@@ -580,6 +580,8 @@
     <string name="submit">Submit</string>
 
     <!-- Emotion screens -->
+    <string name="emotion_scatter_title">Daytime Distribution (30 days)</string>
+    <string name="emotion_development_title">Average Emotional Development</string>
     <string name="no_emotion_pairs">No emotion pairs yet</string>
     <string name="record">Record</string>
     <string name="emotion_pair_not_found">Emotion pair not found</string>
