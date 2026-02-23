@@ -172,7 +172,7 @@ fun DiaryScreen(viewModel: AppViewModel) {
             Card(modifier = Modifier.fillMaxWidth()) {
                 Row(modifier = Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
                     Column(modifier = Modifier.weight(1f)) {
-                        Text(entry.diaryReference?.description ?: "", style = MaterialTheme.typography.bodyLarge)
+                        Text(entry.description ?: "", style = MaterialTheme.typography.bodyLarge)
                         Text(
                             "${entry.eventDate?.format(DateTimeFormatter.ISO_LOCAL_DATE)} - ${entry.significance?.name}",
                             style = MaterialTheme.typography.bodySmall
