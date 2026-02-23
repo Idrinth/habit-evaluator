@@ -90,4 +90,17 @@ class DatabaseMeetingEntryRepositoryTest {
         assertEquals(1, result.size());
         verify(jpaRepository).findByUserId("user-1");
     }
+
+    @Test
+    void testFindDistinctPlacesByUserIdDelegatesToJpa() {
+        List<String> places = List.of("Office", "Park");
+        when(jpaRepository.findDistinctPlacesByUserId("user-1")).thenReturn(places);
+
+        List<String> result = repository.findDistinctPlacesByUserId("user-1");
+
+        assertEquals(2, result.size());
+        assertEquals("Office", result.get(0));
+        assertEquals("Park", result.get(1));
+        verify(jpaRepository).findDistinctPlacesByUserId("user-1");
+    }
 }

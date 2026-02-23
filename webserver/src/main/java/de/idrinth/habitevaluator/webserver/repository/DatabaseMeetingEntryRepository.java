@@ -45,4 +45,9 @@ public class DatabaseMeetingEntryRepository implements MeetingEntryRepository {
     public List<MeetingEntry> findByUserId(String userId) {
         return jpaRepository.findByUserId(userId);
     }
+
+    @Override
+    public List<String> findDistinctPlacesByUserId(String userId) {
+        return jpaRepository.findDistinctPlacesByUserId(userId);
+    }
 }

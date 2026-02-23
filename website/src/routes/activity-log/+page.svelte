@@ -1,12 +1,15 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { activityLogs, type ActivityLog } from '$lib/api';
+	import { activityLogs, type ActivityLog, type ActivityLogSuggestions } from '$lib/api';
 
 	let entries: ActivityLog[] = $state([]);
+	let suggestions: ActivityLogSuggestions = $state({ persons: [], locations: [], activities: [] });
 	let error = $state('');
 	let loading = $state(true);
 
-	let persons = $state('');
+	let selectedPersons: string[] = $state([]);
+	let currentPerson = $state('');
+	let showPersonSuggestions = $state(false);
 	let location = $state('');
 	let startTime = $state('');
 	let endTime = $state('');
@@ -14,6 +17,15 @@
 	let activity = $state('');
 
 	let editingId: string | null = $state(null);
+
+	let filteredPersonSuggestions = $derived(
+		currentPerson.trim()
+			? suggestions.persons.filter(s =>
+				s.toLowerCase().includes(currentPerson.trim().toLowerCase()) &&
+				!selectedPersons.some(sel => sel.toLowerCase() === s.toLowerCase())
+			)
+			: []
+	);
 
 	onMount(async () => {
 		await loadData();
@@ -23,10 +35,11 @@
 		loading = true;
 		error = '';
 		try {
-			const e = await activityLogs.list();
+			const [e, sug] = await Promise.all([activityLogs.list(), activityLogs.suggestions()]);
 			entries = e.sort(
 				(a, b) => b.date.localeCompare(a.date) || b.startTime.localeCompare(a.startTime) || b.createdAt.localeCompare(a.createdAt)
 			);
+			suggestions = sug || { persons: [], locations: [], activities: [] };
 		} catch (err) {
 			error = err instanceof Error ? err.message : 'Failed to load activity log';
 		} finally {
@@ -34,9 +47,40 @@
 		}
 	}
 
+	function addPerson(item: string) {
+		const trimmed = item.trim();
+		if (trimmed && !selectedPersons.some(s => s.toLowerCase() === trimmed.toLowerCase())) {
+			selectedPersons = [...selectedPersons, trimmed];
+		}
+		currentPerson = '';
+		showPersonSuggestions = false;
+	}
+
+	function removePerson(index: number) {
+		selectedPersons = selectedPersons.filter((_, i) => i !== index);
+	}
+
+	function handlePersonKeydown(e: KeyboardEvent) {
+		if (e.key === ',' || e.key === 'Enter') {
+			if (currentPerson.trim()) {
+				e.preventDefault();
+				addPerson(currentPerson);
+			} else if (e.key === ',') {
+				e.preventDefault();
+			}
+		}
+		if (e.key === 'Backspace' && !currentPerson && selectedPersons.length > 0) {
+			selectedPersons = selectedPersons.slice(0, -1);
+		}
+	}
+
 	function startEdit(entry: ActivityLog) {
 		editingId = entry.id;
-		persons = entry.persons;
+		selectedPersons = entry.persons
+			.split(',')
+			.map(p => p.trim())
+			.filter(p => p.length > 0);
+		currentPerson = '';
 		location = entry.location;
 		startTime = entry.startTime;
 		endTime = entry.endTime;
@@ -46,7 +90,8 @@
 
 	function cancelEdit() {
 		editingId = null;
-		persons = '';
+		selectedPersons = [];
+		currentPerson = '';
 		location = '';
 		startTime = '';
 		endTime = '';
@@ -56,11 +101,14 @@
 
 	async function handleSubmit(e: Event) {
 		e.preventDefault();
-		if (!persons.trim() || !location.trim() || !startTime || !endTime || !date) return;
+		if (currentPerson.trim()) {
+			addPerson(currentPerson);
+		}
+		if (selectedPersons.length === 0 || !location.trim() || !startTime || !endTime || !date) return;
 		error = '';
 		try {
 			const payload: { persons: string; location: string; startTime: string; endTime: string; date: string; activity?: string } = {
-				persons: persons.trim(),
+				persons: selectedPersons.join(', '),
 				location: location.trim(),
 				startTime,
 				endTime,
@@ -115,13 +163,42 @@
 	{:else}
 		<form class="add-form" onsubmit={handleSubmit}>
 			<div class="form-row">
-				<div class="form-field">
-					<label for="persons">Persons</label>
-					<input type="text" id="persons" bind:value={persons} placeholder="Who was there" required />
+				<div class="form-field" style="flex: 2;">
+					<label>Persons</label>
+					<div class="persons-input" role="combobox" aria-controls="person-suggestions-list" aria-expanded={showPersonSuggestions && filteredPersonSuggestions.length > 0}>
+						{#each selectedPersons as person, i}
+							<span class="person-chip">
+								{person}
+								<button type="button" class="chip-remove" onclick={() => removePerson(i)}>&times;</button>
+							</span>
+						{/each}
+						<input
+							type="text"
+							class="person-text"
+							bind:value={currentPerson}
+							placeholder={selectedPersons.length === 0 ? 'Who was there' : 'Add more...'}
+							autocomplete="off"
+							onkeydown={handlePersonKeydown}
+							onfocus={() => showPersonSuggestions = true}
+							onblur={() => setTimeout(() => showPersonSuggestions = false, 200)}
+						/>
+						{#if showPersonSuggestions && filteredPersonSuggestions.length > 0}
+							<ul id="person-suggestions-list" class="suggestions-dropdown" role="listbox">
+								{#each filteredPersonSuggestions as suggestion}
+									<li><button type="button" onmousedown={() => addPerson(suggestion)}>{suggestion}</button></li>
+								{/each}
+							</ul>
+						{/if}
+					</div>
 				</div>
 				<div class="form-field">
 					<label for="location">Location</label>
-					<input type="text" id="location" bind:value={location} placeholder="Where" required />
+					<input type="text" id="location" bind:value={location} placeholder="Where" required list="location-suggestions" autocomplete="off" />
+					<datalist id="location-suggestions">
+						{#each suggestions.locations as loc}
+							<option value={loc}></option>
+						{/each}
+					</datalist>
 				</div>
 			</div>
 			<div class="form-row">
@@ -139,7 +216,12 @@
 				</div>
 			</div>
 			<div class="form-row">
-				<input type="text" bind:value={activity} placeholder="Activity (optional)" style="flex: 1;" />
+				<input type="text" bind:value={activity} placeholder="Activity (optional)" style="flex: 1;" list="activity-suggestions" autocomplete="off" />
+				<datalist id="activity-suggestions">
+					{#each suggestions.activities as act}
+						<option value={act}></option>
+					{/each}
+				</datalist>
 				{#if editingId}
 					<button type="submit">Save</button>
 					<button type="button" class="cancel-btn" onclick={cancelEdit}>Cancel</button>
@@ -185,6 +267,90 @@
 
 	.add-form {
 		margin-bottom: 1.5rem;
+	}
+
+	.persons-input {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 0.3rem;
+		border: 1px solid var(--color-border-light);
+		border-radius: 4px;
+		padding: 0.3rem 0.5rem;
+		position: relative;
+		cursor: text;
+		background: var(--color-bg, #fff);
+	}
+
+	.persons-input:focus-within {
+		border-color: var(--color-primary, #4a90d9);
+		outline: none;
+	}
+
+	.person-chip {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.2rem;
+		background-color: var(--color-bg-hover, #f0f0f0);
+		border: 1px solid var(--color-border-light);
+		border-radius: 12px;
+		padding: 0.1rem 0.4rem;
+		font-size: 0.85rem;
+	}
+
+	.chip-remove {
+		background: none;
+		border: none;
+		cursor: pointer;
+		font-size: 0.9rem;
+		line-height: 1;
+		padding: 0 0.1rem;
+		color: var(--color-text-muted);
+	}
+
+	.chip-remove:hover {
+		color: var(--color-error);
+	}
+
+	.person-text {
+		flex: 1;
+		min-width: 80px;
+		border: none;
+		outline: none;
+		padding: 0.25rem 0;
+		font-size: inherit;
+		background: transparent;
+	}
+
+	.suggestions-dropdown {
+		position: absolute;
+		top: 100%;
+		left: 0;
+		right: 0;
+		background: var(--color-bg, #fff);
+		border: 1px solid var(--color-border-light);
+		border-radius: 4px;
+		margin-top: 2px;
+		max-height: 200px;
+		overflow-y: auto;
+		list-style: none;
+		padding: 0;
+		z-index: 10;
+	}
+
+	.suggestions-dropdown li button {
+		display: block;
+		width: 100%;
+		padding: 0.4rem 0.6rem;
+		border: none;
+		background: none;
+		text-align: left;
+		cursor: pointer;
+		font-size: 0.9rem;
+	}
+
+	.suggestions-dropdown li button:hover {
+		background-color: var(--color-bg-hover, #f0f0f0);
 	}
 
 	.form-row {

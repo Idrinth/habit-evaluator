@@ -11,7 +11,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockHttpSession;
 
 import java.time.LocalTime;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -173,5 +175,71 @@ class ActivityLogControllerTest {
         MockHttpSession unauthSession = new MockHttpSession();
         ResponseEntity<Void> response = controller.deleteEntry("some-id", unauthSession);
         assertEquals(401, response.getStatusCode().value());
+    }
+
+    @Test
+    void testGetSuggestionsUnauthenticated() {
+        MockHttpSession unauthSession = new MockHttpSession();
+        ResponseEntity<Map<String, List<String>>> response = controller.getSuggestions(unauthSession);
+        assertEquals(401, response.getStatusCode().value());
+    }
+
+    @Test
+    void testGetSuggestionsSuccess() {
+        ActivityLog entry1 = new ActivityLog("Alice, Bob", "Office",
+                LocalTime.of(10, 0), LocalTime.of(11, 0));
+        entry1.setActivity("Meeting");
+        ActivityLog entry2 = new ActivityLog("Charlie", "Park",
+                LocalTime.of(14, 0), LocalTime.of(15, 0));
+        when(activityLogRepository.findByUserId(testUser.getId())).thenReturn(List.of(entry1, entry2));
+        when(activityLogRepository.findDistinctLocationsByUserId(testUser.getId())).thenReturn(List.of("Office", "Park"));
+        when(activityLogRepository.findDistinctActivitiesByUserId(testUser.getId())).thenReturn(List.of("Meeting"));
+
+        ResponseEntity<Map<String, List<String>>> response = controller.getSuggestions(session);
+
+        assertEquals(200, response.getStatusCode().value());
+        Map<String, List<String>> body = response.getBody();
+        assertNotNull(body);
+        assertTrue(body.get("persons").contains("Alice"));
+        assertTrue(body.get("persons").contains("Bob"));
+        assertTrue(body.get("persons").contains("Charlie"));
+        assertEquals(List.of("Office", "Park"), body.get("locations"));
+        assertEquals(List.of("Meeting"), body.get("activities"));
+    }
+
+    @Test
+    void testGetSuggestionsEmpty() {
+        when(activityLogRepository.findByUserId(testUser.getId())).thenReturn(Collections.emptyList());
+        when(activityLogRepository.findDistinctLocationsByUserId(testUser.getId())).thenReturn(Collections.emptyList());
+        when(activityLogRepository.findDistinctActivitiesByUserId(testUser.getId())).thenReturn(Collections.emptyList());
+
+        ResponseEntity<Map<String, List<String>>> response = controller.getSuggestions(session);
+
+        assertEquals(200, response.getStatusCode().value());
+        Map<String, List<String>> body = response.getBody();
+        assertNotNull(body);
+        assertTrue(body.get("persons").isEmpty());
+        assertTrue(body.get("locations").isEmpty());
+        assertTrue(body.get("activities").isEmpty());
+    }
+
+    @Test
+    void testGetSuggestionsDeduplicatesPersons() {
+        ActivityLog entry1 = new ActivityLog("Alice, Bob", "Office",
+                LocalTime.of(10, 0), LocalTime.of(11, 0));
+        ActivityLog entry2 = new ActivityLog("Alice, Charlie", "Park",
+                LocalTime.of(14, 0), LocalTime.of(15, 0));
+        when(activityLogRepository.findByUserId(testUser.getId())).thenReturn(List.of(entry1, entry2));
+        when(activityLogRepository.findDistinctLocationsByUserId(testUser.getId())).thenReturn(Collections.emptyList());
+        when(activityLogRepository.findDistinctActivitiesByUserId(testUser.getId())).thenReturn(Collections.emptyList());
+
+        ResponseEntity<Map<String, List<String>>> response = controller.getSuggestions(session);
+
+        assertEquals(200, response.getStatusCode().value());
+        List<String> persons = response.getBody().get("persons");
+        assertEquals(3, persons.size());
+        assertTrue(persons.contains("Alice"));
+        assertTrue(persons.contains("Bob"));
+        assertTrue(persons.contains("Charlie"));
     }
 }

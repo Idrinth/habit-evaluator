@@ -21,4 +21,6 @@ public interface MeetingEntryRepository {
     boolean existsById(String id);
 
     List<MeetingEntry> findByUserId(String userId);
+
+    List<String> findDistinctPlacesByUserId(String userId);
 }
