@@ -997,6 +997,22 @@ paths:
                 type: object
                 additionalProperties:
                   type: object
+  /api/meetings/suggestions:
+    get:
+      tags:
+      - meeting-controller
+      operationId: getSuggestions_1
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: array
+                  items:
+                    type: string
   /api/habits/{id}/point-development:
     get:
       tags:
@@ -1069,7 +1085,7 @@ paths:
     get:
       tags:
       - food-log-controller
-      operationId: getSuggestions_1
+      operationId: getSuggestions_2
       responses:
         "200":
           description: OK
@@ -1161,7 +1177,7 @@ paths:
     get:
       tags:
       - diary-controller
-      operationId: getSuggestions_2
+      operationId: getSuggestions_3
       responses:
         "200":
           description: OK
@@ -1197,6 +1213,22 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/LoginResponse"
+  /api/activity-logs/suggestions:
+    get:
+      tags:
+      - activity-log-controller
+      operationId: getSuggestions_4
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: array
+                  items:
+                    type: string
   /api/sport-logs/{id}:
     delete:
       tags:
@@ -1779,11 +1811,11 @@ components:
           example: 14:30:00
         user:
           $ref: "#/components/schemas/User"
-        description:
-          type: string
         points:
           type: integer
           format: int32
+        description:
+          type: string
         durationMinutes:
           type: integer
           format: int32
