@@ -22,8 +22,8 @@ class ThemeTest {
         const val WHITE = 0xFFFFFFFF
 
         // Dark theme color values (from Color.kt)
-        const val PRIMARY_DARK_THEME = 0xFF81C784
-        const val PRIMARY_DARK_DARK = 0xFF4CAF50
+        const val PRIMARY_DARK_THEME = 0xFF4CAF50
+        const val PRIMARY_DARK_DARK = 0xFF388E3C
         const val ACCENT_DARK = 0xFFFFD54F
         const val BACKGROUND_DARK = 0xFF121212
         const val SURFACE_DARK = 0xFF1E1E1E

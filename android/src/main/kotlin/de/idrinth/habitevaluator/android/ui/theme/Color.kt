@@ -13,8 +13,8 @@ val Background = Color(0xFFFAFAFA)
 val White = Color(0xFFFFFFFF)
 
 // Dark theme variants
-val PrimaryDarkTheme = Color(0xFF81C784)
-val PrimaryDarkDark = Color(0xFF4CAF50)
+val PrimaryDarkTheme = Color(0xFF4CAF50)
+val PrimaryDarkDark = Color(0xFF388E3C)
 val AccentDark = Color(0xFFFFD54F)
 val BackgroundDark = Color(0xFF121212)
 val SurfaceDark = Color(0xFF1E1E1E)
