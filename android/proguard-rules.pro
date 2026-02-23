@@ -53,7 +53,3 @@
 -dontwarn java.beans.**
 -dontwarn org.yaml.snakeyaml.introspector.**
 -keep class org.yaml.snakeyaml.** { *; }
-
-# OpenPDF references java.awt and org.apache.fop classes not available on Android
--dontwarn java.awt.**
--dontwarn org.apache.fop.**
