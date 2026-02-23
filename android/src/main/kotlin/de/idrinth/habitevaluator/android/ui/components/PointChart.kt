@@ -30,7 +30,6 @@ fun PointChart(
         if (data.isEmpty()) return@Canvas
 
         val points = data.map { it.second }
-        val labels = data.map { it.first }
         val average = if (points.isNotEmpty()) points.sum() / points.size else 0f
 
         val maxPts = max(points.max(), max(average, 0f))
@@ -38,7 +37,7 @@ fun PointChart(
         val range = max(maxPts - minPts, 1f)
 
         val topPad = 16.dp.toPx()
-        val bottomPad = 24.dp.toPx()
+        val bottomPad = 48.dp.toPx()
         val sidePad = 8.dp.toPx()
         val chartHeight = size.height - topPad - bottomPad
         val chartWidth = size.width - sidePad * 2
@@ -83,10 +82,25 @@ fun PointChart(
                 value.toInt().toString(), barX + barWidth / 2, valueLabelY, textPaint
             )
 
-            // Day label
-            drawContext.canvas.nativeCanvas.drawText(
-                label, barX + barWidth / 2, size.height - 4.dp.toPx(), textPaint
-            )
+        }
+
+        // X-axis labels (rotated, stepped)
+        val labelStep = max(1, data.size / 10)
+        val labelPaint = android.graphics.Paint().apply {
+            color = onSurface.hashCode()
+            textSize = 9.sp.toPx()
+            textAlign = android.graphics.Paint.Align.CENTER
+            isAntiAlias = true
+        }
+        data.forEachIndexed { i, (label, _) ->
+            if (i % labelStep == 0 || i == data.size - 1) {
+                val x = sidePad + barSlotWidth * i + barSlotWidth / 2
+                val canvas = drawContext.canvas.nativeCanvas
+                canvas.save()
+                canvas.rotate(-45f, x, size.height - bottomPad + 8.dp.toPx())
+                canvas.drawText(label, x, size.height - bottomPad + 16.dp.toPx(), labelPaint)
+                canvas.restore()
+            }
         }
 
         // Zero line (only if negative values)
