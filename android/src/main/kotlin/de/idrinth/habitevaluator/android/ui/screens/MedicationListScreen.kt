@@ -1,8 +1,6 @@
 package de.idrinth.habitevaluator.android.ui.screens
 
 import android.widget.Toast
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -13,17 +11,22 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ExposedDropdownMenuAnchorType
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -34,10 +37,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import de.idrinth.habitevaluator.android.AppViewModel
@@ -105,41 +106,66 @@ fun MedicationListScreen(viewModel: AppViewModel) {
         MedicationProvisionType.LIQUID_ML to stringResource(R.string.liquid_ml)
     )
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-    ) {
-        Text(stringResource(R.string.medication_list), style = MaterialTheme.typography.headlineMedium)
-        Spacer(Modifier.height(8.dp))
-
-        // Toggle form
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable { formExpanded = !formExpanded }
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(stringResource(R.string.add_medication), style = MaterialTheme.typography.titleMedium)
-                Icon(
-                    painter = painterResource(
-                        if (formExpanded) android.R.drawable.arrow_up_float
-                        else android.R.drawable.arrow_down_float
-                    ),
-                    contentDescription = null
-                )
+    Scaffold(
+        floatingActionButton = {
+            FloatingActionButton(onClick = {
+                resetForm()
+                formExpanded = true
+            }) {
+                Icon(Icons.Default.Add, contentDescription = stringResource(R.string.add_medication))
             }
         }
+    ) { padding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+                .padding(16.dp)
+        ) {
+            Text(stringResource(R.string.medication_list), style = MaterialTheme.typography.headlineMedium)
+            Spacer(Modifier.height(8.dp))
 
-        AnimatedVisibility(visible = formExpanded) {
-            Card(modifier = Modifier.fillMaxWidth().padding(top = 8.dp)) {
-                Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            LazyColumn(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                items(medications, key = { it.id }) { med ->
+                    Card(modifier = Modifier.fillMaxWidth()) {
+                        Column(modifier = Modifier.padding(12.dp)) {
+                            Text(med.name ?: "", style = MaterialTheme.typography.bodyLarge)
+                            Text(provisionLabels[med.provisionType] ?: "", style = MaterialTheme.typography.bodySmall)
+                            med.wikipediaLink?.let {
+                                if (it.isNotBlank()) Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.primary)
+                            }
+                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                TextButton(onClick = {
+                                    editingMedication = med
+                                    editLinkValue = med.wikipediaLink ?: ""
+                                }) { Text(stringResource(R.string.edit_link)) }
+                                TextButton(onClick = {
+                                    scope.launch(Dispatchers.IO) {
+                                        viewModel.medicationRepository.deleteById(med.id)
+                                        loadMedications()
+                                    }
+                                }) { Text(stringResource(R.string.delete)) }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // Add medication dialog
+    if (formExpanded) {
+        AlertDialog(
+            onDismissRequest = { resetForm() },
+            title = { Text(stringResource(R.string.add_medication)) },
+            text = {
+                Column(
+                    modifier = Modifier.verticalScroll(rememberScrollState()),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
                     OutlinedTextField(
                         value = name,
                         onValueChange = { name = it },
@@ -179,43 +205,19 @@ fun MedicationListScreen(viewModel: AppViewModel) {
                         label = { Text(stringResource(R.string.wikipedia_link)) },
                         modifier = Modifier.fillMaxWidth()
                     )
-                    Button(onClick = { addMedication() }, modifier = Modifier.fillMaxWidth()) {
-                        Text(stringResource(R.string.add_medication))
-                    }
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { addMedication() }) {
+                    Text(stringResource(R.string.add_medication))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { resetForm() }) {
+                    Text(stringResource(R.string.cancel))
                 }
             }
-        }
-
-        Spacer(Modifier.height(8.dp))
-
-        LazyColumn(
-            modifier = Modifier.weight(1f),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            items(medications, key = { it.id }) { med ->
-                Card(modifier = Modifier.fillMaxWidth()) {
-                    Column(modifier = Modifier.padding(12.dp)) {
-                        Text(med.name ?: "", style = MaterialTheme.typography.bodyLarge)
-                        Text(provisionLabels[med.provisionType] ?: "", style = MaterialTheme.typography.bodySmall)
-                        med.wikipediaLink?.let {
-                            if (it.isNotBlank()) Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.primary)
-                        }
-                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            TextButton(onClick = {
-                                editingMedication = med
-                                editLinkValue = med.wikipediaLink ?: ""
-                            }) { Text(stringResource(R.string.edit_link)) }
-                            TextButton(onClick = {
-                                scope.launch(Dispatchers.IO) {
-                                    viewModel.medicationRepository.deleteById(med.id)
-                                    loadMedications()
-                                }
-                            }) { Text(stringResource(R.string.delete)) }
-                        }
-                    }
-                }
-            }
-        }
+        )
     }
 
     // Edit Wikipedia link dialog

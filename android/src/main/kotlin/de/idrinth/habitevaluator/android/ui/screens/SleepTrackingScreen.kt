@@ -13,16 +13,22 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material3.Button
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -61,118 +67,145 @@ fun SleepTrackingScreen(viewModel: AppViewModel) {
     var notes by remember { mutableStateOf("") }
     var formVisible by remember { mutableStateOf(false) }
 
-    LazyColumn(
-        modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        item {
-            Spacer(Modifier.height(8.dp))
-            Text(stringResource(R.string.sleep_tracking), style = MaterialTheme.typography.headlineMedium)
-        }
+    fun resetForm() {
+        date = LocalDate.now()
+        fromTime = LocalTime.of(23, 0)
+        untilTime = LocalTime.of(7, 0)
+        notes = ""
+        formVisible = false
+    }
 
-        if (formVisible) {
+    Scaffold(
+        floatingActionButton = {
+            FloatingActionButton(onClick = {
+                resetForm()
+                formVisible = true
+            }) {
+                Icon(Icons.Default.Add, contentDescription = stringResource(R.string.add_entry))
+            }
+        }
+    ) { padding ->
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+                .padding(horizontal = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
             item {
+                Spacer(Modifier.height(8.dp))
+                Text(stringResource(R.string.sleep_tracking), style = MaterialTheme.typography.headlineMedium)
+            }
+
+            // Stats
+            item {
+                val weekStats = sleepService.getCurrentWeekStats(sleepEntries)
+                val monthStats = sleepService.getCurrentMonthStats(sleepEntries)
                 Card(modifier = Modifier.fillMaxWidth()) {
-                    Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        OutlinedButton(onClick = {
-                            DatePickerDialog(context, { _, y, m, d ->
-                                date = LocalDate.of(y, m + 1, d)
-                            }, date.year, date.monthValue - 1, date.dayOfMonth).show()
-                        }) { Text(date.format(DateTimeFormatter.ISO_LOCAL_DATE)) }
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Text(stringResource(R.string.week), style = MaterialTheme.typography.titleSmall)
+                        Text(stringResource(R.string.sleep_avg, weekStats?.averageHours ?: 0.0))
+                        Text(stringResource(R.string.sleep_min, weekStats?.minHours ?: 0.0))
+                        Text(stringResource(R.string.sleep_max, weekStats?.maxHours ?: 0.0))
+                        Spacer(Modifier.height(8.dp))
+                        Text(stringResource(R.string.month), style = MaterialTheme.typography.titleSmall)
+                        Text(stringResource(R.string.sleep_avg, monthStats?.averageHours ?: 0.0))
+                        Text(stringResource(R.string.sleep_min, monthStats?.minHours ?: 0.0))
+                        Text(stringResource(R.string.sleep_max, monthStats?.maxHours ?: 0.0))
+                    }
+                }
+            }
 
-                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            OutlinedButton(onClick = {
-                                TimePickerDialog(context, { _, h, m ->
-                                    fromTime = LocalTime.of(h, m)
-                                }, fromTime.hour, fromTime.minute, true).show()
-                            }, modifier = Modifier.weight(1f)) {
-                                Text("From: ${fromTime.format(timeFormat)}")
-                            }
-                            OutlinedButton(onClick = {
-                                TimePickerDialog(context, { _, h, m ->
-                                    untilTime = LocalTime.of(h, m)
-                                }, untilTime.hour, untilTime.minute, true).show()
-                            }, modifier = Modifier.weight(1f)) {
-                                Text("Until: ${untilTime.format(timeFormat)}")
-                            }
+            items(sleepEntries, key = { it.id }) { entry ->
+                Card(modifier = Modifier.fillMaxWidth()) {
+                    Row(modifier = Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text("${entry.date?.format(DateTimeFormatter.ISO_LOCAL_DATE)}", style = MaterialTheme.typography.bodyLarge)
+                            Text("${entry.fromTime?.format(timeFormat)} - ${entry.untilTime?.format(timeFormat)}", style = MaterialTheme.typography.bodySmall)
+                            entry.notes?.let { Text(it, style = MaterialTheme.typography.bodySmall) }
                         }
-
-                        OutlinedTextField(
-                            value = notes, onValueChange = { notes = it },
-                            label = { Text(stringResource(R.string.notes)) },
-                            modifier = Modifier.fillMaxWidth()
-                        )
-
-                        Button(onClick = {
-                            val user = localUser ?: return@Button
-                            val entry = SleepEntry()
-                            entry.date = date
-                            entry.fromTime = fromTime
-                            entry.untilTime = untilTime
-                            entry.notes = notes.ifBlank { null }
-                            entry.user = user
-                            if (sleepService.hasOverlap(sleepEntries, date, fromTime, untilTime)) {
-                                Toast.makeText(context, R.string.sleep_overlap, Toast.LENGTH_SHORT).show()
-                                return@Button
-                            }
+                        IconButton(onClick = {
                             scope.launch(Dispatchers.IO) {
-                                viewModel.sleepEntryRepository.save(entry)
-                                withContext(Dispatchers.Main) {
-                                    notes = ""
-                                    viewModel.loadSleepEntries()
-                                }
+                                viewModel.sleepEntryRepository.deleteById(entry.id)
+                                withContext(Dispatchers.Main) { viewModel.loadSleepEntries() }
                             }
-                        }, modifier = Modifier.fillMaxWidth()) {
-                            Text(stringResource(R.string.add_entry))
-                        }
+                        }) { Icon(Icons.Default.Delete, contentDescription = "Delete") }
                     }
                 }
             }
-        }
 
-        item {
-            OutlinedButton(onClick = { formVisible = !formVisible }, modifier = Modifier.fillMaxWidth()) {
-                Text(if (formVisible) stringResource(R.string.hide_form) else stringResource(R.string.show_form))
-            }
+            item { Spacer(Modifier.height(80.dp)) }
         }
+    }
 
-        // Stats
-        item {
-            val weekStats = sleepService.getCurrentWeekStats(sleepEntries)
-            val monthStats = sleepService.getCurrentMonthStats(sleepEntries)
-            Card(modifier = Modifier.fillMaxWidth()) {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    Text(stringResource(R.string.week), style = MaterialTheme.typography.titleSmall)
-                    Text(stringResource(R.string.sleep_avg, weekStats?.averageHours ?: 0.0))
-                    Text(stringResource(R.string.sleep_min, weekStats?.minHours ?: 0.0))
-                    Text(stringResource(R.string.sleep_max, weekStats?.maxHours ?: 0.0))
-                    Spacer(Modifier.height(8.dp))
-                    Text(stringResource(R.string.month), style = MaterialTheme.typography.titleSmall)
-                    Text(stringResource(R.string.sleep_avg, monthStats?.averageHours ?: 0.0))
-                    Text(stringResource(R.string.sleep_min, monthStats?.minHours ?: 0.0))
-                    Text(stringResource(R.string.sleep_max, monthStats?.maxHours ?: 0.0))
-                }
-            }
-        }
+    if (formVisible) {
+        AlertDialog(
+            onDismissRequest = { resetForm() },
+            title = { Text(stringResource(R.string.add_entry)) },
+            text = {
+                Column(
+                    modifier = Modifier.verticalScroll(rememberScrollState()),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    OutlinedButton(onClick = {
+                        DatePickerDialog(context, { _, y, m, d ->
+                            date = LocalDate.of(y, m + 1, d)
+                        }, date.year, date.monthValue - 1, date.dayOfMonth).show()
+                    }) { Text(date.format(DateTimeFormatter.ISO_LOCAL_DATE)) }
 
-        items(sleepEntries, key = { it.id }) { entry ->
-            Card(modifier = Modifier.fillMaxWidth()) {
-                Row(modifier = Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text("${entry.date?.format(DateTimeFormatter.ISO_LOCAL_DATE)}", style = MaterialTheme.typography.bodyLarge)
-                        Text("${entry.fromTime?.format(timeFormat)} - ${entry.untilTime?.format(timeFormat)}", style = MaterialTheme.typography.bodySmall)
-                        entry.notes?.let { Text(it, style = MaterialTheme.typography.bodySmall) }
-                    }
-                    IconButton(onClick = {
-                        scope.launch(Dispatchers.IO) {
-                            viewModel.sleepEntryRepository.deleteById(entry.id)
-                            withContext(Dispatchers.Main) { viewModel.loadSleepEntries() }
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        OutlinedButton(onClick = {
+                            TimePickerDialog(context, { _, h, m ->
+                                fromTime = LocalTime.of(h, m)
+                            }, fromTime.hour, fromTime.minute, true).show()
+                        }, modifier = Modifier.weight(1f)) {
+                            Text("From: ${fromTime.format(timeFormat)}")
                         }
-                    }) { Icon(Icons.Default.Delete, contentDescription = "Delete") }
+                        OutlinedButton(onClick = {
+                            TimePickerDialog(context, { _, h, m ->
+                                untilTime = LocalTime.of(h, m)
+                            }, untilTime.hour, untilTime.minute, true).show()
+                        }, modifier = Modifier.weight(1f)) {
+                            Text("Until: ${untilTime.format(timeFormat)}")
+                        }
+                    }
+
+                    OutlinedTextField(
+                        value = notes, onValueChange = { notes = it },
+                        label = { Text(stringResource(R.string.notes)) },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    val user = localUser ?: return@TextButton
+                    val entry = SleepEntry()
+                    entry.date = date
+                    entry.fromTime = fromTime
+                    entry.untilTime = untilTime
+                    entry.notes = notes.ifBlank { null }
+                    entry.user = user
+                    if (sleepService.hasOverlap(sleepEntries, date, fromTime, untilTime)) {
+                        Toast.makeText(context, R.string.sleep_overlap, Toast.LENGTH_SHORT).show()
+                        return@TextButton
+                    }
+                    scope.launch(Dispatchers.IO) {
+                        viewModel.sleepEntryRepository.save(entry)
+                        withContext(Dispatchers.Main) {
+                            resetForm()
+                            viewModel.loadSleepEntries()
+                        }
+                    }
+                }) {
+                    Text(stringResource(R.string.add_entry))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { resetForm() }) {
+                    Text(stringResource(R.string.cancel))
                 }
             }
-        }
-
-        item { Spacer(Modifier.height(32.dp)) }
+        )
     }
 }
