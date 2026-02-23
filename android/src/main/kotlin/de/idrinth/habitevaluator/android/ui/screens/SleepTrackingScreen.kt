@@ -142,8 +142,15 @@ fun SleepTrackingScreen(viewModel: AppViewModel) {
             val monthStats = sleepService.getCurrentMonthStats(sleepEntries)
             Card(modifier = Modifier.fillMaxWidth()) {
                 Column(modifier = Modifier.padding(16.dp)) {
-                    Text("Week: avg ${String.format("%.1f", weekStats?.averageHours ?: 0.0)}h")
-                    Text("Month: avg ${String.format("%.1f", monthStats?.averageHours ?: 0.0)}h")
+                    Text(stringResource(R.string.week), style = MaterialTheme.typography.titleSmall)
+                    Text(stringResource(R.string.sleep_avg, weekStats?.averageHours ?: 0.0))
+                    Text(stringResource(R.string.sleep_min, weekStats?.minHours ?: 0.0))
+                    Text(stringResource(R.string.sleep_max, weekStats?.maxHours ?: 0.0))
+                    Spacer(Modifier.height(8.dp))
+                    Text(stringResource(R.string.month), style = MaterialTheme.typography.titleSmall)
+                    Text(stringResource(R.string.sleep_avg, monthStats?.averageHours ?: 0.0))
+                    Text(stringResource(R.string.sleep_min, monthStats?.minHours ?: 0.0))
+                    Text(stringResource(R.string.sleep_max, monthStats?.maxHours ?: 0.0))
                 }
             }
         }
