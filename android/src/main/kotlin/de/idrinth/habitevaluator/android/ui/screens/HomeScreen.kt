@@ -9,9 +9,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
@@ -40,7 +38,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -118,51 +115,51 @@ fun HomeScreen(viewModel: AppViewModel, navController: NavController) {
                 }
             }
 
-            // Evaluation card for selected habit
-            selectedHabit?.let { habit ->
-                item {
-                    HabitEvaluationCard(
+            // Habit list with inline evaluation card below selected habit
+            filteredHabits.forEach { habit ->
+                item(key = habit.id) {
+                    HabitListItem(
                         habit = habit,
-                        onComplete = {
+                        isSelected = habit.id == selectedHabit?.id,
+                        onClick = { selectedHabit = if (selectedHabit?.id == habit.id) null else habit },
+                        onEdit = { navController.navigate(Screen.EditHabits.createRoute(habit.id)) },
+                        onDelete = {
                             scope.launch(Dispatchers.IO) {
-                                val entry = HabitEntry()
-                                habit.addEntry(entry)
-                                viewModel.habitRepository.value.save(habit)
-                                withContext(Dispatchers.Main) { viewModel.loadHabits() }
+                                viewModel.habitRepository.value.deleteById(habit.id)
+                                withContext(Dispatchers.Main) {
+                                    if (selectedHabit?.id == habit.id) selectedHabit = null
+                                    viewModel.loadHabits()
+                                    viewModel.loadCategories()
+                                }
                             }
-                        },
-                        onRemoveCompletion = {
-                            scope.launch(Dispatchers.IO) {
-                                habit.removeLastEntryForDate(LocalDate.now())
-                                viewModel.habitRepository.value.save(habit)
-                                withContext(Dispatchers.Main) { viewModel.loadHabits() }
-                            }
-                        },
-                        onViewPoints = {
-                            navController.navigate(Screen.PointDevelopment.createRoute(habit.id))
                         }
                     )
                 }
-            }
-
-            // Habit list
-            items(filteredHabits, key = { it.id }) { habit ->
-                HabitListItem(
-                    habit = habit,
-                    isSelected = habit.id == selectedHabit?.id,
-                    onClick = { selectedHabit = if (selectedHabit?.id == habit.id) null else habit },
-                    onEdit = { navController.navigate(Screen.EditHabits.createRoute(habit.id)) },
-                    onDelete = {
-                        scope.launch(Dispatchers.IO) {
-                            viewModel.habitRepository.value.deleteById(habit.id)
-                            withContext(Dispatchers.Main) {
-                                if (selectedHabit?.id == habit.id) selectedHabit = null
-                                viewModel.loadHabits()
-                                viewModel.loadCategories()
+                if (habit.id == selectedHabit?.id) {
+                    item(key = "${habit.id}_eval") {
+                        HabitEvaluationCard(
+                            habit = habit,
+                            onComplete = {
+                                scope.launch(Dispatchers.IO) {
+                                    val entry = HabitEntry()
+                                    habit.addEntry(entry)
+                                    viewModel.habitRepository.value.save(habit)
+                                    withContext(Dispatchers.Main) { viewModel.loadHabits() }
+                                }
+                            },
+                            onRemoveCompletion = {
+                                scope.launch(Dispatchers.IO) {
+                                    habit.removeLastEntryForDate(LocalDate.now())
+                                    viewModel.habitRepository.value.save(habit)
+                                    withContext(Dispatchers.Main) { viewModel.loadHabits() }
+                                }
+                            },
+                            onViewPoints = {
+                                navController.navigate(Screen.PointDevelopment.createRoute(habit.id))
                             }
-                        }
+                        )
                     }
-                )
+                }
             }
 
             if (filteredHabits.isEmpty()) {
