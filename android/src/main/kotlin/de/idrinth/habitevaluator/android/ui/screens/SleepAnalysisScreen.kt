@@ -35,7 +35,7 @@ fun SleepAnalysisScreen(viewModel: AppViewModel) {
     val sleepService = remember { SleepEvaluationService() }
     val today = LocalDate.now()
     val startDate = today.minusDays(29)
-    val labelFormat = remember { DateTimeFormatter.ofPattern("MM/dd") }
+    val labelFormat = remember { DateTimeFormatter.ofPattern("yyyy-MM-dd") }
 
     // Build duration and interruptions data
     val (durationData, interruptionData) = remember(sleepEntries) {

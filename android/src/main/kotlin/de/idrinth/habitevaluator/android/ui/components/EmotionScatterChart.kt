@@ -38,7 +38,7 @@ fun EmotionScatterChart(
         }
 
         // Legend sizing
-        val legendCols = 3
+        val legendCols = 2
         val legendRowH = 24.dp.toPx()
         val legendRows = ceil(pairs.size.toFloat() / legendCols).toInt()
         val legendHeight = legendRows * legendRowH + 16.dp.toPx()
@@ -117,7 +117,7 @@ fun EmotionScatterChart(
             val x = chartLeft + col * colWidth
             val y = legendTop + row * legendRowH
             val color = PAIR_COLORS[idx % PAIR_COLORS.size]
-            val truncated = if (pair.pairLabel.length > 20) pair.pairLabel.take(17) + "..." else pair.pairLabel
+            val truncated = if (pair.pairLabel.length > 30) pair.pairLabel.take(27) + "..." else pair.pairLabel
 
             drawRect(color, Offset(x, y), androidx.compose.ui.geometry.Size(16.dp.toPx(), 12.dp.toPx()))
             drawContext.canvas.nativeCanvas.drawText(truncated, x + 20.dp.toPx(), y + 10.dp.toPx(), textPaint)

@@ -39,7 +39,7 @@ fun EmotionLineChart(
         }
 
         // Legend sizing
-        val legendCols = 3
+        val legendCols = 2
         val legendRowH = 24.dp.toPx()
         val legendRows = ceil(pairNames.size.toFloat() / legendCols).toInt()
         val legendHeight = legendRows * legendRowH + 16.dp.toPx()
@@ -134,7 +134,7 @@ fun EmotionLineChart(
             val x = chartLeft + col * colWidth
             val y = legendTop + row * legendRowH
             val color = PAIR_COLORS[idx % PAIR_COLORS.size]
-            val truncated = if (name.length > 20) name.take(17) + "..." else name
+            val truncated = if (name.length > 30) name.take(27) + "..." else name
 
             drawRect(color, Offset(x, y), androidx.compose.ui.geometry.Size(16.dp.toPx(), 12.dp.toPx()))
             drawContext.canvas.nativeCanvas.drawText(truncated, x + 20.dp.toPx(), y + 10.dp.toPx(), textPaint)

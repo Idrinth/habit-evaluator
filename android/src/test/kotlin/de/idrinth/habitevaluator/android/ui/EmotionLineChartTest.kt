@@ -81,12 +81,12 @@ class EmotionLineChartTest {
     // ── getLegendHeight formula ──────────────────────────────────────────────
 
     /**
-     * Reproduces the getLegendHeight() formula from EmotionLineChartView:
-     * rows = (pairCount + 2) / 3  (integer division)
+     * Reproduces the getLegendHeight() formula from EmotionLineChart composable:
+     * rows = ceil(pairCount / 2)  (2 columns)
      * height = if (rows == 0) 0f else rows * 24f + 16f
      */
     private fun getLegendHeight(pairCount: Int): Float {
-        val rows = (pairCount + 2) / 3
+        val rows = (pairCount + 1) / 2
         return if (rows == 0) 0f else rows * 24f + 16f
     }
 
@@ -97,38 +97,38 @@ class EmotionLineChartTest {
 
     @Test
     fun testGetLegendHeightWithOnePair() {
-        // (1 + 2) / 3 = 1 row => 1 * 24 + 16 = 40
+        // (1 + 1) / 2 = 1 row => 1 * 24 + 16 = 40
         assertEquals(40f, getLegendHeight(1), 0.001f)
     }
 
     @Test
     fun testGetLegendHeightWithTwoPairs() {
-        // (2 + 2) / 3 = 1 row => 40
+        // (2 + 1) / 2 = 1 row => 40
         assertEquals(40f, getLegendHeight(2), 0.001f)
     }
 
     @Test
     fun testGetLegendHeightWithThreePairs() {
-        // (3 + 2) / 3 = 1 row => 40
-        assertEquals(40f, getLegendHeight(3), 0.001f)
+        // (3 + 1) / 2 = 2 rows => 2 * 24 + 16 = 64
+        assertEquals(64f, getLegendHeight(3), 0.001f)
     }
 
     @Test
     fun testGetLegendHeightWithFourPairs() {
-        // (4 + 2) / 3 = 2 rows => 2 * 24 + 16 = 64
+        // (4 + 1) / 2 = 2 rows => 2 * 24 + 16 = 64
         assertEquals(64f, getLegendHeight(4), 0.001f)
     }
 
     @Test
     fun testGetLegendHeightWithSixPairs() {
-        // (6 + 2) / 3 = 2 rows => 64
-        assertEquals(64f, getLegendHeight(6), 0.001f)
+        // (6 + 1) / 2 = 3 rows => 3 * 24 + 16 = 88
+        assertEquals(88f, getLegendHeight(6), 0.001f)
     }
 
     @Test
     fun testGetLegendHeightWithTenPairs() {
-        // (10 + 2) / 3 = 4 rows => 4 * 24 + 16 = 112
-        assertEquals(112f, getLegendHeight(10), 0.001f)
+        // (10 + 1) / 2 = 5 rows => 5 * 24 + 16 = 136
+        assertEquals(136f, getLegendHeight(10), 0.001f)
     }
 
     // ── Data storage ─────────────────────────────────────────────────────────
