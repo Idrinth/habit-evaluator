@@ -6,17 +6,13 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.widget.Toast
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.Button
@@ -146,162 +142,162 @@ fun EmergencyPlanScreen(viewModel: AppViewModel, navController: NavController) {
         }
     }
 
-    Column(
+    LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp)
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        Text(stringResource(R.string.emergency_plan), style = MaterialTheme.typography.headlineMedium)
-        Spacer(Modifier.height(8.dp))
+        item {
+            Text(stringResource(R.string.emergency_plan), style = MaterialTheme.typography.headlineMedium)
+        }
 
         if (steps.isNotEmpty()) {
-            Button(
-                onClick = { navController.navigate(Screen.EmergencyDialogue.route) },
-                modifier = Modifier.fillMaxWidth()
-            ) { Text(stringResource(R.string.start_dialogue)) }
-            Spacer(Modifier.height(8.dp))
+            item {
+                Button(
+                    onClick = { navController.navigate(Screen.EmergencyDialogue.route) },
+                    modifier = Modifier.fillMaxWidth()
+                ) { Text(stringResource(R.string.start_dialogue)) }
+            }
         }
 
         // Toggle form
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable {
-                    if (formExpanded && editingStep != null) resetForm()
-                    else formExpanded = !formExpanded
-                }
-        ) {
-            Row(
+        item {
+            Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+                    .clickable {
+                        if (formExpanded && editingStep != null) resetForm()
+                        else formExpanded = !formExpanded
+                    }
             ) {
-                Text(
-                    if (editingStep != null) stringResource(R.string.edit_step) else stringResource(R.string.add_step),
-                    style = MaterialTheme.typography.titleMedium
-                )
-                Icon(
-                    painter = painterResource(
-                        if (formExpanded) android.R.drawable.arrow_up_float
-                        else android.R.drawable.arrow_down_float
-                    ),
-                    contentDescription = null
-                )
-            }
-        }
-
-        AnimatedVisibility(visible = formExpanded) {
-            Card(modifier = Modifier.fillMaxWidth().padding(top = 8.dp)) {
-                Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    OutlinedTextField(
-                        value = question,
-                        onValueChange = { question = it },
-                        label = { Text(stringResource(R.string.question)) },
-                        modifier = Modifier.fillMaxWidth()
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        if (editingStep != null) stringResource(R.string.edit_step) else stringResource(R.string.add_step),
+                        style = MaterialTheme.typography.titleMedium
                     )
-
-                    Text(stringResource(R.string.actions), style = MaterialTheme.typography.titleSmall)
-
-                    actionInputs.forEachIndexed { idx, input ->
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Column(modifier = Modifier.weight(1f)) {
-                                OutlinedTextField(
-                                    value = input.text,
-                                    onValueChange = { actionInputs[idx] = input.copy(text = it) },
-                                    label = { Text(stringResource(R.string.action_text)) },
-                                    modifier = Modifier.fillMaxWidth()
-                                )
-                                OutlinedTextField(
-                                    value = input.phone,
-                                    onValueChange = { actionInputs[idx] = input.copy(phone = it) },
-                                    label = { Text(stringResource(R.string.phone_number)) },
-                                    modifier = Modifier.fillMaxWidth()
-                                )
-                            }
-                            if (actionInputs.size > 1) {
-                                IconButton(onClick = { actionInputs.removeAt(idx) }) {
-                                    Icon(painterResource(android.R.drawable.ic_delete), contentDescription = stringResource(R.string.remove))
-                                }
-                            }
-                        }
-                    }
-
-                    OutlinedButton(onClick = { actionInputs.add(ActionInput()) }) {
-                        Text(stringResource(R.string.add_action))
-                    }
-
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Button(onClick = { saveStep() }, modifier = Modifier.weight(1f)) {
-                            Text(if (editingStep != null) stringResource(R.string.update_step) else stringResource(R.string.add_step))
-                        }
-                        if (editingStep != null) {
-                            OutlinedButton(onClick = { resetForm() }, modifier = Modifier.weight(1f)) {
-                                Text(stringResource(R.string.cancel))
-                            }
-                        }
-                    }
+                    Icon(
+                        painter = painterResource(
+                            if (formExpanded) android.R.drawable.arrow_up_float
+                            else android.R.drawable.arrow_down_float
+                        ),
+                        contentDescription = null
+                    )
                 }
             }
         }
 
-        Spacer(Modifier.height(8.dp))
-
-        LazyColumn(
-            modifier = Modifier.weight(1f),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            itemsIndexed(steps, key = { _, step -> step.id }) { index, step ->
+        if (formExpanded) {
+            item {
                 Card(modifier = Modifier.fillMaxWidth()) {
-                    Column(modifier = Modifier.padding(12.dp)) {
-                        Text(step.question ?: "", style = MaterialTheme.typography.bodyLarge)
-                        step.actions?.sortedBy { it.actionOrder }?.forEach { action ->
-                            Row(
-                                modifier = Modifier.padding(start = 8.dp, top = 4.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text("• ${action.actionText ?: ""}", modifier = Modifier.weight(1f), style = MaterialTheme.typography.bodyMedium)
-                                if (!action.phoneNumber.isNullOrBlank()) {
-                                    TextButton(onClick = {
-                                        try {
-                                            context.startActivity(Intent(Intent.ACTION_DIAL, Uri.parse("tel:${action.phoneNumber}")))
-                                        } catch (_: Exception) {
-                                            Toast.makeText(context, R.string.no_dialer, Toast.LENGTH_SHORT).show()
-                                        }
-                                    }) { Text(action.phoneNumber ?: "") }
-                                    IconButton(onClick = {
-                                        val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                                        clipboard.setPrimaryClip(ClipData.newPlainText("phone", action.phoneNumber))
-                                        Toast.makeText(context, R.string.copied, Toast.LENGTH_SHORT).show()
-                                    }) {
-                                        Icon(painterResource(android.R.drawable.ic_menu_share), contentDescription = stringResource(R.string.copy))
+                    Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        OutlinedTextField(
+                            value = question,
+                            onValueChange = { question = it },
+                            label = { Text(stringResource(R.string.question)) },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+
+                        Text(stringResource(R.string.actions), style = MaterialTheme.typography.titleSmall)
+
+                        actionInputs.forEachIndexed { idx, input ->
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Column(modifier = Modifier.weight(1f)) {
+                                    OutlinedTextField(
+                                        value = input.text,
+                                        onValueChange = { actionInputs[idx] = input.copy(text = it) },
+                                        label = { Text(stringResource(R.string.action_text)) },
+                                        modifier = Modifier.fillMaxWidth()
+                                    )
+                                    OutlinedTextField(
+                                        value = input.phone,
+                                        onValueChange = { actionInputs[idx] = input.copy(phone = it) },
+                                        label = { Text(stringResource(R.string.phone_number)) },
+                                        modifier = Modifier.fillMaxWidth()
+                                    )
+                                }
+                                if (actionInputs.size > 1) {
+                                    IconButton(onClick = { actionInputs.removeAt(idx) }) {
+                                        Icon(painterResource(android.R.drawable.ic_delete), contentDescription = stringResource(R.string.remove))
                                     }
                                 }
                             }
                         }
 
-                        Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                            if (index > 0) {
-                                TextButton(onClick = { swapOrder(steps[index], steps[index - 1]) }) {
-                                    Text(stringResource(R.string.move_up))
-                                }
-                            }
-                            if (index < steps.size - 1) {
-                                TextButton(onClick = { swapOrder(steps[index], steps[index + 1]) }) {
-                                    Text(stringResource(R.string.move_down))
-                                }
-                            }
-                            TextButton(onClick = { startEdit(step) }) {
-                                Text(stringResource(R.string.edit))
-                            }
-                            TextButton(onClick = {
-                                scope.launch(Dispatchers.IO) {
-                                    viewModel.emergencyPlanStepRepository.deleteById(step.id)
-                                    loadSteps()
-                                }
-                            }) { Text(stringResource(R.string.delete)) }
+                        OutlinedButton(onClick = { actionInputs.add(ActionInput()) }) {
+                            Text(stringResource(R.string.add_action))
                         }
+
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            Button(onClick = { saveStep() }, modifier = Modifier.weight(1f)) {
+                                Text(if (editingStep != null) stringResource(R.string.update_step) else stringResource(R.string.add_step))
+                            }
+                            if (editingStep != null) {
+                                OutlinedButton(onClick = { resetForm() }, modifier = Modifier.weight(1f)) {
+                                    Text(stringResource(R.string.cancel))
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        itemsIndexed(steps, key = { _, step -> step.id }) { index, step ->
+            Card(modifier = Modifier.fillMaxWidth()) {
+                Column(modifier = Modifier.padding(12.dp)) {
+                    Text(step.question ?: "", style = MaterialTheme.typography.bodyLarge)
+                    step.actions?.sortedBy { it.actionOrder }?.forEach { action ->
+                        Row(
+                            modifier = Modifier.padding(start = 8.dp, top = 4.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text("• ${action.actionText ?: ""}", modifier = Modifier.weight(1f), style = MaterialTheme.typography.bodyMedium)
+                            if (!action.phoneNumber.isNullOrBlank()) {
+                                TextButton(onClick = {
+                                    try {
+                                        context.startActivity(Intent(Intent.ACTION_DIAL, Uri.parse("tel:${action.phoneNumber}")))
+                                    } catch (_: Exception) {
+                                        Toast.makeText(context, R.string.no_dialer, Toast.LENGTH_SHORT).show()
+                                    }
+                                }) { Text(action.phoneNumber ?: "") }
+                                IconButton(onClick = {
+                                    val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                                    clipboard.setPrimaryClip(ClipData.newPlainText("phone", action.phoneNumber))
+                                    Toast.makeText(context, R.string.copied, Toast.LENGTH_SHORT).show()
+                                }) {
+                                    Icon(painterResource(android.R.drawable.ic_menu_share), contentDescription = stringResource(R.string.copy))
+                                }
+                            }
+                        }
+                    }
+
+                    Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                        if (index > 0) {
+                            TextButton(onClick = { swapOrder(steps[index], steps[index - 1]) }) {
+                                Text(stringResource(R.string.move_up))
+                            }
+                        }
+                        if (index < steps.size - 1) {
+                            TextButton(onClick = { swapOrder(steps[index], steps[index + 1]) }) {
+                                Text(stringResource(R.string.move_down))
+                            }
+                        }
+                        TextButton(onClick = { startEdit(step) }) {
+                            Text(stringResource(R.string.edit))
+                        }
+                        TextButton(onClick = {
+                            scope.launch(Dispatchers.IO) {
+                                viewModel.emergencyPlanStepRepository.deleteById(step.id)
+                                loadSteps()
+                            }
+                        }) { Text(stringResource(R.string.delete)) }
                     }
                 }
             }
