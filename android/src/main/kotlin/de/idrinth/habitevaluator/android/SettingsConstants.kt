@@ -56,6 +56,7 @@ object SettingsConstants {
     const val KEY_MODULE_MEDICATION_VISIBLE = "module_medication_visible"
     const val KEY_MODULE_BACKUP_VISIBLE = "module_backup_visible"
     const val KEY_MODULE_PDF_EXPORT_VISIBLE = "module_pdf_export_visible"
+    const val KEY_MODULE_ACTIVITY_LOG_VISIBLE = "module_activity_log_visible"
 
     fun getFontScale(fontSizeSetting: String?): Float = when (fontSizeSetting) {
         FONT_SIZE_XS -> 0.8f

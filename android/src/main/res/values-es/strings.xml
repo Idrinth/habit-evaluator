@@ -373,6 +373,7 @@
     <string name="module_medication">Medicamentos</string>
     <string name="module_backup">Respaldo</string>
     <string name="module_pdf_export">Exportar PDF</string>
+    <string name="module_activity_log">Registro de actividades</string>
     <string name="daily_entries_count">Hoy: %1$d/%2$d</string>
     <string name="notification_permission_denied">Permiso de notificaciones denegado. Los recordatorios no funcionarán hasta que se conceda el permiso en los ajustes de la aplicación.</string>
     <string name="emergency_plan_title">Plan de emergencia</string>
