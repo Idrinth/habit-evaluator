@@ -21,13 +21,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
-import de.idrinth.habitevaluator.android.BuildConfig
 import de.idrinth.habitevaluator.android.R
 
 @Composable
 fun ImprintScreen() {
     val context = LocalContext.current
-    val version = BuildConfig.VERSION_NAME
 
     Column(
         modifier = Modifier
@@ -38,12 +36,6 @@ fun ImprintScreen() {
         Text(
             stringResource(R.string.imprint_title),
             style = MaterialTheme.typography.headlineMedium
-        )
-        Spacer(Modifier.height(4.dp))
-        Text(
-            "Version $version",
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
 
         // Contact section

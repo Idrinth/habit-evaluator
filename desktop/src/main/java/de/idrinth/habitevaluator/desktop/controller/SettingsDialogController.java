@@ -31,13 +31,18 @@ import javafx.stage.Stage;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Optional;
+import java.util.Properties;
 
 /**
  * Controller for the storage settings dialog.
  * Allows switching between local database and remote API storage.
  */
 public class SettingsDialogController {
+
+    @FXML
+    private Label versionLabel;
 
     @FXML
     private ToggleGroup storageToggleGroup;
@@ -195,6 +200,17 @@ public class SettingsDialogController {
 
     @FXML
     public void initialize() {
+        String version = "unknown";
+        try (InputStream is = getClass().getResourceAsStream("/version.properties")) {
+            if (is != null) {
+                Properties props = new Properties();
+                props.load(is);
+                version = props.getProperty("version", "unknown");
+            }
+        } catch (Exception e) {
+            // ignore - version will show as unknown
+        }
+        versionLabel.setText("Version " + version);
         storageToggleGroup.selectedToggleProperty().addListener((obs, oldVal, newVal) -> {
             remoteSettingsPane.setDisable(localRadio.isSelected());
         });

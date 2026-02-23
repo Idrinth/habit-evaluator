@@ -11,6 +11,10 @@
         <Insets top="20" right="20" bottom="20" left="20"/>
     </padding>
 
+    <Label fx:id="versionLabel" style="-fx-text-fill: #666666;"/>
+
+    <Separator/>
+
     <Label text="Storage Settings" styleClass="section-title"/>
 
     <Separator/>

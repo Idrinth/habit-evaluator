@@ -22,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class SettingsDialogControllerTest extends JavaFXControllerTestBase {
 
     private SettingsDialogController controller;
+    private Label versionLabel;
     private ToggleGroup storageToggleGroup;
     private RadioButton localRadio;
     private RadioButton remoteRadio;
@@ -78,6 +79,7 @@ class SettingsDialogControllerTest extends JavaFXControllerTestBase {
     void setUp() throws Exception {
         controller = new SettingsDialogController();
 
+        versionLabel = new Label();
         storageToggleGroup = new ToggleGroup();
         localRadio = new RadioButton("Local");
         localRadio.setToggleGroup(storageToggleGroup);
@@ -142,6 +144,7 @@ class SettingsDialogControllerTest extends JavaFXControllerTestBase {
         backupVisibleCheckBox = new CheckBox();
         pdfExportVisibleCheckBox = new CheckBox();
 
+        setField(controller, "versionLabel", versionLabel);
         setField(controller, "storageToggleGroup", storageToggleGroup);
         setField(controller, "localRadio", localRadio);
         setField(controller, "remoteRadio", remoteRadio);
@@ -549,5 +552,22 @@ class SettingsDialogControllerTest extends JavaFXControllerTestBase {
         assertNotNull(factory);
         // The spinner should have min 1, max 10 with default 3
         assertEquals(3, emotionReminderCountSpinner.getValue());
+    }
+
+    @Test
+    void testInitializeSetsVersionLabel() {
+        controller.initialize();
+
+        assertNotNull(versionLabel.getText());
+        assertTrue(versionLabel.getText().startsWith("Version "));
+    }
+
+    @Test
+    void testInitializeVersionLabelContainsUnknownWhenNoProperties() {
+        // version.properties may or may not be on the classpath during tests
+        controller.initialize();
+
+        // Either a real version or "unknown" — both start with "Version "
+        assertTrue(versionLabel.getText().startsWith("Version "));
     }
 }

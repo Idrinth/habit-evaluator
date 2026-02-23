@@ -95,6 +95,7 @@
 </script>
 
 <h1>Settings</h1>
+<p class="version">Version {__APP_VERSION__}</p>
 
 {#if loading}
 	<p>Loading...</p>
@@ -218,7 +219,11 @@
 
 <style>
 	h1 {
-		margin-bottom: 0.5rem;
+		margin-bottom: 0.25rem;
+	}
+	.version {
+		color: var(--color-text-muted);
+		margin-bottom: 1rem;
 	}
 	section {
 		margin-bottom: 1.5rem;

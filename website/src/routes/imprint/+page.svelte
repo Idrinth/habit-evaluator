@@ -14,7 +14,6 @@
 </svelte:head>
 
 <h1>{t('imprint.title', lang)}</h1>
-<p class="version">Version {__APP_VERSION__}</p>
 
 <section>
 	<h2>{t('imprint.contact', lang)}</h2>
@@ -102,10 +101,6 @@
 <style>
 	h1 {
 		font-size: 2rem;
-		margin-bottom: 0.25rem;
-	}
-	.version {
-		color: var(--color-text-muted);
 		margin-bottom: 1.5rem;
 	}
 	section {

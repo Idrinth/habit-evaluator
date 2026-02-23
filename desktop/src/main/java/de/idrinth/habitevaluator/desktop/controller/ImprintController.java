@@ -3,36 +3,15 @@ package de.idrinth.habitevaluator.desktop.controller;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Hyperlink;
-import javafx.scene.control.Label;
 import javafx.stage.Stage;
 
 import java.awt.Desktop;
-import java.io.InputStream;
 import java.net.URI;
-import java.util.Properties;
 
 public class ImprintController {
 
     @FXML
     private Hyperlink emailLink;
-
-    @FXML
-    private Label versionLabel;
-
-    @FXML
-    private void initialize() {
-        String version = "unknown";
-        try (InputStream is = getClass().getResourceAsStream("/version.properties")) {
-            if (is != null) {
-                Properties props = new Properties();
-                props.load(is);
-                version = props.getProperty("version", "unknown");
-            }
-        } catch (Exception e) {
-            // ignore - version will show as unknown
-        }
-        versionLabel.setText("Version " + version);
-    }
 
     @FXML
     private void handleEmailLink() {
