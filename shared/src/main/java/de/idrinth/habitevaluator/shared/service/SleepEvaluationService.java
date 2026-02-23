@@ -4,10 +4,8 @@ import de.idrinth.habitevaluator.shared.model.SleepDistribution;
 import de.idrinth.habitevaluator.shared.model.SleepEntry;
 import de.idrinth.habitevaluator.shared.model.SleepStats;
 
-import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.time.temporal.TemporalAdjusters;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -62,20 +60,20 @@ public class SleepEvaluationService {
     }
 
     /**
-     * Calculates sleep statistics for the current week (Monday to today).
+     * Calculates sleep statistics for the last 7 days (today minus 6 days to today).
      */
     public SleepStats getCurrentWeekStats(List<SleepEntry> entries) {
         LocalDate today = LocalDate.now();
-        LocalDate weekStart = today.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+        LocalDate weekStart = today.minusDays(6);
         return calculateStats(entries, weekStart, today);
     }
 
     /**
-     * Calculates sleep statistics for the current month (1st to today).
+     * Calculates sleep statistics for the last 30 days (today minus 29 days to today).
      */
     public SleepStats getCurrentMonthStats(List<SleepEntry> entries) {
         LocalDate today = LocalDate.now();
-        LocalDate monthStart = today.withDayOfMonth(1);
+        LocalDate monthStart = today.minusDays(29);
         return calculateStats(entries, monthStart, today);
     }
 
