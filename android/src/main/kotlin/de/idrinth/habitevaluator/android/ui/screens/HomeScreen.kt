@@ -211,6 +211,17 @@ private fun HabitListItem(
                 habit.description?.takeIf { it.isNotEmpty() }?.let {
                     Text(text = it, style = MaterialTheme.typography.bodySmall, maxLines = 1)
                 }
+                val today = LocalDate.now()
+                val todayCount = habit.entries?.count {
+                    it.completedAt?.toLocalDate() == today
+                } ?: 0
+                val max = habit.maxEntriesPerDay
+                if (max > 0) {
+                    Text(
+                        text = stringResource(R.string.daily_entries_count, todayCount, max),
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
             }
             IconButton(onClick = onEdit) {
                 Icon(Icons.Default.Edit, contentDescription = "Edit")
@@ -235,10 +246,25 @@ private fun HabitEvaluationCard(
         evaluator.evaluate(habit, LocalDate.now().minusDays(29), LocalDate.now())
     }
 
+    val today = LocalDate.now()
+    val todayCount = remember(habit, habit.entries?.size) {
+        habit.entries?.count { it.completedAt?.toLocalDate() == today } ?: 0
+    }
+    val maxPerDay = habit.maxEntriesPerDay
+    val limitReached = maxPerDay > 0 && todayCount >= maxPerDay
+
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(habit.name ?: "", style = MaterialTheme.typography.titleLarge)
             Spacer(Modifier.height(8.dp))
+
+            if (maxPerDay > 0) {
+                Text(
+                    text = stringResource(R.string.daily_entries_count, todayCount, maxPerDay),
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                Spacer(Modifier.height(4.dp))
+            }
 
             if (eval != null) {
                 Text(
@@ -258,7 +284,7 @@ private fun HabitEvaluationCard(
 
             Spacer(Modifier.height(12.dp))
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                Button(onClick = onComplete, modifier = Modifier.weight(1f)) {
+                Button(onClick = onComplete, enabled = !limitReached, modifier = Modifier.weight(1f)) {
                     Text(stringResource(R.string.complete))
                 }
                 Button(onClick = onRemoveCompletion, modifier = Modifier.weight(1f)) {
