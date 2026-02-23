@@ -33,6 +33,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import de.idrinth.habitevaluator.android.AppViewModel
+import de.idrinth.habitevaluator.android.BuildConfig
 import de.idrinth.habitevaluator.android.R
 import de.idrinth.habitevaluator.android.ReminderScheduler
 import de.idrinth.habitevaluator.android.SettingsConstants
@@ -71,6 +72,12 @@ fun SettingsScreen(viewModel: AppViewModel, navController: NavController) {
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         Text(stringResource(R.string.settings), style = MaterialTheme.typography.headlineMedium)
+        Spacer(Modifier.height(4.dp))
+        Text(
+            "Version ${BuildConfig.VERSION_NAME}",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
 
         // Storage mode
         Card(modifier = Modifier.fillMaxWidth()) {

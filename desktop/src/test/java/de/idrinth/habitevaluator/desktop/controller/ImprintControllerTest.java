@@ -1,7 +1,6 @@
 package de.idrinth.habitevaluator.desktop.controller;
 
 import javafx.scene.control.Hyperlink;
-import javafx.scene.control.Label;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -13,37 +12,13 @@ class ImprintControllerTest extends JavaFXControllerTestBase {
 
     private ImprintController controller;
     private Hyperlink emailLink;
-    private Label versionLabel;
 
     @BeforeEach
     void setUp() throws Exception {
         controller = new ImprintController();
         emailLink = new Hyperlink();
-        versionLabel = new Label();
 
         setField(controller, "emailLink", emailLink);
-        setField(controller, "versionLabel", versionLabel);
-    }
-
-    @Test
-    void testInitializeSetsVersionLabel() throws Exception {
-        Method initialize = ImprintController.class.getDeclaredMethod("initialize");
-        initialize.setAccessible(true);
-        initialize.invoke(controller);
-
-        assertNotNull(versionLabel.getText());
-        assertTrue(versionLabel.getText().startsWith("Version "));
-    }
-
-    @Test
-    void testInitializeVersionLabelContainsUnknownWhenNoProperties() throws Exception {
-        // version.properties may or may not be on the classpath during tests
-        Method initialize = ImprintController.class.getDeclaredMethod("initialize");
-        initialize.setAccessible(true);
-        initialize.invoke(controller);
-
-        // Either a real version or "unknown" — both start with "Version "
-        assertTrue(versionLabel.getText().startsWith("Version "));
     }
 
     @Test
