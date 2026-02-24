@@ -21,7 +21,7 @@ class ScreenPagerAdapterTest {
         // Preserved from original: page indices must match expected values
         assertEquals(0, PAGE_HOME)
         assertEquals(1, PAGE_DIARY)
-        assertEquals(2, PAGE_SLEEP)
+        assertEquals(2, PAGE_PLANNER)
         assertEquals(3, PAGE_EMERGENCY_PLAN)
         assertEquals(4, PAGE_EMOTIONAL_STATE)
         assertEquals(5, PAGE_EDIT_HABITS)
@@ -38,26 +38,28 @@ class ScreenPagerAdapterTest {
         assertEquals(16, PAGE_MEDICATION_LOG)
         assertEquals(17, PAGE_MEDICATION_LIST)
         assertEquals(18, PAGE_ACTIVITY_LOG)
+        assertEquals(19, PAGE_SLEEP)
     }
 
     @Test
     fun testPageCount() {
-        assertEquals(19, PAGE_COUNT)
+        assertEquals(20, PAGE_COUNT)
     }
 
     @Test
     fun testPageCountMatchesLastPagePlusOne() {
-        assertEquals(PAGE_ACTIVITY_LOG + 1, PAGE_COUNT)
+        assertEquals(PAGE_SLEEP + 1, PAGE_COUNT)
     }
 
     @Test
     fun testAllPageIndicesAreUnique() {
         val pages = intArrayOf(
-            PAGE_HOME, PAGE_DIARY, PAGE_SLEEP, PAGE_EMERGENCY_PLAN,
+            PAGE_HOME, PAGE_DIARY, PAGE_PLANNER, PAGE_EMERGENCY_PLAN,
             PAGE_EMOTIONAL_STATE, PAGE_EDIT_HABITS, PAGE_ADD_HABIT, PAGE_STATS,
             PAGE_POINT_DEVELOPMENT, PAGE_ADD_EMOTION_PAIR, PAGE_RECORD_EMOTION_ENTRY,
             PAGE_SETTINGS, PAGE_IMPRINT, PAGE_POSITIVITY_DIARY, PAGE_SPORT_LOG,
-            PAGE_FOOD_LOG, PAGE_MEDICATION_LOG, PAGE_MEDICATION_LIST, PAGE_ACTIVITY_LOG
+            PAGE_FOOD_LOG, PAGE_MEDICATION_LOG, PAGE_MEDICATION_LIST, PAGE_ACTIVITY_LOG,
+            PAGE_SLEEP
         )
         val uniqueCount = pages.toSet().size
         assertEquals("All page indices must be unique", pages.size, uniqueCount)
@@ -66,11 +68,12 @@ class ScreenPagerAdapterTest {
     @Test
     fun testPageIndicesAreContiguous() {
         val pages = intArrayOf(
-            PAGE_HOME, PAGE_DIARY, PAGE_SLEEP, PAGE_EMERGENCY_PLAN,
+            PAGE_HOME, PAGE_DIARY, PAGE_PLANNER, PAGE_EMERGENCY_PLAN,
             PAGE_EMOTIONAL_STATE, PAGE_EDIT_HABITS, PAGE_ADD_HABIT, PAGE_STATS,
             PAGE_POINT_DEVELOPMENT, PAGE_ADD_EMOTION_PAIR, PAGE_RECORD_EMOTION_ENTRY,
             PAGE_SETTINGS, PAGE_IMPRINT, PAGE_POSITIVITY_DIARY, PAGE_SPORT_LOG,
-            PAGE_FOOD_LOG, PAGE_MEDICATION_LOG, PAGE_MEDICATION_LIST, PAGE_ACTIVITY_LOG
+            PAGE_FOOD_LOG, PAGE_MEDICATION_LOG, PAGE_MEDICATION_LIST, PAGE_ACTIVITY_LOG,
+            PAGE_SLEEP
         )
         assertEquals(PAGE_COUNT, pages.size)
         val sorted = pages.sorted()
@@ -88,7 +91,7 @@ class ScreenPagerAdapterTest {
     fun testBottomNavPagesAreFirstFivePositions() {
         assertEquals(0, PAGE_HOME)
         assertEquals(1, PAGE_DIARY)
-        assertEquals(2, PAGE_SLEEP)
+        assertEquals(2, PAGE_PLANNER)
         assertEquals(3, PAGE_EMERGENCY_PLAN)
         assertEquals(4, PAGE_EMOTIONAL_STATE)
     }
@@ -99,7 +102,7 @@ class ScreenPagerAdapterTest {
             PAGE_EDIT_HABITS, PAGE_ADD_HABIT, PAGE_STATS, PAGE_POINT_DEVELOPMENT,
             PAGE_ADD_EMOTION_PAIR, PAGE_RECORD_EMOTION_ENTRY, PAGE_SETTINGS,
             PAGE_IMPRINT, PAGE_POSITIVITY_DIARY, PAGE_SPORT_LOG, PAGE_FOOD_LOG,
-            PAGE_MEDICATION_LOG, PAGE_MEDICATION_LIST, PAGE_ACTIVITY_LOG
+            PAGE_MEDICATION_LOG, PAGE_MEDICATION_LIST, PAGE_ACTIVITY_LOG, PAGE_SLEEP
         )
         for (page in programmaticPages) {
             assertTrue(
@@ -113,7 +116,7 @@ class ScreenPagerAdapterTest {
     companion object {
         const val PAGE_HOME = 0
         const val PAGE_DIARY = 1
-        const val PAGE_SLEEP = 2
+        const val PAGE_PLANNER = 2
         const val PAGE_EMERGENCY_PLAN = 3
         const val PAGE_EMOTIONAL_STATE = 4
         const val PAGE_EDIT_HABITS = 5
@@ -130,7 +133,8 @@ class ScreenPagerAdapterTest {
         const val PAGE_MEDICATION_LOG = 16
         const val PAGE_MEDICATION_LIST = 17
         const val PAGE_ACTIVITY_LOG = 18
-        const val PAGE_COUNT = 19
+        const val PAGE_SLEEP = 19
+        const val PAGE_COUNT = 20
         const val LAST_SWIPEABLE_PAGE = PAGE_EMOTIONAL_STATE
     }
 }

@@ -10,10 +10,11 @@ import org.junit.jupiter.api.Assertions.*
 class DiaryNavigationScreenTest {
 
     companion object {
-        const val NAVIGATION_CARD_COUNT = 6
+        const val NAVIGATION_CARD_COUNT = 7
 
         val NAVIGATION_TARGETS: Array<String> = arrayOf(
             "positivityDiary",
+            "sleepTracking",
             "sportLog",
             "foodLog",
             "medicationLog",
@@ -29,7 +30,7 @@ class DiaryNavigationScreenTest {
 
     @Test
     fun testNavigationCardCountValue() {
-        assertEquals(6, NAVIGATION_CARD_COUNT)
+        assertEquals(7, NAVIGATION_CARD_COUNT)
     }
 
     @Test
@@ -45,6 +46,11 @@ class DiaryNavigationScreenTest {
     @Test
     fun testNavigationTargetsContainsPositivityDiary() {
         assertTrue(isValidNavigationTarget("positivityDiary"))
+    }
+
+    @Test
+    fun testNavigationTargetsContainsSleepTracking() {
+        assertTrue(isValidNavigationTarget("sleepTracking"))
     }
 
     @Test

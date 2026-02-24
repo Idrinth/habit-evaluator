@@ -144,6 +144,11 @@ class ScreenTest {
     }
 
     @Test
+    fun testPlannerRoute() {
+        assertEquals("planner", Screen.Planner.route)
+    }
+
+    @Test
     fun testAllRoutesAreUnique() {
         val routes = listOf(
             Screen.Home.route,
@@ -168,7 +173,8 @@ class ScreenTest {
             Screen.PdfExport.route,
             Screen.SleepAnalysis.route,
             Screen.Correlations.route,
-            Screen.EmergencyDialogue.route
+            Screen.EmergencyDialogue.route,
+            Screen.Planner.route
         )
         assertEquals(routes.size, routes.toSet().size, "All screen routes must be unique")
     }
@@ -198,7 +204,8 @@ class ScreenTest {
             Screen.PdfExport.route,
             Screen.SleepAnalysis.route,
             Screen.Correlations.route,
-            Screen.EmergencyDialogue.route
+            Screen.EmergencyDialogue.route,
+            Screen.Planner.route
         )
         routes.forEach { route ->
             assertTrue(route.isNotEmpty(), "Route should not be empty: $route")

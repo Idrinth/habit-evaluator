@@ -34,6 +34,9 @@ fun DiaryNavigationScreen(viewModel: AppViewModel, navController: NavController)
         NavigationCard(stringResource(R.string.positivity_diary)) {
             navController.navigate(Screen.PositivityDiary.route)
         }
+        NavigationCard(stringResource(R.string.sleep_tracking)) {
+            navController.navigate(Screen.Sleep.route)
+        }
         NavigationCard(stringResource(R.string.sport_log)) {
             navController.navigate(Screen.SportLog.route)
         }
@@ -48,15 +51,6 @@ fun DiaryNavigationScreen(viewModel: AppViewModel, navController: NavController)
         }
         NavigationCard(stringResource(R.string.activity_log)) {
             navController.navigate(Screen.ActivityLog.route)
-        }
-        NavigationCard(stringResource(R.string.planner_week_planner_title)) {
-            navController.navigate(Screen.WeekPlanner.route)
-        }
-        NavigationCard(stringResource(R.string.planner_groups_title)) {
-            navController.navigate(Screen.PlannerGroups.route)
-        }
-        NavigationCard(stringResource(R.string.planner_activities_title)) {
-            navController.navigate(Screen.PlannerActivities.route)
         }
     }
 }

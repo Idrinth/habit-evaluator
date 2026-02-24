@@ -693,7 +693,8 @@ describe('api', () => {
 				medicationVisible: false,
 				backupVisible: true,
 				pdfExportVisible: true,
-				activityLogVisible: true
+				activityLogVisible: true,
+				dayPlannerVisible: true
 			};
 			(globalThis.fetch as Mock).mockReturnValue(mockFetchResponse(visibility));
 
@@ -715,7 +716,8 @@ describe('api', () => {
 				medicationVisible: true,
 				backupVisible: false,
 				pdfExportVisible: false,
-				activityLogVisible: true
+				activityLogVisible: true,
+				dayPlannerVisible: true
 			};
 			(globalThis.fetch as Mock).mockReturnValue(mockFetchResponse(visibility));
 

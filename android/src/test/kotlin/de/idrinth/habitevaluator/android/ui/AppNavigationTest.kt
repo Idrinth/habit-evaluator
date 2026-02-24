@@ -39,7 +39,8 @@ class AppNavigationTest {
             Screen.PdfExport.route,
             Screen.SleepAnalysis.route,
             Screen.Correlations.route,
-            Screen.EmergencyDialogue.route
+            Screen.EmergencyDialogue.route,
+            Screen.Planner.route
         )
 
         /**
@@ -55,7 +56,7 @@ class AppNavigationTest {
     @Test
     fun testAllScreenRoutesAreRegistered() {
         // Verify every Screen object has a route in the registered list
-        assertEquals(23, REGISTERED_ROUTES.size, "All 23 screens should be registered in navigation")
+        assertEquals(24, REGISTERED_ROUTES.size, "All 24 screens should be registered in navigation")
     }
 
     @Test

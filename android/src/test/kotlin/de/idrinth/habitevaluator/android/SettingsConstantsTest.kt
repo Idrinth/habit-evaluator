@@ -137,6 +137,7 @@ class SettingsConstantsTest {
         assertNotNull(SettingsConstants.KEY_MODULE_MEDICATION_VISIBLE)
         assertNotNull(SettingsConstants.KEY_MODULE_BACKUP_VISIBLE)
         assertNotNull(SettingsConstants.KEY_MODULE_PDF_EXPORT_VISIBLE)
+        assertNotNull(SettingsConstants.KEY_MODULE_DAY_PLANNER_VISIBLE)
     }
 
     @Test
@@ -151,7 +152,8 @@ class SettingsConstantsTest {
             SettingsConstants.KEY_MODULE_SPORT_LOG_VISIBLE,
             SettingsConstants.KEY_MODULE_MEDICATION_VISIBLE,
             SettingsConstants.KEY_MODULE_BACKUP_VISIBLE,
-            SettingsConstants.KEY_MODULE_PDF_EXPORT_VISIBLE
+            SettingsConstants.KEY_MODULE_PDF_EXPORT_VISIBLE,
+            SettingsConstants.KEY_MODULE_DAY_PLANNER_VISIBLE
         )
         assertEquals(keys.size, keys.toSet().size, "All module visibility keys must be unique")
     }
