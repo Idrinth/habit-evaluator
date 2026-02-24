@@ -1,7 +1,9 @@
 package de.idrinth.habitevaluator.shared.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.junit.jupiter.api.Test;
 
+import java.lang.reflect.Field;
 import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -106,5 +108,14 @@ class HabitEntryTest {
         HabitEntry e2 = new HabitEntry();
         e2.setId(e1.getId());
         assertEquals(e1.hashCode(), e2.hashCode());
+    }
+
+    @Test
+    void testHabitFieldHasJsonIgnoreToPreventCircularSerialization() throws NoSuchFieldException {
+        Field habitField = HabitEntry.class.getDeclaredField("habit");
+        assertNotNull(
+            habitField.getAnnotation(JsonIgnore.class),
+            "HabitEntry.habit must have @JsonIgnore to prevent infinite recursion during JSON serialization"
+        );
     }
 }

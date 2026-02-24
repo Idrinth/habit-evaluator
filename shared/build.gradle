@@ -18,5 +18,5 @@ dependencies {
 
     // Jackson annotations for JSON serialization control (implementation provided by runtime)
     compileOnly 'com.fasterxml.jackson.core:jackson-annotations:2.21'
-    testCompileOnly 'com.fasterxml.jackson.core:jackson-annotations:2.21'
+    testImplementation 'com.fasterxml.jackson.core:jackson-annotations:2.21'
 }
