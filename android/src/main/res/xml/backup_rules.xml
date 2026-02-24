@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<full-backup-content>
+    <include domain="database" path="habit-evaluator.db" />
+    <include domain="sharedpref" path="habit_evaluator_settings.xml" />
+    <exclude domain="database" path="habit-evaluator.db-journal" />
+    <exclude domain="database" path="habit-evaluator.db-wal" />
+    <exclude domain="database" path="habit-evaluator.db-shm" />
+</full-backup-content>
