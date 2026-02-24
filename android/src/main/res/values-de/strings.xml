@@ -628,5 +628,7 @@
     <string name="planner_week_summary">Week: %1$d / %2$d slots filled</string>
     <string name="module_day_planner">Day Planner</string>
     <string name="diary_navigation_planner_description">Plan your week with randomized activity suggestions</string>
+    <string name="diary_navigation_sleep_description">Track your sleep patterns and quality</string>
     <string name="day_planner">Day Planner</string>
+    <string name="planner">Planner</string>
 </resources>
