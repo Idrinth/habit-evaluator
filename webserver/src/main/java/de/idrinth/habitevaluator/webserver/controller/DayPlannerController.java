@@ -16,6 +16,7 @@ import jakarta.servlet.http.HttpSession;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -281,6 +282,29 @@ public class DayPlannerController {
             return ResponseEntity.ok(response);
         }
         return ResponseEntity.ok(suggested);
+    }
+
+    // ── Week Overview ──
+
+    @GetMapping("/week-overview")
+    public ResponseEntity<?> getWeekOverview(HttpSession session) {
+        String userId = (String) session.getAttribute("userId");
+        if (userId == null) {
+            return ResponseEntity.status(401).build();
+        }
+        List<WeekPlannerSlot> slots = slotRepository.findByUserId(userId);
+        List<Map<String, Integer>> occupied = new ArrayList<>();
+        for (WeekPlannerSlot slot : slots) {
+            if (slot.getGroups() != null && !slot.getGroups().isEmpty()) {
+                Map<String, Integer> entry = new HashMap<>();
+                entry.put("dayOfWeek", slot.getDayOfWeek());
+                entry.put("hour", slot.getHour());
+                occupied.add(entry);
+            }
+        }
+        Map<String, Object> response = new HashMap<>();
+        response.put("slots", occupied);
+        return ResponseEntity.ok(response);
     }
 
     // ── Summary ──

@@ -674,6 +674,21 @@ export const activityLogs = {
 	}
 };
 
+export interface WeekOverviewSlot {
+	dayOfWeek: number;
+	hour: number;
+}
+
+export interface WeekOverviewData {
+	slots: WeekOverviewSlot[];
+}
+
+export const dayPlanner = {
+	weekOverview() {
+		return request<WeekOverviewData>('/day-planner/week-overview');
+	}
+};
+
 /**
  * Masks the bugfix portion of a version string, keeping only major and minor parts.
  * For example, "1.2.3" becomes "1.2.x" and "0.1.0-SNAPSHOT" becomes "0.1.x".

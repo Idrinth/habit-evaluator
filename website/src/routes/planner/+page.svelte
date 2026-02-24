@@ -17,6 +17,10 @@
 			<h2>{t('planner.weekPlanner', lang)}</h2>
 			<p>{t('planner.weekPlannerDescription', lang)}</p>
 		</a>
+		<a href="/planner/week-overview" class="planner-card">
+			<h2>{t('planner.weekOverview', lang)}</h2>
+			<p>{t('planner.weekOverviewDescription', lang)}</p>
+		</a>
 		<a href="/planner/activities" class="planner-card">
 			<h2>{t('planner.activities', lang)}</h2>
 			<p>{t('planner.activitiesDescription', lang)}</p>
