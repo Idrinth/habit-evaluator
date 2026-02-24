@@ -141,18 +141,20 @@ fun HomeScreen(viewModel: AppViewModel, navController: NavController) {
                             habit = habit,
                             onComplete = {
                                 scope.launch(Dispatchers.IO) {
-                                    if (!habit.hasReachedDailyLimit(LocalDate.now())) {
+                                    val freshHabit = viewModel.habitRepository.value.findById(habit.id).orElse(null) ?: return@launch
+                                    if (!freshHabit.hasReachedDailyLimit(LocalDate.now())) {
                                         val entry = HabitEntry()
-                                        habit.addEntry(entry)
-                                        viewModel.habitRepository.value.save(habit)
+                                        freshHabit.addEntry(entry)
+                                        viewModel.habitRepository.value.save(freshHabit)
                                     }
                                     withContext(Dispatchers.Main) { viewModel.loadHabits() }
                                 }
                             },
                             onRemoveCompletion = {
                                 scope.launch(Dispatchers.IO) {
-                                    habit.removeLastEntryForDate(LocalDate.now())
-                                    viewModel.habitRepository.value.save(habit)
+                                    val freshHabit = viewModel.habitRepository.value.findById(habit.id).orElse(null) ?: return@launch
+                                    freshHabit.removeLastEntryForDate(LocalDate.now())
+                                    viewModel.habitRepository.value.save(freshHabit)
                                     withContext(Dispatchers.Main) { viewModel.loadHabits() }
                                 }
                             },
