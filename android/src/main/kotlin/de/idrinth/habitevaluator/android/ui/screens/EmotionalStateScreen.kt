@@ -110,7 +110,7 @@ fun EmotionalStateScreen(viewModel: AppViewModel, navController: NavController) 
                         }
                         if (pairEntries.isNotEmpty()) {
                             Text(
-                                "${pairEntries.size} entries, latest: ${pairEntries.first().strength}",
+                                "${pairEntries.size} entries, latest: ${EmotionStrengthFormatter.format(pairEntries.first().strength, pair.negativeLabel, pair.positiveLabel)}",
                                 style = MaterialTheme.typography.bodySmall
                             )
                             TextButton(

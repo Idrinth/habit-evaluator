@@ -268,6 +268,8 @@ export interface EmotionScatterEntry {
 export interface EmotionScatterPair {
 	pairId: string;
 	pairLabel: string;
+	negativeLabel: string;
+	positiveLabel: string;
 	color: string;
 	entries: EmotionScatterEntry[];
 }

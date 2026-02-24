@@ -28,6 +28,7 @@ import androidx.navigation.NavController
 import de.idrinth.habitevaluator.android.AppViewModel
 import de.idrinth.habitevaluator.android.R
 import de.idrinth.habitevaluator.shared.model.EmotionEntry
+import de.idrinth.habitevaluator.shared.model.EmotionStrengthFormatter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -61,7 +62,7 @@ fun RecordEmotionEntryScreen(viewModel: AppViewModel, pairId: String, navControl
         )
 
         Text(
-            "Strength: ${strength.toInt()}",
+            EmotionStrengthFormatter.format(strength.toInt(), pair.negativeLabel, pair.positiveLabel),
             style = MaterialTheme.typography.headlineLarge
         )
 

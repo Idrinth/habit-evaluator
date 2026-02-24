@@ -386,6 +386,8 @@ describe('api', () => {
 				pairs: [{
 					pairId: 'p1',
 					pairLabel: 'Sad-Happy',
+					negativeLabel: 'Sad',
+					positiveLabel: 'Happy',
 					color: '#00ff00',
 					entries: [{ hour: 8, strength: 5 }, { hour: 14, strength: -3 }]
 				}]
