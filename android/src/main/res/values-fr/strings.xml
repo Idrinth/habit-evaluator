@@ -247,6 +247,15 @@
     <string name="reminder_emotion_notification_text">Prenez un moment pour enregistrer votre état émotionnel actuel.</string>
     <string name="reminder_channel_name">Rappels</string>
     <string name="reminder_channel_description">Rappels pour l\'enregistrement du sommeil, les entrées de journal et les vérifications d\'émotions</string>
+    <string name="notification_group_input_reminders">Rappels de saisie</string>
+    <string name="notification_group_emotion">Questions émotionnelles</string>
+    <string name="notification_group_day_planner">Planificateur quotidien</string>
+    <string name="notification_channel_input_reminders">Rappels de saisie</string>
+    <string name="notification_channel_input_reminders_description">Rappels pour l\'enregistrement du sommeil et les entrées de journal</string>
+    <string name="notification_channel_emotion">Questions émotionnelles</string>
+    <string name="notification_channel_emotion_description">Rappels pour enregistrer votre état émotionnel</string>
+    <string name="notification_channel_day_planner">Planificateur quotidien</string>
+    <string name="notification_channel_day_planner_description">Notifications pour vos activités quotidiennes planifiées</string>
     <string name="record_emotion_entry">Enregistrer une émotion</string>
     <string name="record_emotion">Enregistrer</string>
     <string name="emotion_notes_hint">Notes (facultatif)</string>

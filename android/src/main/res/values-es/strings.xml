@@ -247,6 +247,15 @@
     <string name="reminder_emotion_notification_text">Tómate un momento para registrar tu estado emocional actual.</string>
     <string name="reminder_channel_name">Recordatorios</string>
     <string name="reminder_channel_description">Recordatorios para registro de sueño, entradas de diario y control de emociones</string>
+    <string name="notification_group_input_reminders">Recordatorios de entrada</string>
+    <string name="notification_group_emotion">Preguntas emocionales</string>
+    <string name="notification_group_day_planner">Planificador diario</string>
+    <string name="notification_channel_input_reminders">Recordatorios de entrada</string>
+    <string name="notification_channel_input_reminders_description">Recordatorios para registro de sueño y entradas de diario</string>
+    <string name="notification_channel_emotion">Preguntas emocionales</string>
+    <string name="notification_channel_emotion_description">Recordatorios para registrar su estado emocional</string>
+    <string name="notification_channel_day_planner">Planificador diario</string>
+    <string name="notification_channel_day_planner_description">Notificaciones para sus actividades diarias planificadas</string>
     <string name="record_emotion_entry">Registrar emoción</string>
     <string name="record_emotion">Registrar</string>
     <string name="emotion_notes_hint">Notas (opcional)</string>
