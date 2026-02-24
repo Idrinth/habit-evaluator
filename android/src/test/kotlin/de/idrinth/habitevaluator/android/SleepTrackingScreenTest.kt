@@ -134,4 +134,19 @@ class SleepTrackingScreenTest {
     fun testDatePatternMatchesSportLogScreenPattern() {
         assertEquals(SportLogScreenTest.DATE_PATTERN, DATE_PATTERN)
     }
+
+    @Test
+    fun testDurationFormatWholeNumber() {
+        assertEquals("8.0 hrs", String.format("%.1f hrs", 8.0))
+    }
+
+    @Test
+    fun testDurationFormatFractionalHours() {
+        assertEquals("7.5 hrs", String.format("%.1f hrs", 7.5))
+    }
+
+    @Test
+    fun testDurationFormatShortSleep() {
+        assertEquals("3.3 hrs", String.format("%.1f hrs", 3.333))
+    }
 }
