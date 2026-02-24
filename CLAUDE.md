@@ -569,6 +569,16 @@ GitHub Actions workflows at `.github/workflows/`:
 - Emergency Plan: step-based crisis intervention with ordered questions and associated actions (phone numbers for crisis contacts); currently Android-only with shared models/interfaces
 - ActivityLog: tracks activities with persons, location, time range, and optional activity description; supports duration calculation with midnight crossing; available across all platforms
 
+**Testing requirements:**
+- New features must include unit tests covering the added functionality
+- Bug fixes must include regression tests that reproduce the original bug and verify the fix
+- Descriptive test method names (e.g. `testEvaluateWithNoEntries`, `testStreakCalculation`)
+
+**Data migration requirements:**
+- Migrations must not delete user data — this applies to Room (Android), JPA/Hibernate (webserver, desktop), and any other persistence layer
+- Schema changes must use additive, non-destructive operations (e.g. adding columns with defaults, renaming rather than dropping)
+- If a column or table is no longer needed, migrate its data to the new structure before removing it
+
 **Library documentation:** When adding or updating third-party libraries, their name, version, and license must be documented in the Project legal (info) page of the respective project part (website, homepage, desktop, android).
 
 **Default branch:** `the-one` (not `main` or `master`)
