@@ -1,7 +1,10 @@
 package de.idrinth.habitevaluator.android.ui.screens
 
 import android.content.Context
+import android.content.Intent
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -15,6 +18,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Switch
@@ -31,6 +35,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.documentfile.provider.DocumentFile
 import androidx.navigation.NavController
 import de.idrinth.habitevaluator.android.AppViewModel
 import de.idrinth.habitevaluator.android.BuildConfig
@@ -63,6 +68,24 @@ fun SettingsScreen(viewModel: AppViewModel, navController: NavController) {
     var backupVisible by remember { mutableStateOf(prefs.getBoolean(SettingsConstants.KEY_MODULE_BACKUP_VISIBLE, true)) }
     var pdfExportVisible by remember { mutableStateOf(prefs.getBoolean(SettingsConstants.KEY_MODULE_PDF_EXPORT_VISIBLE, true)) }
     var activityLogVisible by remember { mutableStateOf(prefs.getBoolean(SettingsConstants.KEY_MODULE_ACTIVITY_LOG_VISIBLE, true)) }
+
+    var backupEnabled by remember { mutableStateOf(prefs.getBoolean(SettingsConstants.KEY_BACKUP_ENABLED, false)) }
+    var backupPassword by remember { mutableStateOf(prefs.getString(SettingsConstants.KEY_BACKUP_PASSWORD, "") ?: "") }
+    var backupPasswordConfirm by remember { mutableStateOf(prefs.getString(SettingsConstants.KEY_BACKUP_PASSWORD, "") ?: "") }
+    var backupLocationUri by remember { mutableStateOf(prefs.getString(SettingsConstants.KEY_BACKUP_LOCATION_URI, "") ?: "") }
+    var backupPasswordError by remember { mutableStateOf("") }
+
+    val folderPickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocumentTree()
+    ) { uri ->
+        if (uri != null) {
+            context.contentResolver.takePersistableUriPermission(
+                uri,
+                Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+            )
+            backupLocationUri = uri.toString()
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -120,6 +143,67 @@ fun SettingsScreen(viewModel: AppViewModel, navController: NavController) {
             }
         }
 
+        // Backup settings
+        Card(modifier = Modifier.fillMaxWidth()) {
+            Column(modifier = Modifier.padding(16.dp)) {
+                Text(stringResource(R.string.backup_settings), style = MaterialTheme.typography.titleMedium)
+                LabeledSwitch(stringResource(R.string.backup_enabled_label), backupEnabled) { backupEnabled = it }
+                if (backupEnabled) {
+                    Spacer(Modifier.height(8.dp))
+                    OutlinedTextField(
+                        value = backupPassword,
+                        onValueChange = {
+                            backupPassword = it
+                            backupPasswordError = ""
+                        },
+                        label = { Text(stringResource(R.string.backup_password_hint)) },
+                        visualTransformation = PasswordVisualTransformation(),
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    OutlinedTextField(
+                        value = backupPasswordConfirm,
+                        onValueChange = {
+                            backupPasswordConfirm = it
+                            backupPasswordError = ""
+                        },
+                        label = { Text(stringResource(R.string.backup_password_confirm_hint)) },
+                        visualTransformation = PasswordVisualTransformation(),
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    if (backupPasswordError.isNotEmpty()) {
+                        Text(
+                            backupPasswordError,
+                            color = MaterialTheme.colorScheme.error,
+                            style = MaterialTheme.typography.bodySmall,
+                            modifier = Modifier.padding(top = 4.dp)
+                        )
+                    }
+                    Spacer(Modifier.height(8.dp))
+                    Text(stringResource(R.string.backup_location_label), style = MaterialTheme.typography.bodyMedium)
+                    Text(
+                        if (backupLocationUri.isEmpty()) stringResource(R.string.backup_location_default)
+                        else DocumentFile.fromTreeUri(context, android.net.Uri.parse(backupLocationUri))?.name ?: backupLocationUri,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(top = 2.dp)
+                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        OutlinedButton(onClick = { folderPickerLauncher.launch(null) }) {
+                            Text(stringResource(R.string.backup_location_choose))
+                        }
+                        if (backupLocationUri.isNotEmpty()) {
+                            OutlinedButton(onClick = { backupLocationUri = "" }) {
+                                Text(stringResource(R.string.backup_location_default))
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         // Module visibility
         Card(modifier = Modifier.fillMaxWidth()) {
             Column(modifier = Modifier.padding(16.dp)) {
@@ -141,6 +225,16 @@ fun SettingsScreen(viewModel: AppViewModel, navController: NavController) {
         // Save
         Button(
             onClick = {
+                if (backupEnabled) {
+                    if (backupPassword.isEmpty()) {
+                        backupPasswordError = context.getString(R.string.backup_password_required)
+                        return@Button
+                    }
+                    if (backupPassword != backupPasswordConfirm) {
+                        backupPasswordError = context.getString(R.string.backup_passwords_mismatch)
+                        return@Button
+                    }
+                }
                 prefs.edit()
                     .putString(SettingsConstants.KEY_STORAGE_MODE, storageMode)
                     .putString(SettingsConstants.KEY_API_URL, apiUrl)
@@ -148,6 +242,9 @@ fun SettingsScreen(viewModel: AppViewModel, navController: NavController) {
                     .putString(SettingsConstants.KEY_API_PASSWORD, apiPassword)
                     .putString(SettingsConstants.KEY_THEME_MODE, themeMode)
                     .putString(SettingsConstants.KEY_LANGUAGE, language)
+                    .putBoolean(SettingsConstants.KEY_BACKUP_ENABLED, backupEnabled)
+                    .putString(SettingsConstants.KEY_BACKUP_PASSWORD, if (backupEnabled) backupPassword else "")
+                    .putString(SettingsConstants.KEY_BACKUP_LOCATION_URI, if (backupEnabled) backupLocationUri else "")
                     .putBoolean(SettingsConstants.KEY_MODULE_DIARY_VISIBLE, diaryVisible)
                     .putBoolean(SettingsConstants.KEY_MODULE_SLEEP_VISIBLE, sleepVisible)
                     .putBoolean(SettingsConstants.KEY_MODULE_EMOTIONS_VISIBLE, emotionsVisible)
