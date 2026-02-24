@@ -20,6 +20,7 @@ public class RestoreOptions {
     private boolean restoreReminderSettings;
     private boolean restoreModuleVisibility;
     private boolean restoreEmergencyPlan;
+    private boolean restoreDayPlanner;
 
     public RestoreOptions() {
         this.restoreCategories = true;
@@ -35,6 +36,7 @@ public class RestoreOptions {
         this.restoreReminderSettings = true;
         this.restoreModuleVisibility = true;
         this.restoreEmergencyPlan = true;
+        this.restoreDayPlanner = true;
     }
 
     /**
@@ -62,6 +64,7 @@ public class RestoreOptions {
         options.restoreReminderSettings = false;
         options.restoreModuleVisibility = false;
         options.restoreEmergencyPlan = false;
+        options.restoreDayPlanner = false;
         return options;
     }
 
@@ -167,5 +170,13 @@ public class RestoreOptions {
 
     public void setRestoreEmergencyPlan(boolean restoreEmergencyPlan) {
         this.restoreEmergencyPlan = restoreEmergencyPlan;
+    }
+
+    public boolean isRestoreDayPlanner() {
+        return restoreDayPlanner;
+    }
+
+    public void setRestoreDayPlanner(boolean restoreDayPlanner) {
+        this.restoreDayPlanner = restoreDayPlanner;
     }
 }

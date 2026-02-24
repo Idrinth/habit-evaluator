@@ -30,7 +30,7 @@ public class PersistenceManager {
             String userHome = System.getProperty("user.home");
             String dbPath = userHome + "/.habit-evaluator/data";
             properties.put("jakarta.persistence.jdbc.url",
-                    "jdbc:h2:file:" + dbPath + ";DB_CLOSE_ON_EXIT=FALSE;AUTO_RECONNECT=TRUE");
+                    "jdbc:h2:file:" + dbPath + ";DB_CLOSE_ON_EXIT=FALSE;AUTO_RECONNECT=TRUE;NON_KEYWORDS=VALUE,HOUR");
             properties.put("jakarta.persistence.jdbc.driver", "org.h2.Driver");
             properties.put("jakarta.persistence.jdbc.user", "sa");
             properties.put("jakarta.persistence.jdbc.password", "");

@@ -21,7 +21,7 @@ public abstract class H2RepositoryTestBase {
     @BeforeAll
     static void setUpDatabase() throws Exception {
         Map<String, String> properties = new HashMap<>();
-        properties.put("jakarta.persistence.jdbc.url", "jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;NON_KEYWORDS=VALUE");
+        properties.put("jakarta.persistence.jdbc.url", "jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;NON_KEYWORDS=VALUE,HOUR");
         properties.put("jakarta.persistence.jdbc.driver", "org.h2.Driver");
         properties.put("jakarta.persistence.jdbc.user", "sa");
         properties.put("jakarta.persistence.jdbc.password", "");
