@@ -1,5 +1,6 @@
 package de.idrinth.habitevaluator.android.ui.screens
 
+import android.app.TimePickerDialog
 import android.content.Context
 import android.content.Intent
 import android.widget.Toast
@@ -21,10 +22,12 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
+import androidx.compose.material3.Slider
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -43,8 +46,10 @@ import de.idrinth.habitevaluator.android.R
 import de.idrinth.habitevaluator.android.ReminderScheduler
 import de.idrinth.habitevaluator.android.SettingsConstants
 import de.idrinth.habitevaluator.android.ui.navigation.Screen
+import de.idrinth.habitevaluator.shared.util.ReminderScheduleCalculator
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlin.math.roundToInt
 
 @Composable
 fun SettingsScreen(viewModel: AppViewModel, navController: NavController) {
@@ -76,6 +81,15 @@ fun SettingsScreen(viewModel: AppViewModel, navController: NavController) {
     var backupPasswordConfirm by remember { mutableStateOf(prefs.getString(SettingsConstants.KEY_BACKUP_PASSWORD, "") ?: "") }
     var backupLocationUri by remember { mutableStateOf(prefs.getString(SettingsConstants.KEY_BACKUP_LOCATION_URI, "") ?: "") }
     var backupPasswordError by remember { mutableStateOf("") }
+
+    var sleepReminderEnabled by remember { mutableStateOf(prefs.getBoolean(SettingsConstants.KEY_SLEEP_REMINDER_ENABLED, false)) }
+    var sleepReminderTime by remember { mutableStateOf(prefs.getString(SettingsConstants.KEY_SLEEP_REMINDER_TIME, SettingsConstants.DEFAULT_SLEEP_REMINDER_TIME) ?: SettingsConstants.DEFAULT_SLEEP_REMINDER_TIME) }
+    var diaryReminderEnabled by remember { mutableStateOf(prefs.getBoolean(SettingsConstants.KEY_DIARY_REMINDER_ENABLED, false)) }
+    var diaryReminderTime by remember { mutableStateOf(prefs.getString(SettingsConstants.KEY_DIARY_REMINDER_TIME, SettingsConstants.DEFAULT_DIARY_REMINDER_TIME) ?: SettingsConstants.DEFAULT_DIARY_REMINDER_TIME) }
+    var emotionReminderEnabled by remember { mutableStateOf(prefs.getBoolean(SettingsConstants.KEY_EMOTION_REMINDER_ENABLED, false)) }
+    var emotionReminderCount by remember { mutableFloatStateOf(prefs.getInt(SettingsConstants.KEY_EMOTION_REMINDER_COUNT, SettingsConstants.DEFAULT_EMOTION_REMINDER_COUNT).toFloat()) }
+    var wakingHoursStart by remember { mutableStateOf(prefs.getString(SettingsConstants.KEY_WAKING_HOURS_START, SettingsConstants.DEFAULT_WAKING_HOURS_START) ?: SettingsConstants.DEFAULT_WAKING_HOURS_START) }
+    var wakingHoursEnd by remember { mutableStateOf(prefs.getString(SettingsConstants.KEY_WAKING_HOURS_END, SettingsConstants.DEFAULT_WAKING_HOURS_END) ?: SettingsConstants.DEFAULT_WAKING_HOURS_END) }
 
     val folderPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.OpenDocumentTree()
@@ -210,6 +224,83 @@ fun SettingsScreen(viewModel: AppViewModel, navController: NavController) {
             Text(stringResource(R.string.backup_title))
         }
 
+        // Reminder settings
+        Card(modifier = Modifier.fillMaxWidth()) {
+            Column(modifier = Modifier.padding(16.dp)) {
+                Text(stringResource(R.string.reminder_settings), style = MaterialTheme.typography.titleMedium)
+                Spacer(Modifier.height(8.dp))
+
+                LabeledSwitch(stringResource(R.string.reminder_sleep_label), sleepReminderEnabled) { sleepReminderEnabled = it }
+                if (sleepReminderEnabled) {
+                    val sleepHm = ReminderScheduleCalculator.parseTime(sleepReminderTime)
+                    OutlinedButton(onClick = {
+                        TimePickerDialog(context, { _, h, m ->
+                            sleepReminderTime = String.format("%02d:%02d", h, m)
+                        }, sleepHm[0], sleepHm[1], true).show()
+                    }, modifier = Modifier.fillMaxWidth()) {
+                        Text(stringResource(R.string.reminder_sleep_time_label) + ": $sleepReminderTime")
+                    }
+                }
+
+                Spacer(Modifier.height(4.dp))
+                LabeledSwitch(stringResource(R.string.reminder_diary_label), diaryReminderEnabled) { diaryReminderEnabled = it }
+                if (diaryReminderEnabled) {
+                    val diaryHm = ReminderScheduleCalculator.parseTime(diaryReminderTime)
+                    OutlinedButton(onClick = {
+                        TimePickerDialog(context, { _, h, m ->
+                            diaryReminderTime = String.format("%02d:%02d", h, m)
+                        }, diaryHm[0], diaryHm[1], true).show()
+                    }, modifier = Modifier.fillMaxWidth()) {
+                        Text(stringResource(R.string.reminder_diary_time_label) + ": $diaryReminderTime")
+                    }
+                }
+
+                Spacer(Modifier.height(4.dp))
+                LabeledSwitch(stringResource(R.string.reminder_emotion_label), emotionReminderEnabled) { emotionReminderEnabled = it }
+                if (emotionReminderEnabled) {
+                    Text(
+                        stringResource(R.string.reminder_emotion_count_label, emotionReminderCount.roundToInt()),
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier.padding(top = 4.dp)
+                    )
+                    Slider(
+                        value = emotionReminderCount,
+                        onValueChange = { emotionReminderCount = it },
+                        valueRange = 1f..10f,
+                        steps = 8,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    Text(
+                        stringResource(R.string.reminder_waking_hours_label),
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier.padding(top = 4.dp)
+                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        val startHm = ReminderScheduleCalculator.parseTime(wakingHoursStart)
+                        OutlinedButton(onClick = {
+                            TimePickerDialog(context, { _, h, m ->
+                                wakingHoursStart = String.format("%02d:%02d", h, m)
+                            }, startHm[0], startHm[1], true).show()
+                        }, modifier = Modifier.weight(1f)) {
+                            Text(wakingHoursStart)
+                        }
+                        val endHm = ReminderScheduleCalculator.parseTime(wakingHoursEnd)
+                        OutlinedButton(onClick = {
+                            TimePickerDialog(context, { _, h, m ->
+                                wakingHoursEnd = String.format("%02d:%02d", h, m)
+                            }, endHm[0], endHm[1], true).show()
+                        }, modifier = Modifier.weight(1f)) {
+                            Text(wakingHoursEnd)
+                        }
+                    }
+                }
+            }
+        }
+
         // Module visibility
         Card(modifier = Modifier.fillMaxWidth()) {
             Column(modifier = Modifier.padding(16.dp)) {
@@ -264,6 +355,14 @@ fun SettingsScreen(viewModel: AppViewModel, navController: NavController) {
                     .putBoolean(SettingsConstants.KEY_MODULE_PDF_EXPORT_VISIBLE, pdfExportVisible)
                     .putBoolean(SettingsConstants.KEY_MODULE_ACTIVITY_LOG_VISIBLE, activityLogVisible)
                     .putBoolean(SettingsConstants.KEY_MODULE_DAY_PLANNER_VISIBLE, dayPlannerVisible)
+                    .putBoolean(SettingsConstants.KEY_SLEEP_REMINDER_ENABLED, sleepReminderEnabled)
+                    .putString(SettingsConstants.KEY_SLEEP_REMINDER_TIME, sleepReminderTime)
+                    .putBoolean(SettingsConstants.KEY_DIARY_REMINDER_ENABLED, diaryReminderEnabled)
+                    .putString(SettingsConstants.KEY_DIARY_REMINDER_TIME, diaryReminderTime)
+                    .putBoolean(SettingsConstants.KEY_EMOTION_REMINDER_ENABLED, emotionReminderEnabled)
+                    .putInt(SettingsConstants.KEY_EMOTION_REMINDER_COUNT, emotionReminderCount.roundToInt())
+                    .putString(SettingsConstants.KEY_WAKING_HOURS_START, wakingHoursStart)
+                    .putString(SettingsConstants.KEY_WAKING_HOURS_END, wakingHoursEnd)
                     .apply()
                 SettingsConstants.applyThemeMode(themeMode)
                 SettingsConstants.applyLanguage(language)
