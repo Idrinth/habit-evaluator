@@ -56,7 +56,7 @@ fun DiaryNavigationScreen(viewModel: AppViewModel, navController: NavController)
 }
 
 @Composable
-private fun NavigationCard(title: String, onClick: () -> Unit) {
+internal fun NavigationCard(title: String, onClick: () -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
