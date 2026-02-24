@@ -15,11 +15,15 @@ class RoomFoodLogRepository(private val dao: FoodLogDao) : FoodLogRepository {
 
     override fun findById(id: String): Optional<FoodLog> = runBlocking {
         val entity = dao.findById(id) ?: return@runBlocking Optional.empty()
-        Optional.of(entity.toModel())
+        val tags = dao.findTagsByFoodLogId(id).map { it.toModel() }.toSet()
+        Optional.of(entity.toModel(tags))
     }
 
     override fun findAll(): List<FoodLog> = runBlocking {
-        dao.findAll().map { it.toModel() }
+        dao.findAll().map { entity ->
+            val tags = dao.findTagsByFoodLogId(entity.id).map { it.toModel() }.toSet()
+            entity.toModel(tags)
+        }
     }
 
     override fun deleteById(id: String) = runBlocking {
@@ -32,7 +36,10 @@ class RoomFoodLogRepository(private val dao: FoodLogDao) : FoodLogRepository {
     }
 
     override fun findByUserId(userId: String): List<FoodLog> = runBlocking {
-        dao.findByUserId(userId).map { it.toModel() }
+        dao.findByUserId(userId).map { entity ->
+            val tags = dao.findTagsByFoodLogId(entity.id).map { it.toModel() }.toSet()
+            entity.toModel(tags)
+        }
     }
 
     fun observeByUserId(userId: String): Flow<List<FoodLogEntity>> =

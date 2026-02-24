@@ -61,6 +61,7 @@ class RoomFoodLogRepositoryTest {
     fun testFindByIdReturnsEntry() = runTest {
         val entity = createEntity(carbohydrates = 25.5, kcal = 350, foodItems = "Rice, Chicken", notes = "Lunch")
         `when`(dao.findById("f1")).thenReturn(entity)
+        `when`(dao.findTagsByFoodLogId("f1")).thenReturn(emptyList())
 
         val found = repository.findById("f1")
         assertTrue(found.isPresent)
@@ -82,6 +83,7 @@ class RoomFoodLogRepositoryTest {
     fun testFindByIdWithNullCarbohydratesAndKcal() = runTest {
         val entity = createEntity(carbohydrates = null, kcal = null, foodItems = "Snack")
         `when`(dao.findById("f1")).thenReturn(entity)
+        `when`(dao.findTagsByFoodLogId("f1")).thenReturn(emptyList())
 
         val found = repository.findById("f1")
         assertTrue(found.isPresent)
@@ -93,6 +95,7 @@ class RoomFoodLogRepositoryTest {
     fun testFindByIdWithUser() = runTest {
         val entity = createEntity()
         `when`(dao.findById("f1")).thenReturn(entity)
+        `when`(dao.findTagsByFoodLogId("f1")).thenReturn(emptyList())
 
         val found = repository.findById("f1")
         assertTrue(found.isPresent)
@@ -105,6 +108,8 @@ class RoomFoodLogRepositoryTest {
         val e1 = createEntity(id = "f1", foodItems = "Rice")
         val e2 = createEntity(id = "f2", foodItems = "Pasta")
         `when`(dao.findAll()).thenReturn(listOf(e1, e2))
+        `when`(dao.findTagsByFoodLogId("f1")).thenReturn(emptyList())
+        `when`(dao.findTagsByFoodLogId("f2")).thenReturn(emptyList())
 
         val all = repository.findAll()
         assertEquals(2, all.size)
@@ -144,6 +149,8 @@ class RoomFoodLogRepositoryTest {
         val e1 = createEntity(id = "f1", foodItems = "Rice", userId = "u1")
         val e2 = createEntity(id = "f2", foodItems = "Pasta", userId = "u1")
         `when`(dao.findByUserId("u1")).thenReturn(listOf(e1, e2))
+        `when`(dao.findTagsByFoodLogId("f1")).thenReturn(emptyList())
+        `when`(dao.findTagsByFoodLogId("f2")).thenReturn(emptyList())
 
         val result = repository.findByUserId("u1")
         assertEquals(2, result.size)
@@ -162,6 +169,7 @@ class RoomFoodLogRepositoryTest {
     fun testFindByIdWithAllNullOptionalFields() = runTest {
         val entity = createEntity(carbohydrates = null, kcal = null, notes = null)
         `when`(dao.findById("f1")).thenReturn(entity)
+        `when`(dao.findTagsByFoodLogId("f1")).thenReturn(emptyList())
 
         val found = repository.findById("f1")
         assertTrue(found.isPresent)
@@ -174,11 +182,44 @@ class RoomFoodLogRepositoryTest {
     fun testFindByIdUserAttached() = runTest {
         val entity = createEntity()
         `when`(dao.findById("f1")).thenReturn(entity)
+        `when`(dao.findTagsByFoodLogId("f1")).thenReturn(emptyList())
 
         val found = repository.findById("f1")
         assertTrue(found.isPresent)
         assertNotNull(found.get().user)
         assertEquals("u1", found.get().user.id)
         assertEquals("testuser", found.get().user.username)
+    }
+
+    @Test
+    fun testFindByIdLoadsTags() = runTest {
+        val entity = createEntity()
+        val tagEntities = listOf(
+            FoodTagEntity(id = "t1", name = "Rice", nameLower = "rice", userId = "u1", userName = "testuser"),
+            FoodTagEntity(id = "t2", name = "Chicken", nameLower = "chicken", userId = "u1", userName = "testuser")
+        )
+        `when`(dao.findById("f1")).thenReturn(entity)
+        `when`(dao.findTagsByFoodLogId("f1")).thenReturn(tagEntities)
+
+        val found = repository.findById("f1")
+        assertTrue(found.isPresent)
+        assertEquals(2, found.get().tags.size)
+        assertTrue(found.get().tags.any { it.name == "Rice" })
+        assertTrue(found.get().tags.any { it.name == "Chicken" })
+    }
+
+    @Test
+    fun testFindByUserIdLoadsTags() = runTest {
+        val e1 = createEntity(id = "f1", foodItems = "Rice", userId = "u1")
+        val tagEntities = listOf(
+            FoodTagEntity(id = "t1", name = "Rice", nameLower = "rice", userId = "u1", userName = "testuser")
+        )
+        `when`(dao.findByUserId("u1")).thenReturn(listOf(e1))
+        `when`(dao.findTagsByFoodLogId("f1")).thenReturn(tagEntities)
+
+        val result = repository.findByUserId("u1")
+        assertEquals(1, result.size)
+        assertEquals(1, result[0].tags.size)
+        assertEquals("Rice", result[0].tags.first().name)
     }
 }

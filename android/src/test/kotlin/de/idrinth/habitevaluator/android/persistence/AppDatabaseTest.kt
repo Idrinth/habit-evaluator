@@ -1,6 +1,7 @@
 package de.idrinth.habitevaluator.android.persistence
 
 import androidx.room.RoomDatabase
+import androidx.room.migration.Migration
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -102,5 +103,14 @@ class AppDatabaseTest {
             it.name.endsWith("Dao")
         }
         assertEquals(11, daoMethods.size)
+    }
+
+    @Test
+    fun testMigration10To11Exists() {
+        val migration = AppDatabase.MIGRATION_10_11
+        assertNotNull(migration)
+        assertTrue(migration is Migration)
+        assertEquals(10, migration.startVersion)
+        assertEquals(11, migration.endVersion)
     }
 }

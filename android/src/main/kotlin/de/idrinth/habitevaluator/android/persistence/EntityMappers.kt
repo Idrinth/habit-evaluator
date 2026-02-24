@@ -348,7 +348,7 @@ fun FoodLog.toEntity(): FoodLogEntity = FoodLogEntity(
     userName = user?.username ?: ""
 )
 
-fun FoodLogEntity.toModel(): FoodLog {
+fun FoodLogEntity.toModel(tags: Set<FoodTag> = emptySet()): FoodLog {
     val log = FoodLog()
     log.id = id
     log.carbohydrates = carbohydrates
@@ -357,6 +357,7 @@ fun FoodLogEntity.toModel(): FoodLog {
     log.foodItems = foodItems
     log.createdAt = parseDateTimeOrNull(createdAt)
     log.notes = notes
+    log.tags = tags.toMutableSet().let { java.util.HashSet(it) }
     val u = User()
     u.id = userId
     u.username = userName
