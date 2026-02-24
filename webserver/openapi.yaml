@@ -1714,8 +1714,6 @@ components:
       properties:
         id:
           type: string
-        habit:
-          $ref: "#/components/schemas/Habit"
         completedAt:
           type: string
           format: date-time
@@ -2072,11 +2070,11 @@ components:
           example: 14:30:00
         user:
           $ref: "#/components/schemas/User"
-        description:
-          type: string
         points:
           type: integer
           format: int32
+        description:
+          type: string
         durationMinutes:
           type: integer
           format: int32
