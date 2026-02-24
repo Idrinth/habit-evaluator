@@ -9,6 +9,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import de.idrinth.habitevaluator.android.AppViewModel
 import de.idrinth.habitevaluator.android.ui.screens.ActivityLogScreen
+import de.idrinth.habitevaluator.android.ui.screens.BackupScreen
 import de.idrinth.habitevaluator.android.ui.screens.AddEmotionPairScreen
 import de.idrinth.habitevaluator.android.ui.screens.AddHabitScreen
 import de.idrinth.habitevaluator.android.ui.screens.CorrelationScreen
@@ -135,6 +136,9 @@ fun AppNavigation(
         }
         composable(Screen.PlannerActivities.route) {
             PlannerActivityScreen(viewModel = viewModel)
+        }
+        composable(Screen.Backup.route) {
+            BackupScreen(viewModel = viewModel)
         }
     }
 }

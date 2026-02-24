@@ -256,6 +256,9 @@ fun StatsScreen(viewModel: AppViewModel, navController: NavController) {
         Button(onClick = { navController.navigate(Screen.Correlations.route) }, modifier = Modifier.fillMaxWidth()) {
             Text(stringResource(R.string.view_correlations))
         }
+        Button(onClick = { navController.navigate(Screen.Backup.route) }, modifier = Modifier.fillMaxWidth()) {
+            Text(stringResource(R.string.backup_title))
+        }
 
         Spacer(Modifier.height(32.dp))
     }

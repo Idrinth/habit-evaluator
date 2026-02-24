@@ -37,6 +37,9 @@ import de.idrinth.habitevaluator.shared.api.SyncService
 import de.idrinth.habitevaluator.shared.api.VersionMismatchException
 import de.idrinth.habitevaluator.shared.backup.BackupException
 import de.idrinth.habitevaluator.shared.backup.BackupService
+import de.idrinth.habitevaluator.shared.backup.HezBackupService
+import de.idrinth.habitevaluator.shared.backup.MergeResult
+import de.idrinth.habitevaluator.shared.backup.RestoreOptions
 import de.idrinth.habitevaluator.shared.model.EmotionPair
 import de.idrinth.habitevaluator.shared.model.Habit
 import de.idrinth.habitevaluator.shared.model.HabitCategory
@@ -166,6 +169,7 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
     private var localBackupRepository: HabitRepository? = null
     private var localBackupUser: User? = null
     private val backupServiceInstance = BackupService()
+    private val hezBackupServiceInstance = HezBackupService()
 
     fun initializeStorage() {
         val prefs = getApplication<Application>().getSharedPreferences(
@@ -528,6 +532,41 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
         while (backups.size > 30) {
             backups.removeAt(backups.size - 1).delete()
         }
+    }
+
+    fun createDownloadableHezBackup(password: String): ByteArray {
+        val user = _currentUser.value
+            ?: throw BackupException("User not initialized")
+        return hezBackupServiceInstance.createHezBackup(
+            password, user,
+            _habitRepository.value, _categoryRepository.value,
+            diaryEntryRepository, sleepEntryRepository,
+            sportLogRepository, foodLogRepository,
+            emotionPairRepository, emotionEntryRepository,
+            null, activityLogRepository,
+            null, medicationRepository, medicationLogRepository,
+            null, emergencyPlanStepRepository, emergencyPlanActionRepository
+        )
+    }
+
+    fun restoreFromHezBytes(hezData: ByteArray, password: String, options: RestoreOptions): MergeResult {
+        val user = _currentUser.value
+            ?: throw BackupException("User not initialized")
+        return hezBackupServiceInstance.mergeFromHezBytes(
+            hezData, password, user,
+            _habitRepository.value, _categoryRepository.value,
+            diaryEntryRepository, sleepEntryRepository,
+            sportLogRepository, foodLogRepository, foodTagRepository,
+            emotionPairRepository, emotionEntryRepository,
+            null, activityLogRepository,
+            null, medicationRepository, medicationLogRepository,
+            null, emergencyPlanStepRepository, emergencyPlanActionRepository,
+            options
+        )
+    }
+
+    fun generateHezFilename(): String {
+        return hezBackupServiceInstance.generateDefaultFilename()
     }
 
     private fun copyHabitForBackup(source: Habit, backupUser: User): Habit {
