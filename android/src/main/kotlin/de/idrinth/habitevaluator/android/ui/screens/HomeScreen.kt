@@ -46,7 +46,6 @@ import de.idrinth.habitevaluator.android.AppViewModel
 import de.idrinth.habitevaluator.android.R
 import de.idrinth.habitevaluator.android.ui.navigation.Screen
 import de.idrinth.habitevaluator.shared.model.Habit
-import de.idrinth.habitevaluator.shared.model.HabitEntry
 import de.idrinth.habitevaluator.shared.service.HabitEvaluatorService
 import de.idrinth.habitevaluator.shared.service.HabitScoringService
 import kotlinx.coroutines.Dispatchers
@@ -140,23 +139,10 @@ fun HomeScreen(viewModel: AppViewModel, navController: NavController) {
                         HabitEvaluationCard(
                             habit = habit,
                             onComplete = {
-                                scope.launch(Dispatchers.IO) {
-                                    val freshHabit = viewModel.habitRepository.value.findById(habit.id).orElse(null) ?: return@launch
-                                    if (!freshHabit.hasReachedDailyLimit(LocalDate.now())) {
-                                        val entry = HabitEntry()
-                                        freshHabit.addEntry(entry)
-                                        viewModel.habitRepository.value.save(freshHabit)
-                                    }
-                                    withContext(Dispatchers.Main) { viewModel.loadHabits() }
-                                }
+                                viewModel.completeHabit(habit.id)
                             },
                             onRemoveCompletion = {
-                                scope.launch(Dispatchers.IO) {
-                                    val freshHabit = viewModel.habitRepository.value.findById(habit.id).orElse(null) ?: return@launch
-                                    freshHabit.removeLastEntryForDate(LocalDate.now())
-                                    viewModel.habitRepository.value.save(freshHabit)
-                                    withContext(Dispatchers.Main) { viewModel.loadHabits() }
-                                }
+                                viewModel.removeHabitCompletion(habit.id)
                             },
                             onViewPoints = {
                                 navController.navigate(Screen.PointDevelopment.createRoute(habit.id))
