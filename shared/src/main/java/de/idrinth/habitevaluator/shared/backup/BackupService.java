@@ -576,6 +576,95 @@ public class BackupService {
         int diaryEntriesAdded = 0;
         int sleepEntriesAdded = 0;
 
+        // When overwrite is enabled, clear existing data before restoring.
+        // Deletion order respects referential integrity (children before parents).
+        if (options.isOverwrite()) {
+            String userId = user.getId();
+            if (options.isRestoreEmergencyPlan() && emergencyPlanStepRepository != null
+                    && emergencyPlanActionRepository != null) {
+                List<EmergencyPlanStep> steps = emergencyPlanStepRepository.findByUserId(userId);
+                for (EmergencyPlanStep step : steps) {
+                    List<EmergencyPlanAction> actions = emergencyPlanActionRepository.findByStepId(step.getId());
+                    for (EmergencyPlanAction action : actions) {
+                        emergencyPlanActionRepository.deleteById(action.getId());
+                    }
+                    emergencyPlanStepRepository.deleteById(step.getId());
+                }
+            }
+            if (options.isRestoreMedicationData() && medicationLogRepository != null) {
+                for (MedicationLog log : medicationLogRepository.findByUserId(userId)) {
+                    medicationLogRepository.deleteById(log.getId());
+                }
+            }
+            if (options.isRestoreMedicationData() && medicationRepository != null) {
+                for (Medication med : medicationRepository.findByUserId(userId)) {
+                    medicationRepository.deleteById(med.getId());
+                }
+            }
+            if (options.isRestoreEmotionData() && emotionEntryRepository != null) {
+                for (EmotionEntry entry : emotionEntryRepository.findByUserId(userId)) {
+                    emotionEntryRepository.deleteById(entry.getId());
+                }
+            }
+            if (options.isRestoreEmotionData() && emotionPairRepository != null) {
+                for (EmotionPair pair : emotionPairRepository.findByUserId(userId)) {
+                    emotionPairRepository.deleteById(pair.getId());
+                }
+            }
+            if (options.isRestoreHabits() && habitRepository != null) {
+                for (Habit habit : habitRepository.findByUserId(userId)) {
+                    habitRepository.deleteById(habit.getId());
+                }
+            }
+            if (options.isRestoreCategories() && categoryRepository != null) {
+                for (HabitCategory cat : categoryRepository.findByUserId(userId)) {
+                    categoryRepository.deleteById(cat.getId());
+                }
+            }
+            if (options.isRestoreDiaryEntries() && diaryEntryRepository != null) {
+                for (DiaryEntry entry : diaryEntryRepository.findByUserId(userId)) {
+                    diaryEntryRepository.deleteById(entry.getId());
+                }
+            }
+            if (options.isRestoreSleepEntries() && sleepEntryRepository != null) {
+                for (SleepEntry entry : sleepEntryRepository.findByUserId(userId)) {
+                    sleepEntryRepository.deleteById(entry.getId());
+                }
+            }
+            if (options.isRestoreSportLogs() && sportLogRepository != null) {
+                for (SportLog entry : sportLogRepository.findByUserId(userId)) {
+                    sportLogRepository.deleteById(entry.getId());
+                }
+            }
+            if (options.isRestoreFoodLogs() && foodLogRepository != null) {
+                for (FoodLog entry : foodLogRepository.findByUserId(userId)) {
+                    foodLogRepository.deleteById(entry.getId());
+                }
+            }
+            if (options.isRestoreFoodLogs() && foodTagRepository != null) {
+                for (de.idrinth.habitevaluator.shared.model.FoodTag tag : foodTagRepository.findByUserId(userId)) {
+                    foodTagRepository.deleteById(tag.getId());
+                }
+            }
+            if (options.isRestoreMeetingEntries() && meetingEntryRepository != null) {
+                for (MeetingEntry entry : meetingEntryRepository.findByUserId(userId)) {
+                    meetingEntryRepository.deleteById(entry.getId());
+                }
+            }
+            if (options.isRestoreActivityLogs() && activityLogRepository != null) {
+                for (ActivityLog entry : activityLogRepository.findByUserId(userId)) {
+                    activityLogRepository.deleteById(entry.getId());
+                }
+            }
+            if (options.isRestoreReminderSettings() && reminderSettingsRepository != null) {
+                reminderSettingsRepository.deleteByUserId(userId);
+            }
+            if (options.isRestoreModuleVisibility() && moduleVisibilityRepository != null) {
+                moduleVisibilityRepository.deleteByUserId(userId);
+            }
+            logger.info("Overwrite mode: cleared existing data for user {}", userId);
+        }
+
         // Build a mapping from backup category IDs to local category IDs.
         // Categories are processed when restoring categories or habits (habits need category mapping).
         Map<String, String> categoryIdMapping = new HashMap<>();
@@ -1186,6 +1275,12 @@ public class BackupService {
         }
 
         try {
+            // Clear day planner data before doMerge when overwrite is enabled
+            if (options.isOverwrite() && options.isRestoreDayPlanner()) {
+                clearDayPlannerData(user, plannerGroupRepository, plannerActivityRepository,
+                        weekPlannerSlotRepository, slotConfirmationRepository);
+            }
+
             MergeResult baseResult = doMerge(backupData, user, habitRepository, categoryRepository,
                     diaryEntryRepository, sleepEntryRepository, sportLogRepository,
                     foodLogRepository, foodTagRepository, emotionPairRepository,
@@ -1218,6 +1313,35 @@ public class BackupService {
         } catch (Exception e) {
             throw new BackupException("Failed to merge backup data", e);
         }
+    }
+
+    private void clearDayPlannerData(User user,
+                                    PlannerGroupRepository plannerGroupRepository,
+                                    PlannerActivityRepository plannerActivityRepository,
+                                    WeekPlannerSlotRepository weekPlannerSlotRepository,
+                                    SlotConfirmationRepository slotConfirmationRepository) {
+        String userId = user.getId();
+        if (slotConfirmationRepository != null) {
+            for (SlotConfirmation confirmation : slotConfirmationRepository.findByUserId(userId)) {
+                slotConfirmationRepository.deleteById(confirmation.getId());
+            }
+        }
+        if (weekPlannerSlotRepository != null) {
+            for (WeekPlannerSlot slot : weekPlannerSlotRepository.findByUserId(userId)) {
+                weekPlannerSlotRepository.deleteById(slot.getId());
+            }
+        }
+        if (plannerActivityRepository != null) {
+            for (PlannerActivity activity : plannerActivityRepository.findByUserId(userId)) {
+                plannerActivityRepository.deleteById(activity.getId());
+            }
+        }
+        if (plannerGroupRepository != null) {
+            for (PlannerGroup group : plannerGroupRepository.findByUserId(userId)) {
+                plannerGroupRepository.deleteById(group.getId());
+            }
+        }
+        logger.info("Overwrite mode: cleared day planner data for user {}", userId);
     }
 
     private int mergeDayPlannerData(BackupData backupData, User user,

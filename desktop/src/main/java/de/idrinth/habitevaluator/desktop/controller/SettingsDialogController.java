@@ -474,8 +474,10 @@ public class SettingsDialogController {
         sportBox.setSelected(true);
         CheckBox foodBox = new CheckBox("Food logs");
         foodBox.setSelected(true);
+        CheckBox overwriteBox = new CheckBox("Overwrite existing data");
+        overwriteBox.setSelected(false);
 
-        VBox content = new VBox(8, categoriesBox, habitsBox, diaryBox, sleepBox, sportBox, foodBox);
+        VBox content = new VBox(8, categoriesBox, habitsBox, diaryBox, sleepBox, sportBox, foodBox, overwriteBox);
         dialog.getDialogPane().setContent(content);
 
         Optional<javafx.scene.control.ButtonType> result = dialog.showAndWait();
@@ -490,6 +492,7 @@ public class SettingsDialogController {
         options.setRestoreSleepEntries(sleepBox.isSelected());
         options.setRestoreSportLogs(sportBox.isSelected());
         options.setRestoreFoodLogs(foodBox.isSelected());
+        options.setOverwrite(overwriteBox.isSelected());
         return Optional.of(options);
     }
 

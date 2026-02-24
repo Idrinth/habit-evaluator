@@ -1389,6 +1389,142 @@ class BackupServiceTest {
     }
 
     @Test
+    void testOverwriteClearsExistingHabitsBeforeRestore() throws BackupException {
+        // Create a habit and back it up
+        Habit backupHabit = new Habit("BackupHabit", "From backup");
+        backupHabit.setUser(user);
+        habitRepository.save(backupHabit);
+
+        backupService.createBackup(tempDir, "password", user, habitRepository,
+                categoryRepository, diaryEntryRepository, sleepEntryRepository);
+
+        // Remove the backed-up habit and add a different one
+        habitRepository.deleteById(backupHabit.getId());
+        Habit localHabit = new Habit("LocalHabit", "Local only");
+        localHabit.setUser(user);
+        habitRepository.save(localHabit);
+        assertEquals(1, habitRepository.findByUserId(user.getId()).size());
+
+        // Restore with overwrite
+        RestoreOptions options = RestoreOptions.all();
+        options.setOverwrite(true);
+
+        File[] backups = backupService.listBackups(tempDir);
+        backupService.mergeBackup(backups[0], "password", user,
+                habitRepository, categoryRepository, diaryEntryRepository,
+                sleepEntryRepository, options);
+
+        // Local habit should be gone, backup habit should be restored
+        List<Habit> habits = habitRepository.findByUserId(user.getId());
+        assertEquals(1, habits.size());
+        assertEquals("BackupHabit", habits.get(0).getName());
+    }
+
+    @Test
+    void testOverwriteClearsExistingDiaryEntriesBeforeRestore() throws BackupException {
+        // Create diary entry and back it up
+        DiaryEntry backupEntry = new DiaryEntry("Backup event", EventSignificance.MAJOR, LocalDate.of(2026, 1, 10));
+        backupEntry.setUser(user);
+        diaryEntryRepository.save(backupEntry);
+
+        backupService.createBackup(tempDir, "password", user, habitRepository,
+                categoryRepository, diaryEntryRepository, sleepEntryRepository);
+
+        // Remove backed up entry and add a different one
+        diaryEntryRepository.deleteById(backupEntry.getId());
+        DiaryEntry localEntry = new DiaryEntry("Local event", EventSignificance.MINOR, LocalDate.of(2026, 2, 20));
+        localEntry.setUser(user);
+        diaryEntryRepository.save(localEntry);
+
+        // Restore with overwrite
+        RestoreOptions options = RestoreOptions.all();
+        options.setOverwrite(true);
+
+        File[] backups = backupService.listBackups(tempDir);
+        backupService.mergeBackup(backups[0], "password", user,
+                habitRepository, categoryRepository, diaryEntryRepository,
+                sleepEntryRepository, options);
+
+        List<DiaryEntry> entries = diaryEntryRepository.findByUserId(user.getId());
+        assertEquals(1, entries.size());
+        assertEquals("Backup event", entries.get(0).getDescription());
+    }
+
+    @Test
+    void testOverwriteSelectiveOnlyClearsSelectedTypes() throws BackupException {
+        // Create a habit and diary entry, back them up
+        Habit habit = new Habit("BackedUp", "Test");
+        habit.setUser(user);
+        habitRepository.save(habit);
+
+        DiaryEntry diary = new DiaryEntry("Backed up entry", EventSignificance.NORMAL, LocalDate.of(2026, 1, 15));
+        diary.setUser(user);
+        diaryEntryRepository.save(diary);
+
+        backupService.createBackup(tempDir, "password", user, habitRepository,
+                categoryRepository, diaryEntryRepository, sleepEntryRepository);
+
+        // Clear and add different data
+        habitRepository.deleteById(habit.getId());
+        diaryEntryRepository.deleteById(diary.getId());
+        Habit localHabit = new Habit("LocalOnly", "Local");
+        localHabit.setUser(user);
+        habitRepository.save(localHabit);
+        DiaryEntry localDiary = new DiaryEntry("Local diary", EventSignificance.MINOR, LocalDate.of(2026, 3, 1));
+        localDiary.setUser(user);
+        diaryEntryRepository.save(localDiary);
+
+        // Restore only habits with overwrite (diary should not be touched)
+        RestoreOptions options = RestoreOptions.none();
+        options.setRestoreHabits(true);
+        options.setOverwrite(true);
+
+        File[] backups = backupService.listBackups(tempDir);
+        backupService.mergeBackup(backups[0], "password", user,
+                habitRepository, categoryRepository, diaryEntryRepository,
+                sleepEntryRepository, options);
+
+        // Habits should be overwritten: only backup habit present
+        List<Habit> habits = habitRepository.findByUserId(user.getId());
+        assertEquals(1, habits.size());
+        assertEquals("BackedUp", habits.get(0).getName());
+
+        // Diary should be untouched: local diary still present
+        List<DiaryEntry> diaryEntries = diaryEntryRepository.findByUserId(user.getId());
+        assertEquals(1, diaryEntries.size());
+        assertEquals("Local diary", diaryEntries.get(0).getDescription());
+    }
+
+    @Test
+    void testMergeWithoutOverwritePreservesExistingData() throws BackupException {
+        // Create a habit and back it up
+        Habit backupHabit = new Habit("BackupHabit", "From backup");
+        backupHabit.setUser(user);
+        habitRepository.save(backupHabit);
+
+        backupService.createBackup(tempDir, "password", user, habitRepository,
+                categoryRepository, diaryEntryRepository, sleepEntryRepository);
+
+        // Add a different habit locally (don't remove the original)
+        Habit localHabit = new Habit("LocalHabit", "Local only");
+        localHabit.setUser(user);
+        habitRepository.save(localHabit);
+
+        // Restore without overwrite (default)
+        RestoreOptions options = RestoreOptions.all();
+        assertFalse(options.isOverwrite());
+
+        File[] backups = backupService.listBackups(tempDir);
+        backupService.mergeBackup(backups[0], "password", user,
+                habitRepository, categoryRepository, diaryEntryRepository,
+                sleepEntryRepository, options);
+
+        // Both habits should be present
+        List<Habit> habits = habitRepository.findByUserId(user.getId());
+        assertEquals(2, habits.size());
+    }
+
+    @Test
     void testBackupScoringRuleInHabitConvert() throws BackupException {
         ScoringRule rule = new ScoringRule("custom", 1, 2, 4, 7);
         rule.setUser(user);

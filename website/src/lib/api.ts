@@ -337,6 +337,7 @@ export const backup = {
 		sleep?: boolean;
 		sportLogs?: boolean;
 		foodLogs?: boolean;
+		overwrite?: boolean;
 	}) {
 		const formData = new FormData();
 		formData.append('file', file);
@@ -348,6 +349,7 @@ export const backup = {
 			if (options.sleep !== undefined) formData.append('sleep', String(options.sleep));
 			if (options.sportLogs !== undefined) formData.append('sportLogs', String(options.sportLogs));
 			if (options.foodLogs !== undefined) formData.append('foodLogs', String(options.foodLogs));
+			if (options.overwrite !== undefined) formData.append('overwrite', String(options.overwrite));
 		}
 		const response = await fetch(`${getApiBaseUrl()}/backup`, {
 			method: 'POST',

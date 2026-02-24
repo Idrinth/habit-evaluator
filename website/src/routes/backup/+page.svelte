@@ -14,6 +14,7 @@
 	let restoreSleep = $state(true);
 	let restoreSportLogs = $state(true);
 	let restoreFoodLogs = $state(true);
+	let overwrite = $state(false);
 
 	async function handleDownload() {
 		if (!password) {
@@ -74,7 +75,8 @@
 				diary: restoreDiary,
 				sleep: restoreSleep,
 				sportLogs: restoreSportLogs,
-				foodLogs: restoreFoodLogs
+				foodLogs: restoreFoodLogs,
+				overwrite
 			});
 
 			if (result.success) {
@@ -121,7 +123,7 @@
 
 	<div class="form-section">
 		<h3>Restore Backup</h3>
-		<p class="help-text">Upload a .hez file to merge its data into your account. Existing data will not be overwritten.</p>
+		<p class="help-text">Upload a .hez file to restore data into your account.</p>
 		<input type="file" accept=".hez" bind:this={fileInput} class="file-input" />
 		<div class="restore-options">
 			<p class="help-text">Select which data types to restore:</p>
@@ -149,6 +151,13 @@
 				<input type="checkbox" bind:checked={restoreFoodLogs} />
 				Food logs
 			</label>
+			<label class="checkbox-label overwrite-label">
+				<input type="checkbox" bind:checked={overwrite} />
+				Overwrite existing data
+			</label>
+			{#if overwrite}
+				<p class="help-text warning-text">Warning: This will delete all existing data of the selected types before restoring from the backup.</p>
+			{/if}
 		</div>
 		<button class="action-button" onclick={handleUpload} disabled={uploading}>
 			{uploading ? 'Restoring...' : 'Restore Backup'}
@@ -248,5 +257,13 @@
 
 	.message.error {
 		color: var(--color-error);
+	}
+
+	.overwrite-label {
+		margin-top: 0.5rem;
+	}
+
+	.warning-text {
+		color: var(--color-error, #d32f2f);
 	}
 </style>

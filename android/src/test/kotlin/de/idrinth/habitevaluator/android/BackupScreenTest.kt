@@ -56,6 +56,7 @@ class BackupScreenTest {
         assertTrue(options.isRestoreModuleVisibility)
         assertTrue(options.isRestoreEmergencyPlan)
         assertTrue(options.isRestoreDayPlanner)
+        assertFalse(options.isOverwrite)
     }
 
     @Test
@@ -84,6 +85,7 @@ class BackupScreenTest {
         assertFalse(options.isRestoreModuleVisibility)
         assertFalse(options.isRestoreEmergencyPlan)
         assertFalse(options.isRestoreDayPlanner)
+        assertFalse(options.isOverwrite)
     }
 
     @Test
@@ -216,6 +218,30 @@ class BackupScreenTest {
     @Test
     fun testIsValidHezDataPartialMagicNumber() {
         assertFalse(isValidHezData(byteArrayOf(0x50, 0x4B, 0x00, 0x04)))
+    }
+
+    // --- Overwrite option tests ---
+
+    @Test
+    fun testOverwriteDefaultsFalse() {
+        val options = RestoreOptions()
+        assertFalse(options.isOverwrite)
+    }
+
+    @Test
+    fun testOverwriteCanBeEnabled() {
+        val options = RestoreOptions()
+        options.isOverwrite = true
+        assertTrue(options.isOverwrite)
+    }
+
+    @Test
+    fun testOverwriteIndependentOfRestoreFlags() {
+        val options = RestoreOptions.all()
+        options.isOverwrite = true
+        assertTrue(options.isRestoreCategories)
+        assertTrue(options.isRestoreHabits)
+        assertTrue(options.isOverwrite)
     }
 
     // --- Screen route test ---
