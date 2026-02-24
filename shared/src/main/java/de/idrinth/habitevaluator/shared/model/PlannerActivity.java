@@ -41,7 +41,7 @@ public class PlannerActivity {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "planner_activity_group_links",
             joinColumns = @JoinColumn(name = "activity_id"),
