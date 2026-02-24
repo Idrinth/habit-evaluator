@@ -1,5 +1,6 @@
 package de.idrinth.habitevaluator.android.persistence
 
+import de.idrinth.habitevaluator.shared.model.PlannerGroup
 import de.idrinth.habitevaluator.shared.model.WeekPlannerSlot
 import de.idrinth.habitevaluator.shared.repository.WeekPlannerSlotRepository
 import kotlinx.coroutines.flow.Flow
@@ -9,25 +10,25 @@ import java.util.Optional
 class RoomWeekPlannerSlotRepository(private val dao: DayPlannerDao) : WeekPlannerSlotRepository {
 
     override fun save(slot: WeekPlannerSlot): WeekPlannerSlot = runBlocking {
-        dao.insertSlot(slot.toEntity())
+        dao.saveSlotWithGroups(slot.toEntity(), slot.toGroupIds())
         slot
     }
 
     override fun findById(id: String): Optional<WeekPlannerSlot> = runBlocking {
         val entity = dao.findSlotById(id) ?: return@runBlocking Optional.empty()
-        val group = entity.groupId?.let { dao.findGroupById(it)?.toModel() }
-        Optional.of(entity.toModel(group))
+        val groups = resolveGroups(entity.id)
+        Optional.of(entity.toModel(groups))
     }
 
     override fun findAll(): List<WeekPlannerSlot> = runBlocking {
         dao.findAllSlots().map { entity ->
-            val group = entity.groupId?.let { dao.findGroupById(it)?.toModel() }
-            entity.toModel(group)
+            val groups = resolveGroups(entity.id)
+            entity.toModel(groups)
         }
     }
 
     override fun deleteById(id: String) = runBlocking {
-        dao.deleteSlotById(id)
+        dao.deleteSlotWithLinks(id)
     }
 
     override fun existsById(id: String): Boolean = runBlocking {
@@ -36,15 +37,15 @@ class RoomWeekPlannerSlotRepository(private val dao: DayPlannerDao) : WeekPlanne
 
     override fun findByUserId(userId: String): List<WeekPlannerSlot> = runBlocking {
         dao.findSlotsByUserId(userId).map { entity ->
-            val group = entity.groupId?.let { dao.findGroupById(it)?.toModel() }
-            entity.toModel(group)
+            val groups = resolveGroups(entity.id)
+            entity.toModel(groups)
         }
     }
 
     override fun findByUserIdAndDayOfWeek(userId: String, dayOfWeek: Int): List<WeekPlannerSlot> = runBlocking {
         dao.findSlotsByUserIdAndDayOfWeek(userId, dayOfWeek).map { entity ->
-            val group = entity.groupId?.let { dao.findGroupById(it)?.toModel() }
-            entity.toModel(group)
+            val groups = resolveGroups(entity.id)
+            entity.toModel(groups)
         }
     }
 
@@ -52,7 +53,16 @@ class RoomWeekPlannerSlotRepository(private val dao: DayPlannerDao) : WeekPlanne
         dao.observeSlotsByUserId(userId)
 
     suspend fun saveSuspend(slot: WeekPlannerSlot): WeekPlannerSlot {
-        dao.insertSlot(slot.toEntity())
+        dao.saveSlotWithGroups(slot.toEntity(), slot.toGroupIds())
         return slot
+    }
+
+    private suspend fun resolveGroups(slotId: String): Set<PlannerGroup> {
+        val groupIds = dao.findGroupIdsForSlot(slotId)
+        val groups = mutableSetOf<PlannerGroup>()
+        for (gid in groupIds) {
+            dao.findGroupById(gid)?.toModel()?.let { groups.add(it) }
+        }
+        return groups
     }
 }

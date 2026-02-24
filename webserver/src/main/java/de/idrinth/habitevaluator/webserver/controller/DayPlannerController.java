@@ -194,8 +194,12 @@ public class DayPlannerController {
             return ResponseEntity.status(401).build();
         }
         slot.setUser(userOpt.get());
-        if (slot.getGroup() != null && slot.getGroup().getId() != null) {
-            groupRepository.findById(slot.getGroup().getId()).ifPresent(slot::setGroup);
+        if (slot.getGroups() != null && !slot.getGroups().isEmpty()) {
+            Set<PlannerGroup> resolved = new java.util.HashSet<>();
+            for (PlannerGroup g : slot.getGroups()) {
+                groupRepository.findById(g.getId()).ifPresent(resolved::add);
+            }
+            slot.setGroups(resolved);
         }
         return ResponseEntity.ok(slotRepository.save(slot));
     }

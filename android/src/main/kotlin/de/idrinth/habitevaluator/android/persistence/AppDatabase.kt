@@ -36,9 +36,10 @@ import java.io.File
         PlannerGroupEntity::class,
         PlannerActivityGroupLinkEntity::class,
         WeekPlannerSlotEntity::class,
+        WeekPlannerSlotGroupLinkEntity::class,
         SlotConfirmationEntity::class
     ],
-    version = 11,
+    version = 12,
     exportSchema = true
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -139,13 +140,46 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        val MIGRATION_11_12 = object : Migration(11, 12) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    """CREATE TABLE IF NOT EXISTS `week_planner_slot_group_links` (
+                        `slot_id` TEXT NOT NULL,
+                        `group_id` TEXT NOT NULL,
+                        PRIMARY KEY(`slot_id`, `group_id`))"""
+                )
+                // Migrate existing group_id data to the new join table
+                db.execSQL(
+                    """INSERT OR IGNORE INTO `week_planner_slot_group_links` (`slot_id`, `group_id`)
+                        SELECT `id`, `group_id` FROM `week_planner_slots` WHERE `group_id` IS NOT NULL"""
+                )
+                // Recreate week_planner_slots without group_id column
+                db.execSQL(
+                    """CREATE TABLE IF NOT EXISTS `week_planner_slots_new` (
+                        `id` TEXT NOT NULL,
+                        `day_of_week` INTEGER NOT NULL,
+                        `hour` INTEGER NOT NULL,
+                        `user_id` TEXT NOT NULL,
+                        `user_name` TEXT NOT NULL,
+                        PRIMARY KEY(`id`))"""
+                )
+                db.execSQL(
+                    """INSERT INTO `week_planner_slots_new` (`id`, `day_of_week`, `hour`, `user_id`, `user_name`)
+                        SELECT `id`, `day_of_week`, `hour`, `user_id`, `user_name` FROM `week_planner_slots`"""
+                )
+                db.execSQL("DROP TABLE `week_planner_slots`")
+                db.execSQL("ALTER TABLE `week_planner_slots_new` RENAME TO `week_planner_slots`")
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_week_planner_slots_user_id` ON `week_planner_slots` (`user_id`)")
+            }
+        }
+
         private fun buildDatabase(context: Context): AppDatabase {
             handlePreRoomDatabase(context)
             return Room.databaseBuilder(
                 context.applicationContext,
                 AppDatabase::class.java,
                 DATABASE_NAME
-            ).addMigrations(MIGRATION_10_11).build()
+            ).addMigrations(MIGRATION_10_11, MIGRATION_11_12).build()
         }
 
         private fun handlePreRoomDatabase(context: Context) {

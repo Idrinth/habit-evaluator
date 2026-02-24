@@ -19,12 +19,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExposedDropdownMenuBox
-import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -58,7 +54,6 @@ import java.time.format.TextStyle
 import java.util.Locale
 import java.util.UUID
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WeekPlannerScreen(viewModel: AppViewModel) {
     val context = LocalContext.current
@@ -71,7 +66,7 @@ fun WeekPlannerScreen(viewModel: AppViewModel) {
     var selectedDay by remember { mutableIntStateOf(DayOfWeek.from(java.time.LocalDate.now()).value) }
     var showSlotDialog by remember { mutableStateOf(false) }
     var dialogHour by remember { mutableIntStateOf(0) }
-    var selectedGroupId by remember { mutableStateOf<String?>(null) }
+    var selectedGroupIds by remember { mutableStateOf<Set<String>>(emptySet()) }
     var showSummary by remember { mutableStateOf(false) }
 
     fun loadData() {
@@ -96,25 +91,23 @@ fun WeekPlannerScreen(viewModel: AppViewModel) {
         dayPlannerService.getWeekSlotSummary(allSlots)
     }
 
-    fun setSlotGroup(hour: Int, groupId: String?) {
+    fun setSlotGroups(hour: Int, groupIds: Set<String>) {
         scope.launch(Dispatchers.IO) {
             val userId = localUser?.id ?: return@launch
-            // Find existing slot for this day/hour
             val existing = allSlots.find { it.dayOfWeek == selectedDay && it.hour == hour }
-            if (groupId == null) {
-                // Remove slot
+            if (groupIds.isEmpty()) {
                 existing?.let { viewModel.weekPlannerSlotRepository.deleteById(it.id) }
             } else {
-                val group = allGroups.find { it.id == groupId }
+                val groups = allGroups.filter { it.id in groupIds }.toHashSet()
                 if (existing != null) {
-                    existing.group = group
+                    existing.groups = groups
                     viewModel.weekPlannerSlotRepository.save(existing)
                 } else {
                     val slot = WeekPlannerSlot()
                     slot.id = UUID.randomUUID().toString()
                     slot.dayOfWeek = selectedDay
                     slot.hour = hour
-                    slot.group = group
+                    slot.groups = groups
                     slot.user = localUser
                     viewModel.weekPlannerSlotRepository.save(slot)
                 }
@@ -150,9 +143,8 @@ fun WeekPlannerScreen(viewModel: AppViewModel) {
                     )
                     if (showSummary) {
                         Spacer(Modifier.height(4.dp))
-                        // Per-day summary
                         for (day in 1..7) {
-                            val filled = allSlots.count { it.dayOfWeek == day }
+                            val filled = allSlots.count { it.dayOfWeek == day && it.groups != null && it.groups.isNotEmpty() }
                             val dayLabel = DayOfWeek.of(day).getDisplayName(TextStyle.SHORT, Locale.getDefault())
                             Text("$dayLabel: $filled/24", style = MaterialTheme.typography.bodySmall)
                         }
@@ -195,19 +187,20 @@ fun WeekPlannerScreen(viewModel: AppViewModel) {
             ) {
                 items((0..23).toList()) { hour ->
                     val slot = daySlots.find { it.hour == hour }
-                    val groupName = slot?.group?.name
+                    val groupNames = slot?.groups?.mapNotNull { it.name }?.sorted()
+                    val hasGroups = !groupNames.isNullOrEmpty()
 
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
                             .clip(RoundedCornerShape(8.dp))
                             .background(
-                                if (groupName != null) MaterialTheme.colorScheme.primaryContainer
+                                if (hasGroups) MaterialTheme.colorScheme.primaryContainer
                                 else MaterialTheme.colorScheme.surfaceVariant
                             )
                             .clickable {
                                 dialogHour = hour
-                                selectedGroupId = slot?.group?.id
+                                selectedGroupIds = slot?.groups?.map { it.id }?.toSet() ?: emptySet()
                                 showSlotDialog = true
                             }
                             .padding(horizontal = 12.dp, vertical = 8.dp),
@@ -219,7 +212,8 @@ fun WeekPlannerScreen(viewModel: AppViewModel) {
                             modifier = Modifier.width(52.dp)
                         )
                         Text(
-                            groupName ?: stringResource(R.string.planner_unassigned),
+                            if (hasGroups) groupNames!!.joinToString(", ")
+                            else stringResource(R.string.planner_unassigned),
                             style = MaterialTheme.typography.bodyMedium,
                             textAlign = TextAlign.Start
                         )
@@ -230,52 +224,47 @@ fun WeekPlannerScreen(viewModel: AppViewModel) {
     }
 
     if (showSlotDialog) {
-        var dropdownExpanded by remember { mutableStateOf(false) }
         AlertDialog(
             onDismissRequest = { showSlotDialog = false },
             title = { Text(stringResource(R.string.planner_assign_group, String.format("%02d:00", dialogHour))) },
             text = {
                 Column {
-                    ExposedDropdownMenuBox(
-                        expanded = dropdownExpanded,
-                        onExpandedChange = { dropdownExpanded = !dropdownExpanded }
-                    ) {
-                        OutlinedTextField(
-                            value = allGroups.find { it.id == selectedGroupId }?.name
-                                ?: stringResource(R.string.planner_none),
-                            onValueChange = {},
-                            readOnly = true,
-                            label = { Text(stringResource(R.string.planner_group_name)) },
-                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = dropdownExpanded) },
-                            modifier = Modifier.menuAnchor().fillMaxWidth()
-                        )
-                        ExposedDropdownMenu(
-                            expanded = dropdownExpanded,
-                            onDismissRequest = { dropdownExpanded = false }
+                    allGroups.forEach { group ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    selectedGroupIds = if (group.id in selectedGroupIds) {
+                                        selectedGroupIds - group.id
+                                    } else {
+                                        selectedGroupIds + group.id
+                                    }
+                                }
+                                .padding(vertical = 4.dp),
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
-                            DropdownMenuItem(
-                                text = { Text(stringResource(R.string.planner_none)) },
-                                onClick = {
-                                    selectedGroupId = null
-                                    dropdownExpanded = false
+                            Checkbox(
+                                checked = group.id in selectedGroupIds,
+                                onCheckedChange = { checked ->
+                                    selectedGroupIds = if (checked) {
+                                        selectedGroupIds + group.id
+                                    } else {
+                                        selectedGroupIds - group.id
+                                    }
                                 }
                             )
-                            allGroups.forEach { group ->
-                                DropdownMenuItem(
-                                    text = { Text(group.name ?: "") },
-                                    onClick = {
-                                        selectedGroupId = group.id
-                                        dropdownExpanded = false
-                                    }
-                                )
-                            }
+                            Text(
+                                group.name ?: "",
+                                style = MaterialTheme.typography.bodyMedium,
+                                modifier = Modifier.padding(start = 8.dp)
+                            )
                         }
                     }
                 }
             },
             confirmButton = {
                 TextButton(onClick = {
-                    setSlotGroup(dialogHour, selectedGroupId)
+                    setSlotGroups(dialogHour, selectedGroupIds)
                     showSlotDialog = false
                 }) { Text(stringResource(R.string.save)) }
             },

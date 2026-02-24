@@ -63,6 +63,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -1300,9 +1301,13 @@ public class BackupService {
                 if (!existingSlotKeys.contains(key)) {
                     WeekPlannerSlot newSlot = new WeekPlannerSlot(slotData.getDayOfWeek(), slotData.getHour());
                     newSlot.setUser(user);
-                    if (slotData.getGroupId() != null && plannerGroupRepository != null) {
-                        String mappedGroupId = groupIdMapping.getOrDefault(slotData.getGroupId(), slotData.getGroupId());
-                        plannerGroupRepository.findById(mappedGroupId).ifPresent(newSlot::setGroup);
+                    if (slotData.getGroupIds() != null && plannerGroupRepository != null) {
+                        Set<PlannerGroup> groups = new HashSet<>();
+                        for (String gid : slotData.getGroupIds()) {
+                            String mappedGroupId = groupIdMapping.getOrDefault(gid, gid);
+                            plannerGroupRepository.findById(mappedGroupId).ifPresent(groups::add);
+                        }
+                        newSlot.setGroups(groups);
                     }
                     weekPlannerSlotRepository.save(newSlot);
                     itemsAdded++;
@@ -1863,9 +1868,13 @@ public class BackupService {
                 slotData.setId(slot.getId());
                 slotData.setDayOfWeek(slot.getDayOfWeek());
                 slotData.setHour(slot.getHour());
-                if (slot.getGroup() != null) {
-                    slotData.setGroupId(slot.getGroup().getId());
+                List<String> groupIds = new ArrayList<>();
+                if (slot.getGroups() != null) {
+                    for (PlannerGroup group : slot.getGroups()) {
+                        groupIds.add(group.getId());
+                    }
                 }
+                slotData.setGroupIds(groupIds);
                 data.getWeekPlannerSlots().add(slotData);
             }
         }

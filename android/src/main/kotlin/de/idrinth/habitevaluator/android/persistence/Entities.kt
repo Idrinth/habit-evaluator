@@ -250,14 +250,19 @@ data class PlannerActivityGroupLinkEntity(
     @ColumnInfo(name = "group_id") val groupId: String
 )
 
-@Entity(tableName = "week_planner_slots", indices = [Index("user_id"), Index("group_id")])
+@Entity(tableName = "week_planner_slots", indices = [Index("user_id")])
 data class WeekPlannerSlotEntity(
     @PrimaryKey @ColumnInfo(name = "id") val id: String,
     @ColumnInfo(name = "day_of_week") val dayOfWeek: Int,
     @ColumnInfo(name = "hour") val hour: Int,
-    @ColumnInfo(name = "group_id") val groupId: String?,
     @ColumnInfo(name = "user_id") val userId: String,
     @ColumnInfo(name = "user_name") val userName: String
+)
+
+@Entity(tableName = "week_planner_slot_group_links", primaryKeys = ["slot_id", "group_id"])
+data class WeekPlannerSlotGroupLinkEntity(
+    @ColumnInfo(name = "slot_id") val slotId: String,
+    @ColumnInfo(name = "group_id") val groupId: String
 )
 
 @Entity(tableName = "slot_confirmations", indices = [Index("user_id"), Index("slot_id"), Index("activity_id")])
