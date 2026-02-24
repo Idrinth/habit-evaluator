@@ -397,6 +397,64 @@ class DayPlannerControllerTest {
         assertEquals(200, response.getStatusCode().value());
     }
 
+    // ── Week Overview ──
+
+    @Test
+    void testGetWeekOverviewUnauthenticated() {
+        MockHttpSession unauthSession = new MockHttpSession();
+        ResponseEntity<?> response = controller.getWeekOverview(unauthSession);
+        assertEquals(401, response.getStatusCode().value());
+    }
+
+    @Test
+    void testGetWeekOverviewEmpty() {
+        when(slotRepository.findByUserId(testUser.getId())).thenReturn(List.of());
+
+        ResponseEntity<?> response = controller.getWeekOverview(session);
+
+        assertEquals(200, response.getStatusCode().value());
+        @SuppressWarnings("unchecked")
+        java.util.Map<String, Object> body = (java.util.Map<String, Object>) response.getBody();
+        assertNotNull(body);
+        @SuppressWarnings("unchecked")
+        java.util.List<java.util.Map<String, Integer>> slots = (java.util.List<java.util.Map<String, Integer>>) body.get("slots");
+        assertTrue(slots.isEmpty());
+    }
+
+    @Test
+    void testGetWeekOverviewWithSlots() {
+        PlannerGroup group = new PlannerGroup("Fitness");
+        group.setUser(testUser);
+
+        WeekPlannerSlot slot1 = new WeekPlannerSlot(1, 9);
+        slot1.setUser(testUser);
+        slot1.setGroups(Set.of(group));
+
+        WeekPlannerSlot slot2 = new WeekPlannerSlot(3, 14);
+        slot2.setUser(testUser);
+        slot2.setGroups(Set.of(group));
+
+        WeekPlannerSlot emptySlot = new WeekPlannerSlot(5, 10);
+        emptySlot.setUser(testUser);
+        emptySlot.setGroups(new HashSet<>());
+
+        when(slotRepository.findByUserId(testUser.getId())).thenReturn(List.of(slot1, slot2, emptySlot));
+
+        ResponseEntity<?> response = controller.getWeekOverview(session);
+
+        assertEquals(200, response.getStatusCode().value());
+        @SuppressWarnings("unchecked")
+        java.util.Map<String, Object> body = (java.util.Map<String, Object>) response.getBody();
+        assertNotNull(body);
+        @SuppressWarnings("unchecked")
+        java.util.List<java.util.Map<String, Integer>> slots = (java.util.List<java.util.Map<String, Integer>>) body.get("slots");
+        assertEquals(2, slots.size());
+        assertEquals(1, slots.get(0).get("dayOfWeek"));
+        assertEquals(9, slots.get(0).get("hour"));
+        assertEquals(3, slots.get(1).get("dayOfWeek"));
+        assertEquals(14, slots.get(1).get("hour"));
+    }
+
     // ── Summary ──
 
     @Test
