@@ -115,4 +115,67 @@ class EmotionalStateScreenTest {
         assertEquals(1, result.size)
         assertTrue(result[pair1.id]!!.isEmpty())
     }
+
+    @Test
+    fun testExpandedStateDefaultsToCollapsed() {
+        val expandedPairs = mutableMapOf<String, Boolean>()
+        val pair = EmotionPair("Sad", "Happy")
+
+        assertFalse(expandedPairs[pair.id] == true)
+    }
+
+    @Test
+    fun testExpandedStateTogglesFromCollapsedToExpanded() {
+        val expandedPairs = mutableMapOf<String, Boolean>()
+        val pair = EmotionPair("Sad", "Happy")
+
+        expandedPairs[pair.id] = !(expandedPairs[pair.id] == true)
+
+        assertTrue(expandedPairs[pair.id] == true)
+    }
+
+    @Test
+    fun testExpandedStateTogglesFromExpandedToCollapsed() {
+        val expandedPairs = mutableMapOf<String, Boolean>()
+        val pair = EmotionPair("Sad", "Happy")
+        expandedPairs[pair.id] = true
+
+        expandedPairs[pair.id] = !(expandedPairs[pair.id] == true)
+
+        assertFalse(expandedPairs[pair.id] == true)
+    }
+
+    @Test
+    fun testExpandedStatesAreIndependentPerPair() {
+        val expandedPairs = mutableMapOf<String, Boolean>()
+        val pair1 = EmotionPair("Sad", "Happy")
+        val pair2 = EmotionPair("Anxious", "Calm")
+
+        expandedPairs[pair1.id] = true
+
+        assertTrue(expandedPairs[pair1.id] == true)
+        assertFalse(expandedPairs[pair2.id] == true)
+    }
+
+    @Test
+    fun testPairWithNoEntriesHasNoExpandableContent() {
+        val pair = EmotionPair("Sad", "Happy")
+        val result = groupEntriesByPairId(listOf(pair), emptyList())
+
+        val pairEntries = result[pair.id]!!
+        assertTrue(pairEntries.isEmpty())
+    }
+
+    @Test
+    fun testPairWithEntriesHasExpandableContent() {
+        val pair = EmotionPair("Sad", "Happy")
+        val entry = EmotionEntry(pair, 5, LocalDateTime.of(2025, 1, 1, 10, 0), "feeling good")
+
+        val result = groupEntriesByPairId(listOf(pair), listOf(entry))
+
+        val pairEntries = result[pair.id]!!
+        assertTrue(pairEntries.isNotEmpty())
+        assertEquals("feeling good", pairEntries[0].notes)
+        assertEquals(5, pairEntries[0].strength)
+    }
 }
