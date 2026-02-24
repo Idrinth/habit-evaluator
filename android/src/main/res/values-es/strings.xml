@@ -276,6 +276,15 @@
     <string name="reminder_emotion_notification_text">Take a moment to record your current emotional state.</string>
     <string name="reminder_channel_name">Reminders</string>
     <string name="reminder_channel_description">Reminders for sleep logging, diary entries, and emotion checks</string>
+    <string name="notification_group_input_reminders">Input Reminders</string>
+    <string name="notification_group_emotion">Emotion Questions</string>
+    <string name="notification_group_day_planner">Day Planner</string>
+    <string name="notification_channel_input_reminders">Input Reminders</string>
+    <string name="notification_channel_input_reminders_description">Reminders for sleep logging and diary entries</string>
+    <string name="notification_channel_emotion">Emotion Questions</string>
+    <string name="notification_channel_emotion_description">Reminders to record your emotional state</string>
+    <string name="notification_channel_day_planner">Day Planner</string>
+    <string name="notification_channel_day_planner_description">Notifications for your daily planned activities</string>
     <string name="imprint_title">Legal del proyecto</string>
     <string name="imprint_contact">Contacto</string>
     <string name="imprint_name_label">Nombre</string>
