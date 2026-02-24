@@ -42,6 +42,7 @@ import de.idrinth.habitevaluator.android.BuildConfig
 import de.idrinth.habitevaluator.android.R
 import de.idrinth.habitevaluator.android.ReminderScheduler
 import de.idrinth.habitevaluator.android.SettingsConstants
+import de.idrinth.habitevaluator.android.ui.navigation.Screen
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -203,6 +204,10 @@ fun SettingsScreen(viewModel: AppViewModel, navController: NavController) {
                     }
                 }
             }
+        }
+
+        Button(onClick = { navController.navigate(Screen.Backup.route) }, modifier = Modifier.fillMaxWidth()) {
+            Text(stringResource(R.string.backup_title))
         }
 
         // Module visibility
