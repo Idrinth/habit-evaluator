@@ -113,4 +113,13 @@ class AppDatabaseTest {
         assertEquals(10, migration.startVersion)
         assertEquals(11, migration.endVersion)
     }
+
+    @Test
+    fun testMigration11To12Exists() {
+        val migration = AppDatabase.MIGRATION_11_12
+        assertNotNull(migration)
+        assertTrue(migration is Migration)
+        assertEquals(11, migration.startVersion)
+        assertEquals(12, migration.endVersion)
+    }
 }

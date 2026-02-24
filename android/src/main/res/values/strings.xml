@@ -574,6 +574,16 @@
     <string name="location_required">Please enter a location</string>
     <string name="activity_description">Activity (optional)</string>
 
+    <!-- Activity groups -->
+    <string name="activity_groups">Activity Groups</string>
+    <string name="activity_group_name">Group name</string>
+    <string name="activity_group_name_required">Please enter a group name</string>
+    <string name="activity_group_description">Description (optional)</string>
+    <string name="add_activity_group">Add Group</string>
+    <string name="no_activity_groups">No groups yet</string>
+    <string name="select_groups">Groups</string>
+    <string name="manage_groups">Manage Groups</string>
+
     <!-- Home screen -->
     <string name="all_habits">All Habits</string>
     <string name="no_habits_yet">No habits yet</string>

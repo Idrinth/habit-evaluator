@@ -1,5 +1,6 @@
 package de.idrinth.habitevaluator.android.persistence
 
+import de.idrinth.habitevaluator.shared.model.ActivityGroup
 import de.idrinth.habitevaluator.shared.model.ActivityLog
 import de.idrinth.habitevaluator.shared.model.DiaryEntry
 import de.idrinth.habitevaluator.shared.model.DiaryReference
@@ -496,7 +497,10 @@ fun ActivityLog.toEntity(): ActivityLogEntity = ActivityLogEntity(
     userName = user?.username ?: ""
 )
 
-fun ActivityLogEntity.toModel(): ActivityLog {
+fun ActivityLog.toGroupIds(): List<String> =
+    groups?.map { it.id } ?: emptyList()
+
+fun ActivityLogEntity.toModel(groups: Set<ActivityGroup> = emptySet()): ActivityLog {
     val log = ActivityLog()
     log.id = id
     log.persons = persons
@@ -506,11 +510,36 @@ fun ActivityLogEntity.toModel(): ActivityLog {
     log.date = parseDateOrNull(date)
     log.activity = activity
     log.createdAt = parseDateTimeOrNull(createdAt)
+    log.groups = groups.toMutableSet().let { java.util.HashSet(it) }
     val u = User()
     u.id = userId
     u.username = userName
     log.user = u
     return log
+}
+
+// ── ActivityGroup ──
+
+fun ActivityGroup.toEntity(): ActivityGroupEntity = ActivityGroupEntity(
+    id = id,
+    name = name ?: "",
+    description = description,
+    createdAt = createdAt?.format(DT_FORMAT) ?: LocalDateTime.now().format(DT_FORMAT),
+    userId = user?.id ?: "",
+    userName = user?.username ?: ""
+)
+
+fun ActivityGroupEntity.toModel(): ActivityGroup {
+    val group = ActivityGroup()
+    group.id = id
+    group.name = name
+    group.description = description
+    group.createdAt = parseDateTimeOrNull(createdAt)
+    val u = User()
+    u.id = userId
+    u.username = userName
+    group.user = u
+    return group
 }
 
 // ── PlannerActivity ──

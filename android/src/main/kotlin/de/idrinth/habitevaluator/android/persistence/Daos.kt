@@ -476,6 +476,67 @@ interface ActivityLogDao {
 
     @Query("SELECT DISTINCT activity FROM activity_logs WHERE user_id = :userId AND activity IS NOT NULL ORDER BY activity COLLATE NOCASE")
     suspend fun findDistinctActivities(userId: String): List<String>
+
+    // Activity Groups
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertGroup(group: ActivityGroupEntity)
+
+    @Query("SELECT * FROM activity_groups WHERE id = :id")
+    suspend fun findGroupById(id: String): ActivityGroupEntity?
+
+    @Query("SELECT * FROM activity_groups")
+    suspend fun findAllGroups(): List<ActivityGroupEntity>
+
+    @Query("SELECT * FROM activity_groups WHERE user_id = :userId ORDER BY name COLLATE NOCASE")
+    suspend fun findGroupsByUserId(userId: String): List<ActivityGroupEntity>
+
+    @Query("SELECT * FROM activity_groups WHERE user_id = :userId ORDER BY name COLLATE NOCASE")
+    fun observeGroupsByUserId(userId: String): Flow<List<ActivityGroupEntity>>
+
+    @Query("DELETE FROM activity_groups WHERE id = :id")
+    suspend fun deleteGroupById(id: String)
+
+    @Query("SELECT EXISTS(SELECT 1 FROM activity_groups WHERE id = :id)")
+    suspend fun groupExistsById(id: String): Boolean
+
+    // Activity Log - Group Links
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insertLogGroupLink(link: ActivityLogGroupLinkEntity)
+
+    @Query("DELETE FROM activity_log_group_links WHERE activity_log_id = :activityLogId")
+    suspend fun deleteLinksForActivityLog(activityLogId: String)
+
+    @Query("DELETE FROM activity_log_group_links WHERE activity_group_id = :groupId")
+    suspend fun deleteLinksForGroup(groupId: String)
+
+    @Query("SELECT activity_group_id FROM activity_log_group_links WHERE activity_log_id = :activityLogId")
+    suspend fun findGroupIdsForActivityLog(activityLogId: String): List<String>
+
+    @Query(
+        """SELECT ag.* FROM activity_groups ag
+        INNER JOIN activity_log_group_links algl ON ag.id = algl.activity_group_id
+        WHERE algl.activity_log_id = :activityLogId ORDER BY ag.name COLLATE NOCASE"""
+    )
+    suspend fun findGroupsByActivityLogId(activityLogId: String): List<ActivityGroupEntity>
+
+    @Transaction
+    suspend fun saveActivityLogWithLinks(entry: ActivityLogEntity, groupIds: List<String>) {
+        insert(entry)
+        deleteLinksForActivityLog(entry.id)
+        groupIds.forEach { insertLogGroupLink(ActivityLogGroupLinkEntity(entry.id, it)) }
+    }
+
+    @Transaction
+    suspend fun deleteActivityLogWithLinks(id: String) {
+        deleteLinksForActivityLog(id)
+        deleteById(id)
+    }
+
+    @Transaction
+    suspend fun deleteGroupWithLinks(id: String) {
+        deleteLinksForGroup(id)
+        deleteGroupById(id)
+    }
 }
 
 @Dao

@@ -224,6 +224,22 @@ data class ActivityLogEntity(
     @ColumnInfo(name = "user_name") val userName: String
 )
 
+@Entity(tableName = "activity_groups", indices = [Index("user_id")])
+data class ActivityGroupEntity(
+    @PrimaryKey @ColumnInfo(name = "id") val id: String,
+    @ColumnInfo(name = "name") val name: String,
+    @ColumnInfo(name = "description") val description: String?,
+    @ColumnInfo(name = "created_at") val createdAt: String,
+    @ColumnInfo(name = "user_id") val userId: String,
+    @ColumnInfo(name = "user_name") val userName: String
+)
+
+@Entity(tableName = "activity_log_group_links", primaryKeys = ["activity_log_id", "activity_group_id"])
+data class ActivityLogGroupLinkEntity(
+    @ColumnInfo(name = "activity_log_id") val activityLogId: String,
+    @ColumnInfo(name = "activity_group_id") val activityGroupId: String
+)
+
 @Entity(tableName = "planner_activities", indices = [Index("user_id")])
 data class PlannerActivityEntity(
     @PrimaryKey @ColumnInfo(name = "id") val id: String,

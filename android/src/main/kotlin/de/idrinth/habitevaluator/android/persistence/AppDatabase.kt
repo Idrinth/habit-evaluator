@@ -32,6 +32,8 @@ import java.io.File
         EmergencyPlanStepEntity::class,
         EmergencyPlanActionEntity::class,
         ActivityLogEntity::class,
+        ActivityGroupEntity::class,
+        ActivityLogGroupLinkEntity::class,
         PlannerActivityEntity::class,
         PlannerGroupEntity::class,
         PlannerActivityGroupLinkEntity::class,
@@ -142,6 +144,7 @@ abstract class AppDatabase : RoomDatabase() {
 
         val MIGRATION_11_12 = object : Migration(11, 12) {
             override fun migrate(db: SupportSQLiteDatabase) {
+                // Week planner slot: migrate from single group_id to many-to-many join table
                 db.execSQL(
                     """CREATE TABLE IF NOT EXISTS `week_planner_slot_group_links` (
                         `slot_id` TEXT NOT NULL,
@@ -170,6 +173,26 @@ abstract class AppDatabase : RoomDatabase() {
                 db.execSQL("DROP TABLE `week_planner_slots`")
                 db.execSQL("ALTER TABLE `week_planner_slots_new` RENAME TO `week_planner_slots`")
                 db.execSQL("CREATE INDEX IF NOT EXISTS `index_week_planner_slots_user_id` ON `week_planner_slots` (`user_id`)")
+
+                // Activity groups: new tables for many-to-many activity log ↔ group
+                db.execSQL(
+                    """CREATE TABLE IF NOT EXISTS `activity_groups` (
+                        `id` TEXT NOT NULL,
+                        `name` TEXT NOT NULL,
+                        `description` TEXT,
+                        `created_at` TEXT NOT NULL,
+                        `user_id` TEXT NOT NULL,
+                        `user_name` TEXT NOT NULL,
+                        PRIMARY KEY(`id`))"""
+                )
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_activity_groups_user_id` ON `activity_groups` (`user_id`)")
+
+                db.execSQL(
+                    """CREATE TABLE IF NOT EXISTS `activity_log_group_links` (
+                        `activity_log_id` TEXT NOT NULL,
+                        `activity_group_id` TEXT NOT NULL,
+                        PRIMARY KEY(`activity_log_id`, `activity_group_id`))"""
+                )
             }
         }
 
