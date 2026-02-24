@@ -23,6 +23,7 @@
         <class>de.idrinth.habitevaluator.shared.model.FoodLog</class>
         <class>de.idrinth.habitevaluator.shared.model.FoodTag</class>
         <class>de.idrinth.habitevaluator.shared.model.ActivityLog</class>
+        <class>de.idrinth.habitevaluator.shared.model.ActivityGroup</class>
         <class>de.idrinth.habitevaluator.shared.model.PlannerGroup</class>
         <class>de.idrinth.habitevaluator.shared.model.PlannerActivity</class>
         <class>de.idrinth.habitevaluator.shared.model.WeekPlannerSlot</class>
