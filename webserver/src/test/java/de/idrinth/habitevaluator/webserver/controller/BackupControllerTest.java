@@ -114,7 +114,7 @@ class BackupControllerTest {
                 "application/octet-stream", new byte[]{1, 2, 3});
         ResponseEntity<Map<String, Object>> response =
                 controller.uploadBackup(file, "mypass", true, true, true, true,
-                        true, true, true, true, true, true, true, true, unauthSession);
+                        true, true, true, true, true, true, true, true, false, unauthSession);
         assertEquals(401, response.getStatusCode().value());
     }
 
@@ -125,7 +125,7 @@ class BackupControllerTest {
                 "application/octet-stream", new byte[]{1, 2, 3});
         ResponseEntity<Map<String, Object>> response =
                 controller.uploadBackup(file, "mypass", true, true, true, true,
-                        true, true, true, true, true, true, true, true, session);
+                        true, true, true, true, true, true, true, true, false, session);
         assertEquals(401, response.getStatusCode().value());
     }
 
@@ -136,7 +136,7 @@ class BackupControllerTest {
                 "application/octet-stream", new byte[0]);
         ResponseEntity<Map<String, Object>> response =
                 controller.uploadBackup(file, "mypass", true, true, true, true,
-                        true, true, true, true, true, true, true, true, session);
+                        true, true, true, true, true, true, true, true, false, session);
         assertEquals(400, response.getStatusCode().value());
         assertFalse((Boolean) response.getBody().get("success"));
     }
@@ -148,7 +148,7 @@ class BackupControllerTest {
                 "application/octet-stream", new byte[]{1, 2, 3, 4, 5});
         ResponseEntity<Map<String, Object>> response =
                 controller.uploadBackup(file, "mypass", true, true, true, true,
-                        true, true, true, true, true, true, true, true, session);
+                        true, true, true, true, true, true, true, true, false, session);
         assertEquals(400, response.getStatusCode().value());
         assertFalse((Boolean) response.getBody().get("success"));
     }

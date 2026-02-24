@@ -248,6 +248,8 @@
     <string name="restore_type_visibility">Visibilité des modules</string>
     <string name="restore_type_emergency">Plan d\'urgence</string>
     <string name="restore_type_planner">Planificateur journalier</string>
+    <string name="restore_overwrite">Écraser les données existantes</string>
+    <string name="restore_overwrite_warning">Attention : Cela supprimera toutes les données existantes des types sélectionnés avant la restauration depuis la sauvegarde.</string>
     <string name="restore_success_detailed">Restauré : %1$d catégories, %2$d habitudes ajoutées, %3$d fusionnées, %4$d entrées, %5$d journal, %6$d sommeil</string>
     <string name="restore_no_changes">Sauvegarde restaurée, mais aucune nouvelle donnée trouvée à ajouter.</string>
     <string name="reminder_settings">Paramètres de rappels</string>

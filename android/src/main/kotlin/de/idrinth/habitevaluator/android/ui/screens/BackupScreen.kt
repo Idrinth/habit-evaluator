@@ -71,6 +71,7 @@ fun BackupScreen(viewModel: AppViewModel) {
     var restoreVisibility by remember { mutableStateOf(true) }
     var restoreEmergency by remember { mutableStateOf(true) }
     var restorePlanner by remember { mutableStateOf(true) }
+    var overwrite by remember { mutableStateOf(false) }
 
     val createDocument = rememberLauncherForActivityResult(
         ActivityResultContracts.CreateDocument("application/octet-stream")
@@ -196,6 +197,16 @@ fun BackupScreen(viewModel: AppViewModel) {
                 RestoreCheckbox(stringResource(R.string.restore_type_medication), restoreMedication) { restoreMedication = it }
                 RestoreCheckbox(stringResource(R.string.restore_type_emergency), restoreEmergency) { restoreEmergency = it }
                 RestoreCheckbox(stringResource(R.string.restore_type_planner), restorePlanner) { restorePlanner = it }
+                RestoreCheckbox(stringResource(R.string.restore_overwrite), overwrite) { overwrite = it }
+
+                if (overwrite) {
+                    Text(
+                        stringResource(R.string.restore_overwrite_warning),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.error,
+                        modifier = Modifier.padding(start = 16.dp)
+                    )
+                }
 
                 Button(
                     onClick = {
@@ -231,6 +242,7 @@ fun BackupScreen(viewModel: AppViewModel) {
                                 options.isRestoreModuleVisibility = restoreVisibility
                                 options.isRestoreEmergencyPlan = restoreEmergency
                                 options.isRestoreDayPlanner = restorePlanner
+                                options.isOverwrite = overwrite
 
                                 val result = viewModel.restoreFromHezBytes(fileBytes, restorePassword, options)
 

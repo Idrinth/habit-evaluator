@@ -155,6 +155,7 @@ public class BackupController {
             @RequestParam(value = "medications", required = false, defaultValue = "true") boolean medications,
             @RequestParam(value = "reminderSettings", required = false, defaultValue = "true") boolean reminderSettingsParam,
             @RequestParam(value = "moduleVisibility", required = false, defaultValue = "true") boolean moduleVisibilityParam,
+            @RequestParam(value = "overwrite", required = false, defaultValue = "false") boolean overwrite,
             HttpSession session) {
 
         String userId = (String) session.getAttribute("userId");
@@ -195,6 +196,7 @@ public class BackupController {
             options.setRestoreMedicationData(medications);
             options.setRestoreReminderSettings(reminderSettingsParam);
             options.setRestoreModuleVisibility(moduleVisibilityParam);
+            options.setOverwrite(overwrite);
 
             MergeResult result = hezBackupService.mergeFromHezBytes(hezData, password, user,
                     habitRepository, categoryRepository, diaryEntryRepository, sleepEntryRepository,

@@ -21,6 +21,7 @@ public class RestoreOptions {
     private boolean restoreModuleVisibility;
     private boolean restoreEmergencyPlan;
     private boolean restoreDayPlanner;
+    private boolean overwrite;
 
     public RestoreOptions() {
         this.restoreCategories = true;
@@ -178,5 +179,13 @@ public class RestoreOptions {
 
     public void setRestoreDayPlanner(boolean restoreDayPlanner) {
         this.restoreDayPlanner = restoreDayPlanner;
+    }
+
+    public boolean isOverwrite() {
+        return overwrite;
+    }
+
+    public void setOverwrite(boolean overwrite) {
+        this.overwrite = overwrite;
     }
 }

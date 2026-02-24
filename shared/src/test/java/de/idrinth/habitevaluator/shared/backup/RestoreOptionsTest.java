@@ -22,6 +22,7 @@ class RestoreOptionsTest {
         assertTrue(options.isRestoreReminderSettings());
         assertTrue(options.isRestoreModuleVisibility());
         assertTrue(options.isRestoreEmergencyPlan());
+        assertFalse(options.isOverwrite());
     }
 
     @Test
@@ -40,6 +41,7 @@ class RestoreOptionsTest {
         assertTrue(options.isRestoreReminderSettings());
         assertTrue(options.isRestoreModuleVisibility());
         assertTrue(options.isRestoreEmergencyPlan());
+        assertFalse(options.isOverwrite());
     }
 
     @Test
@@ -58,6 +60,7 @@ class RestoreOptionsTest {
         assertFalse(options.isRestoreReminderSettings());
         assertFalse(options.isRestoreModuleVisibility());
         assertFalse(options.isRestoreEmergencyPlan());
+        assertFalse(options.isOverwrite());
     }
 
     @Test
@@ -102,6 +105,9 @@ class RestoreOptionsTest {
 
         options.setRestoreEmergencyPlan(false);
         assertFalse(options.isRestoreEmergencyPlan());
+
+        options.setOverwrite(true);
+        assertTrue(options.isOverwrite());
     }
 
     @Test
@@ -194,5 +200,31 @@ class RestoreOptionsTest {
         assertFalse(options.isRestoreCategories());
         assertFalse(options.isRestoreModuleVisibility());
         assertTrue(options.isRestoreEmergencyPlan());
+    }
+
+    @Test
+    void testOverwriteDefaultsFalse() {
+        RestoreOptions options = new RestoreOptions();
+        assertFalse(options.isOverwrite());
+    }
+
+    @Test
+    void testOverwriteSetter() {
+        RestoreOptions options = new RestoreOptions();
+        options.setOverwrite(true);
+        assertTrue(options.isOverwrite());
+
+        options.setOverwrite(false);
+        assertFalse(options.isOverwrite());
+    }
+
+    @Test
+    void testOverwriteIndependentOfOtherFlags() {
+        RestoreOptions options = RestoreOptions.all();
+        options.setOverwrite(true);
+
+        assertTrue(options.isRestoreCategories());
+        assertTrue(options.isRestoreHabits());
+        assertTrue(options.isOverwrite());
     }
 }

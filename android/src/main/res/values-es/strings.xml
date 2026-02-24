@@ -248,6 +248,8 @@
     <string name="restore_type_visibility">Visibilidad de módulos</string>
     <string name="restore_type_emergency">Plan de emergencia</string>
     <string name="restore_type_planner">Planificador diario</string>
+    <string name="restore_overwrite">Sobrescribir datos existentes</string>
+    <string name="restore_overwrite_warning">Advertencia: Esto eliminará todos los datos existentes de los tipos seleccionados antes de restaurar desde la copia de seguridad.</string>
     <string name="restore_success_detailed">Restaurado: %1$d categorías, %2$d hábitos añadidos, %3$d fusionados, %4$d entradas, %5$d diario, %6$d sueño</string>
     <string name="restore_no_changes">Respaldo restaurado, pero no se encontraron datos nuevos para agregar.</string>
     <string name="reminder_settings">Configuración de recordatorios</string>
