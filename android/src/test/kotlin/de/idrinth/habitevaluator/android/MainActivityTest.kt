@@ -1,5 +1,6 @@
 package de.idrinth.habitevaluator.android
 
+import androidx.activity.ComponentActivity
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Assertions.*
 
@@ -11,25 +12,75 @@ import org.junit.jupiter.api.Assertions.*
  */
 class MainActivityTest {
 
+    private val clazz = MainActivity::class.java
+
     @Test
     fun testMainActivityClassCanBeReferenced() {
-        // Verify the class exists and can be referenced without error.
-        // All shared mutable state previously on MainActivity static fields
-        // now lives in AppViewModel; see AppViewModelTest for those assertions.
-        val clazz = MainActivity::class.java
         assertNotNull(clazz)
     }
 
     @Test
     fun testMainActivityClassNameIsCorrect() {
-        assertEquals("MainActivity", MainActivity::class.java.simpleName)
+        assertEquals("MainActivity", clazz.simpleName)
     }
 
     @Test
     fun testMainActivityPackageIsCorrect() {
-        assertEquals(
-            "de.idrinth.habitevaluator.android",
-            MainActivity::class.java.packageName
+        assertEquals("de.idrinth.habitevaluator.android", clazz.packageName)
+    }
+
+    @Test
+    fun testExtendsComponentActivity() {
+        assertTrue(
+            ComponentActivity::class.java.isAssignableFrom(clazz),
+            "MainActivity should extend ComponentActivity"
+        )
+    }
+
+    @Test
+    fun testOnCreateMethodExists() {
+        val method = clazz.getDeclaredMethod("onCreate", android.os.Bundle::class.java)
+        assertNotNull(method)
+    }
+
+    @Test
+    fun testOnStopMethodExists() {
+        val method = clazz.getDeclaredMethod("onStop")
+        assertNotNull(method)
+    }
+
+    @Test
+    fun testAttachBaseContextMethodExists() {
+        val method = clazz.getDeclaredMethod("attachBaseContext", android.content.Context::class.java)
+        assertNotNull(method)
+    }
+
+    @Test
+    fun testViewModelFieldExists() {
+        val field = clazz.getDeclaredField("viewModel")
+        assertNotNull(field)
+        assertEquals(AppViewModel::class.java, field.type)
+    }
+
+    @Test
+    fun testIsNotAbstract() {
+        assertFalse(
+            java.lang.reflect.Modifier.isAbstract(clazz.modifiers),
+            "MainActivity should not be abstract"
+        )
+    }
+
+    @Test
+    fun testHasNoStaticStateFields() {
+        // Verify that old static mutable state has been fully migrated to AppViewModel.
+        // No companion object fields should hold shared mutable state.
+        val companionFields = clazz.declaredClasses
+            .filter { it.simpleName == "Companion" }
+            .flatMap { it.declaredFields.toList() }
+            .filter { !it.name.startsWith("\$") } // exclude synthetic fields
+        assertTrue(
+            companionFields.isEmpty(),
+            "MainActivity should have no companion object state fields; state lives in AppViewModel"
         )
     }
 }

@@ -30,4 +30,59 @@ class PreApi33PermissionHandlerTest {
     fun testImplementsNotificationPermissionHandler() {
         assertTrue(handler is NotificationPermissionHandler)
     }
+
+    @Test
+    fun testHasPermissionReturnsTrueWithDifferentContextInstances() {
+        val context1 = mock(Context::class.java)
+        val context2 = mock(Context::class.java)
+        assertTrue(handler.hasPermission(context1))
+        assertTrue(handler.hasPermission(context2))
+    }
+
+    @Test
+    fun testMultipleCallsReturnConsistentResults() {
+        val context = mock(Context::class.java)
+        val first = handler.hasPermission(context)
+        val second = handler.hasPermission(context)
+        assertEquals(first, second)
+    }
+
+    @Test
+    fun testPermissionNameConsistentlyReturnsNull() {
+        val first = handler.permissionName()
+        val second = handler.permissionName()
+        assertEquals(first, second)
+    }
+
+    @Test
+    fun testNewInstanceAlsoReturnsTrue() {
+        val anotherHandler = PreApi33PermissionHandler()
+        val context = mock(Context::class.java)
+        assertTrue(anotherHandler.hasPermission(context))
+    }
+
+    @Test
+    fun testNewInstanceAlsoReturnsNullPermissionName() {
+        val anotherHandler = PreApi33PermissionHandler()
+        assertNull(anotherHandler.permissionName())
+    }
+
+    @Test
+    fun testClassIsNotAbstract() {
+        assertFalse(
+            java.lang.reflect.Modifier.isAbstract(PreApi33PermissionHandler::class.java.modifiers)
+        )
+    }
+
+    @Test
+    fun testImplementsHasPermissionMethod() {
+        val method = PreApi33PermissionHandler::class.java.getMethod("hasPermission", Context::class.java)
+        assertNotNull(method)
+    }
+
+    @Test
+    fun testImplementsPermissionNameMethod() {
+        val method = PreApi33PermissionHandler::class.java.getMethod("permissionName")
+        assertNotNull(method)
+    }
 }

@@ -122,4 +122,127 @@ class AppDatabaseTest {
         assertEquals(11, migration.startVersion)
         assertEquals(12, migration.endVersion)
     }
+
+    @Test
+    fun testDatabaseIsAbstract() {
+        assertTrue(
+            java.lang.reflect.Modifier.isAbstract(AppDatabase::class.java.modifiers),
+            "AppDatabase should be abstract"
+        )
+    }
+
+    @Test
+    fun testAllDaoMethodsAreAbstract() {
+        val daoMethods = AppDatabase::class.java.declaredMethods.filter {
+            it.name.endsWith("Dao")
+        }
+        daoMethods.forEach { method ->
+            assertTrue(
+                java.lang.reflect.Modifier.isAbstract(method.modifiers),
+                "${method.name} should be abstract"
+            )
+        }
+    }
+
+    @Test
+    fun testAllDaoMethodsTakeNoParameters() {
+        val daoMethods = AppDatabase::class.java.declaredMethods.filter {
+            it.name.endsWith("Dao")
+        }
+        daoMethods.forEach { method ->
+            assertEquals(
+                0,
+                method.parameterCount,
+                "${method.name} should take no parameters"
+            )
+        }
+    }
+
+    @Test
+    fun testCompanionObjectExists() {
+        val companion = AppDatabase::class.java.declaredClasses.find {
+            it.simpleName == "Companion"
+        }
+        assertNotNull(companion, "AppDatabase should have a companion object")
+    }
+
+    @Test
+    fun testGetInstanceMethodExists() {
+        val companion = AppDatabase::class.java.declaredClasses.find {
+            it.simpleName == "Companion"
+        }
+        assertNotNull(companion)
+        val method = companion!!.declaredMethods.find { it.name == "getInstance" }
+        assertNotNull(method, "Companion should have getInstance method")
+    }
+
+    @Test
+    fun testHasLegacyDatabaseMethodExists() {
+        val companion = AppDatabase::class.java.declaredClasses.find {
+            it.simpleName == "Companion"
+        }
+        assertNotNull(companion)
+        val method = companion!!.declaredMethods.find { it.name == "hasLegacyDatabase" }
+        assertNotNull(method, "Companion should have hasLegacyDatabase method")
+    }
+
+    @Test
+    fun testGetLegacyDatabasePathMethodExists() {
+        val companion = AppDatabase::class.java.declaredClasses.find {
+            it.simpleName == "Companion"
+        }
+        assertNotNull(companion)
+        val method = companion!!.declaredMethods.find { it.name == "getLegacyDatabasePath" }
+        assertNotNull(method, "Companion should have getLegacyDatabasePath method")
+    }
+
+    @Test
+    fun testMigration10To11StartVersionIsCorrect() {
+        assertEquals(10, AppDatabase.MIGRATION_10_11.startVersion)
+    }
+
+    @Test
+    fun testMigration10To11EndVersionIsCorrect() {
+        assertEquals(11, AppDatabase.MIGRATION_10_11.endVersion)
+    }
+
+    @Test
+    fun testMigration11To12StartVersionIsCorrect() {
+        assertEquals(11, AppDatabase.MIGRATION_11_12.startVersion)
+    }
+
+    @Test
+    fun testMigration11To12EndVersionIsCorrect() {
+        assertEquals(12, AppDatabase.MIGRATION_11_12.endVersion)
+    }
+
+    @Test
+    fun testMigrationsAreSequential() {
+        assertEquals(
+            AppDatabase.MIGRATION_10_11.endVersion,
+            AppDatabase.MIGRATION_11_12.startVersion,
+            "Migration 10->11 end should match migration 11->12 start"
+        )
+    }
+
+    @Test
+    fun testDaoMethodReturnTypes() {
+        val expectedDaos = mapOf(
+            "habitDao" to HabitDao::class.java,
+            "habitCategoryDao" to HabitCategoryDao::class.java,
+            "diaryDao" to DiaryDao::class.java,
+            "sleepEntryDao" to SleepEntryDao::class.java,
+            "emotionDao" to EmotionDao::class.java,
+            "foodLogDao" to FoodLogDao::class.java,
+            "sportLogDao" to SportLogDao::class.java,
+            "medicationDao" to MedicationDao::class.java,
+            "emergencyPlanDao" to EmergencyPlanDao::class.java,
+            "activityLogDao" to ActivityLogDao::class.java,
+            "dayPlannerDao" to DayPlannerDao::class.java
+        )
+        expectedDaos.forEach { (name, expectedType) ->
+            val method = AppDatabase::class.java.getDeclaredMethod(name)
+            assertEquals(expectedType, method.returnType, "$name should return $expectedType")
+        }
+    }
 }
