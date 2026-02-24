@@ -22,6 +22,7 @@ public class MergeResult {
     private final boolean reminderSettingsRestored;
     private final boolean moduleVisibilityRestored;
     private final int emergencyPlanStepsAdded;
+    private final int dayPlannerItemsAdded;
 
     public MergeResult(int categoriesAdded, int habitsAdded, int habitsMerged,
                        int entriesAdded, int diaryEntriesAdded, int sleepEntriesAdded) {
@@ -75,6 +76,22 @@ public class MergeResult {
                        int medicationsAdded, int medicationLogsAdded,
                        boolean reminderSettingsRestored,
                        boolean moduleVisibilityRestored, int emergencyPlanStepsAdded) {
+        this(categoriesAdded, habitsAdded, habitsMerged, entriesAdded,
+                diaryEntriesAdded, sleepEntriesAdded, sportLogsAdded, foodLogsAdded,
+                emotionPairsAdded, emotionEntriesAdded, meetingEntriesAdded, activityLogsAdded,
+                medicationsAdded, medicationLogsAdded, reminderSettingsRestored,
+                moduleVisibilityRestored, emergencyPlanStepsAdded, 0);
+    }
+
+    public MergeResult(int categoriesAdded, int habitsAdded, int habitsMerged,
+                       int entriesAdded, int diaryEntriesAdded, int sleepEntriesAdded,
+                       int sportLogsAdded, int foodLogsAdded,
+                       int emotionPairsAdded, int emotionEntriesAdded,
+                       int meetingEntriesAdded, int activityLogsAdded,
+                       int medicationsAdded, int medicationLogsAdded,
+                       boolean reminderSettingsRestored,
+                       boolean moduleVisibilityRestored, int emergencyPlanStepsAdded,
+                       int dayPlannerItemsAdded) {
         this.categoriesAdded = categoriesAdded;
         this.habitsAdded = habitsAdded;
         this.habitsMerged = habitsMerged;
@@ -92,6 +109,7 @@ public class MergeResult {
         this.reminderSettingsRestored = reminderSettingsRestored;
         this.moduleVisibilityRestored = moduleVisibilityRestored;
         this.emergencyPlanStepsAdded = emergencyPlanStepsAdded;
+        this.dayPlannerItemsAdded = dayPlannerItemsAdded;
     }
 
     public int getCategoriesAdded() {
@@ -162,6 +180,10 @@ public class MergeResult {
         return emergencyPlanStepsAdded;
     }
 
+    public int getDayPlannerItemsAdded() {
+        return dayPlannerItemsAdded;
+    }
+
     public int getTotalChanges() {
         return categoriesAdded + habitsAdded + habitsMerged + diaryEntriesAdded
                 + sleepEntriesAdded + sportLogsAdded + foodLogsAdded
@@ -169,7 +191,8 @@ public class MergeResult {
                 + activityLogsAdded + medicationsAdded + medicationLogsAdded
                 + (reminderSettingsRestored ? 1 : 0)
                 + (moduleVisibilityRestored ? 1 : 0)
-                + emergencyPlanStepsAdded;
+                + emergencyPlanStepsAdded
+                + dayPlannerItemsAdded;
     }
 
     @Override
@@ -192,6 +215,7 @@ public class MergeResult {
                 + ", reminder settings restored=" + reminderSettingsRestored
                 + ", module visibility restored=" + moduleVisibilityRestored
                 + ", emergency plan steps added=" + emergencyPlanStepsAdded
+                + ", day planner items added=" + dayPlannerItemsAdded
                 + '}';
     }
 }

@@ -30,6 +30,10 @@ public class BackupData {
     private ReminderSettingsData reminderSettings;
     private ModuleVisibilityData moduleVisibility;
     private List<EmergencyPlanStepData> emergencyPlanSteps = new ArrayList<>();
+    private List<PlannerGroupData> plannerGroups = new ArrayList<>();
+    private List<PlannerActivityData> plannerActivities = new ArrayList<>();
+    private List<WeekPlannerSlotData> weekPlannerSlots = new ArrayList<>();
+    private List<SlotConfirmationData> slotConfirmations = new ArrayList<>();
 
     public String getBackupDate() {
         return backupDate;
@@ -181,6 +185,38 @@ public class BackupData {
 
     public void setEmergencyPlanSteps(List<EmergencyPlanStepData> emergencyPlanSteps) {
         this.emergencyPlanSteps = emergencyPlanSteps;
+    }
+
+    public List<PlannerGroupData> getPlannerGroups() {
+        return plannerGroups;
+    }
+
+    public void setPlannerGroups(List<PlannerGroupData> plannerGroups) {
+        this.plannerGroups = plannerGroups;
+    }
+
+    public List<PlannerActivityData> getPlannerActivities() {
+        return plannerActivities;
+    }
+
+    public void setPlannerActivities(List<PlannerActivityData> plannerActivities) {
+        this.plannerActivities = plannerActivities;
+    }
+
+    public List<WeekPlannerSlotData> getWeekPlannerSlots() {
+        return weekPlannerSlots;
+    }
+
+    public void setWeekPlannerSlots(List<WeekPlannerSlotData> weekPlannerSlots) {
+        this.weekPlannerSlots = weekPlannerSlots;
+    }
+
+    public List<SlotConfirmationData> getSlotConfirmations() {
+        return slotConfirmations;
+    }
+
+    public void setSlotConfirmations(List<SlotConfirmationData> slotConfirmations) {
+        this.slotConfirmations = slotConfirmations;
     }
 
     public static class UserData {
@@ -1191,5 +1227,81 @@ public class BackupData {
         public void setPhoneNumber(String phoneNumber) { this.phoneNumber = phoneNumber; }
         public int getActionOrder() { return actionOrder; }
         public void setActionOrder(int actionOrder) { this.actionOrder = actionOrder; }
+    }
+
+    public static class PlannerGroupData {
+        private String id;
+        private String name;
+        private String description;
+        private String createdAt;
+
+        public String getId() { return id; }
+        public void setId(String id) { this.id = id; }
+        public String getName() { return name; }
+        public void setName(String name) { this.name = name; }
+        public String getDescription() { return description; }
+        public void setDescription(String description) { this.description = description; }
+        public String getCreatedAt() { return createdAt; }
+        public void setCreatedAt(String createdAt) { this.createdAt = createdAt; }
+    }
+
+    public static class PlannerActivityData {
+        private String id;
+        private String name;
+        private String description;
+        private String createdAt;
+        private List<String> groupIds = new ArrayList<>();
+
+        public String getId() { return id; }
+        public void setId(String id) { this.id = id; }
+        public String getName() { return name; }
+        public void setName(String name) { this.name = name; }
+        public String getDescription() { return description; }
+        public void setDescription(String description) { this.description = description; }
+        public String getCreatedAt() { return createdAt; }
+        public void setCreatedAt(String createdAt) { this.createdAt = createdAt; }
+        public List<String> getGroupIds() { return groupIds; }
+        public void setGroupIds(List<String> groupIds) { this.groupIds = groupIds; }
+    }
+
+    public static class WeekPlannerSlotData {
+        private String id;
+        private int dayOfWeek;
+        private int hour;
+        private String groupId;
+
+        public String getId() { return id; }
+        public void setId(String id) { this.id = id; }
+        public int getDayOfWeek() { return dayOfWeek; }
+        public void setDayOfWeek(int dayOfWeek) { this.dayOfWeek = dayOfWeek; }
+        public int getHour() { return hour; }
+        public void setHour(int hour) { this.hour = hour; }
+        public String getGroupId() { return groupId; }
+        public void setGroupId(String groupId) { this.groupId = groupId; }
+    }
+
+    public static class SlotConfirmationData {
+        private String id;
+        private String slotId;
+        private String activityId;
+        private String groupId;
+        private boolean confirmed;
+        private String date;
+        private String createdAt;
+
+        public String getId() { return id; }
+        public void setId(String id) { this.id = id; }
+        public String getSlotId() { return slotId; }
+        public void setSlotId(String slotId) { this.slotId = slotId; }
+        public String getActivityId() { return activityId; }
+        public void setActivityId(String activityId) { this.activityId = activityId; }
+        public String getGroupId() { return groupId; }
+        public void setGroupId(String groupId) { this.groupId = groupId; }
+        public boolean isConfirmed() { return confirmed; }
+        public void setConfirmed(boolean confirmed) { this.confirmed = confirmed; }
+        public String getDate() { return date; }
+        public void setDate(String date) { this.date = date; }
+        public String getCreatedAt() { return createdAt; }
+        public void setCreatedAt(String createdAt) { this.createdAt = createdAt; }
     }
 }

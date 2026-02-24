@@ -38,6 +38,14 @@ import de.idrinth.habitevaluator.shared.model.EmergencyPlanAction;
 import de.idrinth.habitevaluator.shared.repository.ModuleVisibilityRepository;
 import de.idrinth.habitevaluator.shared.repository.EmergencyPlanStepRepository;
 import de.idrinth.habitevaluator.shared.repository.EmergencyPlanActionRepository;
+import de.idrinth.habitevaluator.shared.model.PlannerGroup;
+import de.idrinth.habitevaluator.shared.model.PlannerActivity;
+import de.idrinth.habitevaluator.shared.model.WeekPlannerSlot;
+import de.idrinth.habitevaluator.shared.model.SlotConfirmation;
+import de.idrinth.habitevaluator.shared.repository.PlannerGroupRepository;
+import de.idrinth.habitevaluator.shared.repository.PlannerActivityRepository;
+import de.idrinth.habitevaluator.shared.repository.WeekPlannerSlotRepository;
+import de.idrinth.habitevaluator.shared.repository.SlotConfirmationRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -1146,6 +1154,202 @@ public class BackupService {
         return result;
     }
 
+    public MergeResult mergeBackupData(BackupData backupData, User user,
+                                       HabitRepository habitRepository,
+                                       HabitCategoryRepository categoryRepository,
+                                       DiaryEntryRepository diaryEntryRepository,
+                                       SleepEntryRepository sleepEntryRepository,
+                                       SportLogRepository sportLogRepository,
+                                       FoodLogRepository foodLogRepository,
+                                       de.idrinth.habitevaluator.shared.repository.FoodTagRepository foodTagRepository,
+                                       EmotionPairRepository emotionPairRepository,
+                                       EmotionEntryRepository emotionEntryRepository,
+                                       MeetingEntryRepository meetingEntryRepository,
+                                       ActivityLogRepository activityLogRepository,
+                                       ReminderSettingsRepository reminderSettingsRepository,
+                                       MedicationRepository medicationRepository,
+                                       MedicationLogRepository medicationLogRepository,
+                                       ModuleVisibilityRepository moduleVisibilityRepository,
+                                       EmergencyPlanStepRepository emergencyPlanStepRepository,
+                                       EmergencyPlanActionRepository emergencyPlanActionRepository,
+                                       PlannerGroupRepository plannerGroupRepository,
+                                       PlannerActivityRepository plannerActivityRepository,
+                                       WeekPlannerSlotRepository weekPlannerSlotRepository,
+                                       SlotConfirmationRepository slotConfirmationRepository,
+                                       RestoreOptions options) throws BackupException {
+        if (user == null) {
+            throw new BackupException("User must not be null for merge");
+        }
+        if (options == null) {
+            options = RestoreOptions.all();
+        }
+
+        try {
+            MergeResult baseResult = doMerge(backupData, user, habitRepository, categoryRepository,
+                    diaryEntryRepository, sleepEntryRepository, sportLogRepository,
+                    foodLogRepository, foodTagRepository, emotionPairRepository,
+                    emotionEntryRepository, meetingEntryRepository, activityLogRepository,
+                    reminderSettingsRepository, medicationRepository, medicationLogRepository,
+                    moduleVisibilityRepository, emergencyPlanStepRepository,
+                    emergencyPlanActionRepository, options);
+
+            int dayPlannerItemsAdded = 0;
+            if (options.isRestoreDayPlanner()) {
+                dayPlannerItemsAdded = mergeDayPlannerData(backupData, user,
+                        plannerGroupRepository, plannerActivityRepository,
+                        weekPlannerSlotRepository, slotConfirmationRepository);
+            }
+
+            return new MergeResult(
+                    baseResult.getCategoriesAdded(), baseResult.getHabitsAdded(),
+                    baseResult.getHabitsMerged(), baseResult.getEntriesAdded(),
+                    baseResult.getDiaryEntriesAdded(), baseResult.getSleepEntriesAdded(),
+                    baseResult.getSportLogsAdded(), baseResult.getFoodLogsAdded(),
+                    baseResult.getEmotionPairsAdded(), baseResult.getEmotionEntriesAdded(),
+                    baseResult.getMeetingEntriesAdded(), baseResult.getActivityLogsAdded(),
+                    baseResult.getMedicationsAdded(), baseResult.getMedicationLogsAdded(),
+                    baseResult.isReminderSettingsRestored(),
+                    baseResult.isModuleVisibilityRestored(),
+                    baseResult.getEmergencyPlanStepsAdded(),
+                    dayPlannerItemsAdded);
+        } catch (BackupException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new BackupException("Failed to merge backup data", e);
+        }
+    }
+
+    private int mergeDayPlannerData(BackupData backupData, User user,
+                                    PlannerGroupRepository plannerGroupRepository,
+                                    PlannerActivityRepository plannerActivityRepository,
+                                    WeekPlannerSlotRepository weekPlannerSlotRepository,
+                                    SlotConfirmationRepository slotConfirmationRepository) {
+        int itemsAdded = 0;
+        Map<String, String> groupIdMapping = new HashMap<>();
+
+        // Merge planner groups
+        if (plannerGroupRepository != null && backupData.getPlannerGroups() != null) {
+            List<PlannerGroup> existingGroups = plannerGroupRepository.findByUserId(user.getId());
+            Map<String, PlannerGroup> existingByName = new HashMap<>();
+            for (PlannerGroup group : existingGroups) {
+                existingByName.put(group.getName(), group);
+            }
+
+            for (BackupData.PlannerGroupData groupData : backupData.getPlannerGroups()) {
+                PlannerGroup existing = existingByName.get(groupData.getName());
+                if (existing != null) {
+                    groupIdMapping.put(groupData.getId(), existing.getId());
+                } else {
+                    PlannerGroup newGroup = new PlannerGroup(groupData.getName(), groupData.getDescription());
+                    newGroup.setUser(user);
+                    if (groupData.getCreatedAt() != null) {
+                        newGroup.setCreatedAt(LocalDateTime.parse(groupData.getCreatedAt()));
+                    }
+                    newGroup = plannerGroupRepository.save(newGroup);
+                    groupIdMapping.put(groupData.getId(), newGroup.getId());
+                    itemsAdded++;
+                }
+            }
+        }
+
+        // Merge planner activities
+        Map<String, String> activityIdMapping = new HashMap<>();
+        if (plannerActivityRepository != null && backupData.getPlannerActivities() != null) {
+            List<PlannerActivity> existingActivities = plannerActivityRepository.findByUserId(user.getId());
+            Map<String, PlannerActivity> existingByName = new HashMap<>();
+            for (PlannerActivity activity : existingActivities) {
+                existingByName.put(activity.getName(), activity);
+            }
+
+            for (BackupData.PlannerActivityData actData : backupData.getPlannerActivities()) {
+                PlannerActivity existing = existingByName.get(actData.getName());
+                if (existing != null) {
+                    activityIdMapping.put(actData.getId(), existing.getId());
+                } else {
+                    PlannerActivity newActivity = new PlannerActivity(actData.getName(), actData.getDescription());
+                    newActivity.setUser(user);
+                    if (actData.getCreatedAt() != null) {
+                        newActivity.setCreatedAt(LocalDateTime.parse(actData.getCreatedAt()));
+                    }
+                    // Resolve group references
+                    if (actData.getGroupIds() != null && plannerGroupRepository != null) {
+                        Set<PlannerGroup> groups = new HashSet<>();
+                        for (String oldGroupId : actData.getGroupIds()) {
+                            String mappedId = groupIdMapping.getOrDefault(oldGroupId, oldGroupId);
+                            plannerGroupRepository.findById(mappedId).ifPresent(groups::add);
+                        }
+                        newActivity.setGroups(groups);
+                    }
+                    newActivity = plannerActivityRepository.save(newActivity);
+                    activityIdMapping.put(actData.getId(), newActivity.getId());
+                    itemsAdded++;
+                }
+            }
+        }
+
+        // Merge week planner slots
+        if (weekPlannerSlotRepository != null && backupData.getWeekPlannerSlots() != null) {
+            List<WeekPlannerSlot> existingSlots = weekPlannerSlotRepository.findByUserId(user.getId());
+            Set<String> existingSlotKeys = new HashSet<>();
+            for (WeekPlannerSlot slot : existingSlots) {
+                existingSlotKeys.add(slot.getDayOfWeek() + "|" + slot.getHour());
+            }
+
+            for (BackupData.WeekPlannerSlotData slotData : backupData.getWeekPlannerSlots()) {
+                String key = slotData.getDayOfWeek() + "|" + slotData.getHour();
+                if (!existingSlotKeys.contains(key)) {
+                    WeekPlannerSlot newSlot = new WeekPlannerSlot(slotData.getDayOfWeek(), slotData.getHour());
+                    newSlot.setUser(user);
+                    if (slotData.getGroupId() != null && plannerGroupRepository != null) {
+                        String mappedGroupId = groupIdMapping.getOrDefault(slotData.getGroupId(), slotData.getGroupId());
+                        plannerGroupRepository.findById(mappedGroupId).ifPresent(newSlot::setGroup);
+                    }
+                    weekPlannerSlotRepository.save(newSlot);
+                    itemsAdded++;
+                }
+            }
+        }
+
+        // Merge slot confirmations
+        if (slotConfirmationRepository != null && backupData.getSlotConfirmations() != null) {
+            List<SlotConfirmation> existingConfirmations = slotConfirmationRepository.findByUserId(user.getId());
+            Set<String> existingConfirmationIds = new HashSet<>();
+            for (SlotConfirmation confirmation : existingConfirmations) {
+                existingConfirmationIds.add(confirmation.getId());
+            }
+
+            for (BackupData.SlotConfirmationData confData : backupData.getSlotConfirmations()) {
+                if (!existingConfirmationIds.contains(confData.getId())) {
+                    SlotConfirmation newConf = new SlotConfirmation();
+                    newConf.setId(confData.getId());
+                    newConf.setConfirmed(confData.isConfirmed());
+                    newConf.setUser(user);
+                    if (confData.getDate() != null) {
+                        newConf.setDate(LocalDate.parse(confData.getDate()));
+                    }
+                    if (confData.getCreatedAt() != null) {
+                        newConf.setCreatedAt(LocalDateTime.parse(confData.getCreatedAt()));
+                    }
+                    if (confData.getSlotId() != null && weekPlannerSlotRepository != null) {
+                        weekPlannerSlotRepository.findById(confData.getSlotId()).ifPresent(newConf::setSlot);
+                    }
+                    if (confData.getActivityId() != null && plannerActivityRepository != null) {
+                        String mappedActivityId = activityIdMapping.getOrDefault(confData.getActivityId(), confData.getActivityId());
+                        plannerActivityRepository.findById(mappedActivityId).ifPresent(newConf::setActivity);
+                    }
+                    if (confData.getGroupId() != null && plannerGroupRepository != null) {
+                        String mappedGroupId = groupIdMapping.getOrDefault(confData.getGroupId(), confData.getGroupId());
+                        plannerGroupRepository.findById(mappedGroupId).ifPresent(newConf::setGroup);
+                    }
+                    slotConfirmationRepository.save(newConf);
+                    itemsAdded++;
+                }
+            }
+        }
+
+        return itemsAdded;
+    }
+
     /**
      * Lists available backup files in the backup directory, sorted newest first.
      *
@@ -1583,6 +1787,111 @@ public class BackupService {
                 }
 
                 data.getEmergencyPlanSteps().add(stepData);
+            }
+        }
+
+        return data;
+    }
+
+    BackupData collectBackupData(User user,
+                                         HabitRepository habitRepository,
+                                         HabitCategoryRepository categoryRepository,
+                                         DiaryEntryRepository diaryEntryRepository,
+                                         SleepEntryRepository sleepEntryRepository,
+                                         SportLogRepository sportLogRepository,
+                                         FoodLogRepository foodLogRepository,
+                                         EmotionPairRepository emotionPairRepository,
+                                         EmotionEntryRepository emotionEntryRepository,
+                                         MeetingEntryRepository meetingEntryRepository,
+                                         ActivityLogRepository activityLogRepository,
+                                         ReminderSettingsRepository reminderSettingsRepository,
+                                         MedicationRepository medicationRepository,
+                                         MedicationLogRepository medicationLogRepository,
+                                         ModuleVisibilityRepository moduleVisibilityRepository,
+                                         EmergencyPlanStepRepository emergencyPlanStepRepository,
+                                         EmergencyPlanActionRepository emergencyPlanActionRepository,
+                                         PlannerGroupRepository plannerGroupRepository,
+                                         PlannerActivityRepository plannerActivityRepository,
+                                         WeekPlannerSlotRepository weekPlannerSlotRepository,
+                                         SlotConfirmationRepository slotConfirmationRepository) {
+        BackupData data = collectBackupData(user, habitRepository, categoryRepository,
+                diaryEntryRepository, sleepEntryRepository, sportLogRepository, foodLogRepository,
+                emotionPairRepository, emotionEntryRepository, meetingEntryRepository,
+                activityLogRepository, reminderSettingsRepository, medicationRepository,
+                medicationLogRepository, moduleVisibilityRepository, emergencyPlanStepRepository,
+                emergencyPlanActionRepository);
+
+        if (plannerGroupRepository != null) {
+            List<PlannerGroup> groups = plannerGroupRepository.findByUserId(user.getId());
+            for (PlannerGroup group : groups) {
+                BackupData.PlannerGroupData groupData = new BackupData.PlannerGroupData();
+                groupData.setId(group.getId());
+                groupData.setName(group.getName());
+                groupData.setDescription(group.getDescription());
+                if (group.getCreatedAt() != null) {
+                    groupData.setCreatedAt(group.getCreatedAt().toString());
+                }
+                data.getPlannerGroups().add(groupData);
+            }
+        }
+
+        if (plannerActivityRepository != null) {
+            List<PlannerActivity> activities = plannerActivityRepository.findByUserId(user.getId());
+            for (PlannerActivity activity : activities) {
+                BackupData.PlannerActivityData activityData = new BackupData.PlannerActivityData();
+                activityData.setId(activity.getId());
+                activityData.setName(activity.getName());
+                activityData.setDescription(activity.getDescription());
+                if (activity.getCreatedAt() != null) {
+                    activityData.setCreatedAt(activity.getCreatedAt().toString());
+                }
+                List<String> groupIds = new java.util.ArrayList<>();
+                if (activity.getGroups() != null) {
+                    for (PlannerGroup group : activity.getGroups()) {
+                        groupIds.add(group.getId());
+                    }
+                }
+                activityData.setGroupIds(groupIds);
+                data.getPlannerActivities().add(activityData);
+            }
+        }
+
+        if (weekPlannerSlotRepository != null) {
+            List<WeekPlannerSlot> slots = weekPlannerSlotRepository.findByUserId(user.getId());
+            for (WeekPlannerSlot slot : slots) {
+                BackupData.WeekPlannerSlotData slotData = new BackupData.WeekPlannerSlotData();
+                slotData.setId(slot.getId());
+                slotData.setDayOfWeek(slot.getDayOfWeek());
+                slotData.setHour(slot.getHour());
+                if (slot.getGroup() != null) {
+                    slotData.setGroupId(slot.getGroup().getId());
+                }
+                data.getWeekPlannerSlots().add(slotData);
+            }
+        }
+
+        if (slotConfirmationRepository != null) {
+            List<SlotConfirmation> confirmations = slotConfirmationRepository.findByUserId(user.getId());
+            for (SlotConfirmation confirmation : confirmations) {
+                BackupData.SlotConfirmationData confData = new BackupData.SlotConfirmationData();
+                confData.setId(confirmation.getId());
+                confData.setConfirmed(confirmation.isConfirmed());
+                if (confirmation.getDate() != null) {
+                    confData.setDate(confirmation.getDate().toString());
+                }
+                if (confirmation.getCreatedAt() != null) {
+                    confData.setCreatedAt(confirmation.getCreatedAt().toString());
+                }
+                if (confirmation.getSlot() != null) {
+                    confData.setSlotId(confirmation.getSlot().getId());
+                }
+                if (confirmation.getActivity() != null) {
+                    confData.setActivityId(confirmation.getActivity().getId());
+                }
+                if (confirmation.getGroup() != null) {
+                    confData.setGroupId(confirmation.getGroup().getId());
+                }
+                data.getSlotConfirmations().add(confData);
             }
         }
 
