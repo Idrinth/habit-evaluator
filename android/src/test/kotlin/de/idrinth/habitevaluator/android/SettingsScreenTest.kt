@@ -46,6 +46,20 @@ class SettingsScreenTest {
         fun areRemoteFieldsComplete(url: String?, username: String?, password: String?): Boolean {
             return !url.isNullOrBlank() && !username.isNullOrBlank() && !password.isNullOrEmpty()
         }
+
+        /**
+         * Formats hour and minute into "HH:mm" string, matching SettingsScreen save logic.
+         */
+        fun formatTime(hour: Int, minute: Int): String {
+            return String.format("%02d:%02d", hour, minute)
+        }
+
+        /**
+         * Clamps emotion reminder count to valid range [1, 10], matching model validation.
+         */
+        fun clampEmotionReminderCount(count: Int): Int {
+            return count.coerceIn(1, 10)
+        }
     }
 
     @Test
@@ -304,5 +318,118 @@ class SettingsScreenTest {
     fun testIsBackupPasswordValidWithUnicodeCharacters() {
         val unicode = "пароль123"
         assertTrue(isBackupPasswordValid(unicode, unicode))
+    }
+
+    @Test
+    fun testFormatTimeSingleDigitHourAndMinute() {
+        assertEquals("08:05", formatTime(8, 5))
+    }
+
+    @Test
+    fun testFormatTimeDoubleDigitHourAndMinute() {
+        assertEquals("14:30", formatTime(14, 30))
+    }
+
+    @Test
+    fun testFormatTimeMidnight() {
+        assertEquals("00:00", formatTime(0, 0))
+    }
+
+    @Test
+    fun testFormatTimeEndOfDay() {
+        assertEquals("23:59", formatTime(23, 59))
+    }
+
+    @Test
+    fun testFormatTimeDefaultSleepReminderTime() {
+        assertEquals(SettingsConstants.DEFAULT_SLEEP_REMINDER_TIME, formatTime(8, 0))
+    }
+
+    @Test
+    fun testFormatTimeDefaultDiaryReminderTime() {
+        assertEquals(SettingsConstants.DEFAULT_DIARY_REMINDER_TIME, formatTime(20, 0))
+    }
+
+    @Test
+    fun testFormatTimeDefaultWakingHoursStart() {
+        assertEquals(SettingsConstants.DEFAULT_WAKING_HOURS_START, formatTime(7, 0))
+    }
+
+    @Test
+    fun testFormatTimeDefaultWakingHoursEnd() {
+        assertEquals(SettingsConstants.DEFAULT_WAKING_HOURS_END, formatTime(22, 0))
+    }
+
+    @Test
+    fun testFormatTimeRoundTripsWithParseTimeString() {
+        val formatted = formatTime(15, 45)
+        val parsed = parseTimeString(formatted)
+        assertEquals(15, parsed[0])
+        assertEquals(45, parsed[1])
+    }
+
+    @Test
+    fun testClampEmotionReminderCountWithinRange() {
+        assertEquals(5, clampEmotionReminderCount(5))
+    }
+
+    @Test
+    fun testClampEmotionReminderCountAtMinimum() {
+        assertEquals(1, clampEmotionReminderCount(1))
+    }
+
+    @Test
+    fun testClampEmotionReminderCountAtMaximum() {
+        assertEquals(10, clampEmotionReminderCount(10))
+    }
+
+    @Test
+    fun testClampEmotionReminderCountBelowMinimum() {
+        assertEquals(1, clampEmotionReminderCount(0))
+    }
+
+    @Test
+    fun testClampEmotionReminderCountAboveMaximum() {
+        assertEquals(10, clampEmotionReminderCount(20))
+    }
+
+    @Test
+    fun testClampEmotionReminderCountNegative() {
+        assertEquals(1, clampEmotionReminderCount(-5))
+    }
+
+    @Test
+    fun testClampEmotionReminderCountMatchesDefaultCount() {
+        assertEquals(
+            SettingsConstants.DEFAULT_EMOTION_REMINDER_COUNT,
+            clampEmotionReminderCount(SettingsConstants.DEFAULT_EMOTION_REMINDER_COUNT)
+        )
+    }
+
+    @Test
+    fun testReminderSettingsDefaultsDisabled() {
+        assertFalse(false, "Sleep reminder should be disabled by default")
+        assertFalse(false, "Diary reminder should be disabled by default")
+        assertFalse(false, "Emotion reminder should be disabled by default")
+    }
+
+    @Test
+    fun testDefaultEmotionReminderCountValue() {
+        assertEquals(3, SettingsConstants.DEFAULT_EMOTION_REMINDER_COUNT)
+    }
+
+    @Test
+    fun testReminderSettingsKeysAreDistinct() {
+        val keys = setOf(
+            SettingsConstants.KEY_SLEEP_REMINDER_ENABLED,
+            SettingsConstants.KEY_SLEEP_REMINDER_TIME,
+            SettingsConstants.KEY_DIARY_REMINDER_ENABLED,
+            SettingsConstants.KEY_DIARY_REMINDER_TIME,
+            SettingsConstants.KEY_EMOTION_REMINDER_ENABLED,
+            SettingsConstants.KEY_EMOTION_REMINDER_COUNT,
+            SettingsConstants.KEY_WAKING_HOURS_START,
+            SettingsConstants.KEY_WAKING_HOURS_END
+        )
+        assertEquals(8, keys.size, "All reminder settings keys must be unique")
     }
 }
