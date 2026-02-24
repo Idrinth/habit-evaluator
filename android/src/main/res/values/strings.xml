@@ -692,7 +692,8 @@
     <string name="planner_unassigned">—</string>
     <string name="planner_assign_group">Assign group to %s</string>
     <string name="planner_none">None</string>
-    <string name="planner_week_summary">Week: %1$d / %2$d slots filled</string>
+    <string name="planner_week_summary">Week: %1$d / %2$d hours filled</string>
+    <string name="planner_duration">Duration: %d h</string>
     <string name="module_day_planner">Day Planner</string>
     <string name="diary_navigation_planner_description">Plan your week with randomized activity suggestions</string>
     <string name="diary_navigation_sleep_description">Track your sleep patterns and quality</string>

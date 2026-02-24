@@ -181,4 +181,36 @@ class FileSystemWeekPlannerSlotRepositoryTest {
     void testEmptyRepository() {
         assertTrue(repository.findAll().isEmpty());
     }
+
+    @Test
+    void testSaveAndFindByIdWithDuration() {
+        WeekPlannerSlot slot = new WeekPlannerSlot(1, 9, 3);
+        repository.save(slot);
+
+        Optional<WeekPlannerSlot> found = repository.findById(slot.getId());
+        assertTrue(found.isPresent());
+        assertEquals(3, found.get().getDuration());
+    }
+
+    @Test
+    void testDurationPersistenceAcrossInstances() {
+        WeekPlannerSlot slot = new WeekPlannerSlot(2, 10, 4);
+        repository.save(slot);
+
+        FileSystemWeekPlannerSlotRepository newRepo = new FileSystemWeekPlannerSlotRepository(tempDir);
+        newRepo.setPlannerGroupRepository(groupRepository);
+        Optional<WeekPlannerSlot> found = newRepo.findById(slot.getId());
+        assertTrue(found.isPresent());
+        assertEquals(4, found.get().getDuration());
+    }
+
+    @Test
+    void testDefaultDurationForOldData() {
+        WeekPlannerSlot slot = new WeekPlannerSlot(1, 9);
+        repository.save(slot);
+
+        Optional<WeekPlannerSlot> found = repository.findById(slot.getId());
+        assertTrue(found.isPresent());
+        assertEquals(1, found.get().getDuration());
+    }
 }

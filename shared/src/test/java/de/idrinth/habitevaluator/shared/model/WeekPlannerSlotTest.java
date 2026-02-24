@@ -17,6 +17,16 @@ class WeekPlannerSlotTest {
         WeekPlannerSlot slot = new WeekPlannerSlot(1, 9);
         assertEquals(1, slot.getDayOfWeek());
         assertEquals(9, slot.getHour());
+        assertEquals(1, slot.getDuration());
+        assertNotNull(slot.getId());
+    }
+
+    @Test
+    void testThreeArgConstructor() {
+        WeekPlannerSlot slot = new WeekPlannerSlot(2, 10, 3);
+        assertEquals(2, slot.getDayOfWeek());
+        assertEquals(10, slot.getHour());
+        assertEquals(3, slot.getDuration());
         assertNotNull(slot.getId());
     }
 
@@ -32,6 +42,37 @@ class WeekPlannerSlotTest {
         WeekPlannerSlot slot = new WeekPlannerSlot();
         slot.setHour(14);
         assertEquals(14, slot.getHour());
+    }
+
+    @Test
+    void testDefaultDuration() {
+        WeekPlannerSlot slot = new WeekPlannerSlot();
+        assertEquals(1, slot.getDuration());
+    }
+
+    @Test
+    void testSetDuration() {
+        WeekPlannerSlot slot = new WeekPlannerSlot();
+        slot.setDuration(4);
+        assertEquals(4, slot.getDuration());
+    }
+
+    @Test
+    void testCoversHourSingleHour() {
+        WeekPlannerSlot slot = new WeekPlannerSlot(1, 9);
+        assertTrue(slot.coversHour(9));
+        assertFalse(slot.coversHour(8));
+        assertFalse(slot.coversHour(10));
+    }
+
+    @Test
+    void testCoversHourMultiHour() {
+        WeekPlannerSlot slot = new WeekPlannerSlot(1, 9, 3);
+        assertFalse(slot.coversHour(8));
+        assertTrue(slot.coversHour(9));
+        assertTrue(slot.coversHour(10));
+        assertTrue(slot.coversHour(11));
+        assertFalse(slot.coversHour(12));
     }
 
     @Test

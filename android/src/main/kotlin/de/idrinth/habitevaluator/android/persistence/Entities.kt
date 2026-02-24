@@ -271,6 +271,7 @@ data class WeekPlannerSlotEntity(
     @PrimaryKey @ColumnInfo(name = "id") val id: String,
     @ColumnInfo(name = "day_of_week") val dayOfWeek: Int,
     @ColumnInfo(name = "hour") val hour: Int,
+    @ColumnInfo(name = "duration", defaultValue = "1") val duration: Int = 1,
     @ColumnInfo(name = "user_id") val userId: String,
     @ColumnInfo(name = "user_name") val userName: String
 )

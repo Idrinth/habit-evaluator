@@ -16,7 +16,9 @@
 	};
 
 	function isOccupied(dayOfWeek: number, hour: number): boolean {
-		return occupiedSlots.some(s => s.dayOfWeek === dayOfWeek && s.hour === hour);
+		return occupiedSlots.some(
+			(s) => s.dayOfWeek === dayOfWeek && hour >= s.hour && hour < s.hour + (s.duration || 1)
+		);
 	}
 
 	function formatHour(hour: number): string {

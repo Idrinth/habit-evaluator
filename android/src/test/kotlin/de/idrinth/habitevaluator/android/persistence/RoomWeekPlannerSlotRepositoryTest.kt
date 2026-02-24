@@ -32,9 +32,10 @@ class RoomWeekPlannerSlotRepositoryTest {
         id: String = "s1",
         dayOfWeek: Int = 1,
         hour: Int = 9,
+        duration: Int = 1,
         userId: String = "u1"
     ) = WeekPlannerSlotEntity(
-        id = id, dayOfWeek = dayOfWeek, hour = hour,
+        id = id, dayOfWeek = dayOfWeek, hour = hour, duration = duration,
         userId = userId, userName = "testuser"
     )
 

@@ -177,4 +177,26 @@ class H2WeekPlannerSlotRepositoryTest extends H2RepositoryTestBase {
         List<WeekPlannerSlot> slots = slotRepository.findByUserIdAndDayOfWeek("nonexistent-user-id", 1);
         assertTrue(slots.isEmpty());
     }
+
+    @Test
+    void testSaveAndFindByIdWithDuration() {
+        WeekPlannerSlot slot = new WeekPlannerSlot(1, 9, 3);
+        slot.setUser(testUser);
+        slotRepository.save(slot);
+
+        Optional<WeekPlannerSlot> found = slotRepository.findById(slot.getId());
+        assertTrue(found.isPresent());
+        assertEquals(3, found.get().getDuration());
+    }
+
+    @Test
+    void testDefaultDuration() {
+        WeekPlannerSlot slot = new WeekPlannerSlot(1, 9);
+        slot.setUser(testUser);
+        slotRepository.save(slot);
+
+        Optional<WeekPlannerSlot> found = slotRepository.findById(slot.getId());
+        assertTrue(found.isPresent());
+        assertEquals(1, found.get().getDuration());
+    }
 }

@@ -131,6 +131,7 @@ public class FileSystemWeekPlannerSlotRepository implements WeekPlannerSlotRepos
         obj.addProperty("id", slot.getId());
         obj.addProperty("dayOfWeek", slot.getDayOfWeek());
         obj.addProperty("hour", slot.getHour());
+        obj.addProperty("duration", slot.getDuration());
 
         if (slot.getGroups() != null && !slot.getGroups().isEmpty()) {
             JsonArray groupIds = new JsonArray();
@@ -152,6 +153,7 @@ public class FileSystemWeekPlannerSlotRepository implements WeekPlannerSlotRepos
         slot.setId(obj.get("id").getAsString());
         slot.setDayOfWeek(getIntOrDefault(obj, "dayOfWeek", 1));
         slot.setHour(getIntOrDefault(obj, "hour", 0));
+        slot.setDuration(getIntOrDefault(obj, "duration", 1));
 
         if (hasNonNull(obj, "groupIds") && plannerGroupRepository != null) {
             java.util.Set<de.idrinth.habitevaluator.shared.model.PlannerGroup> groups = new java.util.HashSet<>();

@@ -94,17 +94,17 @@ public class DayPlannerService {
     }
 
     /**
-     * Counts filled slots (slots with a group assigned) vs total possible slots in a week.
+     * Counts filled hours (summing slot durations) vs total possible hours in a week.
      *
      * @param slots all slots for the user
-     * @return array of [filledCount, totalPossible] where totalPossible is 7 * 24 = 168
+     * @return array of [filledHours, totalPossible] where totalPossible is 7 * 24 = 168
      */
     public int[] getWeekSlotSummary(List<WeekPlannerSlot> slots) {
         int filled = 0;
         if (slots != null) {
             for (WeekPlannerSlot slot : slots) {
                 if (slot.getGroups() != null && !slot.getGroups().isEmpty()) {
-                    filled++;
+                    filled += Math.max(1, slot.getDuration());
                 }
             }
         }
