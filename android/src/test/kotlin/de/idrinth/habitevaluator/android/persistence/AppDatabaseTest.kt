@@ -90,10 +90,17 @@ class AppDatabaseTest {
     }
 
     @Test
-    fun testDatabaseHasTenDaoMethods() {
+    fun testDayPlannerDaoMethodExists() {
+        val method = AppDatabase::class.java.getDeclaredMethod("dayPlannerDao")
+        assertNotNull(method)
+        assertEquals(DayPlannerDao::class.java, method.returnType)
+    }
+
+    @Test
+    fun testDatabaseHasElevenDaoMethods() {
         val daoMethods = AppDatabase::class.java.declaredMethods.filter {
             it.name.endsWith("Dao")
         }
-        assertEquals(10, daoMethods.size)
+        assertEquals(11, daoMethods.size)
     }
 }
