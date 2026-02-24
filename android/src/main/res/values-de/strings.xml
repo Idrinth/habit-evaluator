@@ -41,6 +41,7 @@
     <string name="new_category_hint">Kategoriename</string>
     <string name="category_required">Bitte wählen oder erstellen Sie eine Kategorie</string>
     <string name="category_name_required">Bitte geben Sie einen Kategorienamen ein</string>
+    <string name="select_category_prompt">Kategorie wählen…</string>
     <string name="all_categories">Alle Kategorien</string>
     <string name="your_category_habits">Ihre %s-Gewohnheiten</string>
     <string name="habit_category_label">Kategorie: %s</string>
@@ -76,7 +77,7 @@
     <string name="font_size_normal">Normal</string>
     <string name="font_size_large">Groß</string>
     <string name="language_system">Systemstandard</string>
-    <string name="language_en">English</string>
+    <string name="language_en">Englisch</string>
     <string name="language_de">Deutsch</string>
     <string name="language_es">Español</string>
     <string name="language_fr">Français</string>
@@ -130,6 +131,7 @@
     <string name="sleep_analysis_title">Schlafanalyse</string>
     <string name="sleep_duration_graph_title">Tägliche Schlafdauer (Stunden)</string>
     <string name="sleep_interruptions_graph_title">Tägliche Schlafunterbrechungen</string>
+    <string name="sleep_distribution_graph_title">Schlafzeitverteilung</string>
     <string name="translation_settings">Übersetzungseinstellungen</string>
     <string name="custom_translations_label">Eigene Übersetzungen für Gewohnheits- und Kategorienamen aktivieren</string>
     <string name="custom_translations_enabled">Eigene Übersetzungen</string>
@@ -181,9 +183,9 @@
     <string name="pdf_sleep_entries">Schlafeinträge</string>
     <string name="emotional_state">Emotionen</string>
     <string name="add_emotion_pair">Emotionspaar hinzufügen</string>
-    <string name="negative_label_hint">Negatives Label (z.B. lustlos)</string>
-    <string name="positive_label_hint">Positives Label (z.B. aktiv)</string>
-    <string name="emotion_labels_required">Bitte geben Sie beide Labels ein</string>
+    <string name="negative_label_hint">Negative Bezeichnung (z.B. lustlos)</string>
+    <string name="positive_label_hint">Positive Bezeichnung (z.B. aktiv)</string>
+    <string name="emotion_labels_required">Bitte geben Sie beide Bezeichnungen ein</string>
     <string name="emotion_pair_added">Emotionspaar hinzugefügt</string>
     <string name="emotion_pair_deleted">Emotionspaar gelöscht</string>
     <string name="delete_emotion_pair">Emotionspaar löschen</string>
@@ -442,4 +444,205 @@
     <string name="activity_log_time_required">Bitte Start- und Endzeit auswählen</string>
     <string name="activity_log_duration">%d min</string>
     <string name="diary_navigation_activity_log_description">Aktivitäten mit Personen, Orten und Zeiten protokollieren</string>
+
+    <!-- Compose screen short-form strings -->
+    <string name="home">Startseite</string>
+    <string name="diary">Tagebuch</string>
+    <string name="emotions">Emotionen</string>
+    <string name="emergency_plan">Notfallplan</string>
+    <string name="imprint">Rechtliches</string>
+    <string name="statistics">Statistiken</string>
+    <string name="sleep_duration">Schlafdauer</string>
+    <string name="diary_points">Tagebuchpunkte</string>
+    <string name="habit_points">Gewohnheitspunkte</string>
+    <string name="export_pdf">PDF exportieren</string>
+    <string name="view_correlations">Korrelationen anzeigen</string>
+    <string name="habit_not_found">Gewohnheit nicht gefunden</string>
+    <string name="week">Woche</string>
+    <string name="month">Monat</string>
+    <string name="daily_points_title">Tägliche Punkte</string>
+    <string name="storage_mode">Speichermodus</string>
+    <string name="local_storage">Lokal (auf dem Gerät)</string>
+    <string name="remote_storage">Remote-API-Server</string>
+    <string name="api_url">Server-URL</string>
+    <string name="username">Benutzername</string>
+    <string name="password">Passwort</string>
+    <string name="theme">Design</string>
+    <string name="system_default">Systemstandard</string>
+    <string name="light">Hell</string>
+    <string name="dark">Dunkel</string>
+    <string name="language">Sprache</string>
+    <string name="module_visibility">Modulanzeige</string>
+    <string name="delete">Löschen</string>
+    <string name="edit">Bearbeiten</string>
+    <string name="cancel">Abbrechen</string>
+    <string name="notes">Notizen</string>
+    <string name="date">Datum</string>
+    <string name="date_time">Datum &amp; Uhrzeit</string>
+    <string name="start_time">Startzeit</string>
+    <string name="end_time">Endzeit</string>
+    <string name="add_entry">Eintrag hinzufügen</string>
+    <string name="edit_entry">Eintrag bearbeiten</string>
+    <string name="save_edit">Bearbeitung speichern</string>
+
+    <!-- Food log screen -->
+    <string name="food_log">Ernährungsprotokoll</string>
+    <string name="food_items">Lebensmittel</string>
+    <string name="food_items_required">Bitte geben Sie mindestens ein Lebensmittel ein</string>
+    <string name="kcal">Kcal</string>
+    <string name="carbohydrates">Kohlenhydrate (g)</string>
+    <string name="invalid_kcal">Bitte geben Sie einen gültigen Kcal-Wert ein</string>
+    <string name="invalid_carbs">Bitte geben Sie einen gültigen Kohlenhydratwert ein</string>
+
+    <!-- Sport log screen -->
+    <string name="sport_log">Sportprotokoll</string>
+    <string name="activity_name">Aktivitätsname</string>
+    <string name="activity_name_required">Bitte geben Sie einen Aktivitätsnamen ein</string>
+    <string name="measurement">Messwert</string>
+    <string name="measurement_unit">Einheit</string>
+    <string name="invalid_measurement">Bitte geben Sie einen gültigen Messwert ein</string>
+    <string name="unit_required">Bitte geben Sie eine Maßeinheit ein</string>
+    <string name="times_required">Bitte wählen Sie Start- und Endzeit</string>
+    <string name="weekly_stats">Wöchentliche Statistik</string>
+    <string name="monthly_stats">Monatliche Statistik</string>
+    <string name="entries">Einträge</string>
+
+    <!-- Medication screens -->
+    <string name="medication_list">Ihre Medikamente</string>
+    <string name="medication_log">Medikamentenprotokoll</string>
+    <string name="add_medication">Medikament hinzufügen</string>
+    <string name="medication_name">Medikamentenname</string>
+    <string name="pill">Tablette (mg)</string>
+    <string name="liquid_drops">Flüssig (Tropfen)</string>
+    <string name="liquid_ml">Flüssig (ml)</string>
+    <string name="provision_type">Darreichungsform</string>
+    <string name="wikipedia_link">Wikipedia-Link</string>
+    <string name="edit_link">Link bearbeiten</string>
+    <string name="edit_wikipedia_link">Wikipedia-Link bearbeiten</string>
+    <string name="medication">Medikament</string>
+    <string name="dose_amount">Menge</string>
+    <string name="no_medications_defined">Keine Medikamente vorhanden. Bitte fügen Sie zuerst ein Medikament hinzu.</string>
+    <string name="select_medication">Bitte wählen Sie ein Medikament</string>
+    <string name="invalid_amount">Bitte geben Sie eine gültige Menge ein</string>
+
+    <!-- Emergency plan screen -->
+    <string name="start_dialogue">Dialog starten</string>
+    <string name="add_step">Schritt hinzufügen</string>
+    <string name="edit_step">Schritt bearbeiten</string>
+    <string name="update_step">Schritt aktualisieren</string>
+    <string name="question">Frage</string>
+    <string name="question_required">Bitte geben Sie eine Frage ein</string>
+    <string name="actions">Aktionen</string>
+    <string name="action_text">Aktionstext</string>
+    <string name="action_required">Bitte geben Sie mindestens eine Aktion ein</string>
+    <string name="phone_number">Telefonnummer</string>
+    <string name="add_action">Aktion hinzufügen</string>
+    <string name="remove">Entfernen</string>
+    <string name="move_up">Nach oben</string>
+    <string name="move_down">Nach unten</string>
+    <string name="no_dialer">Keine Telefon-App verfügbar</string>
+    <string name="copied">In die Zwischenablage kopiert</string>
+    <string name="copy">Kopieren</string>
+    <string name="call">Anrufen</string>
+
+    <!-- Activity log screen -->
+    <string name="activity_log">Aktivitätsprotokoll</string>
+    <string name="persons">Personen</string>
+    <string name="persons_required">Bitte Personen eingeben</string>
+    <string name="location">Ort</string>
+    <string name="location_required">Bitte einen Ort eingeben</string>
+    <string name="activity_description">Aktivität (optional)</string>
+
+    <!-- Home screen -->
+    <string name="all_habits">Alle Gewohnheiten</string>
+    <string name="no_habits_yet">Noch keine Gewohnheiten</string>
+    <string name="complete">Erledigt</string>
+    <string name="category">Kategorie</string>
+    <string name="hide_form">Formular ausblenden</string>
+    <string name="show_form">Formular anzeigen</string>
+    <string name="no_category">Keine Kategorie</string>
+
+    <!-- Add/Edit habit screen -->
+    <string name="habit_name">Gewohnheitsname</string>
+    <string name="habit_name_required">Bitte geben Sie einen Gewohnheitsnamen ein</string>
+    <string name="description">Beschreibung</string>
+    <string name="description_required">Bitte geben Sie eine Beschreibung ein</string>
+    <string name="frequency_type">Häufigkeit</string>
+    <string name="target_frequency">Zielhäufigkeit</string>
+    <string name="max_entries_per_day">Max. Einträge pro Tag</string>
+    <string name="submit">Absenden</string>
+
+    <!-- Emotion screens -->
+    <string name="emotion_scatter_title">Tagesverteilung (30 Tage)</string>
+    <string name="emotion_development_title">Durchschnittliche emotionale Entwicklung</string>
+    <string name="no_emotion_pairs">Noch keine Emotionspaare</string>
+    <string name="record">Erfassen</string>
+    <string name="emotion_pair_not_found">Emotionspaar nicht gefunden</string>
+    <string name="negative_label">Negative Bezeichnung</string>
+    <string name="positive_label">Positive Bezeichnung</string>
+    <string name="labels_required">Bitte geben Sie beide Bezeichnungen ein</string>
+
+    <!-- Diary screen -->
+    <string name="significance">Bedeutsamkeit</string>
+    <string name="positivity_diary">Positivitätstagebuch</string>
+
+    <!-- Sleep screen -->
+    <string name="sleep_overlap">Dieser Eintrag überschneidet sich mit einem bestehenden Schlafeintrag</string>
+    <string name="sleep_analysis">Schlafanalyse</string>
+    <string name="sleep_distribution">Schlafverteilung</string>
+    <string name="interruptions">Unterbrechungen</string>
+
+    <!-- PDF export screen -->
+    <string name="pdf_export">PDF-Export</string>
+    <string name="from_date">Von Datum</string>
+    <string name="to_date">Bis Datum</string>
+    <string name="include_habits">Gewohnheiten einschließen</string>
+    <string name="include_diary">Tagebuch einschließen</string>
+    <string name="include_sleep">Schlaf einschließen</string>
+    <string name="include_emotions">Emotionen einschließen</string>
+    <string name="select_at_least_one">Bitte wählen Sie mindestens einen Abschnitt</string>
+    <string name="generating">PDF wird erstellt…</string>
+    <string name="export_success">PDF erfolgreich exportiert</string>
+    <string name="export_error">PDF-Export fehlgeschlagen</string>
+
+    <!-- Correlation screen -->
+    <string name="correlations">Korrelationen</string>
+    <string name="source">Quelle</string>
+    <string name="target">Ziel</string>
+    <string name="no_correlations">Nicht genug Daten für Korrelationen</string>
+    <string name="correlation_disclaimer">Korrelation bedeutet nicht Kausalität. Schwache Korrelationen sollten mit Vorsicht interpretiert werden.</string>
+    <string name="strong">Stark</string>
+    <string name="moderate">Moderat</string>
+    <string name="weak">Schwach</string>
+
+    <!-- Emergency dialogue screen -->
+    <string name="dialogue_complete">Sie haben alle Schritte abgeschlossen.</string>
+    <string name="step">Schritt</string>
+    <string name="of">von</string>
+    <string name="yes">Ja</string>
+    <string name="no">Nein</string>
+    <string name="next">Weiter</string>
+    <string name="finish">Beenden</string>
+
+    <!-- Day Planner -->
+    <string name="planner_week_planner_title">Wochenplaner</string>
+    <string name="planner_groups_title">Planergruppen</string>
+    <string name="planner_activities_title">Planeraktivitäten</string>
+    <string name="planner_add_group">Gruppe hinzufügen</string>
+    <string name="planner_add_activity">Aktivität hinzufügen</string>
+    <string name="planner_group_name">Gruppenname</string>
+    <string name="planner_activity_name">Aktivitätsname</string>
+    <string name="planner_group_name_required">Bitte geben Sie einen Gruppennamen ein</string>
+    <string name="planner_activity_name_required">Bitte geben Sie einen Aktivitätsnamen ein</string>
+    <string name="planner_no_groups">Noch keine Gruppen. Fügen Sie zuerst eine Gruppe hinzu.</string>
+    <string name="planner_no_activities">Noch keine Aktivitäten. Fügen Sie zuerst eine Aktivität hinzu.</string>
+    <string name="planner_select_groups">Gruppen zuweisen</string>
+    <string name="planner_groups_label">Gruppen</string>
+    <string name="planner_unassigned">—</string>
+    <string name="planner_assign_group">Gruppe für %s zuweisen</string>
+    <string name="planner_none">Keine</string>
+    <string name="planner_week_summary">Woche: %1$d / %2$d Plätze belegt</string>
+    <string name="module_day_planner">Tagesplaner</string>
+    <string name="diary_navigation_planner_description">Planen Sie Ihre Woche mit zufälligen Aktivitätsvorschlägen</string>
+    <string name="day_planner">Tagesplaner</string>
 </resources>
