@@ -25,7 +25,8 @@
 		medicationVisible: true,
 		backupVisible: true,
 		pdfExportVisible: true,
-		activityLogVisible: true
+		activityLogVisible: true,
+		dayPlannerVisible: true
 	});
 
 	function handleVisibilityChanged(event: Event) {
@@ -123,8 +124,11 @@
 		{#if mv.diaryVisible}
 			<a href="/diary">{t('nav.diary', lang)}</a>
 		{/if}
-		{#if mv.sleepVisible}
+		{#if mv.diaryVisible && mv.sleepVisible}
 			<a href="/sleep">{t('nav.sleep', lang)}</a>
+		{/if}
+		{#if mv.dayPlannerVisible}
+			<a href="/planner">{t('nav.planner', lang)}</a>
 		{/if}
 		{#if mv.foodLogVisible}
 			<a href="/food-log">{t('nav.foodLog', lang)}</a>

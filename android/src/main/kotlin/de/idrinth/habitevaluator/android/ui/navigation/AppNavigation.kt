@@ -32,6 +32,7 @@ import de.idrinth.habitevaluator.android.ui.screens.SleepTrackingScreen
 import de.idrinth.habitevaluator.android.ui.screens.SportLogScreen
 import de.idrinth.habitevaluator.android.ui.screens.PlannerActivityScreen
 import de.idrinth.habitevaluator.android.ui.screens.PlannerGroupScreen
+import de.idrinth.habitevaluator.android.ui.screens.PlannerNavigationScreen
 import de.idrinth.habitevaluator.android.ui.screens.StatsScreen
 import de.idrinth.habitevaluator.android.ui.screens.WeekPlannerScreen
 
@@ -122,6 +123,9 @@ fun AppNavigation(
         }
         composable(Screen.EmergencyDialogue.route) {
             EmergencyDialogueScreen(viewModel = viewModel, navController = navController)
+        }
+        composable(Screen.Planner.route) {
+            PlannerNavigationScreen(viewModel = viewModel, navController = navController)
         }
         composable(Screen.WeekPlanner.route) {
             WeekPlannerScreen(viewModel = viewModel)

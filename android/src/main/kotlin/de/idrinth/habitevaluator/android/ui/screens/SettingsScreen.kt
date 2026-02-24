@@ -63,6 +63,7 @@ fun SettingsScreen(viewModel: AppViewModel, navController: NavController) {
     var backupVisible by remember { mutableStateOf(prefs.getBoolean(SettingsConstants.KEY_MODULE_BACKUP_VISIBLE, true)) }
     var pdfExportVisible by remember { mutableStateOf(prefs.getBoolean(SettingsConstants.KEY_MODULE_PDF_EXPORT_VISIBLE, true)) }
     var activityLogVisible by remember { mutableStateOf(prefs.getBoolean(SettingsConstants.KEY_MODULE_ACTIVITY_LOG_VISIBLE, true)) }
+    var dayPlannerVisible by remember { mutableStateOf(prefs.getBoolean(SettingsConstants.KEY_MODULE_DAY_PLANNER_VISIBLE, true)) }
 
     Column(
         modifier = Modifier
@@ -135,6 +136,7 @@ fun SettingsScreen(viewModel: AppViewModel, navController: NavController) {
                 LabeledSwitch(stringResource(R.string.module_backup), backupVisible) { backupVisible = it }
                 LabeledSwitch(stringResource(R.string.module_pdf_export), pdfExportVisible) { pdfExportVisible = it }
                 LabeledSwitch(stringResource(R.string.module_activity_log), activityLogVisible) { activityLogVisible = it }
+                LabeledSwitch(stringResource(R.string.module_day_planner), dayPlannerVisible) { dayPlannerVisible = it }
             }
         }
 
@@ -159,6 +161,7 @@ fun SettingsScreen(viewModel: AppViewModel, navController: NavController) {
                     .putBoolean(SettingsConstants.KEY_MODULE_BACKUP_VISIBLE, backupVisible)
                     .putBoolean(SettingsConstants.KEY_MODULE_PDF_EXPORT_VISIBLE, pdfExportVisible)
                     .putBoolean(SettingsConstants.KEY_MODULE_ACTIVITY_LOG_VISIBLE, activityLogVisible)
+                    .putBoolean(SettingsConstants.KEY_MODULE_DAY_PLANNER_VISIBLE, dayPlannerVisible)
                     .apply()
                 SettingsConstants.applyThemeMode(themeMode)
                 SettingsConstants.applyLanguage(language)

@@ -39,6 +39,11 @@ class StartupRegressionTest {
         assertTrue(Screen.EmotionalState.route.isNotEmpty(), "EmotionalState route must not be empty")
     }
 
+    @Test
+    fun testPlannerRouteIsNotEmpty() {
+        assertTrue(Screen.Planner.route.isNotEmpty(), "Planner route must not be empty")
+    }
+
     // ── All screen routes must be unique ────────────────────────────────────
 
     @Test
@@ -66,7 +71,8 @@ class StartupRegressionTest {
             Screen.PdfExport.route,
             Screen.SleepAnalysis.route,
             Screen.Correlations.route,
-            Screen.EmergencyDialogue.route
+            Screen.EmergencyDialogue.route,
+            Screen.Planner.route
         )
 
         val uniqueRoutes = allRoutes.toSet()
@@ -101,7 +107,8 @@ class StartupRegressionTest {
             Screen.PdfExport.route,
             Screen.SleepAnalysis.route,
             Screen.Correlations.route,
-            Screen.EmergencyDialogue.route
+            Screen.EmergencyDialogue.route,
+            Screen.Planner.route
         )
 
         for (route in allRoutes) {
@@ -169,9 +176,10 @@ class StartupRegressionTest {
             Screen.PdfExport.route,
             Screen.SleepAnalysis.route,
             Screen.Correlations.route,
-            Screen.EmergencyDialogue.route
+            Screen.EmergencyDialogue.route,
+            Screen.Planner.route
         )
-        assertEquals(23, allRoutes.size, "Total number of screen routes must be 23")
+        assertEquals(24, allRoutes.size, "Total number of screen routes must be 24")
     }
 
     // ── MainActivity class exists ───────────────────────────────────────────

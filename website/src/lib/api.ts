@@ -511,6 +511,7 @@ export interface ModuleVisibility {
 	backupVisible: boolean;
 	pdfExportVisible: boolean;
 	activityLogVisible: boolean;
+	dayPlannerVisible: boolean;
 }
 
 export const moduleVisibility = {

@@ -8,6 +8,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
+import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Info
@@ -98,7 +99,7 @@ private fun AppContent(viewModel: AppViewModel) {
     val bottomNavItems = listOf(
         BottomNavItem(Screen.Home, R.string.home, Icons.Filled.Home),
         BottomNavItem(Screen.Diary, R.string.diary, Icons.AutoMirrored.Filled.List),
-        BottomNavItem(Screen.Sleep, R.string.sleep_tracking, Icons.Filled.Favorite),
+        BottomNavItem(Screen.Planner, R.string.planner, Icons.Filled.DateRange),
         BottomNavItem(Screen.EmergencyPlan, R.string.emergency_plan, Icons.Filled.Warning),
         BottomNavItem(Screen.EmotionalState, R.string.emotions, Icons.Filled.Favorite)
     )

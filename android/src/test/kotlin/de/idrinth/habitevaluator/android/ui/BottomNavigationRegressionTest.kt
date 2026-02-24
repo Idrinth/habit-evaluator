@@ -24,10 +24,10 @@ class BottomNavigationRegressionTest {
         // Page constants mirrored from ScreenPagerAdapterTest
         const val PAGE_HOME = 0
         const val PAGE_DIARY = 1
-        const val PAGE_SLEEP = 2
+        const val PAGE_PLANNER = 2
         const val PAGE_EMERGENCY_PLAN = 3
         const val PAGE_EMOTIONAL_STATE = 4
-        const val PAGE_COUNT = 19
+        const val PAGE_COUNT = 20
     }
 
     private fun parseMenu(): Document {
@@ -91,11 +91,11 @@ class BottomNavigationRegressionTest {
     @Test
     fun testBottomNavItemCountMatchesNavigationHandlerCount() {
         // The bottom navigation handler maps exactly 5 nav IDs to Compose screen routes:
-        // nav_home, nav_diary, nav_sleep, nav_emergency_plan, nav_emotions
+        // nav_home, nav_diary, nav_planner, nav_emergency_plan, nav_emotions
         val bottomNavPages = intArrayOf(
             PAGE_HOME,
             PAGE_DIARY,
-            PAGE_SLEEP,
+            PAGE_PLANNER,
             PAGE_EMERGENCY_PLAN,
             PAGE_EMOTIONAL_STATE
         )

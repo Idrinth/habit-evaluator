@@ -39,7 +39,7 @@ class MaestroNavigationCoverageTest {
         val BOTTOM_NAV_SCREENS = listOf(
             Screen.Home,
             Screen.Diary,
-            Screen.Sleep,
+            Screen.Planner,
             Screen.EmergencyPlan,
             Screen.EmotionalState
         )
@@ -54,6 +54,7 @@ class MaestroNavigationCoverageTest {
         /** Diary navigation card targets as defined in DiaryNavigationScreen.kt. */
         val DIARY_NAV_CARD_SCREENS = listOf(
             Screen.PositivityDiary,
+            Screen.Sleep,
             Screen.SportLog,
             Screen.FoodLog,
             Screen.MedicationLog,
@@ -85,7 +86,8 @@ class MaestroNavigationCoverageTest {
             Screen.PdfExport,
             Screen.SleepAnalysis,
             Screen.Correlations,
-            Screen.EmergencyDialogue
+            Screen.EmergencyDialogue,
+            Screen.Planner
         )
     }
 
@@ -152,8 +154,8 @@ class MaestroNavigationCoverageTest {
     }
 
     @Test
-    fun testBottomNavThirdItemIsSleep() {
-        assertEquals(Screen.Sleep, BOTTOM_NAV_SCREENS[2], "Third bottom nav item must be Sleep")
+    fun testBottomNavThirdItemIsPlanner() {
+        assertEquals(Screen.Planner, BOTTOM_NAV_SCREENS[2], "Third bottom nav item must be Planner")
     }
 
     @Test
@@ -227,8 +229,8 @@ class MaestroNavigationCoverageTest {
     // ── Maestro 04: Diary sub-pages ───────────────────────────────────────
 
     @Test
-    fun testDiaryNavigationHasSixCards() {
-        assertEquals(6, DIARY_NAV_CARD_SCREENS.size, "Diary navigation must have 6 cards")
+    fun testDiaryNavigationHasSevenCards() {
+        assertEquals(7, DIARY_NAV_CARD_SCREENS.size, "Diary navigation must have 7 cards")
     }
 
     @Test
@@ -254,28 +256,33 @@ class MaestroNavigationCoverageTest {
     }
 
     @Test
-    fun testDiaryNavSecondCardIsSportLog() {
-        assertEquals(Screen.SportLog, DIARY_NAV_CARD_SCREENS[1])
+    fun testDiaryNavSecondCardIsSleep() {
+        assertEquals(Screen.Sleep, DIARY_NAV_CARD_SCREENS[1])
     }
 
     @Test
-    fun testDiaryNavThirdCardIsFoodLog() {
-        assertEquals(Screen.FoodLog, DIARY_NAV_CARD_SCREENS[2])
+    fun testDiaryNavThirdCardIsSportLog() {
+        assertEquals(Screen.SportLog, DIARY_NAV_CARD_SCREENS[2])
     }
 
     @Test
-    fun testDiaryNavFourthCardIsMedicationLog() {
-        assertEquals(Screen.MedicationLog, DIARY_NAV_CARD_SCREENS[3])
+    fun testDiaryNavFourthCardIsFoodLog() {
+        assertEquals(Screen.FoodLog, DIARY_NAV_CARD_SCREENS[3])
     }
 
     @Test
-    fun testDiaryNavFifthCardIsMedicationList() {
-        assertEquals(Screen.MedicationList, DIARY_NAV_CARD_SCREENS[4])
+    fun testDiaryNavFifthCardIsMedicationLog() {
+        assertEquals(Screen.MedicationLog, DIARY_NAV_CARD_SCREENS[4])
     }
 
     @Test
-    fun testDiaryNavSixthCardIsActivityLog() {
-        assertEquals(Screen.ActivityLog, DIARY_NAV_CARD_SCREENS[5])
+    fun testDiaryNavSixthCardIsMedicationList() {
+        assertEquals(Screen.MedicationList, DIARY_NAV_CARD_SCREENS[5])
+    }
+
+    @Test
+    fun testDiaryNavSeventhCardIsActivityLog() {
+        assertEquals(Screen.ActivityLog, DIARY_NAV_CARD_SCREENS[6])
     }
 
     // ── Maestro 05: Add habit page ────────────────────────────────────────
@@ -438,8 +445,8 @@ class MaestroNavigationCoverageTest {
     @Test
     fun testRegisteredScreenCountMatchesExpected() {
         assertEquals(
-            23, ALL_REGISTERED_SCREENS.size,
-            "Total number of registered screens must be 23"
+            24, ALL_REGISTERED_SCREENS.size,
+            "Total number of registered screens must be 24"
         )
     }
 
