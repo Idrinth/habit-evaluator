@@ -600,17 +600,19 @@ fun WeekPlannerSlot.toEntity(): WeekPlannerSlotEntity = WeekPlannerSlotEntity(
     id = id,
     dayOfWeek = dayOfWeek,
     hour = hour,
-    groupId = group?.id,
     userId = user?.id ?: "",
     userName = user?.username ?: ""
 )
 
-fun WeekPlannerSlotEntity.toModel(group: PlannerGroup? = null): WeekPlannerSlot {
+fun WeekPlannerSlot.toGroupIds(): List<String> =
+    groups?.map { it.id } ?: emptyList()
+
+fun WeekPlannerSlotEntity.toModel(groups: Set<PlannerGroup> = emptySet()): WeekPlannerSlot {
     val slot = WeekPlannerSlot()
     slot.id = id
     slot.dayOfWeek = dayOfWeek
     slot.hour = hour
-    slot.group = group
+    slot.groups = java.util.HashSet(groups)
     val u = User()
     u.id = userId
     u.username = userName

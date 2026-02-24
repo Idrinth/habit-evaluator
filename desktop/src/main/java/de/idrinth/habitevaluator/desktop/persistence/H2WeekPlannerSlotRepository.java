@@ -17,12 +17,18 @@ public class H2WeekPlannerSlotRepository implements WeekPlannerSlotRepository {
 
     @Override
     public Optional<WeekPlannerSlot> findById(String id) {
-        return JpaTransactionHelper.findById(WeekPlannerSlot.class, id);
+        return JpaTransactionHelper.findSingleByParameter(
+                WeekPlannerSlot.class,
+                "SELECT s FROM WeekPlannerSlot s LEFT JOIN FETCH s.groups WHERE s.id = :id",
+                "id",
+                id);
     }
 
     @Override
     public List<WeekPlannerSlot> findAll() {
-        return JpaTransactionHelper.findAll(WeekPlannerSlot.class, "WeekPlannerSlot");
+        return JpaTransactionHelper.executeReadOnly(em ->
+                em.createQuery("SELECT DISTINCT s FROM WeekPlannerSlot s LEFT JOIN FETCH s.groups", WeekPlannerSlot.class)
+                        .getResultList());
     }
 
     @Override
@@ -39,7 +45,7 @@ public class H2WeekPlannerSlotRepository implements WeekPlannerSlotRepository {
     public List<WeekPlannerSlot> findByUserId(String userId) {
         return JpaTransactionHelper.findByParameter(
                 WeekPlannerSlot.class,
-                "SELECT s FROM WeekPlannerSlot s WHERE s.user.id = :userId ORDER BY s.dayOfWeek, s.hour",
+                "SELECT DISTINCT s FROM WeekPlannerSlot s LEFT JOIN FETCH s.groups WHERE s.user.id = :userId ORDER BY s.dayOfWeek, s.hour",
                 "userId",
                 userId);
     }
@@ -48,7 +54,7 @@ public class H2WeekPlannerSlotRepository implements WeekPlannerSlotRepository {
     public List<WeekPlannerSlot> findByUserIdAndDayOfWeek(String userId, int dayOfWeek) {
         return JpaTransactionHelper.executeReadOnly(em ->
                 em.createQuery(
-                        "SELECT s FROM WeekPlannerSlot s WHERE s.user.id = :userId AND s.dayOfWeek = :dayOfWeek ORDER BY s.hour",
+                        "SELECT DISTINCT s FROM WeekPlannerSlot s LEFT JOIN FETCH s.groups WHERE s.user.id = :userId AND s.dayOfWeek = :dayOfWeek ORDER BY s.hour",
                         WeekPlannerSlot.class)
                         .setParameter("userId", userId)
                         .setParameter("dayOfWeek", dayOfWeek)

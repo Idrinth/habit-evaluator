@@ -49,8 +49,12 @@ public class DayPlannerService {
         // Collect unique groups from slots
         List<PlannerGroup> groups = new ArrayList<>();
         for (WeekPlannerSlot slot : slotsForHour) {
-            if (slot.getGroup() != null && !groups.contains(slot.getGroup())) {
-                groups.add(slot.getGroup());
+            if (slot.getGroups() != null) {
+                for (PlannerGroup group : slot.getGroups()) {
+                    if (!groups.contains(group)) {
+                        groups.add(group);
+                    }
+                }
             }
         }
         if (groups.isEmpty()) {
@@ -99,7 +103,7 @@ public class DayPlannerService {
         int filled = 0;
         if (slots != null) {
             for (WeekPlannerSlot slot : slots) {
-                if (slot.getGroup() != null) {
+                if (slot.getGroups() != null && !slot.getGroups().isEmpty()) {
                     filled++;
                 }
             }

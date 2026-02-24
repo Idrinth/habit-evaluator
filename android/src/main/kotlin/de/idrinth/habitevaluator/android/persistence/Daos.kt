@@ -621,6 +621,7 @@ interface DayPlannerDao {
     @Transaction
     suspend fun deleteGroupWithLinks(id: String) {
         deleteLinksForGroup(id)
+        deleteSlotGroupLinksForGroup(id)
         deleteGroupById(id)
     }
 
@@ -648,6 +649,32 @@ interface DayPlannerDao {
 
     @Query("SELECT EXISTS(SELECT 1 FROM week_planner_slots WHERE id = :id)")
     suspend fun slotExistsById(id: String): Boolean
+
+    // Week Planner Slot Group Links
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertSlotGroupLink(link: WeekPlannerSlotGroupLinkEntity)
+
+    @Query("DELETE FROM week_planner_slot_group_links WHERE slot_id = :slotId")
+    suspend fun deleteSlotGroupLinksForSlot(slotId: String)
+
+    @Query("DELETE FROM week_planner_slot_group_links WHERE group_id = :groupId")
+    suspend fun deleteSlotGroupLinksForGroup(groupId: String)
+
+    @Query("SELECT group_id FROM week_planner_slot_group_links WHERE slot_id = :slotId")
+    suspend fun findGroupIdsForSlot(slotId: String): List<String>
+
+    @Transaction
+    suspend fun saveSlotWithGroups(slot: WeekPlannerSlotEntity, groupIds: List<String>) {
+        insertSlot(slot)
+        deleteSlotGroupLinksForSlot(slot.id)
+        groupIds.forEach { insertSlotGroupLink(WeekPlannerSlotGroupLinkEntity(slot.id, it)) }
+    }
+
+    @Transaction
+    suspend fun deleteSlotWithLinks(id: String) {
+        deleteSlotGroupLinksForSlot(id)
+        deleteSlotById(id)
+    }
 
     // Slot Confirmations
     @Insert(onConflict = OnConflictStrategy.REPLACE)

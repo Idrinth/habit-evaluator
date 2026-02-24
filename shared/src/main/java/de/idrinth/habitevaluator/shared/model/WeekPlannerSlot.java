@@ -5,15 +5,19 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 
 /**
  * Represents a time slot in the weekly planner.
- * Each slot assigns a group to a specific day-of-week and hour.
+ * Each slot assigns one or more groups to a specific day-of-week and hour.
  * Day of week uses ISO-8601: 1 = Monday through 7 = Sunday.
  * Hour ranges from 0 to 23.
  */
@@ -31,9 +35,13 @@ public class WeekPlannerSlot {
     @Column(nullable = false)
     private int hour;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "group_id")
-    private PlannerGroup group;
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "week_planner_slot_group_links",
+            joinColumns = @JoinColumn(name = "slot_id"),
+            inverseJoinColumns = @JoinColumn(name = "group_id")
+    )
+    private Set<PlannerGroup> groups = new HashSet<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
@@ -73,12 +81,12 @@ public class WeekPlannerSlot {
         this.hour = hour;
     }
 
-    public PlannerGroup getGroup() {
-        return group;
+    public Set<PlannerGroup> getGroups() {
+        return groups;
     }
 
-    public void setGroup(PlannerGroup group) {
-        this.group = group;
+    public void setGroups(Set<PlannerGroup> groups) {
+        this.groups = groups;
     }
 
     public User getUser() {

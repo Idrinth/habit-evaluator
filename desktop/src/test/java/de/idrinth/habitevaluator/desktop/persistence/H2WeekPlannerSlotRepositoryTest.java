@@ -147,20 +147,23 @@ class H2WeekPlannerSlotRepositoryTest extends H2RepositoryTestBase {
     }
 
     @Test
-    void testSaveWithGroup() {
+    void testSaveWithGroups() {
         PlannerGroup group = new PlannerGroup("Fitness", "Physical activities");
         group.setUser(testUser);
         groupRepository.save(group);
 
         WeekPlannerSlot slot = new WeekPlannerSlot(1, 9);
         slot.setUser(testUser);
-        slot.setGroup(group);
+        java.util.Set<PlannerGroup> groups = new java.util.HashSet<>();
+        groups.add(group);
+        slot.setGroups(groups);
         slotRepository.save(slot);
 
         Optional<WeekPlannerSlot> found = slotRepository.findById(slot.getId());
         assertTrue(found.isPresent());
-        assertNotNull(found.get().getGroup());
-        assertEquals(group.getId(), found.get().getGroup().getId());
+        assertNotNull(found.get().getGroups());
+        assertFalse(found.get().getGroups().isEmpty());
+        assertTrue(found.get().getGroups().stream().anyMatch(g -> g.getId().equals(group.getId())));
     }
 
     @Test

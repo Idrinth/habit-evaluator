@@ -1268,7 +1268,7 @@ public class BackupData {
         private String id;
         private int dayOfWeek;
         private int hour;
-        private String groupId;
+        private List<String> groupIds = new ArrayList<>();
 
         public String getId() { return id; }
         public void setId(String id) { this.id = id; }
@@ -1276,8 +1276,8 @@ public class BackupData {
         public void setDayOfWeek(int dayOfWeek) { this.dayOfWeek = dayOfWeek; }
         public int getHour() { return hour; }
         public void setHour(int hour) { this.hour = hour; }
-        public String getGroupId() { return groupId; }
-        public void setGroupId(String groupId) { this.groupId = groupId; }
+        public List<String> getGroupIds() { return groupIds; }
+        public void setGroupIds(List<String> groupIds) { this.groupIds = groupIds; }
     }
 
     public static class SlotConfirmationData {
