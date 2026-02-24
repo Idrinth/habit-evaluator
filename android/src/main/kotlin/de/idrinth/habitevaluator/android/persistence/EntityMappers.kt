@@ -20,6 +20,7 @@ import de.idrinth.habitevaluator.shared.model.MedicationLog
 import de.idrinth.habitevaluator.shared.model.MedicationProvisionType
 import de.idrinth.habitevaluator.shared.model.PlannerActivity
 import de.idrinth.habitevaluator.shared.model.PlannerGroup
+import de.idrinth.habitevaluator.shared.model.ScoringRule
 import de.idrinth.habitevaluator.shared.model.SlotConfirmation
 import de.idrinth.habitevaluator.shared.model.SleepEntry
 import de.idrinth.habitevaluator.shared.model.SportLog
@@ -99,6 +100,12 @@ fun HabitEntity.toModel(
     habit.maxEntriesPerDay = maxEntriesPerDay
     habit.isPositiveScoring = positiveScoring == 1
     habit.createdAt = parseDateTimeOrNull(createdAt)
+    if (scoringRuleId != null) {
+        val rule = ScoringRule()
+        rule.id = scoringRuleId
+        rule.name = scoringRuleName
+        habit.scoringRule = rule
+    }
     val user = User()
     user.id = userId
     user.username = userName

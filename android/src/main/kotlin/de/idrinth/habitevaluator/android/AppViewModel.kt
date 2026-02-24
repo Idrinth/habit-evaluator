@@ -363,6 +363,41 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    fun completeHabit(habitId: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val repo = _habitRepository.value
+                val habit = repo.findById(habitId).orElse(null) ?: return@launch
+                if (!habit.hasReachedDailyLimit(java.time.LocalDate.now())) {
+                    val entry = HabitEntry()
+                    habit.addEntry(entry)
+                    repo.save(habit)
+                }
+            } finally {
+                loadHabitsSync()
+            }
+        }
+    }
+
+    fun removeHabitCompletion(habitId: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val repo = _habitRepository.value
+                val habit = repo.findById(habitId).orElse(null) ?: return@launch
+                habit.removeLastEntryForDate(java.time.LocalDate.now())
+                repo.save(habit)
+            } finally {
+                loadHabitsSync()
+            }
+        }
+    }
+
+    private fun loadHabitsSync() {
+        val user = _currentUser.value ?: return
+        val repo = _habitRepository.value
+        _habits.value = repo.findByUserId(user.id)
+    }
+
     fun loadSleepEntries() {
         viewModelScope.launch(Dispatchers.IO) {
             val user = _localUser.value ?: return@launch

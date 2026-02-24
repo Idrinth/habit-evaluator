@@ -18,6 +18,7 @@ import de.idrinth.habitevaluator.shared.model.HabitEntry
 import de.idrinth.habitevaluator.shared.model.Medication
 import de.idrinth.habitevaluator.shared.model.MedicationLog
 import de.idrinth.habitevaluator.shared.model.MedicationProvisionType
+import de.idrinth.habitevaluator.shared.model.ScoringRule
 import de.idrinth.habitevaluator.shared.model.SleepEntry
 import de.idrinth.habitevaluator.shared.model.SportLog
 import de.idrinth.habitevaluator.shared.model.User
@@ -202,6 +203,38 @@ class EntityMappersTest {
         assertEquals(LocalDateTime.of(2024, 1, 15, 10, 0, 0), habit.createdAt)
         assertEquals("u1", habit.user.id)
         assertEquals("testuser", habit.user.username)
+    }
+
+    @Test
+    fun testHabitEntityToModelRestoresScoringRule() {
+        val entity = HabitEntity(
+            id = "h1", name = "Running", description = "Morning run",
+            categoryId = "cat1", frequencyType = "DAILY", targetFrequency = 1,
+            maxEntriesPerDay = 1, positiveScoring = 1, createdAt = null,
+            scoringRuleId = "sr1", scoringRuleName = "Default",
+            userId = "u1", userName = "testuser"
+        )
+
+        val habit = entity.toModel(emptyList(), emptyList(), emptyList())
+
+        assertNotNull(habit.scoringRule)
+        assertEquals("sr1", habit.scoringRule.id)
+        assertEquals("Default", habit.scoringRule.name)
+    }
+
+    @Test
+    fun testHabitEntityToModelNullScoringRuleStaysNull() {
+        val entity = HabitEntity(
+            id = "h1", name = "Test", description = null,
+            categoryId = null, frequencyType = "DAILY", targetFrequency = 1,
+            maxEntriesPerDay = 1, positiveScoring = 1, createdAt = null,
+            scoringRuleId = null, scoringRuleName = null,
+            userId = "u1", userName = "testuser"
+        )
+
+        val habit = entity.toModel(emptyList(), emptyList(), emptyList())
+
+        assertNull(habit.scoringRule)
     }
 
     @Test
@@ -1427,6 +1460,24 @@ class EntityMappersTest {
         assertEquals(original.isPositiveScoring, restored.isPositiveScoring)
         assertEquals("Ubung", restored.nameTranslations["de"])
         assertEquals("Tagliches Training", restored.descriptionTranslations["de"])
+    }
+
+    @Test
+    fun testHabitRoundTripWithScoringRule() {
+        val original = Habit("Exercise", "Daily workout")
+        original.id = "h1"
+        original.user = createUser()
+        val rule = ScoringRule()
+        rule.id = "sr1"
+        rule.name = "Custom Rule"
+        original.scoringRule = rule
+
+        val entity = original.toEntity()
+        val restored = entity.toModel(emptyList(), emptyList(), emptyList())
+
+        assertNotNull(restored.scoringRule)
+        assertEquals("sr1", restored.scoringRule.id)
+        assertEquals("Custom Rule", restored.scoringRule.name)
     }
 
     @Test
