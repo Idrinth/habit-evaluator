@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,6 +22,7 @@ import java.util.TreeMap;
 public class EmotionPairController {
 
     private static final DateTimeFormatter LABEL_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    private static final DateTimeFormatter DATETIME_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
 
     private final EmotionPairRepository emotionPairRepository;
     private final EmotionEntryRepository emotionEntryRepository;
@@ -110,6 +112,21 @@ public class EmotionPairController {
                     ? Math.round((totalSum / totalCount) * 100.0) / 100.0
                     : 0.0;
 
+            List<Map<String, Object>> entryList = new ArrayList<>();
+            for (EmotionEntry entry : allEntries) {
+                if (entry.getEmotionPair() != null
+                        && pair.getId().equals(entry.getEmotionPair().getId())) {
+                    Map<String, Object> entryMap = new LinkedHashMap<>();
+                    entryMap.put("id", entry.getId());
+                    entryMap.put("strength", entry.getStrength());
+                    entryMap.put("recordedAt", entry.getRecordedAt().format(DATETIME_FORMAT));
+                    entryMap.put("notes", entry.getNotes());
+                    entryList.add(entryMap);
+                }
+            }
+            entryList.sort(Comparator.comparing(
+                    (Map<String, Object> e) -> (String) e.get("recordedAt")).reversed());
+
             Map<String, Object> series = new LinkedHashMap<>();
             series.put("pairId", pair.getId());
             series.put("negativeLabel", pair.getNegativeLabel());
@@ -117,6 +134,7 @@ public class EmotionPairController {
             series.put("dailyAverages", dailyAverages);
             series.put("overallAverage", overallAverage);
             series.put("totalEntries", totalCount);
+            series.put("entries", entryList);
             pairSeries.add(series);
         }
 

@@ -75,6 +75,12 @@ class EmotionPairControllerTest {
         assertEquals(200, response.getStatusCode().value());
         assertNotNull(response.getBody().get("labels"));
         assertNotNull(response.getBody().get("pairs"));
+        List<?> pairs = (List<?>) response.getBody().get("pairs");
+        assertEquals(1, pairs.size());
+        Map<?, ?> pairData = (Map<?, ?>) pairs.get(0);
+        List<?> entries = (List<?>) pairData.get("entries");
+        assertNotNull(entries);
+        assertEquals(0, entries.size());
     }
 
     @Test
@@ -95,5 +101,37 @@ class EmotionPairControllerTest {
         assertEquals("sad", pairData.get("negativeLabel"));
         assertEquals("happy", pairData.get("positiveLabel"));
         assertEquals(1, pairData.get("totalEntries"));
+
+        List<?> entries = (List<?>) pairData.get("entries");
+        assertNotNull(entries);
+        assertEquals(1, entries.size());
+        Map<?, ?> entryData = (Map<?, ?>) entries.get(0);
+        assertEquals(entry.getId(), entryData.get("id"));
+        assertEquals(5, entryData.get("strength"));
+        assertEquals("feeling good", entryData.get("notes"));
+        assertNotNull(entryData.get("recordedAt"));
+    }
+
+    @Test
+    void testGetGraphDataEntriesSortedDescending() {
+        EmotionPair pair = new EmotionPair("sad", "happy");
+        when(emotionPairRepository.findByUserId(testUser.getId())).thenReturn(List.of(pair));
+
+        LocalDateTime earlier = LocalDateTime.of(2025, 1, 1, 10, 0);
+        LocalDateTime later = LocalDateTime.of(2025, 1, 2, 14, 0);
+        EmotionEntry entry1 = new EmotionEntry(pair, 3, earlier, "first");
+        EmotionEntry entry2 = new EmotionEntry(pair, 7, later, "second");
+        when(emotionEntryRepository.findByUserId(testUser.getId())).thenReturn(List.of(entry1, entry2));
+
+        ResponseEntity<Map<String, Object>> response = controller.getGraphData(session);
+
+        List<?> pairs = (List<?>) response.getBody().get("pairs");
+        Map<?, ?> pairData = (Map<?, ?>) pairs.get(0);
+        List<?> entries = (List<?>) pairData.get("entries");
+        assertEquals(2, entries.size());
+        Map<?, ?> firstEntry = (Map<?, ?>) entries.get(0);
+        Map<?, ?> secondEntry = (Map<?, ?>) entries.get(1);
+        assertEquals("second", firstEntry.get("notes"));
+        assertEquals("first", secondEntry.get("notes"));
     }
 }

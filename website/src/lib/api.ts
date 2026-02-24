@@ -466,6 +466,13 @@ export interface EmotionPairInfo {
 	positiveLabel: string;
 }
 
+export interface EmotionEntryInfo {
+	id: string;
+	strength: number;
+	recordedAt: string;
+	notes: string | null;
+}
+
 export interface EmotionPairSeries {
 	pairId: string;
 	negativeLabel: string;
@@ -473,6 +480,7 @@ export interface EmotionPairSeries {
 	dailyAverages: (number | null)[];
 	overallAverage: number;
 	totalEntries: number;
+	entries: EmotionEntryInfo[];
 }
 
 export interface EmotionGraphData {

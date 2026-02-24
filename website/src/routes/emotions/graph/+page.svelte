@@ -8,6 +8,23 @@
 	let error: string | null = $state(null);
 	let loading = $state(true);
 	let lang: Language = $state('en');
+	let expandedPairs: Set<string> = $state(new Set());
+
+	function toggleHistory(pairId: string) {
+		const next = new Set(expandedPairs);
+		if (next.has(pairId)) {
+			next.delete(pairId);
+		} else {
+			next.add(pairId);
+		}
+		expandedPairs = next;
+	}
+
+	function formatDateTime(isoString: string): string {
+		const d = new Date(isoString);
+		return d.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })
+			+ ' ' + d.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
+	}
 
 	const PAIR_COLORS = [
 		'#4CAF50', '#2196F3', '#FF9800', '#E91E63', '#9C27B0',
@@ -206,6 +223,34 @@
 						{t('emotions.avgLine', lang)}
 					</span>
 				</div>
+
+				<button
+					class="history-toggle"
+					onclick={() => toggleHistory(pair.pairId)}
+					aria-expanded={expandedPairs.has(pair.pairId)}
+				>
+					<span class="toggle-arrow" class:expanded={expandedPairs.has(pair.pairId)}>&#9654;</span>
+					{expandedPairs.has(pair.pairId) ? t('emotions.hideHistory', lang) : t('emotions.showHistory', lang)}
+					({pair.totalEntries})
+				</button>
+
+				{#if expandedPairs.has(pair.pairId)}
+					<div class="history-list">
+						{#if pair.entries.length === 0}
+							<p class="history-empty">{t('emotions.noEntries', lang)}</p>
+						{:else}
+							{#each pair.entries as entry (entry.id)}
+								<div class="history-entry">
+									<span class="history-date">{formatDateTime(entry.recordedAt)}</span>
+									<span class="history-strength">{formatStrength(entry.strength, pair.negativeLabel, pair.positiveLabel)}</span>
+									{#if entry.notes}
+										<span class="history-notes">{entry.notes}</span>
+									{/if}
+								</div>
+							{/each}
+						{/if}
+					</div>
+				{/if}
 			</div>
 		{/each}
 	{/if}
@@ -314,9 +359,96 @@
 		border-top: 2px dashed #E91E63;
 	}
 
+	.history-toggle {
+		display: flex;
+		align-items: center;
+		gap: 0.4rem;
+		margin-top: 0.75rem;
+		padding: 0.4rem 0.6rem;
+		background: transparent;
+		border: 1px solid var(--color-border-light);
+		border-radius: 4px;
+		color: var(--color-text-muted);
+		font-size: 0.8rem;
+		cursor: pointer;
+		width: 100%;
+		text-align: left;
+	}
+
+	.history-toggle:hover {
+		background-color: var(--color-bg-hover);
+		color: var(--color-text);
+	}
+
+	.toggle-arrow {
+		display: inline-block;
+		font-size: 0.6rem;
+		transition: transform 0.2s ease;
+	}
+
+	.toggle-arrow.expanded {
+		transform: rotate(90deg);
+	}
+
+	.history-list {
+		margin-top: 0.5rem;
+		border-top: 1px solid var(--color-border-light);
+		padding-top: 0.5rem;
+		max-height: 300px;
+		overflow-y: auto;
+		display: flex;
+		flex-direction: column;
+		gap: 0.35rem;
+	}
+
+	.history-empty {
+		text-align: center;
+		color: var(--color-text-muted);
+		font-size: 0.8rem;
+		padding: 0.5rem 0;
+	}
+
+	.history-entry {
+		display: flex;
+		align-items: baseline;
+		gap: 0.75rem;
+		padding: 0.3rem 0.5rem;
+		border-radius: 3px;
+		font-size: 0.8rem;
+	}
+
+	.history-entry:hover {
+		background-color: var(--color-bg-hover);
+	}
+
+	.history-date {
+		color: var(--color-text-muted);
+		white-space: nowrap;
+		flex-shrink: 0;
+	}
+
+	.history-strength {
+		font-weight: 600;
+		white-space: nowrap;
+		flex-shrink: 0;
+	}
+
+	.history-notes {
+		color: var(--color-text-muted);
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+		flex: 1;
+		min-width: 0;
+	}
+
 	@media (max-width: 600px) {
 		.chart-header {
 			flex-direction: column;
+		}
+
+		.history-entry {
+			flex-wrap: wrap;
 		}
 	}
 </style>
