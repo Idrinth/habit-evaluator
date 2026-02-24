@@ -191,7 +191,15 @@ Maestro UI test files at `android/.maestro/` run on an Android emulator in CI.
 - `@JsonIgnore` on sensitive fields (e.g. `User.password`)
 - JPMS module system for `shared` and `desktop`
 - Descriptive test method names (e.g. `testEvaluateWithNoEntries`)
-- Add tests for new functionality wherever possible
+
+### Testing Requirements
+
+- **New features must include unit tests.** Every new feature requires corresponding unit tests covering the added functionality.
+- **Bug fixes must include regression tests.** Every bug fix requires at least one test that reproduces the original bug and verifies the fix, so the same issue cannot resurface undetected.
+
+### Data Migration Requirements
+
+- **Migrations must not delete user data.** Database migrations (Room on Android, JPA/Hibernate on webserver and desktop, or any other persistence layer) must preserve all existing user data. Schema changes should use additive, non-destructive operations (e.g. adding columns with defaults, renaming rather than dropping). If a column or table is no longer needed, migrate its data to the new structure before removing it.
 
 ### Third-Party Libraries
 
@@ -201,9 +209,11 @@ When adding or updating third-party libraries, document their name, version, and
 
 1. Make sure `./gradlew build` passes.
 2. If you changed the website or homepage, make sure `npm run check` and `npm run build` pass in the respective directory.
-3. Write clear, descriptive commit messages.
-4. Open a pull request against the `the-one` branch.
-5. Describe what your change does and why in the PR description.
+3. Include unit tests for new features and regression tests for bug fixes (see [Testing Requirements](#testing-requirements)).
+4. Verify that database migrations do not delete existing user data (see [Data Migration Requirements](#data-migration-requirements)).
+5. Write clear, descriptive commit messages.
+6. Open a pull request against the `the-one` branch.
+7. Describe what your change does and why in the PR description.
 
 ## Reporting Issues
 
