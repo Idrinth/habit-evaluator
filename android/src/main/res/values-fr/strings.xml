@@ -225,6 +225,8 @@
     <string name="restore_type_visibility">Module visibility</string>
     <string name="restore_type_emergency">Emergency plan</string>
     <string name="restore_type_planner">Day planner</string>
+    <string name="restore_overwrite">Overwrite existing data</string>
+    <string name="restore_overwrite_warning">Warning: This will delete all existing data of the selected types before restoring from the backup.</string>
     <string name="restore_success_detailed">Restored: %1$d categories, %2$d habits added, %3$d merged, %4$d entries, %5$d diary, %6$d sleep</string>
     <string name="restore_no_changes">Backup restored, but no new data was found to add.</string>
     <string name="emotional_state">Émotions</string>
