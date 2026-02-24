@@ -122,6 +122,7 @@ fun SleepTrackingScreen(viewModel: AppViewModel) {
                         Column(modifier = Modifier.weight(1f)) {
                             Text("${entry.date?.format(DateTimeFormatter.ISO_LOCAL_DATE)}", style = MaterialTheme.typography.bodyLarge)
                             Text("${entry.fromTime?.format(timeFormat)} - ${entry.untilTime?.format(timeFormat)}", style = MaterialTheme.typography.bodySmall)
+                            Text(String.format("%.1f hrs", entry.hours), style = MaterialTheme.typography.bodyMedium)
                             entry.notes?.let { Text(it, style = MaterialTheme.typography.bodySmall) }
                         }
                         IconButton(onClick = {
