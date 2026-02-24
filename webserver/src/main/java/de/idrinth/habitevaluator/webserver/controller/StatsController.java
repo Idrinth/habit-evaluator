@@ -348,9 +348,12 @@ public class StatsController {
             }
 
             if (!points.isEmpty()) {
+                EmotionEntry firstEntry = pairEntries.get(0);
                 Map<String, Object> scatter = new LinkedHashMap<>();
                 scatter.put("pairId", pairId);
                 scatter.put("pairLabel", pairLabels.get(pairId));
+                scatter.put("negativeLabel", firstEntry.getEmotionPair().getNegativeLabel());
+                scatter.put("positiveLabel", firstEntry.getEmotionPair().getPositiveLabel());
                 scatter.put("color", defaultColors[colorIndex % defaultColors.length]);
                 scatter.put("entries", points);
                 pairScatters.add(scatter);

@@ -48,10 +48,11 @@
 		return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
 	}
 
-	function formatStrength(strength: number): string {
+	function formatStrength(strength: number, negativeLabel?: string, positiveLabel?: string): string {
+		const percentage = Math.round(Math.abs(strength) * 10);
 		if (strength === 0) return '0%';
-		if (strength > 0) return `+${strength * 10}%`;
-		return `${strength * 10}%`;
+		if (strength < 0) return negativeLabel ? `${percentage}% ${negativeLabel}` : `${percentage}%`;
+		return positiveLabel ? `${percentage}% ${positiveLabel}` : `${percentage}%`;
 	}
 
 	function calculateTrendLine(values: number[]): { slope: number; intercept: number } {
@@ -421,7 +422,7 @@
 								font-size="7"
 								fill="var(--color-text-muted)"
 							>
-								{strength > 0 ? '+' : ''}{strength}
+								{Math.abs(strength) * 10}%
 							</text>
 						{/each}
 						<!-- X-axis labels (hours: 00:00, 06:00, 12:00, 18:00, 24:00) -->
@@ -447,7 +448,7 @@
 									fill={pair.color}
 									opacity="0.7"
 								>
-									<title>{pair.pairLabel} at {formatHour(entry.hour)}: {formatStrength(entry.strength)}</title>
+									<title>{pair.pairLabel} at {formatHour(entry.hour)}: {formatStrength(entry.strength, pair.negativeLabel, pair.positiveLabel)}</title>
 								</circle>
 							{/each}
 						{/each}

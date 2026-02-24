@@ -10,6 +10,7 @@ import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlin.math.abs
 import kotlin.math.ceil
 
 data class ScatterEntry(val hourOfDay: Float, val strength: Float)
@@ -73,11 +74,7 @@ fun EmotionScatterChart(
                 strokeWidth = if (isZero) 1.5f else 1f,
                 pathEffect = if (isZero) null else null
             )
-            val label = when {
-                v > 0 -> "+${v.toInt()}"
-                v < 0 -> "${v.toInt()}"
-                else -> "0"
-            }
+            val label = "${abs(v.toInt()) * 10}%"
             drawContext.canvas.nativeCanvas.drawText(label, chartLeft - 4.dp.toPx(), y + 4.dp.toPx(), textPaint)
         }
 

@@ -272,6 +272,8 @@ class StatsControllerTest {
         Map<String, Object> pairScatter = pairs.get(0);
         assertEquals(pair.getId(), pairScatter.get("pairId"));
         assertNotNull(pairScatter.get("pairLabel"));
+        assertEquals("Sad", pairScatter.get("negativeLabel"));
+        assertEquals("Happy", pairScatter.get("positiveLabel"));
         assertNotNull(pairScatter.get("color"));
 
         List<Map<String, Object>> entries = (List<Map<String, Object>>) pairScatter.get("entries");
