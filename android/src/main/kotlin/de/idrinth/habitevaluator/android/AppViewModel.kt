@@ -9,7 +9,6 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.gson.reflect.TypeToken
 import de.idrinth.habitevaluator.android.persistence.AppDatabase
-import de.idrinth.habitevaluator.android.persistence.JsonToRoomMigration
 import de.idrinth.habitevaluator.android.persistence.LegacySqliteToRoomMigration
 import de.idrinth.habitevaluator.android.persistence.RoomActivityLogRepository
 import de.idrinth.habitevaluator.android.persistence.RoomDiaryEntryRepository
@@ -44,7 +43,6 @@ import de.idrinth.habitevaluator.shared.model.HabitEntry
 import de.idrinth.habitevaluator.shared.model.Medication
 import de.idrinth.habitevaluator.shared.model.SleepEntry
 import de.idrinth.habitevaluator.shared.model.User
-import de.idrinth.habitevaluator.shared.persistence.FileSystemHabitRepository
 import de.idrinth.habitevaluator.shared.repository.ActivityLogRepository
 import de.idrinth.habitevaluator.shared.repository.DiaryEntryRepository
 import de.idrinth.habitevaluator.shared.repository.DiaryReferenceRepository
@@ -209,22 +207,6 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
                 legacyMigration.migrate()
             }
 
-            // Migrate legacy JSON files to Room if they exist
-            val storageDir = File(context.filesDir, "habit-data")
-            val migration = JsonToRoomMigration(
-                storageDir,
-                roomHabitRepository,
-                roomCategoryRepository,
-                roomDiaryReferenceRepository,
-                roomDiaryEntryRepository,
-                roomSleepEntryRepository,
-                roomEmotionPairRepository,
-                roomEmotionEntryRepository
-            )
-            if (migration.needsMigration()) {
-                migration.migrate()
-            }
-
             withContext(Dispatchers.Main) {
                 _storageInitialized.value = true
             }
@@ -264,21 +246,6 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
                 legacyMigration.migrate()
             }
 
-            // Migrate legacy JSON files
-            val migrationDir = File(context.filesDir, "habit-data")
-            val migration = JsonToRoomMigration(
-                migrationDir,
-                roomHabitRepository,
-                roomCategoryRepository,
-                roomDiaryReferenceRepository,
-                roomDiaryEntryRepository,
-                roomSleepEntryRepository,
-                roomEmotionPairRepository,
-                roomEmotionEntryRepository
-            )
-            if (migration.needsMigration()) {
-                migration.migrate()
-            }
             try {
                 val client = ApiClient(url)
                 val loggedIn = client.login(username, password)
@@ -293,8 +260,7 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
                     _usingRemoteStorage.value = true
                     _currentUser.value = user
 
-                    val storageDir = File(getApplication<Application>().filesDir, "habit-data")
-                    localBackupRepository = FileSystemHabitRepository(storageDir)
+                    localBackupRepository = roomHabitRepository
                     localBackupUser = getOrCreateLocalUser()
 
                     syncOnStart(url, username, password)
