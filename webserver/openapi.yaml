@@ -2102,8 +2102,11 @@ components:
         hour:
           type: integer
           format: int32
-        group:
-          $ref: "#/components/schemas/PlannerGroup"
+        groups:
+          type: array
+          items:
+            $ref: "#/components/schemas/PlannerGroup"
+          uniqueItems: true
         user:
           $ref: "#/components/schemas/User"
     SlotConfirmation:

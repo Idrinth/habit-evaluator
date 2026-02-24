@@ -9,8 +9,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -122,20 +124,44 @@ class FileSystemWeekPlannerSlotRepositoryTest {
     }
 
     @Test
-    void testSaveWithGroup() {
-        PlannerGroup group = new PlannerGroup("Fitness", "Physical activities");
-        groupRepository.save(group);
+    void testSaveWithGroups() {
+        PlannerGroup group1 = new PlannerGroup("Fitness", "Physical activities");
+        PlannerGroup group2 = new PlannerGroup("Creative", "Creative activities");
+        groupRepository.save(group1);
+        groupRepository.save(group2);
 
         WeekPlannerSlot slot = new WeekPlannerSlot(1, 9);
-        slot.setGroup(group);
+        Set<PlannerGroup> groups = new HashSet<>();
+        groups.add(group1);
+        groups.add(group2);
+        slot.setGroups(groups);
         repository.save(slot);
 
         FileSystemWeekPlannerSlotRepository newRepo = new FileSystemWeekPlannerSlotRepository(tempDir);
         newRepo.setPlannerGroupRepository(groupRepository);
         Optional<WeekPlannerSlot> found = newRepo.findById(slot.getId());
         assertTrue(found.isPresent());
-        assertNotNull(found.get().getGroup());
-        assertEquals(group.getId(), found.get().getGroup().getId());
+        assertNotNull(found.get().getGroups());
+        assertEquals(2, found.get().getGroups().size());
+    }
+
+    @Test
+    void testSaveWithSingleGroup() {
+        PlannerGroup group = new PlannerGroup("Fitness", "Physical activities");
+        groupRepository.save(group);
+
+        WeekPlannerSlot slot = new WeekPlannerSlot(1, 9);
+        Set<PlannerGroup> groups = new HashSet<>();
+        groups.add(group);
+        slot.setGroups(groups);
+        repository.save(slot);
+
+        FileSystemWeekPlannerSlotRepository newRepo = new FileSystemWeekPlannerSlotRepository(tempDir);
+        newRepo.setPlannerGroupRepository(groupRepository);
+        Optional<WeekPlannerSlot> found = newRepo.findById(slot.getId());
+        assertTrue(found.isPresent());
+        assertEquals(1, found.get().getGroups().size());
+        assertTrue(found.get().getGroups().stream().anyMatch(g -> g.getId().equals(group.getId())));
     }
 
     @Test

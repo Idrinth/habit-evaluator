@@ -127,7 +127,7 @@ class FileSystemSlotConfirmationRepositoryTest {
         activityRepository.save(activity);
 
         WeekPlannerSlot slot = new WeekPlannerSlot(1, 9);
-        slot.setGroup(group);
+        slot.setGroups(java.util.Set.of(group));
         slotRepository.save(slot);
 
         SlotConfirmation confirmation = new SlotConfirmation();

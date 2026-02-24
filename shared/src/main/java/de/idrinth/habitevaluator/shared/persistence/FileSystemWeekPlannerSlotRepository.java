@@ -132,8 +132,12 @@ public class FileSystemWeekPlannerSlotRepository implements WeekPlannerSlotRepos
         obj.addProperty("dayOfWeek", slot.getDayOfWeek());
         obj.addProperty("hour", slot.getHour());
 
-        if (slot.getGroup() != null) {
-            obj.addProperty("groupId", slot.getGroup().getId());
+        if (slot.getGroups() != null && !slot.getGroups().isEmpty()) {
+            JsonArray groupIds = new JsonArray();
+            for (de.idrinth.habitevaluator.shared.model.PlannerGroup group : slot.getGroups()) {
+                groupIds.add(group.getId());
+            }
+            obj.add("groupIds", groupIds);
         }
 
         if (slot.getUser() != null) {
@@ -149,9 +153,21 @@ public class FileSystemWeekPlannerSlotRepository implements WeekPlannerSlotRepos
         slot.setDayOfWeek(getIntOrDefault(obj, "dayOfWeek", 1));
         slot.setHour(getIntOrDefault(obj, "hour", 0));
 
-        String groupId = getStringOrNull(obj, "groupId");
-        if (groupId != null && plannerGroupRepository != null) {
-            plannerGroupRepository.findById(groupId).ifPresent(slot::setGroup);
+        if (hasNonNull(obj, "groupIds") && plannerGroupRepository != null) {
+            java.util.Set<de.idrinth.habitevaluator.shared.model.PlannerGroup> groups = new java.util.HashSet<>();
+            JsonArray groupIds = obj.getAsJsonArray("groupIds");
+            for (JsonElement gidElement : groupIds) {
+                plannerGroupRepository.findById(gidElement.getAsString()).ifPresent(groups::add);
+            }
+            slot.setGroups(groups);
+        } else {
+            // Backward compatibility: read old single groupId field
+            String groupId = getStringOrNull(obj, "groupId");
+            if (groupId != null && plannerGroupRepository != null) {
+                java.util.Set<de.idrinth.habitevaluator.shared.model.PlannerGroup> groups = new java.util.HashSet<>();
+                plannerGroupRepository.findById(groupId).ifPresent(groups::add);
+                slot.setGroups(groups);
+            }
         }
 
         if (hasNonNull(obj, "user")) {

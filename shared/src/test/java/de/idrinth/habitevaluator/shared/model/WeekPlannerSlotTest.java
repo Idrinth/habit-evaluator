@@ -35,11 +35,24 @@ class WeekPlannerSlotTest {
     }
 
     @Test
-    void testSetGroup() {
+    void testSetGroups() {
         WeekPlannerSlot slot = new WeekPlannerSlot();
-        PlannerGroup group = new PlannerGroup("Fitness");
-        slot.setGroup(group);
-        assertSame(group, slot.getGroup());
+        PlannerGroup group1 = new PlannerGroup("Fitness");
+        PlannerGroup group2 = new PlannerGroup("Creative");
+        java.util.Set<PlannerGroup> groups = new java.util.HashSet<>();
+        groups.add(group1);
+        groups.add(group2);
+        slot.setGroups(groups);
+        assertEquals(2, slot.getGroups().size());
+        assertTrue(slot.getGroups().contains(group1));
+        assertTrue(slot.getGroups().contains(group2));
+    }
+
+    @Test
+    void testDefaultGroupsEmpty() {
+        WeekPlannerSlot slot = new WeekPlannerSlot();
+        assertNotNull(slot.getGroups());
+        assertTrue(slot.getGroups().isEmpty());
     }
 
     @Test

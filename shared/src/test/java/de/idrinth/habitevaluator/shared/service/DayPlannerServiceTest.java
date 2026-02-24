@@ -25,6 +25,12 @@ class DayPlannerServiceTest {
         service = new DayPlannerService(new Random(42));
     }
 
+    private void addGroupToSlot(WeekPlannerSlot slot, PlannerGroup group) {
+        Set<PlannerGroup> groups = new HashSet<>(slot.getGroups());
+        groups.add(group);
+        slot.setGroups(groups);
+    }
+
     @Test
     void testSuggestActivityWithNullSlots() {
         List<PlannerActivity> activities = List.of(new PlannerActivity("Walk"));
@@ -40,14 +46,14 @@ class DayPlannerServiceTest {
     @Test
     void testSuggestActivityWithNullActivities() {
         WeekPlannerSlot slot = new WeekPlannerSlot(1, 9);
-        slot.setGroup(new PlannerGroup("Fitness"));
+        addGroupToSlot(slot, new PlannerGroup("Fitness"));
         assertNull(service.suggestActivity(List.of(slot), null));
     }
 
     @Test
     void testSuggestActivityWithEmptyActivities() {
         WeekPlannerSlot slot = new WeekPlannerSlot(1, 9);
-        slot.setGroup(new PlannerGroup("Fitness"));
+        addGroupToSlot(slot, new PlannerGroup("Fitness"));
         assertNull(service.suggestActivity(List.of(slot), Collections.emptyList()));
     }
 
@@ -64,7 +70,7 @@ class DayPlannerServiceTest {
         PlannerGroup group = new PlannerGroup("Fitness");
 
         WeekPlannerSlot slot = new WeekPlannerSlot(1, 9);
-        slot.setGroup(group);
+        addGroupToSlot(slot, group);
 
         PlannerActivity activity = new PlannerActivity("Go for a walk");
         Set<PlannerGroup> groups = new HashSet<>();
@@ -82,7 +88,7 @@ class DayPlannerServiceTest {
         PlannerGroup creativeGroup = new PlannerGroup("Creative");
 
         WeekPlannerSlot slot = new WeekPlannerSlot(1, 9);
-        slot.setGroup(fitnessGroup);
+        addGroupToSlot(slot, fitnessGroup);
 
         // Activity belongs to creative group, not fitness
         PlannerActivity activity = new PlannerActivity("Paint");
@@ -99,7 +105,7 @@ class DayPlannerServiceTest {
         PlannerGroup group = new PlannerGroup("Fitness");
 
         WeekPlannerSlot slot = new WeekPlannerSlot(1, 9);
-        slot.setGroup(group);
+        addGroupToSlot(slot, group);
 
         Set<PlannerGroup> groups = new HashSet<>();
         groups.add(group);
@@ -114,6 +120,27 @@ class DayPlannerServiceTest {
         PlannerActivity result = service.suggestActivity(List.of(slot), List.of(a1, a2, a3));
         assertNotNull(result);
         assertTrue(List.of("Walk", "Run", "Swim").contains(result.getName()));
+    }
+
+    @Test
+    void testSuggestActivityWithMultipleGroupsPerSlot() {
+        PlannerGroup fitnessGroup = new PlannerGroup("Fitness");
+        PlannerGroup creativeGroup = new PlannerGroup("Creative");
+
+        WeekPlannerSlot slot = new WeekPlannerSlot(1, 9);
+        Set<PlannerGroup> slotGroups = new HashSet<>();
+        slotGroups.add(fitnessGroup);
+        slotGroups.add(creativeGroup);
+        slot.setGroups(slotGroups);
+
+        PlannerActivity walkActivity = new PlannerActivity("Walk");
+        walkActivity.setGroups(Set.of(fitnessGroup));
+        PlannerActivity paintActivity = new PlannerActivity("Paint");
+        paintActivity.setGroups(Set.of(creativeGroup));
+
+        PlannerActivity result = service.suggestActivity(List.of(slot), List.of(walkActivity, paintActivity));
+        assertNotNull(result);
+        assertTrue(List.of("Walk", "Paint").contains(result.getName()));
     }
 
     @Test
@@ -159,9 +186,9 @@ class DayPlannerServiceTest {
     void testGetWeekSlotSummaryWithSlots() {
         PlannerGroup group = new PlannerGroup("Fitness");
         WeekPlannerSlot s1 = new WeekPlannerSlot(1, 9);
-        s1.setGroup(group);
+        addGroupToSlot(s1, group);
         WeekPlannerSlot s2 = new WeekPlannerSlot(1, 10);
-        s2.setGroup(group);
+        addGroupToSlot(s2, group);
         WeekPlannerSlot s3 = new WeekPlannerSlot(2, 14);
         // s3 has no group
 
