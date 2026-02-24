@@ -11,6 +11,7 @@ import com.google.gson.reflect.TypeToken
 import de.idrinth.habitevaluator.android.persistence.AppDatabase
 import de.idrinth.habitevaluator.android.persistence.JsonToRoomMigration
 import de.idrinth.habitevaluator.android.persistence.LegacySqliteToRoomMigration
+import de.idrinth.habitevaluator.android.persistence.RoomActivityGroupRepository
 import de.idrinth.habitevaluator.android.persistence.RoomActivityLogRepository
 import de.idrinth.habitevaluator.android.persistence.RoomDiaryEntryRepository
 import de.idrinth.habitevaluator.android.persistence.RoomDiaryReferenceRepository
@@ -45,6 +46,7 @@ import de.idrinth.habitevaluator.shared.model.Medication
 import de.idrinth.habitevaluator.shared.model.SleepEntry
 import de.idrinth.habitevaluator.shared.model.User
 import de.idrinth.habitevaluator.shared.persistence.FileSystemHabitRepository
+import de.idrinth.habitevaluator.shared.repository.ActivityGroupRepository
 import de.idrinth.habitevaluator.shared.repository.ActivityLogRepository
 import de.idrinth.habitevaluator.shared.repository.DiaryEntryRepository
 import de.idrinth.habitevaluator.shared.repository.DiaryReferenceRepository
@@ -99,6 +101,7 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
     val roomEmergencyPlanStepRepository = RoomEmergencyPlanStepRepository(db.emergencyPlanDao())
     val roomEmergencyPlanActionRepository = RoomEmergencyPlanActionRepository(db.emergencyPlanDao())
     val roomActivityLogRepository = RoomActivityLogRepository(db.activityLogDao())
+    val roomActivityGroupRepository = RoomActivityGroupRepository(db.activityLogDao())
     val roomPlannerActivityRepository = RoomPlannerActivityRepository(db.dayPlannerDao())
     val roomPlannerGroupRepository = RoomPlannerGroupRepository(db.dayPlannerDao())
     val roomWeekPlannerSlotRepository = RoomWeekPlannerSlotRepository(db.dayPlannerDao())
@@ -124,6 +127,7 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
     val emergencyPlanStepRepository: EmergencyPlanStepRepository get() = roomEmergencyPlanStepRepository
     val emergencyPlanActionRepository: EmergencyPlanActionRepository get() = roomEmergencyPlanActionRepository
     val activityLogRepository: ActivityLogRepository get() = roomActivityLogRepository
+    val activityGroupRepository: ActivityGroupRepository get() = roomActivityGroupRepository
     val plannerActivityRepository: PlannerActivityRepository get() = roomPlannerActivityRepository
     val plannerGroupRepository: PlannerGroupRepository get() = roomPlannerGroupRepository
     val weekPlannerSlotRepository: WeekPlannerSlotRepository get() = roomWeekPlannerSlotRepository

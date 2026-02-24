@@ -6,6 +6,8 @@ import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -20,6 +22,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -35,12 +39,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import de.idrinth.habitevaluator.android.AppViewModel
 import de.idrinth.habitevaluator.android.R
+import de.idrinth.habitevaluator.shared.model.ActivityGroup
 import de.idrinth.habitevaluator.shared.model.ActivityLog
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -51,6 +57,7 @@ import java.time.format.DateTimeFormatter
 import java.util.Calendar
 import java.util.UUID
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun ActivityLogScreen(viewModel: AppViewModel) {
     val context = LocalContext.current
@@ -58,14 +65,21 @@ fun ActivityLogScreen(viewModel: AppViewModel) {
     val localUser by viewModel.localUser.collectAsState()
 
     var entries by remember { mutableStateOf<List<ActivityLog>>(emptyList()) }
+    var allGroups by remember { mutableStateOf<List<ActivityGroup>>(emptyList()) }
     var formExpanded by remember { mutableStateOf(false) }
+    var groupDialogExpanded by remember { mutableStateOf(false) }
     var date by remember { mutableStateOf(LocalDate.now()) }
     var startTime by remember { mutableStateOf<LocalTime?>(null) }
     var endTime by remember { mutableStateOf<LocalTime?>(null) }
     var persons by remember { mutableStateOf("") }
     var location by remember { mutableStateOf("") }
     var activity by remember { mutableStateOf("") }
+    var selectedGroupIds by remember { mutableStateOf<Set<String>>(emptySet()) }
     var editingEntry by remember { mutableStateOf<ActivityLog?>(null) }
+
+    // Group creation form state
+    var newGroupName by remember { mutableStateOf("") }
+    var newGroupDescription by remember { mutableStateOf("") }
 
     val dateFormat = remember { DateTimeFormatter.ofPattern("yyyy-MM-dd") }
     val timeFormat = remember { DateTimeFormatter.ofPattern("HH:mm") }
@@ -79,7 +93,18 @@ fun ActivityLogScreen(viewModel: AppViewModel) {
         }
     }
 
-    LaunchedEffect(localUser) { loadEntries() }
+    fun loadGroups() {
+        scope.launch(Dispatchers.IO) {
+            val userId = localUser?.id ?: return@launch
+            val loaded = viewModel.activityGroupRepository.findByUserId(userId)
+            withContext(Dispatchers.Main) { allGroups = loaded }
+        }
+    }
+
+    LaunchedEffect(localUser) {
+        loadEntries()
+        loadGroups()
+    }
 
     fun resetForm() {
         date = LocalDate.now()
@@ -88,6 +113,7 @@ fun ActivityLogScreen(viewModel: AppViewModel) {
         persons = ""
         location = ""
         activity = ""
+        selectedGroupIds = emptySet()
         editingEntry = null
         formExpanded = false
     }
@@ -100,6 +126,7 @@ fun ActivityLogScreen(viewModel: AppViewModel) {
         persons = entry.persons ?: ""
         location = entry.location ?: ""
         activity = entry.activity ?: ""
+        selectedGroupIds = entry.groups?.map { it.id }?.toSet() ?: emptySet()
         formExpanded = true
     }
 
@@ -128,9 +155,41 @@ fun ActivityLogScreen(viewModel: AppViewModel) {
             entry.endTime = endTime
             entry.date = date
             entry.activity = activity.ifBlank { null }
+            entry.groups = allGroups.filter { it.id in selectedGroupIds }.toHashSet()
 
             viewModel.activityLogRepository.save(entry)
             withContext(Dispatchers.Main) { resetForm() }
+            loadEntries()
+        }
+    }
+
+    fun saveGroup() {
+        if (newGroupName.isBlank()) {
+            Toast.makeText(context, R.string.activity_group_name_required, Toast.LENGTH_SHORT).show()
+            return
+        }
+        scope.launch(Dispatchers.IO) {
+            val group = ActivityGroup()
+            group.id = UUID.randomUUID().toString()
+            group.name = newGroupName.trim()
+            group.description = newGroupDescription.ifBlank { null }
+            group.user = localUser
+            viewModel.activityGroupRepository.save(group)
+            withContext(Dispatchers.Main) {
+                newGroupName = ""
+                newGroupDescription = ""
+            }
+            loadGroups()
+        }
+    }
+
+    fun deleteGroup(group: ActivityGroup) {
+        scope.launch(Dispatchers.IO) {
+            viewModel.activityGroupRepository.deleteById(group.id)
+            withContext(Dispatchers.Main) {
+                selectedGroupIds = selectedGroupIds - group.id
+            }
+            loadGroups()
             loadEntries()
         }
     }
@@ -152,7 +211,11 @@ fun ActivityLogScreen(viewModel: AppViewModel) {
                 .padding(16.dp)
         ) {
             Text(stringResource(R.string.activity_log), style = MaterialTheme.typography.headlineMedium)
-            Spacer(Modifier.height(8.dp))
+            Spacer(Modifier.height(4.dp))
+            TextButton(onClick = { groupDialogExpanded = true }) {
+                Text(stringResource(R.string.manage_groups))
+            }
+            Spacer(Modifier.height(4.dp))
 
             LazyColumn(
                 modifier = Modifier.weight(1f),
@@ -168,6 +231,19 @@ fun ActivityLogScreen(viewModel: AppViewModel) {
                             val et = entry.endTime?.format(timeFormat) ?: ""
                             if (st.isNotEmpty() || et.isNotEmpty()) Text("$st - $et", style = MaterialTheme.typography.bodySmall)
                             entry.activity?.let { if (it.isNotBlank()) Text(it, style = MaterialTheme.typography.bodySmall) }
+                            val entryGroups = entry.groups
+                            if (entryGroups != null && entryGroups.isNotEmpty()) {
+                                Spacer(Modifier.height(4.dp))
+                                FlowRow(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                                    entryGroups.sortedBy { it.name }.forEach { group ->
+                                        FilterChip(
+                                            selected = true,
+                                            onClick = {},
+                                            label = { Text(group.name ?: "") }
+                                        )
+                                    }
+                                }
+                            }
                             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                                 TextButton(onClick = { startEdit(entry) }) { Text(stringResource(R.string.edit)) }
                                 TextButton(onClick = {
@@ -257,6 +333,33 @@ fun ActivityLogScreen(viewModel: AppViewModel) {
                         label = { Text(stringResource(R.string.activity_description)) },
                         modifier = Modifier.fillMaxWidth()
                     )
+                    if (allGroups.isNotEmpty()) {
+                        Text(stringResource(R.string.select_groups), style = MaterialTheme.typography.labelLarge)
+                        allGroups.sortedBy { it.name }.forEach { group ->
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.fillMaxWidth().clickable {
+                                    selectedGroupIds = if (group.id in selectedGroupIds) {
+                                        selectedGroupIds - group.id
+                                    } else {
+                                        selectedGroupIds + group.id
+                                    }
+                                }
+                            ) {
+                                Checkbox(
+                                    checked = group.id in selectedGroupIds,
+                                    onCheckedChange = { checked ->
+                                        selectedGroupIds = if (checked) {
+                                            selectedGroupIds + group.id
+                                        } else {
+                                            selectedGroupIds - group.id
+                                        }
+                                    }
+                                )
+                                Text(group.name ?: "")
+                            }
+                        }
+                    }
                 }
             },
             confirmButton = {
@@ -266,6 +369,64 @@ fun ActivityLogScreen(viewModel: AppViewModel) {
             },
             dismissButton = {
                 TextButton(onClick = { resetForm() }) {
+                    Text(stringResource(R.string.cancel))
+                }
+            }
+        )
+    }
+
+    if (groupDialogExpanded) {
+        AlertDialog(
+            onDismissRequest = { groupDialogExpanded = false },
+            title = { Text(stringResource(R.string.activity_groups)) },
+            text = {
+                Column(
+                    modifier = Modifier.verticalScroll(rememberScrollState()),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    OutlinedTextField(
+                        value = newGroupName,
+                        onValueChange = { newGroupName = it },
+                        label = { Text(stringResource(R.string.activity_group_name)) },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    OutlinedTextField(
+                        value = newGroupDescription,
+                        onValueChange = { newGroupDescription = it },
+                        label = { Text(stringResource(R.string.activity_group_description)) },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    TextButton(onClick = { saveGroup() }) {
+                        Text(stringResource(R.string.add_activity_group))
+                    }
+                    Spacer(Modifier.height(8.dp))
+                    if (allGroups.isEmpty()) {
+                        Text(stringResource(R.string.no_activity_groups), style = MaterialTheme.typography.bodyMedium)
+                    } else {
+                        allGroups.sortedBy { it.name }.forEach { group ->
+                            Card(modifier = Modifier.fillMaxWidth()) {
+                                Row(
+                                    modifier = Modifier.padding(12.dp).fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Column(modifier = Modifier.weight(1f)) {
+                                        Text(group.name ?: "", style = MaterialTheme.typography.bodyLarge)
+                                        group.description?.let {
+                                            if (it.isNotBlank()) Text(it, style = MaterialTheme.typography.bodySmall)
+                                        }
+                                    }
+                                    TextButton(onClick = { deleteGroup(group) }) {
+                                        Text(stringResource(R.string.delete))
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { groupDialogExpanded = false }) {
                     Text(stringResource(R.string.cancel))
                 }
             }

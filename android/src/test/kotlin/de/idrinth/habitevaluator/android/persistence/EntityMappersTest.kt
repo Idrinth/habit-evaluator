@@ -1,5 +1,6 @@
 package de.idrinth.habitevaluator.android.persistence
 
+import de.idrinth.habitevaluator.shared.model.ActivityGroup
 import de.idrinth.habitevaluator.shared.model.ActivityLog
 import de.idrinth.habitevaluator.shared.model.DiaryEntry
 import de.idrinth.habitevaluator.shared.model.DiaryReference
@@ -1269,6 +1270,131 @@ class EntityMappersTest {
         assertEquals(LocalDate.of(2024, 6, 15), log.date)
         assertEquals("Walking", log.activity)
         assertEquals("u1", log.user.id)
+        assertTrue(log.groups.isEmpty())
+    }
+
+    @Test
+    fun testActivityLogEntityToModelWithGroups() {
+        val entity = ActivityLogEntity(
+            id = "al1", persons = "Alice", location = "Park",
+            startTime = "10:00", endTime = "11:30", date = "2024-06-15",
+            activity = "Walking", createdAt = "2024-06-15T12:00:00",
+            userId = "u1", userName = "testuser"
+        )
+        val group1 = ActivityGroup("Social")
+        group1.id = "g1"
+        val group2 = ActivityGroup("Fitness")
+        group2.id = "g2"
+
+        val log = entity.toModel(setOf(group1, group2))
+
+        assertEquals("al1", log.id)
+        assertEquals(2, log.groups.size)
+        assertTrue(log.groups.any { it.name == "Social" })
+        assertTrue(log.groups.any { it.name == "Fitness" })
+    }
+
+    @Test
+    fun testActivityLogToGroupIds() {
+        val log = ActivityLog("Alice", "Park", LocalTime.of(10, 0), LocalTime.of(11, 0))
+        log.id = "al1"
+        val group1 = ActivityGroup("Social")
+        group1.id = "g1"
+        val group2 = ActivityGroup("Work")
+        group2.id = "g2"
+        log.groups = hashSetOf(group1, group2)
+
+        val groupIds = log.toGroupIds()
+
+        assertEquals(2, groupIds.size)
+        assertTrue(groupIds.contains("g1"))
+        assertTrue(groupIds.contains("g2"))
+    }
+
+    @Test
+    fun testActivityLogToGroupIdsEmpty() {
+        val log = ActivityLog()
+        log.id = "al1"
+
+        val groupIds = log.toGroupIds()
+
+        assertTrue(groupIds.isEmpty())
+    }
+
+    // ── ActivityGroup ──
+
+    @Test
+    fun testActivityGroupToEntity() {
+        val group = ActivityGroup("Social", "Social activities")
+        group.id = "g1"
+        group.createdAt = LocalDateTime.of(2024, 6, 15, 12, 0, 0)
+        group.user = createUser()
+
+        val entity = group.toEntity()
+
+        assertEquals("g1", entity.id)
+        assertEquals("Social", entity.name)
+        assertEquals("Social activities", entity.description)
+        assertEquals("u1", entity.userId)
+        assertEquals("testuser", entity.userName)
+    }
+
+    @Test
+    fun testActivityGroupToEntityNullFields() {
+        val group = ActivityGroup()
+        group.id = "g1"
+        group.user = createUser()
+
+        val entity = group.toEntity()
+
+        assertEquals("", entity.name)
+        assertNull(entity.description)
+    }
+
+    @Test
+    fun testActivityGroupEntityToModel() {
+        val entity = ActivityGroupEntity(
+            id = "g1", name = "Social", description = "Social activities",
+            createdAt = "2024-06-15T12:00:00",
+            userId = "u1", userName = "testuser"
+        )
+
+        val group = entity.toModel()
+
+        assertEquals("g1", group.id)
+        assertEquals("Social", group.name)
+        assertEquals("Social activities", group.description)
+        assertEquals("u1", group.user.id)
+        assertEquals("testuser", group.user.username)
+    }
+
+    @Test
+    fun testActivityGroupEntityToModelNullDescription() {
+        val entity = ActivityGroupEntity(
+            id = "g1", name = "Work", description = null,
+            createdAt = "2024-06-15T12:00:00",
+            userId = "u1", userName = "testuser"
+        )
+
+        val group = entity.toModel()
+
+        assertEquals("Work", group.name)
+        assertNull(group.description)
+    }
+
+    @Test
+    fun testActivityGroupRoundTrip() {
+        val original = ActivityGroup("Fitness", "Exercise activities")
+        original.id = "g1"
+        original.createdAt = LocalDateTime.of(2024, 6, 15, 12, 0, 0)
+        original.user = createUser()
+
+        val entity = original.toEntity()
+        val restored = entity.toModel()
+
+        assertEquals(original.id, restored.id)
+        assertEquals(original.name, restored.name)
+        assertEquals(original.description, restored.description)
     }
 
     // ── Round-trip tests ──

@@ -1,5 +1,6 @@
 package de.idrinth.habitevaluator.android.persistence
 
+import de.idrinth.habitevaluator.shared.model.ActivityGroup
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
@@ -9,6 +10,7 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito.any
+import org.mockito.Mockito.anyList
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.`when`
@@ -42,6 +44,16 @@ class RoomActivityLogRepositoryTest {
         userId = userId, userName = "testuser"
     )
 
+    private fun createGroupEntity(
+        id: String = "g1",
+        name: String = "Social",
+        userId: String = "u1"
+    ) = ActivityGroupEntity(
+        id = id, name = name, description = null,
+        createdAt = "2024-06-15T10:00:00",
+        userId = userId, userName = "testuser"
+    )
+
     @Test
     fun testSaveReturnsEntry() = runTest {
         val log = de.idrinth.habitevaluator.shared.model.ActivityLog()
@@ -59,13 +71,45 @@ class RoomActivityLogRepositoryTest {
 
         val result = repository.save(log)
         assertEquals("al1", result.id)
-        verify(dao).insert(any(ActivityLogEntity::class.java) ?: createEntity())
+        verify(dao).saveActivityLogWithLinks(
+            any(ActivityLogEntity::class.java) ?: createEntity(),
+            anyList() ?: emptyList()
+        )
     }
 
     @Test
-    fun testFindByIdReturnsEntry() = runTest {
+    fun testSaveWithGroupsCallsSaveWithLinks() = runTest {
+        val log = de.idrinth.habitevaluator.shared.model.ActivityLog()
+        log.id = "al1"
+        log.persons = "Alice"
+        log.location = "Park"
+        log.startTime = LocalTime.of(9, 0)
+        log.endTime = LocalTime.of(10, 0)
+        log.date = LocalDate.of(2024, 6, 15)
+        log.createdAt = java.time.LocalDateTime.now()
+        val user = de.idrinth.habitevaluator.shared.model.User()
+        user.id = "u1"
+        user.username = "testuser"
+        log.user = user
+
+        val group = ActivityGroup("Social")
+        group.id = "g1"
+        log.groups = hashSetOf(group)
+
+        val result = repository.save(log)
+        assertEquals("al1", result.id)
+        verify(dao).saveActivityLogWithLinks(
+            any(ActivityLogEntity::class.java) ?: createEntity(),
+            anyList() ?: emptyList()
+        )
+    }
+
+    @Test
+    fun testFindByIdReturnsEntryWithGroups() = runTest {
         val entity = createEntity(activity = "Team meeting")
+        val groupEntities = listOf(createGroupEntity())
         `when`(dao.findById("al1")).thenReturn(entity)
+        `when`(dao.findGroupsByActivityLogId("al1")).thenReturn(groupEntities)
 
         val found = repository.findById("al1")
         assertTrue(found.isPresent)
@@ -75,6 +119,19 @@ class RoomActivityLogRepositoryTest {
         assertEquals(LocalTime.of(10, 0), found.get().endTime)
         assertEquals(LocalDate.of(2024, 6, 15), found.get().date)
         assertEquals("Team meeting", found.get().activity)
+        assertEquals(1, found.get().groups.size)
+        assertEquals("Social", found.get().groups.first().name)
+    }
+
+    @Test
+    fun testFindByIdReturnsEntryWithEmptyGroups() = runTest {
+        val entity = createEntity()
+        `when`(dao.findById("al1")).thenReturn(entity)
+        `when`(dao.findGroupsByActivityLogId("al1")).thenReturn(emptyList())
+
+        val found = repository.findById("al1")
+        assertTrue(found.isPresent)
+        assertTrue(found.get().groups.isEmpty())
     }
 
     @Test
@@ -89,6 +146,7 @@ class RoomActivityLogRepositoryTest {
     fun testFindByIdWithUser() = runTest {
         val entity = createEntity()
         `when`(dao.findById("al1")).thenReturn(entity)
+        `when`(dao.findGroupsByActivityLogId("al1")).thenReturn(emptyList())
 
         val found = repository.findById("al1")
         assertTrue(found.isPresent)
@@ -101,6 +159,7 @@ class RoomActivityLogRepositoryTest {
     fun testFindByIdWithNullActivity() = runTest {
         val entity = createEntity(activity = null)
         `when`(dao.findById("al1")).thenReturn(entity)
+        `when`(dao.findGroupsByActivityLogId("al1")).thenReturn(emptyList())
 
         val found = repository.findById("al1")
         assertTrue(found.isPresent)
@@ -112,6 +171,8 @@ class RoomActivityLogRepositoryTest {
         val e1 = createEntity(id = "al1", persons = "Alice", location = "Office")
         val e2 = createEntity(id = "al2", persons = "Bob", location = "Park")
         `when`(dao.findAll()).thenReturn(listOf(e1, e2))
+        `when`(dao.findGroupsByActivityLogId("al1")).thenReturn(emptyList())
+        `when`(dao.findGroupsByActivityLogId("al2")).thenReturn(emptyList())
 
         val all = repository.findAll()
         assertEquals(2, all.size)
@@ -128,7 +189,7 @@ class RoomActivityLogRepositoryTest {
     @Test
     fun testDeleteById() = runTest {
         repository.deleteById("al1")
-        verify(dao).deleteById("al1")
+        verify(dao).deleteActivityLogWithLinks("al1")
     }
 
     @Test
@@ -150,6 +211,8 @@ class RoomActivityLogRepositoryTest {
         val e1 = createEntity(id = "al1", persons = "Alice", location = "Office", userId = "u1")
         val e2 = createEntity(id = "al2", persons = "Bob", location = "Park", userId = "u1")
         `when`(dao.findByUserId("u1")).thenReturn(listOf(e1, e2))
+        `when`(dao.findGroupsByActivityLogId("al1")).thenReturn(emptyList())
+        `when`(dao.findGroupsByActivityLogId("al2")).thenReturn(emptyList())
 
         val result = repository.findByUserId("u1")
         assertEquals(2, result.size)
@@ -165,20 +228,26 @@ class RoomActivityLogRepositoryTest {
     }
 
     @Test
-    fun testFindByUserIdWithResults() = runTest {
+    fun testFindByUserIdWithGroups() = runTest {
         val entity = createEntity(persons = "Alice, Bob", location = "Office", activity = "Meeting")
+        val groupEntities = listOf(
+            createGroupEntity(id = "g1", name = "Work"),
+            createGroupEntity(id = "g2", name = "Social")
+        )
         `when`(dao.findByUserId("u1")).thenReturn(listOf(entity))
+        `when`(dao.findGroupsByActivityLogId("al1")).thenReturn(groupEntities)
 
         val result = repository.findByUserId("u1")
         assertEquals(1, result.size)
         assertEquals("Alice, Bob", result[0].persons)
-        assertNotNull(result[0].user)
+        assertEquals(2, result[0].groups.size)
     }
 
     @Test
     fun testFindByIdWithTimes() = runTest {
         val entity = createEntity(startTime = "08:30", endTime = "09:30")
         `when`(dao.findById("al1")).thenReturn(entity)
+        `when`(dao.findGroupsByActivityLogId("al1")).thenReturn(emptyList())
 
         val found = repository.findById("al1")
         assertTrue(found.isPresent)
@@ -218,5 +287,27 @@ class RoomActivityLogRepositoryTest {
 
         val result = repository.findDistinctActivitiesByUserId("u99")
         assertTrue(result.isEmpty())
+    }
+
+    @Test
+    fun testFindGroupsForActivityLog() = runTest {
+        val groupEntities = listOf(
+            createGroupEntity(id = "g1", name = "Work"),
+            createGroupEntity(id = "g2", name = "Social")
+        )
+        `when`(dao.findGroupsByActivityLogId("al1")).thenReturn(groupEntities)
+
+        val groups = repository.findGroupsForActivityLog("al1")
+        assertEquals(2, groups.size)
+        assertTrue(groups.any { it.name == "Work" })
+        assertTrue(groups.any { it.name == "Social" })
+    }
+
+    @Test
+    fun testFindGroupsForActivityLogEmpty() = runTest {
+        `when`(dao.findGroupsByActivityLogId("al1")).thenReturn(emptyList())
+
+        val groups = repository.findGroupsForActivityLog("al1")
+        assertTrue(groups.isEmpty())
     }
 }

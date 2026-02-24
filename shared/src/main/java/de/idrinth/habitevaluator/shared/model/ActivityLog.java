@@ -5,6 +5,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
@@ -12,7 +14,9 @@ import jakarta.persistence.Transient;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -51,6 +55,14 @@ public class ActivityLog {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
+
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "activity_log_group_links",
+            joinColumns = @JoinColumn(name = "activity_log_id"),
+            inverseJoinColumns = @JoinColumn(name = "activity_group_id")
+    )
+    private Set<ActivityGroup> groups = new HashSet<>();
 
     public ActivityLog() {
         this.id = UUID.randomUUID().toString();
@@ -159,6 +171,14 @@ public class ActivityLog {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public Set<ActivityGroup> getGroups() {
+        return groups;
+    }
+
+    public void setGroups(Set<ActivityGroup> groups) {
+        this.groups = groups;
     }
 
     @Override

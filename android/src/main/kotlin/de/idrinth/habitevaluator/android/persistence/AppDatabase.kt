@@ -32,13 +32,15 @@ import java.io.File
         EmergencyPlanStepEntity::class,
         EmergencyPlanActionEntity::class,
         ActivityLogEntity::class,
+        ActivityGroupEntity::class,
+        ActivityLogGroupLinkEntity::class,
         PlannerActivityEntity::class,
         PlannerGroupEntity::class,
         PlannerActivityGroupLinkEntity::class,
         WeekPlannerSlotEntity::class,
         SlotConfirmationEntity::class
     ],
-    version = 11,
+    version = 12,
     exportSchema = true
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -139,13 +141,36 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        val MIGRATION_11_12 = object : Migration(11, 12) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    """CREATE TABLE IF NOT EXISTS `activity_groups` (
+                        `id` TEXT NOT NULL,
+                        `name` TEXT NOT NULL,
+                        `description` TEXT,
+                        `created_at` TEXT NOT NULL,
+                        `user_id` TEXT NOT NULL,
+                        `user_name` TEXT NOT NULL,
+                        PRIMARY KEY(`id`))"""
+                )
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_activity_groups_user_id` ON `activity_groups` (`user_id`)")
+
+                db.execSQL(
+                    """CREATE TABLE IF NOT EXISTS `activity_log_group_links` (
+                        `activity_log_id` TEXT NOT NULL,
+                        `activity_group_id` TEXT NOT NULL,
+                        PRIMARY KEY(`activity_log_id`, `activity_group_id`))"""
+                )
+            }
+        }
+
         private fun buildDatabase(context: Context): AppDatabase {
             handlePreRoomDatabase(context)
             return Room.databaseBuilder(
                 context.applicationContext,
                 AppDatabase::class.java,
                 DATABASE_NAME
-            ).addMigrations(MIGRATION_10_11).build()
+            ).addMigrations(MIGRATION_10_11, MIGRATION_11_12).build()
         }
 
         private fun handlePreRoomDatabase(context: Context) {

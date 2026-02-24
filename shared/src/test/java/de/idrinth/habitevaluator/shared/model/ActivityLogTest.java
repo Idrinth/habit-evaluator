@@ -5,6 +5,8 @@ import org.junit.jupiter.api.Test;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.HashSet;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -167,5 +169,37 @@ class ActivityLogTest {
         ActivityLog l2 = new ActivityLog();
         l2.setId(l1.getId());
         assertEquals(l1.hashCode(), l2.hashCode());
+    }
+
+    @Test
+    void testGroupsDefaultEmpty() {
+        ActivityLog log = new ActivityLog();
+        assertNotNull(log.getGroups());
+        assertTrue(log.getGroups().isEmpty());
+    }
+
+    @Test
+    void testSetGroups() {
+        ActivityLog log = new ActivityLog();
+        Set<ActivityGroup> groups = new HashSet<>();
+        groups.add(new ActivityGroup("Social"));
+        groups.add(new ActivityGroup("Work"));
+        log.setGroups(groups);
+        assertEquals(2, log.getGroups().size());
+    }
+
+    @Test
+    void testSetGroupsReplace() {
+        ActivityLog log = new ActivityLog();
+        Set<ActivityGroup> groups1 = new HashSet<>();
+        groups1.add(new ActivityGroup("Social"));
+        log.setGroups(groups1);
+        assertEquals(1, log.getGroups().size());
+
+        Set<ActivityGroup> groups2 = new HashSet<>();
+        groups2.add(new ActivityGroup("Work"));
+        groups2.add(new ActivityGroup("Fitness"));
+        log.setGroups(groups2);
+        assertEquals(2, log.getGroups().size());
     }
 }

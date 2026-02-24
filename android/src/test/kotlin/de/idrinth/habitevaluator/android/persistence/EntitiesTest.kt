@@ -558,4 +558,71 @@ class EntitiesTest {
         assertEquals(entity.id, copy.id)
         assertEquals(entity.persons, copy.persons)
     }
+
+    // ── ActivityGroupEntity ──
+
+    @Test
+    fun testActivityGroupEntityConstruction() {
+        val entity = ActivityGroupEntity(
+            id = "g1", name = "Social", description = "Social activities",
+            createdAt = "2024-06-15T12:00:00",
+            userId = "u1", userName = "testuser"
+        )
+
+        assertEquals("g1", entity.id)
+        assertEquals("Social", entity.name)
+        assertEquals("Social activities", entity.description)
+        assertEquals("u1", entity.userId)
+        assertEquals("testuser", entity.userName)
+    }
+
+    @Test
+    fun testActivityGroupEntityNullDescription() {
+        val entity = ActivityGroupEntity(
+            id = "g1", name = "Work", description = null,
+            createdAt = "2024-06-15T12:00:00",
+            userId = "u1", userName = "user"
+        )
+
+        assertNull(entity.description)
+    }
+
+    @Test
+    fun testActivityGroupEntityCopy() {
+        val entity = ActivityGroupEntity(
+            id = "g1", name = "Social", description = "Social activities",
+            createdAt = "2024-06-15T12:00:00",
+            userId = "u1", userName = "testuser"
+        )
+        val copy = entity.copy(name = "Work")
+
+        assertEquals("Work", copy.name)
+        assertEquals(entity.id, copy.id)
+        assertEquals(entity.description, copy.description)
+    }
+
+    // ── ActivityLogGroupLinkEntity ──
+
+    @Test
+    fun testActivityLogGroupLinkEntityConstruction() {
+        val entity = ActivityLogGroupLinkEntity(
+            activityLogId = "al1",
+            activityGroupId = "g1"
+        )
+
+        assertEquals("al1", entity.activityLogId)
+        assertEquals("g1", entity.activityGroupId)
+    }
+
+    @Test
+    fun testActivityLogGroupLinkEntityCopy() {
+        val entity = ActivityLogGroupLinkEntity(
+            activityLogId = "al1",
+            activityGroupId = "g1"
+        )
+        val copy = entity.copy(activityGroupId = "g2")
+
+        assertEquals("al1", copy.activityLogId)
+        assertEquals("g2", copy.activityGroupId)
+    }
 }
