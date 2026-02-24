@@ -870,6 +870,28 @@ class EntityMappersTest {
         assertEquals("Rice, Chicken", log.foodItems)
         assertEquals("Lunch", log.notes)
         assertEquals("u1", log.user.id)
+        assertTrue(log.tags.isEmpty())
+    }
+
+    @Test
+    fun testFoodLogEntityToModelWithTags() {
+        val entity = FoodLogEntity(
+            id = "fl1", carbohydrates = 45.5, kcal = 350,
+            dateTime = "2024-06-15T12:00:00", foodItems = "Rice, Chicken",
+            createdAt = "2024-06-15T12:00:00", notes = "Lunch",
+            userId = "u1", userName = "testuser"
+        )
+        val tag1 = FoodTag("Rice")
+        tag1.id = "t1"
+        val tag2 = FoodTag("Chicken")
+        tag2.id = "t2"
+
+        val log = entity.toModel(setOf(tag1, tag2))
+
+        assertEquals("fl1", log.id)
+        assertEquals(2, log.tags.size)
+        assertTrue(log.tags.any { it.name == "Rice" })
+        assertTrue(log.tags.any { it.name == "Chicken" })
     }
 
     // ── FoodTag ──
