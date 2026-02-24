@@ -25,6 +25,55 @@ class NotificationHelperTest {
     }
 
     @Test
+    fun testInputRemindersChannelIdIsNotEmpty() {
+        assertFalse(NotificationHelper.CHANNEL_ID_INPUT_REMINDERS.isEmpty())
+    }
+
+    @Test
+    fun testInputRemindersChannelIdValue() {
+        assertEquals("habit_evaluator_input_reminders", NotificationHelper.CHANNEL_ID_INPUT_REMINDERS)
+    }
+
+    @Test
+    fun testEmotionChannelIdIsNotEmpty() {
+        assertFalse(NotificationHelper.CHANNEL_ID_EMOTION.isEmpty())
+    }
+
+    @Test
+    fun testEmotionChannelIdValue() {
+        assertEquals("habit_evaluator_emotion", NotificationHelper.CHANNEL_ID_EMOTION)
+    }
+
+    @Test
+    fun testDayPlannerChannelIdIsNotEmpty() {
+        assertFalse(NotificationHelper.CHANNEL_ID_DAY_PLANNER.isEmpty())
+    }
+
+    @Test
+    fun testDayPlannerChannelIdValue() {
+        assertEquals("habit_evaluator_day_planner", NotificationHelper.CHANNEL_ID_DAY_PLANNER)
+    }
+
+    @Test
+    fun testAllChannelIdsAreUnique() {
+        val ids = setOf(
+            NotificationHelper.CHANNEL_ID,
+            NotificationHelper.CHANNEL_ID_INPUT_REMINDERS,
+            NotificationHelper.CHANNEL_ID_EMOTION,
+            NotificationHelper.CHANNEL_ID_DAY_PLANNER
+        )
+        assertEquals(4, ids.size, "All channel IDs should be unique")
+    }
+
+    @Test
+    fun testChannelIdsDoNotContainSpaces() {
+        assertFalse(NotificationHelper.CHANNEL_ID.contains(" "), "CHANNEL_ID should not contain spaces")
+        assertFalse(NotificationHelper.CHANNEL_ID_INPUT_REMINDERS.contains(" "), "CHANNEL_ID_INPUT_REMINDERS should not contain spaces")
+        assertFalse(NotificationHelper.CHANNEL_ID_EMOTION.contains(" "), "CHANNEL_ID_EMOTION should not contain spaces")
+        assertFalse(NotificationHelper.CHANNEL_ID_DAY_PLANNER.contains(" "), "CHANNEL_ID_DAY_PLANNER should not contain spaces")
+    }
+
+    @Test
     fun testPermissionHandlerReturnsNonNull() {
         assertNotNull(NotificationHelper.permissionHandler())
     }
@@ -80,16 +129,6 @@ class NotificationHelperTest {
         val handler1 = NotificationHelper.permissionHandler()
         val handler2 = NotificationHelper.permissionHandler()
         assertNotSame(handler1, handler2)
-    }
-
-    @Test
-    fun testChannelIdMatchesReminderReceiverUsage() {
-        // Channel ID should match what ReminderReceiver uses for notifications
-        assertNotNull(NotificationHelper.CHANNEL_ID)
-        assertFalse(
-            NotificationHelper.CHANNEL_ID.contains(" "),
-            "Channel ID should not contain spaces"
-        )
     }
 
     @Test

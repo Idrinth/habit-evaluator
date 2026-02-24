@@ -47,7 +47,8 @@ class ReminderReceiver : BroadcastReceiver() {
                             showNotification(
                                 context, NOTIFICATION_SLEEP,
                                 context.getString(R.string.reminder_sleep_notification_title),
-                                context.getString(R.string.reminder_sleep_notification_text)
+                                context.getString(R.string.reminder_sleep_notification_text),
+                                NotificationHelper.CHANNEL_ID_INPUT_REMINDERS
                             )
                         }
                     }
@@ -56,7 +57,8 @@ class ReminderReceiver : BroadcastReceiver() {
                             showNotification(
                                 context, NOTIFICATION_DIARY,
                                 context.getString(R.string.reminder_diary_notification_title),
-                                context.getString(R.string.reminder_diary_notification_text)
+                                context.getString(R.string.reminder_diary_notification_text),
+                                NotificationHelper.CHANNEL_ID_INPUT_REMINDERS
                             )
                         }
                     }
@@ -65,7 +67,8 @@ class ReminderReceiver : BroadcastReceiver() {
                             showNotification(
                                 context, NOTIFICATION_EMOTION,
                                 context.getString(R.string.reminder_emotion_notification_title),
-                                context.getString(R.string.reminder_emotion_notification_text)
+                                context.getString(R.string.reminder_emotion_notification_text),
+                                NotificationHelper.CHANNEL_ID_EMOTION
                             )
                         }
                     }
@@ -108,7 +111,7 @@ class ReminderReceiver : BroadcastReceiver() {
         false
     }
 
-    private fun showNotification(context: Context, notificationId: Int, title: String, text: String) {
+    private fun showNotification(context: Context, notificationId: Int, title: String, text: String, channelId: String) {
         val launchIntent = Intent(context, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
         }
@@ -116,7 +119,7 @@ class ReminderReceiver : BroadcastReceiver() {
             context, 0, launchIntent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
-        val builder = NotificationCompat.Builder(context, NotificationHelper.CHANNEL_ID)
+        val builder = NotificationCompat.Builder(context, channelId)
             .setSmallIcon(R.drawable.ic_launcher)
             .setContentTitle(title)
             .setContentText(text)
