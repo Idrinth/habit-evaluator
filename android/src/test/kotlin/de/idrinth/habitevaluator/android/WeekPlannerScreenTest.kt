@@ -295,6 +295,22 @@ class WeekPlannerScreenTest {
     }
 
     @Test
+    fun testWeekSlotSummaryWithMultiHourSlots() {
+        val group = PlannerGroup("Exercise")
+        group.id = "g1"
+
+        val slots = listOf(
+            WeekPlannerSlot(1, 9, 3).apply { id = "s1"; groups = hashSetOf(group) },
+            WeekPlannerSlot(1, 14, 2).apply { id = "s2"; groups = hashSetOf(group) }
+        )
+
+        val service = DayPlannerService()
+        val summary = service.getWeekSlotSummary(slots)
+        assertEquals(5, summary[0])
+        assertEquals(168, summary[1])
+    }
+
+    @Test
     fun testWeekSlotSummaryTotalIsAlways168() {
         val service = DayPlannerService()
         val summary = service.getWeekSlotSummary(emptyList())

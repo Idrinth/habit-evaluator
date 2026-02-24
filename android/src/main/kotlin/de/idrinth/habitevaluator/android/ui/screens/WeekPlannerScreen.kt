@@ -22,12 +22,14 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -53,6 +55,7 @@ import java.time.DayOfWeek
 import java.time.format.TextStyle
 import java.util.Locale
 import java.util.UUID
+import kotlin.math.roundToInt
 
 @Composable
 fun WeekPlannerScreen(viewModel: AppViewModel) {
@@ -66,6 +69,7 @@ fun WeekPlannerScreen(viewModel: AppViewModel) {
     var selectedDay by remember { mutableIntStateOf(DayOfWeek.from(java.time.LocalDate.now()).value) }
     var showSlotDialog by remember { mutableStateOf(false) }
     var dialogHour by remember { mutableIntStateOf(0) }
+    var dialogDuration by remember { mutableFloatStateOf(1f) }
     var selectedGroupIds by remember { mutableStateOf<Set<String>>(emptySet()) }
     var showSummary by remember { mutableStateOf(false) }
 
@@ -91,7 +95,7 @@ fun WeekPlannerScreen(viewModel: AppViewModel) {
         dayPlannerService.getWeekSlotSummary(allSlots)
     }
 
-    fun setSlotGroups(hour: Int, groupIds: Set<String>) {
+    fun setSlotGroups(hour: Int, duration: Int, groupIds: Set<String>) {
         scope.launch(Dispatchers.IO) {
             val userId = localUser?.id ?: return@launch
             val existing = allSlots.find { it.dayOfWeek == selectedDay && it.hour == hour }
@@ -101,12 +105,14 @@ fun WeekPlannerScreen(viewModel: AppViewModel) {
                 val groups = allGroups.filter { it.id in groupIds }.toHashSet()
                 if (existing != null) {
                     existing.groups = groups
+                    existing.duration = duration
                     viewModel.weekPlannerSlotRepository.save(existing)
                 } else {
                     val slot = WeekPlannerSlot()
                     slot.id = UUID.randomUUID().toString()
                     slot.dayOfWeek = selectedDay
                     slot.hour = hour
+                    slot.duration = duration
                     slot.groups = groups
                     slot.user = localUser
                     viewModel.weekPlannerSlotRepository.save(slot)
@@ -114,6 +120,11 @@ fun WeekPlannerScreen(viewModel: AppViewModel) {
             }
             loadData()
         }
+    }
+
+    /** Returns the slot that covers a given hour, or null if none. */
+    fun slotCoveringHour(hour: Int): WeekPlannerSlot? {
+        return daySlots.find { it.coversHour(hour) }
     }
 
     val dayName = remember(selectedDay) {
@@ -144,7 +155,9 @@ fun WeekPlannerScreen(viewModel: AppViewModel) {
                     if (showSummary) {
                         Spacer(Modifier.height(4.dp))
                         for (day in 1..7) {
-                            val filled = allSlots.count { it.dayOfWeek == day && it.groups != null && it.groups.isNotEmpty() }
+                            val filled = allSlots
+                                .filter { it.dayOfWeek == day && it.groups != null && it.groups.isNotEmpty() }
+                                .sumOf { maxOf(1, it.duration) }
                             val dayLabel = DayOfWeek.of(day).getDisplayName(TextStyle.SHORT, Locale.getDefault())
                             Text("$dayLabel: $filled/24", style = MaterialTheme.typography.bodySmall)
                         }
@@ -187,36 +200,49 @@ fun WeekPlannerScreen(viewModel: AppViewModel) {
             ) {
                 items((0..23).toList()) { hour ->
                     val slot = daySlots.find { it.hour == hour }
-                    val groupNames = slot?.groups?.mapNotNull { it.name }?.sorted()
-                    val hasGroups = !groupNames.isNullOrEmpty()
+                    val coveringSlot = slotCoveringHour(hour)
+                    // Skip hours that are covered by a multi-hour slot starting earlier
+                    if (coveringSlot != null && coveringSlot.hour != hour) {
+                        // This hour is part of a multi-hour block; don't render a separate row
+                    } else {
+                        val displaySlot = slot ?: coveringSlot
+                        val groupNames = displaySlot?.groups?.mapNotNull { it.name }?.sorted()
+                        val hasGroups = !groupNames.isNullOrEmpty()
+                        val duration = displaySlot?.duration ?: 1
+                        val heightDp = (40 * duration).dp
 
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(8.dp))
-                            .background(
-                                if (hasGroups) MaterialTheme.colorScheme.primaryContainer
-                                else MaterialTheme.colorScheme.surfaceVariant
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(heightDp)
+                                .clip(RoundedCornerShape(8.dp))
+                                .background(
+                                    if (hasGroups) MaterialTheme.colorScheme.primaryContainer
+                                    else MaterialTheme.colorScheme.surfaceVariant
+                                )
+                                .clickable {
+                                    dialogHour = hour
+                                    dialogDuration = (displaySlot?.duration ?: 1).toFloat()
+                                    selectedGroupIds = displaySlot?.groups?.map { it.id }?.toSet() ?: emptySet()
+                                    showSlotDialog = true
+                                }
+                                .padding(horizontal = 12.dp, vertical = 8.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            val endHour = hour + duration
+                            Text(
+                                if (duration > 1) String.format("%02d:00-%02d:00", hour, endHour)
+                                else String.format("%02d:00", hour),
+                                style = MaterialTheme.typography.bodyMedium,
+                                modifier = Modifier.width(if (duration > 1) 100.dp else 52.dp)
                             )
-                            .clickable {
-                                dialogHour = hour
-                                selectedGroupIds = slot?.groups?.map { it.id }?.toSet() ?: emptySet()
-                                showSlotDialog = true
-                            }
-                            .padding(horizontal = 12.dp, vertical = 8.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            String.format("%02d:00", hour),
-                            style = MaterialTheme.typography.bodyMedium,
-                            modifier = Modifier.width(52.dp)
-                        )
-                        Text(
-                            if (hasGroups) groupNames!!.joinToString(", ")
-                            else stringResource(R.string.planner_unassigned),
-                            style = MaterialTheme.typography.bodyMedium,
-                            textAlign = TextAlign.Start
-                        )
+                            Text(
+                                if (hasGroups) groupNames!!.joinToString(", ")
+                                else stringResource(R.string.planner_unassigned),
+                                style = MaterialTheme.typography.bodyMedium,
+                                textAlign = TextAlign.Start
+                            )
+                        }
                     }
                 }
             }
@@ -224,11 +250,25 @@ fun WeekPlannerScreen(viewModel: AppViewModel) {
     }
 
     if (showSlotDialog) {
+        val maxDuration = 24 - dialogHour
         AlertDialog(
             onDismissRequest = { showSlotDialog = false },
             title = { Text(stringResource(R.string.planner_assign_group, String.format("%02d:00", dialogHour))) },
             text = {
                 Column {
+                    // Duration slider
+                    Text(
+                        stringResource(R.string.planner_duration, dialogDuration.roundToInt()),
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                    Slider(
+                        value = dialogDuration,
+                        onValueChange = { dialogDuration = it },
+                        valueRange = 1f..maxDuration.toFloat(),
+                        steps = maxOf(0, maxDuration - 2)
+                    )
+                    Spacer(Modifier.height(8.dp))
+                    // Group checkboxes
                     allGroups.forEach { group ->
                         Row(
                             modifier = Modifier
@@ -264,7 +304,7 @@ fun WeekPlannerScreen(viewModel: AppViewModel) {
             },
             confirmButton = {
                 TextButton(onClick = {
-                    setSlotGroups(dialogHour, selectedGroupIds)
+                    setSlotGroups(dialogHour, dialogDuration.roundToInt(), selectedGroupIds)
                     showSlotDialog = false
                 }) { Text(stringResource(R.string.save)) }
             },

@@ -677,6 +677,7 @@ export const activityLogs = {
 export interface WeekOverviewSlot {
 	dayOfWeek: number;
 	hour: number;
+	duration: number;
 }
 
 export interface WeekOverviewData {

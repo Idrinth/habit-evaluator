@@ -1417,13 +1417,14 @@ public class BackupService {
             List<WeekPlannerSlot> existingSlots = weekPlannerSlotRepository.findByUserId(user.getId());
             Set<String> existingSlotKeys = new HashSet<>();
             for (WeekPlannerSlot slot : existingSlots) {
-                existingSlotKeys.add(slot.getDayOfWeek() + "|" + slot.getHour());
+                existingSlotKeys.add(slot.getDayOfWeek() + "|" + slot.getHour() + "|" + slot.getDuration());
             }
 
             for (BackupData.WeekPlannerSlotData slotData : backupData.getWeekPlannerSlots()) {
-                String key = slotData.getDayOfWeek() + "|" + slotData.getHour();
+                int duration = Math.max(1, slotData.getDuration());
+                String key = slotData.getDayOfWeek() + "|" + slotData.getHour() + "|" + duration;
                 if (!existingSlotKeys.contains(key)) {
-                    WeekPlannerSlot newSlot = new WeekPlannerSlot(slotData.getDayOfWeek(), slotData.getHour());
+                    WeekPlannerSlot newSlot = new WeekPlannerSlot(slotData.getDayOfWeek(), slotData.getHour(), duration);
                     newSlot.setUser(user);
                     if (slotData.getGroupIds() != null && plannerGroupRepository != null) {
                         Set<PlannerGroup> groups = new HashSet<>();
@@ -1992,6 +1993,7 @@ public class BackupService {
                 slotData.setId(slot.getId());
                 slotData.setDayOfWeek(slot.getDayOfWeek());
                 slotData.setHour(slot.getHour());
+                slotData.setDuration(slot.getDuration());
                 List<String> groupIds = new ArrayList<>();
                 if (slot.getGroups() != null) {
                     for (PlannerGroup group : slot.getGroups()) {

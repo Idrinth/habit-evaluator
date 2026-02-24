@@ -198,6 +198,36 @@ class DayPlannerServiceTest {
     }
 
     @Test
+    void testGetWeekSlotSummaryWithMultiHourSlots() {
+        PlannerGroup group = new PlannerGroup("Fitness");
+        WeekPlannerSlot s1 = new WeekPlannerSlot(1, 9, 3);
+        addGroupToSlot(s1, group);
+        WeekPlannerSlot s2 = new WeekPlannerSlot(1, 14, 2);
+        addGroupToSlot(s2, group);
+        WeekPlannerSlot s3 = new WeekPlannerSlot(2, 8);
+        // s3 has no group
+
+        int[] summary = service.getWeekSlotSummary(List.of(s1, s2, s3));
+        assertEquals(5, summary[0]); // 3 + 2
+        assertEquals(168, summary[1]);
+    }
+
+    @Test
+    void testGetWeekSlotSummaryWithMultiHourSlots() {
+        PlannerGroup group = new PlannerGroup("Fitness");
+        WeekPlannerSlot s1 = new WeekPlannerSlot(1, 9, 3);
+        addGroupToSlot(s1, group);
+        WeekPlannerSlot s2 = new WeekPlannerSlot(1, 14, 2);
+        addGroupToSlot(s2, group);
+        WeekPlannerSlot s3 = new WeekPlannerSlot(2, 8);
+        // s3 has no group
+
+        int[] summary = service.getWeekSlotSummary(List.of(s1, s2, s3));
+        assertEquals(5, summary[0]); // 3 + 2 = 5 hours
+        assertEquals(168, summary[1]);
+    }
+
+    @Test
     void testDefaultConstructorUsesRandomWithoutSeed() {
         DayPlannerService defaultService = new DayPlannerService();
         assertNotNull(defaultService);

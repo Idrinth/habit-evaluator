@@ -194,6 +194,22 @@ public class DayPlannerController {
         if (userOpt.isEmpty()) {
             return ResponseEntity.status(401).build();
         }
+        if (slot.getDuration() < 1) {
+            slot.setDuration(1);
+        }
+        // Check for overlap with existing slots on the same day
+        List<WeekPlannerSlot> existing = slotRepository.findByUserIdAndDayOfWeek(userId, slot.getDayOfWeek());
+        int newStart = slot.getHour();
+        int newEnd = newStart + slot.getDuration();
+        for (WeekPlannerSlot ex : existing) {
+            int exStart = ex.getHour();
+            int exEnd = exStart + ex.getDuration();
+            if (newStart < exEnd && newEnd > exStart) {
+                Map<String, String> error = new HashMap<>();
+                error.put("error", "Slot overlaps with an existing slot");
+                return ResponseEntity.badRequest().body(error);
+            }
+        }
         slot.setUser(userOpt.get());
         if (slot.getGroups() != null && !slot.getGroups().isEmpty()) {
             Set<PlannerGroup> resolved = new java.util.HashSet<>();
@@ -272,7 +288,7 @@ public class DayPlannerController {
         }
         List<WeekPlannerSlot> slots = slotRepository.findByUserIdAndDayOfWeek(userId, dayOfWeek);
         List<WeekPlannerSlot> slotsForHour = slots.stream()
-                .filter(s -> s.getHour() == hour)
+                .filter(s -> s.coversHour(hour))
                 .toList();
         List<PlannerActivity> allActivities = activityRepository.findByUserId(userId);
         PlannerActivity suggested = dayPlannerService.suggestActivity(slotsForHour, allActivities);
@@ -299,6 +315,7 @@ public class DayPlannerController {
                 Map<String, Integer> entry = new HashMap<>();
                 entry.put("dayOfWeek", slot.getDayOfWeek());
                 entry.put("hour", slot.getHour());
+                entry.put("duration", slot.getDuration());
                 occupied.add(entry);
             }
         }

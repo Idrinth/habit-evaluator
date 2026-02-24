@@ -354,6 +354,53 @@ class DayPlannerControllerTest {
         assertEquals(404, response.getStatusCode().value());
     }
 
+    @Test
+    void testCreateSlotOverlapRejected() {
+        when(userRepository.findById(testUser.getId())).thenReturn(Optional.of(testUser));
+        WeekPlannerSlot existing = new WeekPlannerSlot(1, 9, 3);
+        existing.setUser(testUser);
+        when(slotRepository.findByUserIdAndDayOfWeek(testUser.getId(), 1)).thenReturn(List.of(existing));
+
+        // New slot at hour 11 with duration 2 overlaps (existing covers 9-12, new covers 11-13)
+        WeekPlannerSlot newSlot = new WeekPlannerSlot(1, 11, 2);
+        ResponseEntity<?> response = controller.createSlot(newSlot, session);
+        assertEquals(400, response.getStatusCode().value());
+    }
+
+    @Test
+    void testCreateSlotNoOverlap() {
+        when(userRepository.findById(testUser.getId())).thenReturn(Optional.of(testUser));
+        WeekPlannerSlot existing = new WeekPlannerSlot(1, 9, 2);
+        existing.setUser(testUser);
+        when(slotRepository.findByUserIdAndDayOfWeek(testUser.getId(), 1)).thenReturn(List.of(existing));
+        when(slotRepository.save(any(WeekPlannerSlot.class))).thenAnswer(i -> i.getArgument(0));
+
+        // New slot at hour 11 doesn't overlap with existing 9-11
+        WeekPlannerSlot newSlot = new WeekPlannerSlot(1, 11, 1);
+        ResponseEntity<?> response = controller.createSlot(newSlot, session);
+        assertEquals(200, response.getStatusCode().value());
+    }
+
+    @Test
+    void testSuggestActivityWithMultiHourSlot() {
+        PlannerGroup group = new PlannerGroup("Fitness");
+        PlannerActivity activity = new PlannerActivity("Run");
+        activity.setGroups(Set.of(group));
+
+        WeekPlannerSlot slot = new WeekPlannerSlot(1, 9, 3);
+        slot.setGroups(Set.of(group));
+        slot.setUser(testUser);
+
+        when(slotRepository.findByUserIdAndDayOfWeek(testUser.getId(), 1)).thenReturn(List.of(slot));
+        when(activityRepository.findByUserId(testUser.getId())).thenReturn(List.of(activity));
+        when(dayPlannerService.suggestActivity(any(), any())).thenReturn(activity);
+
+        // Hour 10 is within the 9-12 slot range
+        ResponseEntity<?> response = controller.suggestActivity(1, 10, session);
+        assertEquals(200, response.getStatusCode().value());
+        verify(dayPlannerService).suggestActivity(any(), any());
+    }
+
     // ── Confirmations ──
 
     @Test
@@ -426,7 +473,7 @@ class DayPlannerControllerTest {
         PlannerGroup group = new PlannerGroup("Fitness");
         group.setUser(testUser);
 
-        WeekPlannerSlot slot1 = new WeekPlannerSlot(1, 9);
+        WeekPlannerSlot slot1 = new WeekPlannerSlot(1, 9, 2);
         slot1.setUser(testUser);
         slot1.setGroups(Set.of(group));
 
@@ -451,8 +498,10 @@ class DayPlannerControllerTest {
         assertEquals(2, slots.size());
         assertEquals(1, slots.get(0).get("dayOfWeek"));
         assertEquals(9, slots.get(0).get("hour"));
+        assertEquals(2, slots.get(0).get("duration"));
         assertEquals(3, slots.get(1).get("dayOfWeek"));
         assertEquals(14, slots.get(1).get("hour"));
+        assertEquals(1, slots.get(1).get("duration"));
     }
 
     // ── Summary ──

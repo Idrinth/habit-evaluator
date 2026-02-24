@@ -607,6 +607,7 @@ fun WeekPlannerSlot.toEntity(): WeekPlannerSlotEntity = WeekPlannerSlotEntity(
     id = id,
     dayOfWeek = dayOfWeek,
     hour = hour,
+    duration = duration,
     userId = user?.id ?: "",
     userName = user?.username ?: ""
 )
@@ -619,6 +620,7 @@ fun WeekPlannerSlotEntity.toModel(groups: Set<PlannerGroup> = emptySet()): WeekP
     slot.id = id
     slot.dayOfWeek = dayOfWeek
     slot.hour = hour
+    slot.duration = duration
     slot.groups = java.util.HashSet(groups)
     val u = User()
     u.id = userId

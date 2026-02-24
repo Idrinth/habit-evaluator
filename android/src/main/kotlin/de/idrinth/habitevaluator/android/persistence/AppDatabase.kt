@@ -41,7 +41,7 @@ import java.io.File
         WeekPlannerSlotGroupLinkEntity::class,
         SlotConfirmationEntity::class
     ],
-    version = 12,
+    version = 13,
     exportSchema = true
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -142,6 +142,14 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        val MIGRATION_12_13 = object : Migration(12, 13) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    "ALTER TABLE `week_planner_slots` ADD COLUMN `duration` INTEGER NOT NULL DEFAULT 1"
+                )
+            }
+        }
+
         val MIGRATION_11_12 = object : Migration(11, 12) {
             override fun migrate(db: SupportSQLiteDatabase) {
                 // Week planner slot: migrate from single group_id to many-to-many join table
@@ -202,7 +210,7 @@ abstract class AppDatabase : RoomDatabase() {
                 context.applicationContext,
                 AppDatabase::class.java,
                 DATABASE_NAME
-            ).addMigrations(MIGRATION_10_11, MIGRATION_11_12).build()
+            ).addMigrations(MIGRATION_10_11, MIGRATION_11_12, MIGRATION_12_13).build()
         }
 
         private fun handlePreRoomDatabase(context: Context) {
