@@ -2,9 +2,9 @@ package de.idrinth.habitevaluator.android
 
 import android.content.Context
 import android.os.Bundle
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
@@ -40,7 +40,7 @@ import de.idrinth.habitevaluator.android.ui.navigation.AppNavigation
 import de.idrinth.habitevaluator.android.ui.navigation.Screen
 import de.idrinth.habitevaluator.android.ui.theme.HabitEvaluatorTheme
 
-class MainActivity : ComponentActivity() {
+class MainActivity : AppCompatActivity() {
 
     private lateinit var viewModel: AppViewModel
 
