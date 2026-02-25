@@ -88,12 +88,34 @@ public class FoodLogController {
         if (userId == null) {
             return ResponseEntity.status(401).build();
         }
+        migrateTagsIfNeeded(userId);
         List<FoodTag> tags = foodTagRepository.findByUserId(userId);
         List<String> suggestions = tags.stream()
                 .map(FoodTag::getName)
                 .sorted()
                 .collect(Collectors.toList());
         return ResponseEntity.ok(suggestions);
+    }
+
+    private void migrateTagsIfNeeded(String userId) {
+        List<FoodLog> entries = foodLogRepository.findByUserId(userId);
+        boolean needsMigration = entries.stream()
+                .anyMatch(e -> e.getTags() == null || e.getTags().isEmpty());
+        if (!needsMigration) {
+            return;
+        }
+        Optional<User> userOpt = userRepository.findById(userId);
+        if (userOpt.isEmpty()) {
+            return;
+        }
+        User user = userOpt.get();
+        foodTagRepository.deleteEmptyTags(userId);
+        for (FoodLog entry : entries) {
+            if (entry.getTags() == null || entry.getTags().isEmpty()) {
+                entry.setTags(resolveTagsFromFoodItems(entry, user));
+                foodLogRepository.save(entry);
+            }
+        }
     }
 
     @PostMapping("/migrate-tags")

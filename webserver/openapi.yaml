@@ -1893,9 +1893,27 @@ components:
           items:
             $ref: "#/components/schemas/ActivityGroup"
           uniqueItems: true
+        personTags:
+          type: array
+          items:
+            $ref: "#/components/schemas/PersonTag"
+          uniqueItems: true
+        personList:
+          type: array
+          items:
+            type: string
         durationMinutes:
           type: integer
           format: int32
+    PersonTag:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        nameLower:
+          type: string
     SyncData:
       type: object
       properties:

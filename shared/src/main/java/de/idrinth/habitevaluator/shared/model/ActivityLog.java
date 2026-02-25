@@ -14,10 +14,14 @@ import jakarta.persistence.Transient;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * Represents an activity log entry tracking events with involved persons,
@@ -63,6 +67,14 @@ public class ActivityLog {
             inverseJoinColumns = @JoinColumn(name = "activity_group_id")
     )
     private Set<ActivityGroup> groups = new HashSet<>();
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "activity_log_person_tags",
+            joinColumns = @JoinColumn(name = "activity_log_id"),
+            inverseJoinColumns = @JoinColumn(name = "person_tag_id")
+    )
+    private Set<PersonTag> personTags = new HashSet<>();
 
     public ActivityLog() {
         this.id = UUID.randomUUID().toString();
@@ -179,6 +191,28 @@ public class ActivityLog {
 
     public void setGroups(Set<ActivityGroup> groups) {
         this.groups = groups;
+    }
+
+    public Set<PersonTag> getPersonTags() {
+        return personTags;
+    }
+
+    public void setPersonTags(Set<PersonTag> personTags) {
+        this.personTags = personTags;
+    }
+
+    /**
+     * Returns the persons as a parsed list of individual person names.
+     */
+    @Transient
+    public List<String> getPersonList() {
+        if (persons == null || persons.isBlank()) {
+            return Collections.emptyList();
+        }
+        return Arrays.stream(persons.split(","))
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
+                .collect(Collectors.toList());
     }
 
     @Override
