@@ -436,4 +436,42 @@ class AppViewModelTest {
         habit.addEntry(yesterdayEntry)
         assertFalse(habit.hasReachedDailyLimit(LocalDate.now()))
     }
+
+    // --- Regression: habit list equality and StateFlow emission ---
+    // Habit.equals() compares only by ID. Two lists with the same habit IDs
+    // but different entries are considered equal by List.equals(), causing
+    // MutableStateFlow to suppress emissions and preventing UI updates
+    // after completing or removing habit entries.
+
+    @Test
+    fun testHabitListEqualityIgnoresEntries() {
+        val habit1 = Habit("Exercise", "Daily exercise")
+        habit1.id = "abc"
+        val habit2 = Habit("Exercise", "Daily exercise")
+        habit2.id = "abc"
+        habit2.addEntry(HabitEntry())
+
+        val list1 = listOf(habit1)
+        val list2 = listOf(habit2)
+        // Lists are equal because Habit.equals() only compares IDs
+        assertEquals(list1, list2, "Lists with same habit IDs are equal even with different entries")
+        // But the entries differ
+        assertNotEquals(habit1.entries.size, habit2.entries.size)
+    }
+
+    @Test
+    fun testHabitListEqualityWouldSuppressStateFlowEmission() {
+        val habitBefore = Habit("Exercise", "Daily exercise")
+        habitBefore.id = "h1"
+
+        val habitAfter = Habit("Exercise", "Daily exercise")
+        habitAfter.id = "h1"
+        habitAfter.addEntry(HabitEntry())
+
+        // This demonstrates the bug: List.equals uses Habit.equals (ID only)
+        assertTrue(listOf(habitBefore) == listOf(habitAfter),
+            "MutableStateFlow would suppress emission because lists are 'equal' by ID")
+        assertEquals(0, habitBefore.entries.size)
+        assertEquals(1, habitAfter.entries.size)
+    }
 }
