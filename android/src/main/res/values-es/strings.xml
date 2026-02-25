@@ -659,6 +659,12 @@
     <string name="planner_none">None</string>
     <string name="planner_week_summary">Week: %1$d / %2$d hours filled</string>
     <string name="planner_duration">Duration: %d h</string>
+    <string name="planner_notification_title">Planned Activity</string>
+    <string name="planner_notification_text">Suggested: %s</string>
+    <string name="planner_notification_confirm">Confirm</string>
+    <string name="planner_notification_deny">Deny</string>
+    <string name="planner_confirmation_rate">Confirmation rate: %.0f%%</string>
+    <string name="planner_confirmations_total">%1$d confirmed / %2$d total</string>
     <string name="module_day_planner">Day Planner</string>
     <string name="diary_navigation_planner_description">Plan your week with randomized activity suggestions</string>
     <string name="diary_navigation_sleep_description">Track your sleep patterns and quality</string>
