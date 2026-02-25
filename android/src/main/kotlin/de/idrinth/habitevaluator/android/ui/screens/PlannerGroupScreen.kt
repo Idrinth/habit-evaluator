@@ -3,6 +3,8 @@ package de.idrinth.habitevaluator.android.ui.screens
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -16,6 +18,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Card
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -38,6 +41,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import de.idrinth.habitevaluator.android.AppViewModel
 import de.idrinth.habitevaluator.android.R
+import de.idrinth.habitevaluator.shared.model.PlannerActivity
 import de.idrinth.habitevaluator.shared.model.PlannerGroup
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -51,6 +55,7 @@ fun PlannerGroupScreen(viewModel: AppViewModel) {
     val localUser by viewModel.localUser.collectAsState()
 
     var groups by remember { mutableStateOf<List<PlannerGroup>>(emptyList()) }
+    var activities by remember { mutableStateOf<List<PlannerActivity>>(emptyList()) }
     var formExpanded by remember { mutableStateOf(false) }
     var editingGroup by remember { mutableStateOf<PlannerGroup?>(null) }
     var name by remember { mutableStateOf("") }
@@ -60,7 +65,11 @@ fun PlannerGroupScreen(viewModel: AppViewModel) {
         scope.launch(Dispatchers.IO) {
             val userId = localUser?.id ?: return@launch
             val loaded = viewModel.plannerGroupRepository.findByUserId(userId)
-            withContext(Dispatchers.Main) { groups = loaded }
+            val loadedActivities = viewModel.plannerActivityRepository.findByUserId(userId)
+            withContext(Dispatchers.Main) {
+                groups = loaded
+                activities = loadedActivities
+            }
         }
     }
 
@@ -140,11 +149,35 @@ fun PlannerGroupScreen(viewModel: AppViewModel) {
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 items(groups, key = { it.id }) { group ->
+                    val groupActivities = activities.filter { activity ->
+                        activity.groups.any { it.id == group.id }
+                    }
                     Card(modifier = Modifier.fillMaxWidth()) {
                         Column(modifier = Modifier.padding(12.dp)) {
                             Text(group.name ?: "", style = MaterialTheme.typography.bodyLarge)
                             group.description?.let {
                                 if (it.isNotBlank()) Text(it, style = MaterialTheme.typography.bodySmall)
+                            }
+                            Spacer(Modifier.height(4.dp))
+                            if (groupActivities.isEmpty()) {
+                                Text(
+                                    stringResource(R.string.planner_no_group_activities),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            } else {
+                                @OptIn(ExperimentalLayoutApi::class)
+                                FlowRow(
+                                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                                ) {
+                                    for (activity in groupActivities) {
+                                        AssistChip(
+                                            onClick = {},
+                                            label = { Text(activity.name ?: "") }
+                                        )
+                                    }
+                                }
                             }
                             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                                 TextButton(onClick = { startEdit(group) }) {
