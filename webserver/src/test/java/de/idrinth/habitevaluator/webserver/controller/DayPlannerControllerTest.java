@@ -140,6 +140,52 @@ class DayPlannerControllerTest {
         assertEquals(401, response.getStatusCode().value());
     }
 
+    @Test
+    void testUpdateGroupSuccess() {
+        PlannerGroup existing = new PlannerGroup("Fitness");
+        existing.setUser(testUser);
+        when(groupRepository.findById(existing.getId())).thenReturn(Optional.of(existing));
+        when(groupRepository.save(any(PlannerGroup.class))).thenAnswer(i -> i.getArgument(0));
+
+        PlannerGroup updated = new PlannerGroup("Fitness & Health");
+        updated.setDescription("Updated description");
+        ResponseEntity<?> response = controller.updateGroup(existing.getId(), updated, session);
+
+        assertEquals(200, response.getStatusCode().value());
+        PlannerGroup result = (PlannerGroup) response.getBody();
+        assertEquals(existing.getId(), result.getId());
+        assertEquals("Fitness & Health", result.getName());
+        assertEquals("Updated description", result.getDescription());
+    }
+
+    @Test
+    void testUpdateGroupNotFound() {
+        when(groupRepository.findById("nonexistent")).thenReturn(Optional.empty());
+        PlannerGroup updated = new PlannerGroup("Updated");
+
+        ResponseEntity<?> response = controller.updateGroup("nonexistent", updated, session);
+        assertEquals(404, response.getStatusCode().value());
+    }
+
+    @Test
+    void testUpdateGroupNotOwned() {
+        User otherUser = new User("other", "pass");
+        PlannerGroup existing = new PlannerGroup("Fitness");
+        existing.setUser(otherUser);
+        when(groupRepository.findById(existing.getId())).thenReturn(Optional.of(existing));
+
+        PlannerGroup updated = new PlannerGroup("Updated");
+        ResponseEntity<?> response = controller.updateGroup(existing.getId(), updated, session);
+        assertEquals(404, response.getStatusCode().value());
+    }
+
+    @Test
+    void testUpdateGroupUnauthenticated() {
+        MockHttpSession unauthSession = new MockHttpSession();
+        ResponseEntity<?> response = controller.updateGroup("some-id", new PlannerGroup(), unauthSession);
+        assertEquals(401, response.getStatusCode().value());
+    }
+
     // ── Activities ──
 
     @Test

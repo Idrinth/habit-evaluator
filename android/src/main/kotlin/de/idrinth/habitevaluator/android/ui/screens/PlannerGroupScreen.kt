@@ -3,6 +3,7 @@ package de.idrinth.habitevaluator.android.ui.screens
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -51,6 +52,7 @@ fun PlannerGroupScreen(viewModel: AppViewModel) {
 
     var groups by remember { mutableStateOf<List<PlannerGroup>>(emptyList()) }
     var formExpanded by remember { mutableStateOf(false) }
+    var editingGroup by remember { mutableStateOf<PlannerGroup?>(null) }
     var name by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
 
@@ -68,6 +70,7 @@ fun PlannerGroupScreen(viewModel: AppViewModel) {
         name = ""
         description = ""
         formExpanded = false
+        editingGroup = null
     }
 
     fun addGroup() {
@@ -85,6 +88,28 @@ fun PlannerGroupScreen(viewModel: AppViewModel) {
             withContext(Dispatchers.Main) { resetForm() }
             loadGroups()
         }
+    }
+
+    fun updateGroup() {
+        if (name.isBlank()) {
+            Toast.makeText(context, R.string.planner_group_name_required, Toast.LENGTH_SHORT).show()
+            return
+        }
+        val existing = editingGroup ?: return
+        scope.launch(Dispatchers.IO) {
+            existing.name = name.trim()
+            existing.description = description.ifBlank { null }
+            viewModel.plannerGroupRepository.save(existing)
+            withContext(Dispatchers.Main) { resetForm() }
+            loadGroups()
+        }
+    }
+
+    fun startEdit(group: PlannerGroup) {
+        editingGroup = group
+        name = group.name ?: ""
+        description = group.description ?: ""
+        formExpanded = true
     }
 
     Scaffold(
@@ -121,12 +146,17 @@ fun PlannerGroupScreen(viewModel: AppViewModel) {
                             group.description?.let {
                                 if (it.isNotBlank()) Text(it, style = MaterialTheme.typography.bodySmall)
                             }
-                            TextButton(onClick = {
-                                scope.launch(Dispatchers.IO) {
-                                    viewModel.plannerGroupRepository.deleteById(group.id)
-                                    loadGroups()
+                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                TextButton(onClick = { startEdit(group) }) {
+                                    Text(stringResource(R.string.edit))
                                 }
-                            }) { Text(stringResource(R.string.delete)) }
+                                TextButton(onClick = {
+                                    scope.launch(Dispatchers.IO) {
+                                        viewModel.plannerGroupRepository.deleteById(group.id)
+                                        loadGroups()
+                                    }
+                                }) { Text(stringResource(R.string.delete)) }
+                            }
                         }
                     }
                 }
@@ -135,9 +165,12 @@ fun PlannerGroupScreen(viewModel: AppViewModel) {
     }
 
     if (formExpanded) {
+        val isEditing = editingGroup != null
         AlertDialog(
             onDismissRequest = { resetForm() },
-            title = { Text(stringResource(R.string.planner_add_group)) },
+            title = {
+                Text(stringResource(if (isEditing) R.string.planner_edit_group else R.string.planner_add_group))
+            },
             text = {
                 Column(
                     modifier = Modifier.verticalScroll(rememberScrollState()),
@@ -158,8 +191,8 @@ fun PlannerGroupScreen(viewModel: AppViewModel) {
                 }
             },
             confirmButton = {
-                TextButton(onClick = { addGroup() }) {
-                    Text(stringResource(R.string.add_entry))
+                TextButton(onClick = { if (isEditing) updateGroup() else addGroup() }) {
+                    Text(stringResource(if (isEditing) R.string.save else R.string.add_entry))
                 }
             },
             dismissButton = {

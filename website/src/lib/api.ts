@@ -684,9 +684,63 @@ export interface WeekOverviewData {
 	slots: WeekOverviewSlot[];
 }
 
+export interface PlannerGroup {
+	id: string;
+	name: string;
+	description: string | null;
+	createdAt: string;
+}
+
+export interface PlannerActivity {
+	id: string;
+	name: string;
+	description: string | null;
+	createdAt: string;
+	groups: PlannerGroup[];
+}
+
 export const dayPlanner = {
 	weekOverview() {
 		return request<WeekOverviewData>('/day-planner/week-overview');
+	},
+	listGroups() {
+		return request<PlannerGroup[]>('/day-planner/groups');
+	},
+	createGroup(group: { name: string; description?: string | null }) {
+		return request<PlannerGroup>('/day-planner/groups', {
+			method: 'POST',
+			body: JSON.stringify(group)
+		});
+	},
+	updateGroup(id: string, group: { name: string; description?: string | null }) {
+		return request<PlannerGroup>(`/day-planner/groups/${id}`, {
+			method: 'PUT',
+			body: JSON.stringify(group)
+		});
+	},
+	deleteGroup(id: string) {
+		return request<void>(`/day-planner/groups/${id}`, { method: 'DELETE' });
+	},
+	listActivities() {
+		return request<PlannerActivity[]>('/day-planner/activities');
+	},
+	createActivity(activity: { name: string; description?: string | null; groups?: { id: string }[] }) {
+		return request<PlannerActivity>('/day-planner/activities', {
+			method: 'POST',
+			body: JSON.stringify(activity)
+		});
+	},
+	updateActivity(
+		id: string,
+		activity: { name: string; description?: string | null; groups?: { id: string }[] }
+	) {
+		return request<PlannerActivity>(`/day-planner/activities/${id}`, {
+			method: 'PUT',
+			body: JSON.stringify(activity)
+		});
+	},
+	deleteActivity(id: string) {
+		return request<void>(`/day-planner/activities/${id}`, { method: 'DELETE' });
 	}
 };
 
