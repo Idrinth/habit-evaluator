@@ -1,11 +1,9 @@
 package de.idrinth.habitevaluator.android.ui.screens
 
-import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -45,7 +43,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import de.idrinth.habitevaluator.android.AppViewModel
 import de.idrinth.habitevaluator.android.R
+import de.idrinth.habitevaluator.android.ReminderScheduler
 import de.idrinth.habitevaluator.shared.model.PlannerGroup
+import de.idrinth.habitevaluator.shared.model.SlotConfirmation
 import de.idrinth.habitevaluator.shared.model.WeekPlannerSlot
 import de.idrinth.habitevaluator.shared.service.DayPlannerService
 import kotlinx.coroutines.Dispatchers
@@ -66,6 +66,7 @@ fun WeekPlannerScreen(viewModel: AppViewModel) {
 
     var allSlots by remember { mutableStateOf<List<WeekPlannerSlot>>(emptyList()) }
     var allGroups by remember { mutableStateOf<List<PlannerGroup>>(emptyList()) }
+    var allConfirmations by remember { mutableStateOf<List<SlotConfirmation>>(emptyList()) }
     var selectedDay by remember { mutableIntStateOf(DayOfWeek.from(java.time.LocalDate.now()).value) }
     var showSlotDialog by remember { mutableStateOf(false) }
     var dialogHour by remember { mutableIntStateOf(0) }
@@ -78,9 +79,11 @@ fun WeekPlannerScreen(viewModel: AppViewModel) {
             val userId = localUser?.id ?: return@launch
             val loadedSlots = viewModel.weekPlannerSlotRepository.findByUserId(userId)
             val loadedGroups = viewModel.plannerGroupRepository.findByUserId(userId)
+            val loadedConfirmations = viewModel.slotConfirmationRepository.findByUserId(userId)
             withContext(Dispatchers.Main) {
                 allSlots = loadedSlots
                 allGroups = loadedGroups
+                allConfirmations = loadedConfirmations
             }
         }
     }
@@ -93,6 +96,12 @@ fun WeekPlannerScreen(viewModel: AppViewModel) {
 
     val summary = remember(allSlots) {
         dayPlannerService.getWeekSlotSummary(allSlots)
+    }
+
+    val confirmationTotal = allConfirmations.size
+    val confirmedCount = allConfirmations.count { it.isConfirmed }
+    val confirmationRate = remember(allConfirmations) {
+        dayPlannerService.calculateConfirmationRate(confirmationTotal, confirmedCount)
     }
 
     fun setSlotGroups(hour: Int, duration: Int, groupIds: Set<String>) {
@@ -119,6 +128,7 @@ fun WeekPlannerScreen(viewModel: AppViewModel) {
                 }
             }
             loadData()
+            ReminderScheduler.schedulePlannerReminders(context)
         }
     }
 
@@ -161,6 +171,23 @@ fun WeekPlannerScreen(viewModel: AppViewModel) {
                             val dayLabel = DayOfWeek.of(day).getDisplayName(TextStyle.SHORT, Locale.getDefault())
                             Text("$dayLabel: $filled/24", style = MaterialTheme.typography.bodySmall)
                         }
+                    }
+                }
+            }
+
+            // Confirmation rate
+            if (confirmationTotal > 0) {
+                Spacer(Modifier.height(4.dp))
+                Card(modifier = Modifier.fillMaxWidth()) {
+                    Column(modifier = Modifier.padding(12.dp)) {
+                        Text(
+                            stringResource(R.string.planner_confirmation_rate, confirmationRate * 100),
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                        Text(
+                            stringResource(R.string.planner_confirmations_total, confirmedCount, confirmationTotal),
+                            style = MaterialTheme.typography.bodySmall
+                        )
                     }
                 }
             }

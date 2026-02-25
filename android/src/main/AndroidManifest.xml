@@ -44,6 +44,20 @@
             </intent-filter>
         </receiver>
 
+        <receiver
+            android:name=".PlannerConfirmationReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="de.idrinth.habitevaluator.PLANNER_CONFIRM" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="de.idrinth.habitevaluator.PLANNER_DENY" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="de.idrinth.habitevaluator.PLANNER_TIMEOUT" />
+            </intent-filter>
+        </receiver>
+
         <service
             android:name="androidx.appcompat.app.AppLocalesMetadataHolderService"
             android:enabled="false"

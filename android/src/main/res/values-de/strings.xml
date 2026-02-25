@@ -663,6 +663,12 @@
     <string name="planner_assign_group">Gruppe für %s zuweisen</string>
     <string name="planner_none">Keine</string>
     <string name="planner_week_summary">Woche: %1$d / %2$d Plätze belegt</string>
+    <string name="planner_notification_title">Geplante Aktivität</string>
+    <string name="planner_notification_text">Vorschlag: %s</string>
+    <string name="planner_notification_confirm">Bestätigen</string>
+    <string name="planner_notification_deny">Ablehnen</string>
+    <string name="planner_confirmation_rate">Bestätigungsrate: %.0f%%</string>
+    <string name="planner_confirmations_total">%1$d bestätigt / %2$d gesamt</string>
     <string name="module_day_planner">Tagesplaner</string>
     <string name="diary_navigation_planner_description">Planen Sie Ihre Woche mit zufälligen Aktivitätsvorschlägen</string>
     <string name="day_planner">Tagesplaner</string>
