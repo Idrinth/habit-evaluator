@@ -42,10 +42,29 @@ class ReminderReceiverTest {
     }
 
     @Test
+    fun testTypePlannerConstant() {
+        assertEquals("planner", ReminderReceiver.TYPE_PLANNER)
+    }
+
+    @Test
+    fun testExtraPlannerDayConstant() {
+        assertEquals("planner_day_of_week", ReminderReceiver.EXTRA_PLANNER_DAY)
+    }
+
+    @Test
+    fun testExtraPlannerHourConstant() {
+        assertEquals("planner_hour", ReminderReceiver.EXTRA_PLANNER_HOUR)
+    }
+
+    @Test
     fun testAllTypeConstantsAreUnique() {
-        assertNotEquals(ReminderReceiver.TYPE_SLEEP, ReminderReceiver.TYPE_DIARY)
-        assertNotEquals(ReminderReceiver.TYPE_SLEEP, ReminderReceiver.TYPE_EMOTION)
-        assertNotEquals(ReminderReceiver.TYPE_DIARY, ReminderReceiver.TYPE_EMOTION)
+        val types = setOf(
+            ReminderReceiver.TYPE_SLEEP,
+            ReminderReceiver.TYPE_DIARY,
+            ReminderReceiver.TYPE_EMOTION,
+            ReminderReceiver.TYPE_PLANNER
+        )
+        assertEquals(4, types.size)
     }
 
     @Test

@@ -317,6 +317,32 @@ class WeekPlannerScreenTest {
         assertEquals(168, summary[1])
     }
 
+    // --- Confirmation rate tests ---
+
+    @Test
+    fun testConfirmationRateWithNoConfirmations() {
+        val service = DayPlannerService()
+        assertEquals(0.0, service.calculateConfirmationRate(0, 0))
+    }
+
+    @Test
+    fun testConfirmationRateAllConfirmed() {
+        val service = DayPlannerService()
+        assertEquals(1.0, service.calculateConfirmationRate(5, 5))
+    }
+
+    @Test
+    fun testConfirmationRateAllDenied() {
+        val service = DayPlannerService()
+        assertEquals(0.0, service.calculateConfirmationRate(5, 0))
+    }
+
+    @Test
+    fun testConfirmationRatePartial() {
+        val service = DayPlannerService()
+        assertEquals(0.6, service.calculateConfirmationRate(5, 3), 0.001)
+    }
+
     // --- Screen route test ---
 
     @Test

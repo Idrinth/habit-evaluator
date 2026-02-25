@@ -114,8 +114,8 @@ class ReminderSchedulerTest {
 
         ReminderScheduler.rescheduleAll(context)
 
-        // When disabled, sleep + diary are cancelled (1 each) + 10 emotion slots = 12 cancels
-        verify(alarmManager, times(12)).cancel(any<PendingIntent>())
+        // When disabled, sleep + diary are cancelled (1 each) + 10 emotion slots + 168 planner slots = 180 cancels
+        verify(alarmManager, times(180)).cancel(any<PendingIntent>())
     }
 
     @Test
@@ -164,5 +164,24 @@ class ReminderSchedulerTest {
         // 1 emotion reminder scheduled
         verify(alarmManager, times(1)).setInexactRepeating(
             eq(AlarmManager.RTC_WAKEUP), anyLong(), eq(AlarmManager.INTERVAL_DAY), any())
+    }
+
+    @Test
+    fun testSchedulePlannerRemindersWithNullAlarmManager() {
+        `when`(context.getSystemService(Context.ALARM_SERVICE)).thenReturn(null)
+
+        // Should not throw when AlarmManager is null
+        ReminderScheduler.schedulePlannerReminders(context)
+    }
+
+    @Test
+    fun testSchedulePlannerRemindersCancelsPreviousAlarms() {
+        val alarmManager = mock(AlarmManager::class.java)
+        `when`(context.getSystemService(Context.ALARM_SERVICE)).thenReturn(alarmManager)
+
+        ReminderScheduler.schedulePlannerReminders(context)
+
+        // 168 planner alarms cancelled (7 days * 24 hours)
+        verify(alarmManager, times(168)).cancel(any<PendingIntent>())
     }
 }
