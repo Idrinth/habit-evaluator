@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -57,6 +58,7 @@ fun PlannerActivityScreen(viewModel: AppViewModel) {
     var activities by remember { mutableStateOf<List<PlannerActivity>>(emptyList()) }
     var allGroups by remember { mutableStateOf<List<PlannerGroup>>(emptyList()) }
     var formExpanded by remember { mutableStateOf(false) }
+    var editingActivity by remember { mutableStateOf<PlannerActivity?>(null) }
     var name by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
     var selectedGroupIds by remember { mutableStateOf<Set<String>>(emptySet()) }
@@ -80,6 +82,7 @@ fun PlannerActivityScreen(viewModel: AppViewModel) {
         description = ""
         selectedGroupIds = emptySet()
         formExpanded = false
+        editingActivity = null
     }
 
     fun addActivity() {
@@ -99,6 +102,31 @@ fun PlannerActivityScreen(viewModel: AppViewModel) {
             withContext(Dispatchers.Main) { resetForm() }
             loadData()
         }
+    }
+
+    fun updateActivity() {
+        if (name.isBlank()) {
+            Toast.makeText(context, R.string.planner_activity_name_required, Toast.LENGTH_SHORT).show()
+            return
+        }
+        val existing = editingActivity ?: return
+        scope.launch(Dispatchers.IO) {
+            existing.name = name.trim()
+            existing.description = description.ifBlank { null }
+            val groups = allGroups.filter { selectedGroupIds.contains(it.id) }.toHashSet()
+            existing.groups = groups
+            viewModel.plannerActivityRepository.save(existing)
+            withContext(Dispatchers.Main) { resetForm() }
+            loadData()
+        }
+    }
+
+    fun startEdit(activity: PlannerActivity) {
+        editingActivity = activity
+        name = activity.name ?: ""
+        description = activity.description ?: ""
+        selectedGroupIds = activity.groups?.map { it.id }?.toSet() ?: emptySet()
+        formExpanded = true
     }
 
     Scaffold(
@@ -142,12 +170,17 @@ fun PlannerActivityScreen(viewModel: AppViewModel) {
                                     style = MaterialTheme.typography.bodySmall
                                 )
                             }
-                            TextButton(onClick = {
-                                scope.launch(Dispatchers.IO) {
-                                    viewModel.plannerActivityRepository.deleteById(activity.id)
-                                    loadData()
+                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                TextButton(onClick = { startEdit(activity) }) {
+                                    Text(stringResource(R.string.edit))
                                 }
-                            }) { Text(stringResource(R.string.delete)) }
+                                TextButton(onClick = {
+                                    scope.launch(Dispatchers.IO) {
+                                        viewModel.plannerActivityRepository.deleteById(activity.id)
+                                        loadData()
+                                    }
+                                }) { Text(stringResource(R.string.delete)) }
+                            }
                         }
                     }
                 }
@@ -156,9 +189,12 @@ fun PlannerActivityScreen(viewModel: AppViewModel) {
     }
 
     if (formExpanded) {
+        val isEditing = editingActivity != null
         AlertDialog(
             onDismissRequest = { resetForm() },
-            title = { Text(stringResource(R.string.planner_add_activity)) },
+            title = {
+                Text(stringResource(if (isEditing) R.string.planner_edit_activity else R.string.planner_add_activity))
+            },
             text = {
                 Column(
                     modifier = Modifier.verticalScroll(rememberScrollState()),
@@ -200,8 +236,8 @@ fun PlannerActivityScreen(viewModel: AppViewModel) {
                 }
             },
             confirmButton = {
-                TextButton(onClick = { addActivity() }) {
-                    Text(stringResource(R.string.add_entry))
+                TextButton(onClick = { if (isEditing) updateActivity() else addActivity() }) {
+                    Text(stringResource(if (isEditing) R.string.save else R.string.add_entry))
                 }
             },
             dismissButton = {

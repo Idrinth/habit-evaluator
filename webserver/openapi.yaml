@@ -155,6 +155,43 @@ paths:
       responses:
         "200":
           description: OK
+  /api/day-planner/groups/{id}:
+    put:
+      tags:
+      - day-planner-controller
+      operationId: updateGroup
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PlannerGroup"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
+    delete:
+      tags:
+      - day-planner-controller
+      operationId: deleteGroup
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
   /api/day-planner/activities/{id}:
     put:
       tags:
@@ -1577,20 +1614,6 @@ paths:
       responses:
         "200":
           description: OK
-  /api/day-planner/groups/{id}:
-    delete:
-      tags:
-      - day-planner-controller
-      operationId: deleteGroup
-      parameters:
-      - name: id
-        in: path
-        required: true
-        schema:
-          type: string
-      responses:
-        "200":
-          description: OK
 components:
   schemas:
     ReminderSettings:
@@ -1763,6 +1786,20 @@ components:
           format: int32
         user:
           $ref: "#/components/schemas/User"
+    PlannerGroup:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        user:
+          $ref: "#/components/schemas/User"
     PlannerActivity:
       type: object
       properties:
@@ -1782,20 +1819,6 @@ components:
           items:
             $ref: "#/components/schemas/PlannerGroup"
           uniqueItems: true
-    PlannerGroup:
-      type: object
-      properties:
-        id:
-          type: string
-        name:
-          type: string
-        description:
-          type: string
-        createdAt:
-          type: string
-          format: date-time
-        user:
-          $ref: "#/components/schemas/User"
     CreateCategoryRequest:
       type: object
       properties:

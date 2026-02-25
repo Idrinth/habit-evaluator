@@ -78,6 +78,26 @@ public class DayPlannerController {
         return ResponseEntity.ok(groupRepository.save(group));
     }
 
+    @PutMapping("/groups/{id}")
+    public ResponseEntity<?> updateGroup(@PathVariable String id, @RequestBody PlannerGroup group, HttpSession session) {
+        String userId = (String) session.getAttribute("userId");
+        if (userId == null) {
+            return ResponseEntity.status(401).build();
+        }
+        Optional<PlannerGroup> existingOpt = groupRepository.findById(id);
+        if (existingOpt.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        PlannerGroup existing = existingOpt.get();
+        if (existing.getUser() == null || !userId.equals(existing.getUser().getId())) {
+            return ResponseEntity.notFound().build();
+        }
+        group.setId(id);
+        group.setUser(existing.getUser());
+        group.setCreatedAt(existing.getCreatedAt());
+        return ResponseEntity.ok(groupRepository.save(group));
+    }
+
     @DeleteMapping("/groups/{id}")
     public ResponseEntity<Void> deleteGroup(@PathVariable String id, HttpSession session) {
         String userId = (String) session.getAttribute("userId");
