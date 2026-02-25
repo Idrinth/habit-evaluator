@@ -40,6 +40,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import de.idrinth.habitevaluator.android.AppViewModel
 import de.idrinth.habitevaluator.android.R
+import de.idrinth.habitevaluator.android.ui.components.AutocompleteTextField
 import de.idrinth.habitevaluator.shared.model.FoodLog
 import de.idrinth.habitevaluator.shared.model.FoodTag
 import kotlinx.coroutines.Dispatchers
@@ -63,6 +64,7 @@ fun FoodLogScreen(viewModel: AppViewModel) {
     var kcal by remember { mutableStateOf("") }
     var carbs by remember { mutableStateOf("") }
     var notes by remember { mutableStateOf("") }
+    var foodSuggestions by remember { mutableStateOf<List<String>>(emptyList()) }
 
     val dateTimeFormat = remember { DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm") }
 
@@ -72,7 +74,13 @@ fun FoodLogScreen(viewModel: AppViewModel) {
             viewModel.foodTagRepository.deleteEmptyTags(userId)
             val loaded = viewModel.foodLogRepository.findByUserId(userId)
                 .sortedWith(compareByDescending<FoodLog> { it.dateTime }.thenByDescending { it.createdAt })
-            withContext(Dispatchers.Main) { entries = loaded }
+            val tags = viewModel.foodTagRepository.findByUserId(userId)
+                .mapNotNull { it.name }
+                .sorted()
+            withContext(Dispatchers.Main) {
+                entries = loaded
+                foodSuggestions = tags
+            }
         }
     }
 
@@ -212,9 +220,25 @@ fun FoodLogScreen(viewModel: AppViewModel) {
                         modifier = Modifier.fillMaxWidth().clickable { pickDateTime() },
                         enabled = false
                     )
-                    OutlinedTextField(
+                    AutocompleteTextField(
                         value = foodItems,
                         onValueChange = { foodItems = it },
+                        suggestions = remember(foodItems, foodSuggestions) {
+                            val parts = foodItems.split(",").map { it.trim().lowercase() }
+                            val alreadyEntered = if (parts.size > 1) parts.dropLast(1).toSet() else emptySet()
+                            val currentInput = parts.lastOrNull()?.trim() ?: ""
+                            foodSuggestions.filter { suggestion ->
+                                suggestion.lowercase() !in alreadyEntered &&
+                                    (currentInput.isEmpty() || suggestion.contains(currentInput, ignoreCase = true))
+                            }.map { suggestion ->
+                                if (parts.size > 1) {
+                                    val prefix = foodItems.substringBeforeLast(",") + ", "
+                                    prefix + suggestion
+                                } else {
+                                    suggestion
+                                }
+                            }
+                        },
                         label = { Text(stringResource(R.string.food_items)) },
                         modifier = Modifier.fillMaxWidth()
                     )

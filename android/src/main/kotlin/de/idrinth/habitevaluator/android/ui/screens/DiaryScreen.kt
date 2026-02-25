@@ -48,6 +48,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import de.idrinth.habitevaluator.android.AppViewModel
 import de.idrinth.habitevaluator.android.R
+import de.idrinth.habitevaluator.android.ui.components.AutocompleteTextField
 import de.idrinth.habitevaluator.shared.model.DiaryEntry
 import de.idrinth.habitevaluator.shared.model.EventSignificance
 import de.idrinth.habitevaluator.shared.service.DiaryService
@@ -70,6 +71,7 @@ fun DiaryScreen(viewModel: AppViewModel) {
     var significance by remember { mutableStateOf(EventSignificance.NORMAL) }
     var sigExpanded by remember { mutableStateOf(false) }
     var formVisible by remember { mutableStateOf(false) }
+    var descriptionSuggestions by remember { mutableStateOf<List<String>>(emptyList()) }
 
     val diaryService = remember { DiaryService() }
 
@@ -77,7 +79,11 @@ fun DiaryScreen(viewModel: AppViewModel) {
         scope.launch(Dispatchers.IO) {
             val userId = localUser?.id ?: return@launch
             val list = viewModel.diaryEntryRepository.findByUserId(userId)
-            withContext(Dispatchers.Main) { entries = list }
+            val suggestions = viewModel.diaryReferenceRepository.findDistinctDescriptionsByUserId(userId)
+            withContext(Dispatchers.Main) {
+                entries = list
+                descriptionSuggestions = suggestions
+            }
         }
     }
 
@@ -157,8 +163,10 @@ fun DiaryScreen(viewModel: AppViewModel) {
                     modifier = Modifier.verticalScroll(rememberScrollState()),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    OutlinedTextField(
-                        value = description, onValueChange = { description = it },
+                    AutocompleteTextField(
+                        value = description,
+                        onValueChange = { description = it },
+                        suggestions = descriptionSuggestions,
                         label = { Text(stringResource(R.string.description)) },
                         modifier = Modifier.fillMaxWidth()
                     )
