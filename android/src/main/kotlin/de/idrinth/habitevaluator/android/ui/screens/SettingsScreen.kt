@@ -42,6 +42,7 @@ import androidx.documentfile.provider.DocumentFile
 import androidx.navigation.NavController
 import de.idrinth.habitevaluator.android.AppViewModel
 import de.idrinth.habitevaluator.android.BuildConfig
+import de.idrinth.habitevaluator.android.NotificationHelper
 import de.idrinth.habitevaluator.android.R
 import de.idrinth.habitevaluator.android.ReminderScheduler
 import de.idrinth.habitevaluator.android.SettingsConstants
@@ -90,6 +91,24 @@ fun SettingsScreen(viewModel: AppViewModel, navController: NavController) {
     var emotionReminderCount by remember { mutableFloatStateOf(prefs.getInt(SettingsConstants.KEY_EMOTION_REMINDER_COUNT, SettingsConstants.DEFAULT_EMOTION_REMINDER_COUNT).toFloat()) }
     var wakingHoursStart by remember { mutableStateOf(prefs.getString(SettingsConstants.KEY_WAKING_HOURS_START, SettingsConstants.DEFAULT_WAKING_HOURS_START) ?: SettingsConstants.DEFAULT_WAKING_HOURS_START) }
     var wakingHoursEnd by remember { mutableStateOf(prefs.getString(SettingsConstants.KEY_WAKING_HOURS_END, SettingsConstants.DEFAULT_WAKING_HOURS_END) ?: SettingsConstants.DEFAULT_WAKING_HOURS_END) }
+
+    val permissionHandler = remember { NotificationHelper.permissionHandler() }
+    var pendingReminderToggle by remember { mutableStateOf<String?>(null) }
+
+    val notificationPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        if (granted) {
+            when (pendingReminderToggle) {
+                "sleep" -> sleepReminderEnabled = true
+                "diary" -> diaryReminderEnabled = true
+                "emotion" -> emotionReminderEnabled = true
+            }
+        } else {
+            Toast.makeText(context, R.string.notification_permission_denied, Toast.LENGTH_LONG).show()
+        }
+        pendingReminderToggle = null
+    }
 
     val folderPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.OpenDocumentTree()
@@ -230,7 +249,19 @@ fun SettingsScreen(viewModel: AppViewModel, navController: NavController) {
                 Text(stringResource(R.string.reminder_settings), style = MaterialTheme.typography.titleMedium)
                 Spacer(Modifier.height(8.dp))
 
-                LabeledSwitch(stringResource(R.string.reminder_sleep_label), sleepReminderEnabled) { sleepReminderEnabled = it }
+                LabeledSwitch(stringResource(R.string.reminder_sleep_label), sleepReminderEnabled) {
+                    if (it) {
+                        val permName = permissionHandler.permissionName()
+                        if (permName != null && !permissionHandler.hasPermission(context)) {
+                            pendingReminderToggle = "sleep"
+                            notificationPermissionLauncher.launch(permName)
+                        } else {
+                            sleepReminderEnabled = true
+                        }
+                    } else {
+                        sleepReminderEnabled = false
+                    }
+                }
                 if (sleepReminderEnabled) {
                     val sleepHm = ReminderScheduleCalculator.parseTime(sleepReminderTime)
                     OutlinedButton(onClick = {
@@ -243,7 +274,19 @@ fun SettingsScreen(viewModel: AppViewModel, navController: NavController) {
                 }
 
                 Spacer(Modifier.height(4.dp))
-                LabeledSwitch(stringResource(R.string.reminder_diary_label), diaryReminderEnabled) { diaryReminderEnabled = it }
+                LabeledSwitch(stringResource(R.string.reminder_diary_label), diaryReminderEnabled) {
+                    if (it) {
+                        val permName = permissionHandler.permissionName()
+                        if (permName != null && !permissionHandler.hasPermission(context)) {
+                            pendingReminderToggle = "diary"
+                            notificationPermissionLauncher.launch(permName)
+                        } else {
+                            diaryReminderEnabled = true
+                        }
+                    } else {
+                        diaryReminderEnabled = false
+                    }
+                }
                 if (diaryReminderEnabled) {
                     val diaryHm = ReminderScheduleCalculator.parseTime(diaryReminderTime)
                     OutlinedButton(onClick = {
@@ -256,7 +299,19 @@ fun SettingsScreen(viewModel: AppViewModel, navController: NavController) {
                 }
 
                 Spacer(Modifier.height(4.dp))
-                LabeledSwitch(stringResource(R.string.reminder_emotion_label), emotionReminderEnabled) { emotionReminderEnabled = it }
+                LabeledSwitch(stringResource(R.string.reminder_emotion_label), emotionReminderEnabled) {
+                    if (it) {
+                        val permName = permissionHandler.permissionName()
+                        if (permName != null && !permissionHandler.hasPermission(context)) {
+                            pendingReminderToggle = "emotion"
+                            notificationPermissionLauncher.launch(permName)
+                        } else {
+                            emotionReminderEnabled = true
+                        }
+                    } else {
+                        emotionReminderEnabled = false
+                    }
+                }
                 if (emotionReminderEnabled) {
                     Text(
                         stringResource(R.string.reminder_emotion_count_label, emotionReminderCount.roundToInt()),

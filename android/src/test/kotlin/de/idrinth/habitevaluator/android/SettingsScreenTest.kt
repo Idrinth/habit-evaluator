@@ -60,6 +60,15 @@ class SettingsScreenTest {
         fun clampEmotionReminderCount(count: Int): Int {
             return count.coerceIn(1, 10)
         }
+
+        /**
+         * Determines whether a notification permission request is needed when enabling a reminder.
+         * Mirrors the logic in SettingsScreen reminder toggle handlers.
+         * Returns true when the permission name is non-null (API 33+) and not yet granted.
+         */
+        fun shouldRequestNotificationPermission(permissionName: String?, hasPermission: Boolean): Boolean {
+            return permissionName != null && !hasPermission
+        }
     }
 
     @Test
@@ -431,5 +440,52 @@ class SettingsScreenTest {
             SettingsConstants.KEY_WAKING_HOURS_END
         )
         assertEquals(8, keys.size, "All reminder settings keys must be unique")
+    }
+
+    @Test
+    fun testShouldRequestPermissionWhenNotGrantedOnApi33() {
+        assertTrue(
+            shouldRequestNotificationPermission("android.permission.POST_NOTIFICATIONS", false),
+            "Should request permission when permission name is non-null and not granted"
+        )
+    }
+
+    @Test
+    fun testShouldNotRequestPermissionWhenAlreadyGranted() {
+        assertFalse(
+            shouldRequestNotificationPermission("android.permission.POST_NOTIFICATIONS", true),
+            "Should not request permission when already granted"
+        )
+    }
+
+    @Test
+    fun testShouldNotRequestPermissionPreApi33() {
+        assertFalse(
+            shouldRequestNotificationPermission(null, true),
+            "Should not request permission when permission name is null (pre-API 33)"
+        )
+    }
+
+    @Test
+    fun testShouldNotRequestPermissionPreApi33EvenIfNotGranted() {
+        assertFalse(
+            shouldRequestNotificationPermission(null, false),
+            "Should not request permission when permission name is null regardless of grant status"
+        )
+    }
+
+    @Test
+    fun testPreApi33HandlerDoesNotRequirePermissionRequest() {
+        val handler = PreApi33PermissionHandler()
+        assertFalse(
+            shouldRequestNotificationPermission(handler.permissionName(), true),
+            "PreApi33 handler should never require a permission request"
+        )
+    }
+
+    @Test
+    fun testPreApi33HandlerReportsPermissionGranted() {
+        val handler = PreApi33PermissionHandler()
+        assertNull(handler.permissionName(), "PreApi33 handler should return null permission name")
     }
 }
