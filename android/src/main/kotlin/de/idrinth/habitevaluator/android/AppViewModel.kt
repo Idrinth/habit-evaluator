@@ -366,15 +366,22 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
     fun completeHabit(habitId: String) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                val repo = _habitRepository.value
-                val habit = repo.findById(habitId).orElse(null) ?: return@launch
+                val habit = if (_usingRemoteStorage.value) {
+                    _habitRepository.value.findById(habitId).orElse(null)
+                } else {
+                    roomHabitRepository.findByIdSuspend(habitId)
+                } ?: return@launch
                 if (!habit.hasReachedDailyLimit(java.time.LocalDate.now())) {
                     val entry = HabitEntry()
                     habit.addEntry(entry)
-                    repo.save(habit)
+                    if (_usingRemoteStorage.value) {
+                        _habitRepository.value.save(habit)
+                    } else {
+                        roomHabitRepository.saveSuspend(habit)
+                    }
                 }
             } finally {
-                loadHabitsSync()
+                loadHabitsSuspend()
             }
         }
     }
@@ -382,20 +389,30 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
     fun removeHabitCompletion(habitId: String) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                val repo = _habitRepository.value
-                val habit = repo.findById(habitId).orElse(null) ?: return@launch
+                val habit = if (_usingRemoteStorage.value) {
+                    _habitRepository.value.findById(habitId).orElse(null)
+                } else {
+                    roomHabitRepository.findByIdSuspend(habitId)
+                } ?: return@launch
                 habit.removeLastEntryForDate(java.time.LocalDate.now())
-                repo.save(habit)
+                if (_usingRemoteStorage.value) {
+                    _habitRepository.value.save(habit)
+                } else {
+                    roomHabitRepository.saveSuspend(habit)
+                }
             } finally {
-                loadHabitsSync()
+                loadHabitsSuspend()
             }
         }
     }
 
-    private fun loadHabitsSync() {
+    private suspend fun loadHabitsSuspend() {
         val user = _currentUser.value ?: return
-        val repo = _habitRepository.value
-        _habits.value = repo.findByUserId(user.id)
+        _habits.value = if (_usingRemoteStorage.value) {
+            _habitRepository.value.findByUserId(user.id)
+        } else {
+            roomHabitRepository.findByUserIdSuspend(user.id)
+        }
     }
 
     fun loadSleepEntries() {

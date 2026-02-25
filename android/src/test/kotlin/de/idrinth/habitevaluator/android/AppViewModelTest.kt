@@ -6,6 +6,7 @@ import de.idrinth.habitevaluator.shared.model.FrequencyType
 import de.idrinth.habitevaluator.shared.model.User
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Assertions.*
+import java.time.LocalDate
 import java.time.LocalDateTime
 
 /**
@@ -300,5 +301,139 @@ class AppViewModelTest {
     @Test
     fun testIsRemoteModeEmpty() {
         assertFalse(isRemoteMode(""))
+    }
+
+    // --- Habit completion logic tests ---
+    // These replicate the core logic from completeHabit() to verify
+    // that entry creation and daily limit checking work correctly.
+
+    @Test
+    fun testCompleteHabitAddsEntry() {
+        val habit = Habit("Exercise", "Daily exercise")
+        habit.maxEntriesPerDay = 1
+        val sizeBefore = habit.entries.size
+        if (!habit.hasReachedDailyLimit(LocalDate.now())) {
+            val entry = HabitEntry()
+            habit.addEntry(entry)
+        }
+        assertEquals(sizeBefore + 1, habit.entries.size)
+    }
+
+    @Test
+    fun testCompleteHabitEntryHasCorrectTimestamp() {
+        val habit = Habit("Exercise", "Daily exercise")
+        val before = LocalDateTime.now()
+        val entry = HabitEntry()
+        habit.addEntry(entry)
+        val after = LocalDateTime.now()
+        assertNotNull(entry.completedAt)
+        assertFalse(entry.completedAt.isBefore(before))
+        assertFalse(entry.completedAt.isAfter(after))
+    }
+
+    @Test
+    fun testCompleteHabitEntryHasUniqueId() {
+        val habit = Habit("Exercise", "Daily exercise")
+        val entry1 = HabitEntry()
+        val entry2 = HabitEntry()
+        habit.addEntry(entry1)
+        habit.addEntry(entry2)
+        assertNotEquals(entry1.id, entry2.id)
+    }
+
+    @Test
+    fun testCompleteHabitRespectsMaxEntriesPerDay() {
+        val habit = Habit("Exercise", "Daily exercise")
+        habit.maxEntriesPerDay = 1
+        // Add first entry for today
+        val entry = HabitEntry()
+        habit.addEntry(entry)
+        // Now daily limit should be reached
+        assertTrue(habit.hasReachedDailyLimit(LocalDate.now()))
+    }
+
+    @Test
+    fun testCompleteHabitAllowsMultipleWhenMaxIsHigher() {
+        val habit = Habit("Water", "Drink water")
+        habit.maxEntriesPerDay = 3
+        habit.addEntry(HabitEntry())
+        habit.addEntry(HabitEntry())
+        assertFalse(habit.hasReachedDailyLimit(LocalDate.now()))
+        habit.addEntry(HabitEntry())
+        assertTrue(habit.hasReachedDailyLimit(LocalDate.now()))
+    }
+
+    @Test
+    fun testCompleteHabitNoLimitWhenMaxIsZero() {
+        val habit = Habit("Exercise", "Daily exercise")
+        habit.maxEntriesPerDay = 0
+        habit.addEntry(HabitEntry())
+        habit.addEntry(HabitEntry())
+        assertFalse(habit.hasReachedDailyLimit(LocalDate.now()))
+    }
+
+    @Test
+    fun testCompleteHabitEntrySizeIncrementsCorrectly() {
+        val habit = Habit("Exercise", "Daily exercise")
+        habit.maxEntriesPerDay = 5
+        assertEquals(0, habit.entries.size)
+        for (i in 1..3) {
+            habit.addEntry(HabitEntry())
+            assertEquals(i, habit.entries.size)
+        }
+    }
+
+    @Test
+    fun testCompleteHabitSetsHabitBackReference() {
+        val habit = Habit("Exercise", "Daily exercise")
+        val entry = HabitEntry()
+        habit.addEntry(entry)
+        assertSame(habit, entry.habit)
+    }
+
+    @Test
+    fun testRemoveHabitCompletionRemovesLastEntry() {
+        val habit = Habit("Exercise", "Daily exercise")
+        habit.maxEntriesPerDay = 3
+        habit.addEntry(HabitEntry())
+        habit.addEntry(HabitEntry())
+        assertEquals(2, habit.entries.size)
+        habit.removeLastEntryForDate(LocalDate.now())
+        assertEquals(1, habit.entries.size)
+    }
+
+    @Test
+    fun testRemoveHabitCompletionDoesNothingWhenEmpty() {
+        val habit = Habit("Exercise", "Daily exercise")
+        val removed = habit.removeLastEntryForDate(LocalDate.now())
+        assertFalse(removed)
+        assertEquals(0, habit.entries.size)
+    }
+
+    @Test
+    fun testRemoveHabitCompletionOnlyRemovesTodaysEntries() {
+        val habit = Habit("Exercise", "Daily exercise")
+        // Add an entry for yesterday
+        val yesterdayEntry = HabitEntry()
+        yesterdayEntry.completedAt = LocalDateTime.now().minusDays(1)
+        habit.addEntry(yesterdayEntry)
+        // Add an entry for today
+        habit.addEntry(HabitEntry())
+        assertEquals(2, habit.entries.size)
+        // Remove today's entry
+        habit.removeLastEntryForDate(LocalDate.now())
+        assertEquals(1, habit.entries.size)
+        // Yesterday's entry remains
+        assertEquals(yesterdayEntry.id, habit.entries.first().id)
+    }
+
+    @Test
+    fun testDailyLimitNotAffectedByYesterdaysEntries() {
+        val habit = Habit("Exercise", "Daily exercise")
+        habit.maxEntriesPerDay = 1
+        val yesterdayEntry = HabitEntry()
+        yesterdayEntry.completedAt = LocalDateTime.now().minusDays(1)
+        habit.addEntry(yesterdayEntry)
+        assertFalse(habit.hasReachedDailyLimit(LocalDate.now()))
     }
 }

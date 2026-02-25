@@ -316,4 +316,94 @@ class RoomHabitRepositoryTest {
         val result2 = repository.save(habit)
         assertEquals("Updated Name", result2.name)
     }
+
+    // --- Suspend method tests (used by completeHabit fix) ---
+
+    @Test
+    fun testSaveSuspendReturnsHabit() = runTest {
+        val habit = createHabit()
+        val result = repository.saveSuspend(habit)
+        assertEquals(habit.id, result.id)
+        assertEquals(habit.name, result.name)
+    }
+
+    @Test
+    fun testSaveSuspendCallsDaoSaveWithDetails() = runTest {
+        val habit = createHabit()
+        repository.saveSuspend(habit)
+        verify(dao).saveWithDetails(
+            any(HabitEntity::class.java) ?: habit.toEntity(),
+            anyList(),
+            anyList(),
+            anyList()
+        )
+    }
+
+    @Test
+    fun testSaveSuspendWithNewEntry() = runTest {
+        val habit = createHabit()
+        val entry = HabitEntry()
+        habit.addEntry(entry)
+        val result = repository.saveSuspend(habit)
+        assertEquals(1, result.entries.size)
+        verify(dao).saveWithDetails(
+            any(HabitEntity::class.java) ?: habit.toEntity(),
+            anyList(),
+            anyList(),
+            anyList()
+        )
+    }
+
+    @Test
+    fun testFindByIdSuspendReturnsHabit() = runTest {
+        val habitId = "h1"
+        val entity = HabitEntity(
+            id = habitId, name = "Test", description = null,
+            categoryId = null, frequencyType = "DAILY", targetFrequency = 1,
+            maxEntriesPerDay = 1, positiveScoring = 1, createdAt = null,
+            scoringRuleId = null, scoringRuleName = null, userId = "u1", userName = "testuser"
+        )
+        `when`(dao.findById(habitId)).thenReturn(entity)
+        `when`(dao.findEntriesByHabitId(habitId)).thenReturn(emptyList())
+        `when`(dao.findNameTranslations(habitId)).thenReturn(emptyList())
+        `when`(dao.findDescTranslations(habitId)).thenReturn(emptyList())
+
+        val result = repository.findByIdSuspend(habitId)
+        assertNotNull(result)
+        assertEquals("Test", result!!.name)
+    }
+
+    @Test
+    fun testFindByIdSuspendReturnsNullWhenNotFound() = runTest {
+        `when`(dao.findById("nonexistent")).thenReturn(null)
+
+        val result = repository.findByIdSuspend("nonexistent")
+        assertEquals(null, result)
+    }
+
+    @Test
+    fun testFindByUserIdSuspendReturnsHabits() = runTest {
+        val entity = HabitEntity(
+            id = "h1", name = "Test", description = null,
+            categoryId = null, frequencyType = "DAILY", targetFrequency = 1,
+            maxEntriesPerDay = 1, positiveScoring = 1, createdAt = null,
+            scoringRuleId = null, scoringRuleName = null, userId = "u1", userName = "testuser"
+        )
+        `when`(dao.findByUserId("u1")).thenReturn(listOf(entity))
+        `when`(dao.findEntriesByHabitId("h1")).thenReturn(emptyList())
+        `when`(dao.findNameTranslations("h1")).thenReturn(emptyList())
+        `when`(dao.findDescTranslations("h1")).thenReturn(emptyList())
+
+        val result = repository.findByUserIdSuspend("u1")
+        assertEquals(1, result.size)
+        assertEquals("Test", result[0].name)
+    }
+
+    @Test
+    fun testFindByUserIdSuspendReturnsEmptyList() = runTest {
+        `when`(dao.findByUserId("u99")).thenReturn(emptyList())
+
+        val result = repository.findByUserIdSuspend("u99")
+        assertTrue(result.isEmpty())
+    }
 }
