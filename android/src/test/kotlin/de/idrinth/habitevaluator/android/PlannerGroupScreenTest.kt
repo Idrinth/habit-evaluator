@@ -1,5 +1,6 @@
 package de.idrinth.habitevaluator.android
 
+import de.idrinth.habitevaluator.shared.model.PlannerActivity
 import de.idrinth.habitevaluator.shared.model.PlannerGroup
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Assertions.*
@@ -34,6 +35,19 @@ class PlannerGroupScreenTest {
         fun isGroupNameDuplicate(name: String, existingGroups: List<PlannerGroup>): Boolean {
             val trimmed = name.trim().lowercase()
             return existingGroups.any { (it.name ?: "").trim().lowercase() == trimmed }
+        }
+
+        /**
+         * Replication of the activity filtering logic from PlannerGroupScreen.
+         * Returns activities whose groups set contains the given group ID.
+         */
+        fun activitiesForGroup(
+            groupId: String,
+            activities: List<PlannerActivity>
+        ): List<PlannerActivity> {
+            return activities.filter { activity ->
+                activity.groups.any { it.id == groupId }
+            }
         }
     }
 
@@ -132,6 +146,63 @@ class PlannerGroupScreenTest {
         )
         assertTrue(isGroupNameDuplicate("Study", groups))
         assertFalse(isGroupNameDuplicate("Cooking", groups))
+    }
+
+    // --- Activity filtering tests ---
+
+    @Test
+    fun testActivitiesForGroupReturnsMatchingActivities() {
+        val group1 = PlannerGroup("Exercise").apply { id = "g1" }
+        val group2 = PlannerGroup("Study").apply { id = "g2" }
+        val activity1 = PlannerActivity("Running").apply {
+            id = "a1"
+            groups = setOf(group1)
+        }
+        val activity2 = PlannerActivity("Reading").apply {
+            id = "a2"
+            groups = setOf(group2)
+        }
+        val activity3 = PlannerActivity("Yoga").apply {
+            id = "a3"
+            groups = setOf(group1, group2)
+        }
+        val result = activitiesForGroup("g1", listOf(activity1, activity2, activity3))
+        assertEquals(2, result.size)
+        assertTrue(result.any { it.id == "a1" })
+        assertTrue(result.any { it.id == "a3" })
+    }
+
+    @Test
+    fun testActivitiesForGroupReturnsEmptyForNoMatch() {
+        val group1 = PlannerGroup("Exercise").apply { id = "g1" }
+        val activity1 = PlannerActivity("Running").apply {
+            id = "a1"
+            groups = setOf(group1)
+        }
+        val result = activitiesForGroup("g999", listOf(activity1))
+        assertTrue(result.isEmpty())
+    }
+
+    @Test
+    fun testActivitiesForGroupEmptyActivitiesList() {
+        val result = activitiesForGroup("g1", emptyList())
+        assertTrue(result.isEmpty())
+    }
+
+    @Test
+    fun testActivitiesForGroupActivityInMultipleGroups() {
+        val group1 = PlannerGroup("Exercise").apply { id = "g1" }
+        val group2 = PlannerGroup("Outdoor").apply { id = "g2" }
+        val activity = PlannerActivity("Hiking").apply {
+            id = "a1"
+            groups = setOf(group1, group2)
+        }
+        val resultG1 = activitiesForGroup("g1", listOf(activity))
+        val resultG2 = activitiesForGroup("g2", listOf(activity))
+        assertEquals(1, resultG1.size)
+        assertEquals(1, resultG2.size)
+        assertEquals("a1", resultG1[0].id)
+        assertEquals("a1", resultG2[0].id)
     }
 
     // --- Screen route test ---

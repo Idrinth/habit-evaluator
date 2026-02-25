@@ -1,12 +1,13 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { dayPlanner, type PlannerGroup } from '$lib/api';
+	import { dayPlanner, type PlannerGroup, type PlannerActivity } from '$lib/api';
 	import { getLanguage, t, type Language } from '$lib/i18n';
 
 	let lang: Language = $state('en');
 	let loading = $state(true);
 	let error = $state('');
 	let groups: PlannerGroup[] = $state([]);
+	let activities: PlannerActivity[] = $state([]);
 
 	let formVisible = $state(false);
 	let editingId: string | null = $state(null);
@@ -14,9 +15,16 @@
 	let formDescription = $state('');
 	let formError = $state('');
 
+	function activitiesForGroup(groupId: string): PlannerActivity[] {
+		return activities.filter((a) => a.groups.some((g) => g.id === groupId));
+	}
+
 	async function loadGroups() {
 		try {
-			groups = await dayPlanner.listGroups();
+			[groups, activities] = await Promise.all([
+				dayPlanner.listGroups(),
+				dayPlanner.listActivities()
+			]);
 		} catch (err) {
 			error = err instanceof Error ? err.message : 'Failed to load groups';
 		} finally {
@@ -121,11 +129,23 @@
 		{:else}
 			<ul class="group-list">
 				{#each groups as group (group.id)}
+					{@const groupActivities = activitiesForGroup(group.id)}
 					<li class="group-item">
-						<div class="group-info">
-							<strong>{group.name}</strong>
-							{#if group.description}
-								<span class="group-desc">{group.description}</span>
+						<div class="group-content">
+							<div class="group-info">
+								<strong>{group.name}</strong>
+								{#if group.description}
+									<span class="group-desc">{group.description}</span>
+								{/if}
+							</div>
+							{#if groupActivities.length > 0}
+								<div class="group-activities">
+									{#each groupActivities as activity (activity.id)}
+										<span class="activity-tag">{activity.name}</span>
+									{/each}
+								</div>
+							{:else}
+								<span class="no-activities">{t('planner.noGroupActivities', lang)}</span>
 							{/if}
 						</div>
 						<div class="group-actions">
@@ -243,11 +263,19 @@
 	.group-item {
 		display: flex;
 		justify-content: space-between;
-		align-items: center;
+		align-items: flex-start;
 		border: 1px solid var(--color-border-light);
 		border-radius: 8px;
 		padding: 0.75rem 1rem;
 		margin-bottom: 0.5rem;
+	}
+
+	.group-content {
+		display: flex;
+		flex-direction: column;
+		gap: 0.4rem;
+		flex: 1;
+		min-width: 0;
 	}
 
 	.group-info {
@@ -261,10 +289,33 @@
 		color: var(--color-text-muted);
 	}
 
+	.group-activities {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.3rem;
+	}
+
+	.activity-tag {
+		display: inline-block;
+		padding: 0.15rem 0.5rem;
+		background: var(--color-primary, #4a90d9);
+		color: #fff;
+		border-radius: 12px;
+		font-size: 0.75rem;
+		line-height: 1.4;
+	}
+
+	.no-activities {
+		font-size: 0.8rem;
+		color: var(--color-text-placeholder);
+		font-style: italic;
+	}
+
 	.group-actions {
 		display: flex;
 		gap: 0.5rem;
 		flex-shrink: 0;
+		margin-left: 0.5rem;
 	}
 
 	.btn-edit {

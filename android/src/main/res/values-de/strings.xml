@@ -654,6 +654,7 @@
     <string name="planner_activity_name">Aktivitätsname</string>
     <string name="planner_group_name_required">Bitte geben Sie einen Gruppennamen ein</string>
     <string name="planner_activity_name_required">Bitte geben Sie einen Aktivitätsnamen ein</string>
+    <string name="planner_no_group_activities">Keine Aktivitäten in dieser Gruppe</string>
     <string name="planner_no_groups">Noch keine Gruppen. Fügen Sie zuerst eine Gruppe hinzu.</string>
     <string name="planner_no_activities">Noch keine Aktivitäten. Fügen Sie zuerst eine Aktivität hinzu.</string>
     <string name="planner_select_groups">Gruppen zuweisen</string>

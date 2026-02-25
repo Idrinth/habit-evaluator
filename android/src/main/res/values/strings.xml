@@ -687,6 +687,7 @@
     <string name="planner_activity_name_required">Please enter an activity name</string>
     <string name="planner_edit_group">Edit Group</string>
     <string name="planner_edit_activity">Edit Activity</string>
+    <string name="planner_no_group_activities">No activities in this group</string>
     <string name="planner_no_groups">No groups yet. Add a group first.</string>
     <string name="planner_no_activities">No activities yet. Add an activity first.</string>
     <string name="planner_select_groups">Assign to groups</string>
