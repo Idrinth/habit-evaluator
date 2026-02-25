@@ -1,8 +1,10 @@
 package de.idrinth.habitevaluator.webserver.controller;
 
 import de.idrinth.habitevaluator.shared.model.ActivityLog;
+import de.idrinth.habitevaluator.shared.model.PersonTag;
 import de.idrinth.habitevaluator.shared.model.User;
 import de.idrinth.habitevaluator.shared.repository.ActivityLogRepository;
+import de.idrinth.habitevaluator.shared.repository.PersonTagRepository;
 import de.idrinth.habitevaluator.shared.repository.UserRepository;
 import de.idrinth.habitevaluator.webserver.service.StatsCacheService;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,11 +20,13 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 class ActivityLogControllerTest {
 
     private ActivityLogRepository activityLogRepository;
+    private PersonTagRepository personTagRepository;
     private UserRepository userRepository;
     private StatsCacheService statsCacheService;
     private ActivityLogController controller;
@@ -32,9 +36,10 @@ class ActivityLogControllerTest {
     @BeforeEach
     void setUp() {
         activityLogRepository = mock(ActivityLogRepository.class);
+        personTagRepository = mock(PersonTagRepository.class);
         userRepository = mock(UserRepository.class);
         statsCacheService = mock(StatsCacheService.class);
-        controller = new ActivityLogController(activityLogRepository, userRepository, statsCacheService);
+        controller = new ActivityLogController(activityLogRepository, personTagRepository, userRepository, statsCacheService);
         session = new MockHttpSession();
         testUser = new User("testuser", "password");
         session.setAttribute("userId", testUser.getId());
@@ -63,12 +68,30 @@ class ActivityLogControllerTest {
     void testCreateEntrySuccess() {
         when(userRepository.findById(testUser.getId())).thenReturn(Optional.of(testUser));
         when(activityLogRepository.save(any(ActivityLog.class))).thenAnswer(i -> i.getArgument(0));
+        PersonTag tag = new PersonTag("Alice");
+        tag.setUser(testUser);
+        when(personTagRepository.findByNameLowerAndUserId(anyString(), anyString())).thenReturn(Optional.of(tag));
 
         ActivityLog entry = new ActivityLog("Alice", "Office",
                 LocalTime.of(14, 0), LocalTime.of(15, 0));
         ResponseEntity<?> response = controller.createEntry(entry, session);
 
         assertEquals(200, response.getStatusCode().value());
+    }
+
+    @Test
+    void testCreateEntryCreatesNewPersonTags() {
+        when(userRepository.findById(testUser.getId())).thenReturn(Optional.of(testUser));
+        when(activityLogRepository.save(any(ActivityLog.class))).thenAnswer(i -> i.getArgument(0));
+        when(personTagRepository.findByNameLowerAndUserId(anyString(), anyString())).thenReturn(Optional.empty());
+        when(personTagRepository.save(any(PersonTag.class))).thenAnswer(i -> i.getArgument(0));
+
+        ActivityLog entry = new ActivityLog("NewPerson", "Office",
+                LocalTime.of(14, 0), LocalTime.of(15, 0));
+        ResponseEntity<?> response = controller.createEntry(entry, session);
+
+        assertEquals(200, response.getStatusCode().value());
+        verify(personTagRepository).save(any(PersonTag.class));
     }
 
     @Test
@@ -92,6 +115,9 @@ class ActivityLogControllerTest {
         existing.setUser(testUser);
         when(activityLogRepository.findById(existing.getId())).thenReturn(Optional.of(existing));
         when(activityLogRepository.save(any(ActivityLog.class))).thenAnswer(i -> i.getArgument(0));
+        PersonTag tag = new PersonTag("Alice");
+        tag.setUser(testUser);
+        when(personTagRepository.findByNameLowerAndUserId(anyString(), anyString())).thenReturn(Optional.of(tag));
 
         ActivityLog updated = new ActivityLog("Alice, Bob", "Park",
                 LocalTime.of(14, 0), LocalTime.of(16, 0));
@@ -186,12 +212,13 @@ class ActivityLogControllerTest {
 
     @Test
     void testGetSuggestionsSuccess() {
-        ActivityLog entry1 = new ActivityLog("Alice, Bob", "Office",
-                LocalTime.of(10, 0), LocalTime.of(11, 0));
-        entry1.setActivity("Meeting");
-        ActivityLog entry2 = new ActivityLog("Charlie", "Park",
-                LocalTime.of(14, 0), LocalTime.of(15, 0));
-        when(activityLogRepository.findByUserId(testUser.getId())).thenReturn(List.of(entry1, entry2));
+        // No entries needing migration (empty list)
+        when(activityLogRepository.findByUserId(testUser.getId())).thenReturn(Collections.emptyList());
+
+        PersonTag tag1 = new PersonTag("Alice");
+        PersonTag tag2 = new PersonTag("Bob");
+        PersonTag tag3 = new PersonTag("Charlie");
+        when(personTagRepository.findByUserId(testUser.getId())).thenReturn(List.of(tag1, tag2, tag3));
         when(activityLogRepository.findDistinctLocationsByUserId(testUser.getId())).thenReturn(List.of("Office", "Park"));
         when(activityLogRepository.findDistinctActivitiesByUserId(testUser.getId())).thenReturn(List.of("Meeting"));
 
@@ -210,6 +237,7 @@ class ActivityLogControllerTest {
     @Test
     void testGetSuggestionsEmpty() {
         when(activityLogRepository.findByUserId(testUser.getId())).thenReturn(Collections.emptyList());
+        when(personTagRepository.findByUserId(testUser.getId())).thenReturn(Collections.emptyList());
         when(activityLogRepository.findDistinctLocationsByUserId(testUser.getId())).thenReturn(Collections.emptyList());
         when(activityLogRepository.findDistinctActivitiesByUserId(testUser.getId())).thenReturn(Collections.emptyList());
 
@@ -224,22 +252,26 @@ class ActivityLogControllerTest {
     }
 
     @Test
-    void testGetSuggestionsDeduplicatesPersons() {
-        ActivityLog entry1 = new ActivityLog("Alice, Bob", "Office",
+    void testGetSuggestionsMigratesExistingEntries() {
+        ActivityLog entryWithoutTags = new ActivityLog("Alice, Bob", "Office",
                 LocalTime.of(10, 0), LocalTime.of(11, 0));
-        ActivityLog entry2 = new ActivityLog("Alice, Charlie", "Park",
-                LocalTime.of(14, 0), LocalTime.of(15, 0));
-        when(activityLogRepository.findByUserId(testUser.getId())).thenReturn(List.of(entry1, entry2));
+        entryWithoutTags.setUser(testUser);
+        when(activityLogRepository.findByUserId(testUser.getId())).thenReturn(List.of(entryWithoutTags));
+        when(userRepository.findById(testUser.getId())).thenReturn(Optional.of(testUser));
+        when(personTagRepository.findByNameLowerAndUserId(anyString(), anyString())).thenReturn(Optional.empty());
+        when(personTagRepository.save(any(PersonTag.class))).thenAnswer(i -> i.getArgument(0));
+        when(activityLogRepository.save(any(ActivityLog.class))).thenAnswer(i -> i.getArgument(0));
+
+        PersonTag tag1 = new PersonTag("Alice");
+        PersonTag tag2 = new PersonTag("Bob");
+        when(personTagRepository.findByUserId(testUser.getId())).thenReturn(List.of(tag1, tag2));
         when(activityLogRepository.findDistinctLocationsByUserId(testUser.getId())).thenReturn(Collections.emptyList());
         when(activityLogRepository.findDistinctActivitiesByUserId(testUser.getId())).thenReturn(Collections.emptyList());
 
         ResponseEntity<Map<String, List<String>>> response = controller.getSuggestions(session);
 
         assertEquals(200, response.getStatusCode().value());
-        List<String> persons = response.getBody().get("persons");
-        assertEquals(3, persons.size());
-        assertTrue(persons.contains("Alice"));
-        assertTrue(persons.contains("Bob"));
-        assertTrue(persons.contains("Charlie"));
+        verify(personTagRepository, atLeastOnce()).save(any(PersonTag.class));
+        verify(activityLogRepository).save(any(ActivityLog.class));
     }
 }

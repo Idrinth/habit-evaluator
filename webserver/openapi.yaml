@@ -1368,6 +1368,18 @@ paths:
                 type: object
                 additionalProperties:
                   type: object
+  /api/day-planner/week-overview:
+    get:
+      tags:
+      - day-planner-controller
+      operationId: getWeekOverview
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
   /api/day-planner/summary:
     get:
       tags:
@@ -1814,6 +1826,20 @@ components:
           type: object
           additionalProperties:
             type: string
+    ActivityGroup:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        user:
+          $ref: "#/components/schemas/User"
     ActivityLog:
       type: object
       properties:
@@ -1839,9 +1865,32 @@ components:
           format: date-time
         user:
           $ref: "#/components/schemas/User"
+        groups:
+          type: array
+          items:
+            $ref: "#/components/schemas/ActivityGroup"
+          uniqueItems: true
+        personTags:
+          type: array
+          items:
+            $ref: "#/components/schemas/PersonTag"
+          uniqueItems: true
+        personList:
+          type: array
+          items:
+            type: string
         durationMinutes:
           type: integer
           format: int32
+    PersonTag:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        nameLower:
+          type: string
     SyncData:
       type: object
       properties:
@@ -2076,11 +2125,11 @@ components:
           example: 14:30:00
         user:
           $ref: "#/components/schemas/User"
+        description:
+          type: string
         points:
           type: integer
           format: int32
-        description:
-          type: string
         durationMinutes:
           type: integer
           format: int32
@@ -2104,6 +2153,9 @@ components:
           type: integer
           format: int32
         hour:
+          type: integer
+          format: int32
+        duration:
           type: integer
           format: int32
         groups:

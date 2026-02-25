@@ -149,6 +149,8 @@ class FoodLogControllerTest {
 
     @Test
     void testGetSuggestionsSuccess() {
+        // No entries needing migration (empty list)
+        when(foodLogRepository.findByUserId(testUser.getId())).thenReturn(List.of());
         FoodTag tag1 = new FoodTag("Apple");
         FoodTag tag2 = new FoodTag("Banana");
         when(foodTagRepository.findByUserId(testUser.getId())).thenReturn(List.of(tag2, tag1));
@@ -159,6 +161,26 @@ class FoodLogControllerTest {
         assertEquals(2, response.getBody().size());
         assertEquals("Apple", response.getBody().get(0));
         assertEquals("Banana", response.getBody().get(1));
+    }
+
+    @Test
+    void testGetSuggestionsMigratesExistingEntries() {
+        FoodLog entryWithoutTags = new FoodLog(30.0, 450, LocalDateTime.now(), "Rice");
+        entryWithoutTags.setUser(testUser);
+        when(foodLogRepository.findByUserId(testUser.getId())).thenReturn(List.of(entryWithoutTags));
+        when(userRepository.findById(testUser.getId())).thenReturn(Optional.of(testUser));
+        when(foodTagRepository.findByNameLowerAndUserId(anyString(), anyString())).thenReturn(Optional.empty());
+        when(foodTagRepository.save(any(FoodTag.class))).thenAnswer(i -> i.getArgument(0));
+        when(foodLogRepository.save(any(FoodLog.class))).thenAnswer(i -> i.getArgument(0));
+
+        FoodTag tag = new FoodTag("Rice");
+        when(foodTagRepository.findByUserId(testUser.getId())).thenReturn(List.of(tag));
+
+        ResponseEntity<List<String>> response = controller.getSuggestions(session);
+
+        assertEquals(200, response.getStatusCode().value());
+        verify(foodTagRepository).save(any(FoodTag.class));
+        verify(foodLogRepository).save(any(FoodLog.class));
     }
 
     @Test
