@@ -40,6 +40,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import de.idrinth.habitevaluator.android.AppViewModel
 import de.idrinth.habitevaluator.android.R
+import de.idrinth.habitevaluator.android.ui.components.AutocompleteTextField
 import de.idrinth.habitevaluator.shared.model.SportLog
 import de.idrinth.habitevaluator.shared.service.SportLogService
 import kotlinx.coroutines.Dispatchers
@@ -67,6 +68,8 @@ fun SportLogScreen(viewModel: AppViewModel) {
     var measurement by remember { mutableStateOf("") }
     var measurementUnit by remember { mutableStateOf("") }
     var notes by remember { mutableStateOf("") }
+    var activityNameSuggestions by remember { mutableStateOf<List<String>>(emptyList()) }
+    var measurementUnitSuggestions by remember { mutableStateOf<List<String>>(emptyList()) }
 
     val dateFormat = remember { DateTimeFormatter.ofPattern("yyyy-MM-dd") }
     val timeFormat = remember { DateTimeFormatter.ofPattern("HH:mm") }
@@ -76,7 +79,13 @@ fun SportLogScreen(viewModel: AppViewModel) {
             val userId = localUser?.id ?: return@launch
             val loaded = viewModel.sportLogRepository.findByUserId(userId)
                 .sortedWith(compareByDescending<SportLog> { it.date }.thenByDescending { it.createdAt })
-            withContext(Dispatchers.Main) { entries = loaded }
+            val names = viewModel.sportLogRepository.findDistinctNamesByUserId(userId)
+            val units = viewModel.sportLogRepository.findDistinctMeasurementUnitsByUserId(userId)
+            withContext(Dispatchers.Main) {
+                entries = loaded
+                activityNameSuggestions = names
+                measurementUnitSuggestions = units
+            }
         }
     }
 
@@ -244,9 +253,10 @@ fun SportLogScreen(viewModel: AppViewModel) {
                         },
                         enabled = false
                     )
-                    OutlinedTextField(
+                    AutocompleteTextField(
                         value = activityName,
                         onValueChange = { activityName = it },
+                        suggestions = activityNameSuggestions,
                         label = { Text(stringResource(R.string.activity_name)) },
                         modifier = Modifier.fillMaxWidth()
                     )
@@ -256,9 +266,10 @@ fun SportLogScreen(viewModel: AppViewModel) {
                         label = { Text(stringResource(R.string.measurement)) },
                         modifier = Modifier.fillMaxWidth()
                     )
-                    OutlinedTextField(
+                    AutocompleteTextField(
                         value = measurementUnit,
                         onValueChange = { measurementUnit = it },
+                        suggestions = measurementUnitSuggestions,
                         label = { Text(stringResource(R.string.measurement_unit)) },
                         modifier = Modifier.fillMaxWidth()
                     )

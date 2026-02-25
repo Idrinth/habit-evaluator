@@ -46,6 +46,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import de.idrinth.habitevaluator.android.AppViewModel
 import de.idrinth.habitevaluator.android.R
+import de.idrinth.habitevaluator.android.ui.components.AutocompleteTextField
 import de.idrinth.habitevaluator.shared.model.ActivityGroup
 import de.idrinth.habitevaluator.shared.model.ActivityLog
 import kotlinx.coroutines.Dispatchers
@@ -76,6 +77,9 @@ fun ActivityLogScreen(viewModel: AppViewModel) {
     var activity by remember { mutableStateOf("") }
     var selectedGroupIds by remember { mutableStateOf<Set<String>>(emptySet()) }
     var editingEntry by remember { mutableStateOf<ActivityLog?>(null) }
+    var locationSuggestions by remember { mutableStateOf<List<String>>(emptyList()) }
+    var activitySuggestions by remember { mutableStateOf<List<String>>(emptyList()) }
+    var personSuggestions by remember { mutableStateOf<List<String>>(emptyList()) }
 
     // Group creation form state
     var newGroupName by remember { mutableStateOf("") }
@@ -89,7 +93,21 @@ fun ActivityLogScreen(viewModel: AppViewModel) {
             val userId = localUser?.id ?: return@launch
             val loaded = viewModel.activityLogRepository.findByUserId(userId)
                 .sortedWith(compareByDescending<ActivityLog> { it.date }.thenByDescending { it.createdAt })
-            withContext(Dispatchers.Main) { entries = loaded }
+            val locations = viewModel.activityLogRepository.findDistinctLocationsByUserId(userId)
+            val activities = viewModel.activityLogRepository.findDistinctActivitiesByUserId(userId)
+            val distinctPersons = loaded
+                .mapNotNull { it.persons }
+                .flatMap { it.split(",") }
+                .map { it.trim() }
+                .filter { it.isNotEmpty() }
+                .distinct()
+                .sorted()
+            withContext(Dispatchers.Main) {
+                entries = loaded
+                locationSuggestions = locations
+                activitySuggestions = activities
+                personSuggestions = distinctPersons
+            }
         }
     }
 
@@ -315,21 +333,39 @@ fun ActivityLogScreen(viewModel: AppViewModel) {
                         },
                         enabled = false
                     )
-                    OutlinedTextField(
+                    AutocompleteTextField(
                         value = persons,
                         onValueChange = { persons = it },
+                        suggestions = remember(persons, personSuggestions) {
+                            val parts = persons.split(",").map { it.trim().lowercase() }
+                            val alreadyEntered = if (parts.size > 1) parts.dropLast(1).toSet() else emptySet()
+                            val currentInput = parts.lastOrNull()?.trim() ?: ""
+                            personSuggestions.filter { suggestion ->
+                                suggestion.lowercase() !in alreadyEntered &&
+                                    (currentInput.isEmpty() || suggestion.contains(currentInput, ignoreCase = true))
+                            }.map { suggestion ->
+                                if (parts.size > 1) {
+                                    val prefix = persons.substringBeforeLast(",") + ", "
+                                    prefix + suggestion
+                                } else {
+                                    suggestion
+                                }
+                            }
+                        },
                         label = { Text(stringResource(R.string.persons)) },
                         modifier = Modifier.fillMaxWidth()
                     )
-                    OutlinedTextField(
+                    AutocompleteTextField(
                         value = location,
                         onValueChange = { location = it },
+                        suggestions = locationSuggestions,
                         label = { Text(stringResource(R.string.location)) },
                         modifier = Modifier.fillMaxWidth()
                     )
-                    OutlinedTextField(
+                    AutocompleteTextField(
                         value = activity,
                         onValueChange = { activity = it },
+                        suggestions = activitySuggestions,
                         label = { Text(stringResource(R.string.activity_description)) },
                         modifier = Modifier.fillMaxWidth()
                     )
