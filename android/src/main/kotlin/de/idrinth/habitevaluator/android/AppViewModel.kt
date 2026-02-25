@@ -135,6 +135,16 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
     val weekPlannerSlotRepository: WeekPlannerSlotRepository get() = roomWeekPlannerSlotRepository
     val slotConfirmationRepository: SlotConfirmationRepository get() = roomSlotConfirmationRepository
 
+    // List wrapper that uses identity-based equality to force StateFlow emission.
+    // MutableStateFlow suppresses emissions when the new value equals the old one.
+    // Since Habit.equals() compares only by ID, lists with the same habit IDs but
+    // different entries would be considered equal, preventing UI updates after
+    // completing or removing habit entries.
+    private class IdentityList<T>(list: List<T>) : ArrayList<T>(list) {
+        override fun equals(other: Any?) = this === other
+        override fun hashCode() = System.identityHashCode(this)
+    }
+
     // Observable state
     private val _habits = MutableStateFlow<List<Habit>>(emptyList())
     val habits: StateFlow<List<Habit>> = _habits.asStateFlow()
@@ -359,7 +369,7 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch(Dispatchers.IO) {
             val user = _currentUser.value ?: return@launch
             val repo = _habitRepository.value
-            _habits.value = repo.findByUserId(user.id)
+            _habits.value = IdentityList(repo.findByUserId(user.id))
         }
     }
 
@@ -408,11 +418,11 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
 
     private suspend fun loadHabitsSuspend() {
         val user = _currentUser.value ?: return
-        _habits.value = if (_usingRemoteStorage.value) {
+        _habits.value = IdentityList(if (_usingRemoteStorage.value) {
             _habitRepository.value.findByUserId(user.id)
         } else {
             roomHabitRepository.findByUserIdSuspend(user.id)
-        }
+        })
     }
 
     fun loadSleepEntries() {
