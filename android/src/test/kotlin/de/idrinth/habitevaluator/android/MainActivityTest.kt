@@ -1,6 +1,6 @@
 package de.idrinth.habitevaluator.android
 
-import androidx.activity.ComponentActivity
+import androidx.appcompat.app.AppCompatActivity
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Assertions.*
 
@@ -30,10 +30,10 @@ class MainActivityTest {
     }
 
     @Test
-    fun testExtendsComponentActivity() {
+    fun testExtendsAppCompatActivity() {
         assertTrue(
-            ComponentActivity::class.java.isAssignableFrom(clazz),
-            "MainActivity should extend ComponentActivity"
+            AppCompatActivity::class.java.isAssignableFrom(clazz),
+            "MainActivity should extend AppCompatActivity"
         )
     }
 
