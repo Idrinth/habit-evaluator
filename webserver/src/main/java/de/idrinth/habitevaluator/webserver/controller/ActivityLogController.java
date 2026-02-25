@@ -1,19 +1,22 @@
 package de.idrinth.habitevaluator.webserver.controller;
 
 import de.idrinth.habitevaluator.shared.model.ActivityLog;
+import de.idrinth.habitevaluator.shared.model.PersonTag;
 import de.idrinth.habitevaluator.shared.model.User;
 import de.idrinth.habitevaluator.shared.repository.ActivityLogRepository;
+import de.idrinth.habitevaluator.shared.repository.PersonTagRepository;
 import de.idrinth.habitevaluator.shared.repository.UserRepository;
 import de.idrinth.habitevaluator.webserver.service.StatsCacheService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @RestController
@@ -21,13 +24,16 @@ import java.util.stream.Collectors;
 public class ActivityLogController {
 
     private final ActivityLogRepository activityLogRepository;
+    private final PersonTagRepository personTagRepository;
     private final UserRepository userRepository;
     private final StatsCacheService statsCacheService;
 
     public ActivityLogController(ActivityLogRepository activityLogRepository,
+                                 PersonTagRepository personTagRepository,
                                  UserRepository userRepository,
                                  StatsCacheService statsCacheService) {
         this.activityLogRepository = activityLogRepository;
+        this.personTagRepository = personTagRepository;
         this.userRepository = userRepository;
         this.statsCacheService = statsCacheService;
     }
@@ -38,14 +44,10 @@ public class ActivityLogController {
         if (userId == null) {
             return ResponseEntity.status(401).build();
         }
-        List<ActivityLog> entries = activityLogRepository.findByUserId(userId);
-        List<String> persons = entries.stream()
-                .map(ActivityLog::getPersons)
-                .filter(p -> p != null && !p.isBlank())
-                .flatMap(p -> Arrays.stream(p.split(",")))
-                .map(String::trim)
-                .filter(p -> !p.isEmpty())
-                .distinct()
+        migratePersonTagsIfNeeded(userId);
+        List<PersonTag> tags = personTagRepository.findByUserId(userId);
+        List<String> persons = tags.stream()
+                .map(PersonTag::getName)
                 .sorted()
                 .collect(Collectors.toList());
         Map<String, List<String>> suggestions = new HashMap<>();
@@ -74,7 +76,9 @@ public class ActivityLogController {
         if (userOpt.isEmpty()) {
             return ResponseEntity.status(401).build();
         }
-        entry.setUser(userOpt.get());
+        User user = userOpt.get();
+        entry.setUser(user);
+        entry.setPersonTags(resolvePersonTags(entry, user));
         ActivityLog saved = activityLogRepository.save(entry);
         statsCacheService.invalidateUser(userId);
         return ResponseEntity.ok(saved);
@@ -97,6 +101,7 @@ public class ActivityLogController {
         entry.setId(id);
         entry.setUser(existing.getUser());
         entry.setCreatedAt(existing.getCreatedAt());
+        entry.setPersonTags(resolvePersonTags(entry, existing.getUser()));
         return ResponseEntity.ok(activityLogRepository.save(entry));
     }
 
@@ -117,5 +122,46 @@ public class ActivityLogController {
         activityLogRepository.deleteById(id);
         statsCacheService.invalidateUser(userId);
         return ResponseEntity.noContent().build();
+    }
+
+    private Set<PersonTag> resolvePersonTags(ActivityLog entry, User user) {
+        Set<PersonTag> tags = new HashSet<>();
+        for (String person : entry.getPersonList()) {
+            String trimmed = person.trim();
+            if (trimmed.isEmpty()) {
+                continue;
+            }
+            String nameLower = trimmed.toLowerCase();
+            Optional<PersonTag> existing = personTagRepository.findByNameLowerAndUserId(nameLower, user.getId());
+            if (existing.isPresent()) {
+                tags.add(existing.get());
+            } else {
+                PersonTag newTag = new PersonTag(trimmed);
+                newTag.setUser(user);
+                tags.add(personTagRepository.save(newTag));
+            }
+        }
+        return tags;
+    }
+
+    private void migratePersonTagsIfNeeded(String userId) {
+        List<ActivityLog> entries = activityLogRepository.findByUserId(userId);
+        boolean needsMigration = entries.stream()
+                .anyMatch(e -> e.getPersonTags() == null || e.getPersonTags().isEmpty());
+        if (!needsMigration) {
+            return;
+        }
+        Optional<User> userOpt = userRepository.findById(userId);
+        if (userOpt.isEmpty()) {
+            return;
+        }
+        User user = userOpt.get();
+        personTagRepository.deleteEmptyTags(userId);
+        for (ActivityLog entry : entries) {
+            if (entry.getPersonTags() == null || entry.getPersonTags().isEmpty()) {
+                entry.setPersonTags(resolvePersonTags(entry, user));
+                activityLogRepository.save(entry);
+            }
+        }
     }
 }

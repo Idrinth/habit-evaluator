@@ -6,6 +6,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -201,5 +202,69 @@ class ActivityLogTest {
         groups2.add(new ActivityGroup("Fitness"));
         log.setGroups(groups2);
         assertEquals(2, log.getGroups().size());
+    }
+
+    @Test
+    void testPersonTagsDefaultEmpty() {
+        ActivityLog log = new ActivityLog();
+        assertNotNull(log.getPersonTags());
+        assertTrue(log.getPersonTags().isEmpty());
+    }
+
+    @Test
+    void testSetPersonTags() {
+        ActivityLog log = new ActivityLog();
+        Set<PersonTag> tags = new HashSet<>();
+        tags.add(new PersonTag("Alice"));
+        tags.add(new PersonTag("Bob"));
+        log.setPersonTags(tags);
+        assertEquals(2, log.getPersonTags().size());
+    }
+
+    @Test
+    void testGetPersonList() {
+        ActivityLog log = new ActivityLog("Alice, Bob, Charlie", "Office",
+                LocalTime.of(10, 0), LocalTime.of(11, 0));
+        List<String> persons = log.getPersonList();
+        assertEquals(3, persons.size());
+        assertEquals("Alice", persons.get(0));
+        assertEquals("Bob", persons.get(1));
+        assertEquals("Charlie", persons.get(2));
+    }
+
+    @Test
+    void testGetPersonListWithNullPersons() {
+        ActivityLog log = new ActivityLog();
+        log.setPersons(null);
+        assertTrue(log.getPersonList().isEmpty());
+    }
+
+    @Test
+    void testGetPersonListWithBlankPersons() {
+        ActivityLog log = new ActivityLog();
+        log.setPersons("   ");
+        assertTrue(log.getPersonList().isEmpty());
+    }
+
+    @Test
+    void testGetPersonListTrimsWhitespace() {
+        ActivityLog log = new ActivityLog(" Alice , Bob , Charlie ", "Office",
+                LocalTime.of(10, 0), LocalTime.of(11, 0));
+        List<String> persons = log.getPersonList();
+        assertEquals(3, persons.size());
+        assertEquals("Alice", persons.get(0));
+        assertEquals("Bob", persons.get(1));
+        assertEquals("Charlie", persons.get(2));
+    }
+
+    @Test
+    void testGetPersonListFiltersEmpty() {
+        ActivityLog log = new ActivityLog("Alice,,Bob,,,Charlie", "Office",
+                LocalTime.of(10, 0), LocalTime.of(11, 0));
+        List<String> persons = log.getPersonList();
+        assertEquals(3, persons.size());
+        assertEquals("Alice", persons.get(0));
+        assertEquals("Bob", persons.get(1));
+        assertEquals("Charlie", persons.get(2));
     }
 }
