@@ -37,6 +37,11 @@ class ReminderReceiverTest {
     }
 
     @Test
+    fun testTypeGratitudeConstant() {
+        assertEquals("gratitude", ReminderReceiver.TYPE_GRATITUDE)
+    }
+
+    @Test
     fun testTypeEmotionConstant() {
         assertEquals("emotion", ReminderReceiver.TYPE_EMOTION)
     }
@@ -61,10 +66,11 @@ class ReminderReceiverTest {
         val types = setOf(
             ReminderReceiver.TYPE_SLEEP,
             ReminderReceiver.TYPE_DIARY,
+            ReminderReceiver.TYPE_GRATITUDE,
             ReminderReceiver.TYPE_EMOTION,
             ReminderReceiver.TYPE_PLANNER
         )
-        assertEquals(4, types.size)
+        assertEquals(5, types.size)
     }
 
     @Test

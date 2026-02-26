@@ -56,6 +56,9 @@ class SettingsDialogControllerTest extends JavaFXControllerTestBase {
     private CheckBox diaryReminderCheckBox;
     private HBox diaryReminderTimePane;
     private TextField diaryReminderTimeField;
+    private CheckBox gratitudeReminderCheckBox;
+    private HBox gratitudeReminderTimePane;
+    private TextField gratitudeReminderTimeField;
     private CheckBox emotionReminderCheckBox;
     private VBox emotionReminderPane;
     private Spinner<Integer> emotionReminderCountSpinner;
@@ -126,6 +129,9 @@ class SettingsDialogControllerTest extends JavaFXControllerTestBase {
         diaryReminderCheckBox = new CheckBox();
         diaryReminderTimePane = new HBox();
         diaryReminderTimeField = new TextField();
+        gratitudeReminderCheckBox = new CheckBox();
+        gratitudeReminderTimePane = new HBox();
+        gratitudeReminderTimeField = new TextField();
         emotionReminderCheckBox = new CheckBox();
         emotionReminderPane = new VBox();
         emotionReminderCountSpinner = new Spinner<>();
@@ -178,6 +184,9 @@ class SettingsDialogControllerTest extends JavaFXControllerTestBase {
         setField(controller, "diaryReminderCheckBox", diaryReminderCheckBox);
         setField(controller, "diaryReminderTimePane", diaryReminderTimePane);
         setField(controller, "diaryReminderTimeField", diaryReminderTimeField);
+        setField(controller, "gratitudeReminderCheckBox", gratitudeReminderCheckBox);
+        setField(controller, "gratitudeReminderTimePane", gratitudeReminderTimePane);
+        setField(controller, "gratitudeReminderTimeField", gratitudeReminderTimeField);
         setField(controller, "emotionReminderCheckBox", emotionReminderCheckBox);
         setField(controller, "emotionReminderPane", emotionReminderPane);
         setField(controller, "emotionReminderCountSpinner", emotionReminderCountSpinner);
@@ -492,6 +501,7 @@ class SettingsDialogControllerTest extends JavaFXControllerTestBase {
         StorageConfig config = createStorageConfig();
         config.setSleepReminderEnabled(false);
         config.setDiaryReminderEnabled(false);
+        config.setGratitudeReminderEnabled(false);
         config.setEmotionReminderEnabled(false);
 
         controller.setStorageConfig(config);
@@ -500,8 +510,24 @@ class SettingsDialogControllerTest extends JavaFXControllerTestBase {
         assertTrue(sleepReminderTimePane.isDisable());
         assertFalse(diaryReminderCheckBox.isSelected());
         assertTrue(diaryReminderTimePane.isDisable());
+        assertFalse(gratitudeReminderCheckBox.isSelected());
+        assertTrue(gratitudeReminderTimePane.isDisable());
         assertFalse(emotionReminderCheckBox.isSelected());
         assertTrue(emotionReminderPane.isDisable());
+    }
+
+    @Test
+    void testSetStorageConfigGratitudeReminderEnabled() {
+        controller.initialize();
+        StorageConfig config = createStorageConfig();
+        config.setGratitudeReminderEnabled(true);
+        config.setGratitudeReminderTime("07:30");
+
+        controller.setStorageConfig(config);
+
+        assertTrue(gratitudeReminderCheckBox.isSelected());
+        assertFalse(gratitudeReminderTimePane.isDisable());
+        assertEquals("07:30", gratitudeReminderTimeField.getText());
     }
 
     @Test

@@ -137,6 +137,13 @@
         <TextField fx:id="diaryReminderTimeField" prefWidth="80" promptText="20:00" text="20:00"/>
     </HBox>
 
+    <CheckBox fx:id="gratitudeReminderCheckBox" text="Remind me to write gratitude entries"/>
+
+    <HBox fx:id="gratitudeReminderTimePane" spacing="10" alignment="CENTER_LEFT" disable="true">
+        <Label text="Reminder time:" prefWidth="100"/>
+        <TextField fx:id="gratitudeReminderTimeField" prefWidth="80" promptText="08:00" text="08:00"/>
+    </HBox>
+
     <CheckBox fx:id="emotionReminderCheckBox" text="Random emotion check reminders"/>
 
     <VBox fx:id="emotionReminderPane" spacing="5" disable="true">

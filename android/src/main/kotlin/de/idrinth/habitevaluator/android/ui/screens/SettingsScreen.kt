@@ -87,6 +87,8 @@ fun SettingsScreen(viewModel: AppViewModel, navController: NavController) {
     var sleepReminderTime by remember { mutableStateOf(prefs.getString(SettingsConstants.KEY_SLEEP_REMINDER_TIME, SettingsConstants.DEFAULT_SLEEP_REMINDER_TIME) ?: SettingsConstants.DEFAULT_SLEEP_REMINDER_TIME) }
     var diaryReminderEnabled by remember { mutableStateOf(prefs.getBoolean(SettingsConstants.KEY_DIARY_REMINDER_ENABLED, false)) }
     var diaryReminderTime by remember { mutableStateOf(prefs.getString(SettingsConstants.KEY_DIARY_REMINDER_TIME, SettingsConstants.DEFAULT_DIARY_REMINDER_TIME) ?: SettingsConstants.DEFAULT_DIARY_REMINDER_TIME) }
+    var gratitudeReminderEnabled by remember { mutableStateOf(prefs.getBoolean(SettingsConstants.KEY_GRATITUDE_REMINDER_ENABLED, false)) }
+    var gratitudeReminderTime by remember { mutableStateOf(prefs.getString(SettingsConstants.KEY_GRATITUDE_REMINDER_TIME, SettingsConstants.DEFAULT_GRATITUDE_REMINDER_TIME) ?: SettingsConstants.DEFAULT_GRATITUDE_REMINDER_TIME) }
     var emotionReminderEnabled by remember { mutableStateOf(prefs.getBoolean(SettingsConstants.KEY_EMOTION_REMINDER_ENABLED, false)) }
     var emotionReminderCount by remember { mutableFloatStateOf(prefs.getInt(SettingsConstants.KEY_EMOTION_REMINDER_COUNT, SettingsConstants.DEFAULT_EMOTION_REMINDER_COUNT).toFloat()) }
     var wakingHoursStart by remember { mutableStateOf(prefs.getString(SettingsConstants.KEY_WAKING_HOURS_START, SettingsConstants.DEFAULT_WAKING_HOURS_START) ?: SettingsConstants.DEFAULT_WAKING_HOURS_START) }
@@ -102,6 +104,7 @@ fun SettingsScreen(viewModel: AppViewModel, navController: NavController) {
             when (pendingReminderToggle) {
                 "sleep" -> sleepReminderEnabled = true
                 "diary" -> diaryReminderEnabled = true
+                "gratitude" -> gratitudeReminderEnabled = true
                 "emotion" -> emotionReminderEnabled = true
             }
         } else {
@@ -299,6 +302,31 @@ fun SettingsScreen(viewModel: AppViewModel, navController: NavController) {
                 }
 
                 Spacer(Modifier.height(4.dp))
+                LabeledSwitch(stringResource(R.string.reminder_gratitude_label), gratitudeReminderEnabled) {
+                    if (it) {
+                        val permName = permissionHandler.permissionName()
+                        if (permName != null && !permissionHandler.hasPermission(context)) {
+                            pendingReminderToggle = "gratitude"
+                            notificationPermissionLauncher.launch(permName)
+                        } else {
+                            gratitudeReminderEnabled = true
+                        }
+                    } else {
+                        gratitudeReminderEnabled = false
+                    }
+                }
+                if (gratitudeReminderEnabled) {
+                    val gratitudeHm = ReminderScheduleCalculator.parseTime(gratitudeReminderTime)
+                    OutlinedButton(onClick = {
+                        TimePickerDialog(context, { _, h, m ->
+                            gratitudeReminderTime = String.format("%02d:%02d", h, m)
+                        }, gratitudeHm[0], gratitudeHm[1], true).show()
+                    }, modifier = Modifier.fillMaxWidth()) {
+                        Text(stringResource(R.string.reminder_gratitude_time_label) + ": $gratitudeReminderTime")
+                    }
+                }
+
+                Spacer(Modifier.height(4.dp))
                 LabeledSwitch(stringResource(R.string.reminder_emotion_label), emotionReminderEnabled) {
                     if (it) {
                         val permName = permissionHandler.permissionName()
@@ -414,6 +442,8 @@ fun SettingsScreen(viewModel: AppViewModel, navController: NavController) {
                     .putString(SettingsConstants.KEY_SLEEP_REMINDER_TIME, sleepReminderTime)
                     .putBoolean(SettingsConstants.KEY_DIARY_REMINDER_ENABLED, diaryReminderEnabled)
                     .putString(SettingsConstants.KEY_DIARY_REMINDER_TIME, diaryReminderTime)
+                    .putBoolean(SettingsConstants.KEY_GRATITUDE_REMINDER_ENABLED, gratitudeReminderEnabled)
+                    .putString(SettingsConstants.KEY_GRATITUDE_REMINDER_TIME, gratitudeReminderTime)
                     .putBoolean(SettingsConstants.KEY_EMOTION_REMINDER_ENABLED, emotionReminderEnabled)
                     .putInt(SettingsConstants.KEY_EMOTION_REMINDER_COUNT, emotionReminderCount.roundToInt())
                     .putString(SettingsConstants.KEY_WAKING_HOURS_START, wakingHoursStart)

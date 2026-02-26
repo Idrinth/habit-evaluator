@@ -120,6 +120,7 @@ class SettingsConstantsTest {
     fun testDefaultReminderValues() {
         assertEquals("08:00", SettingsConstants.DEFAULT_SLEEP_REMINDER_TIME)
         assertEquals("20:00", SettingsConstants.DEFAULT_DIARY_REMINDER_TIME)
+        assertEquals("08:00", SettingsConstants.DEFAULT_GRATITUDE_REMINDER_TIME)
         assertEquals(3, SettingsConstants.DEFAULT_EMOTION_REMINDER_COUNT)
         assertEquals("07:00", SettingsConstants.DEFAULT_WAKING_HOURS_START)
         assertEquals("22:00", SettingsConstants.DEFAULT_WAKING_HOURS_END)
@@ -180,6 +181,8 @@ class SettingsConstantsTest {
         assertEquals("sleep_reminder_time", SettingsConstants.KEY_SLEEP_REMINDER_TIME)
         assertEquals("diary_reminder_enabled", SettingsConstants.KEY_DIARY_REMINDER_ENABLED)
         assertEquals("diary_reminder_time", SettingsConstants.KEY_DIARY_REMINDER_TIME)
+        assertEquals("gratitude_reminder_enabled", SettingsConstants.KEY_GRATITUDE_REMINDER_ENABLED)
+        assertEquals("gratitude_reminder_time", SettingsConstants.KEY_GRATITUDE_REMINDER_TIME)
         assertEquals("emotion_reminder_enabled", SettingsConstants.KEY_EMOTION_REMINDER_ENABLED)
         assertEquals("emotion_reminder_count", SettingsConstants.KEY_EMOTION_REMINDER_COUNT)
         assertEquals("waking_hours_start", SettingsConstants.KEY_WAKING_HOURS_START)
@@ -249,6 +252,13 @@ class SettingsConstantsTest {
         val diaryMinute = diaryParts[1].toInt()
         assertTrue(diaryHour in 0..23)
         assertTrue(diaryMinute in 0..59)
+
+        val gratitudeParts = SettingsConstants.DEFAULT_GRATITUDE_REMINDER_TIME.split(":")
+        assertEquals(2, gratitudeParts.size)
+        val gratitudeHour = gratitudeParts[0].toInt()
+        val gratitudeMinute = gratitudeParts[1].toInt()
+        assertTrue(gratitudeHour in 0..23)
+        assertTrue(gratitudeMinute in 0..59)
     }
 
     @Test

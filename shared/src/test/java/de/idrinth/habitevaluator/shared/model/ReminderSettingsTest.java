@@ -14,6 +14,7 @@ class ReminderSettingsTest {
         assertNotNull(settings.getId());
         assertFalse(settings.isSleepReminderEnabled());
         assertFalse(settings.isDiaryReminderEnabled());
+        assertFalse(settings.isGratitudeReminderEnabled());
         assertFalse(settings.isEmotionReminderEnabled());
     }
 
@@ -22,6 +23,7 @@ class ReminderSettingsTest {
         ReminderSettings settings = new ReminderSettings();
         assertEquals(LocalTime.of(8, 0), settings.getSleepReminderTime());
         assertEquals(LocalTime.of(20, 0), settings.getDiaryReminderTime());
+        assertEquals(LocalTime.of(8, 0), settings.getGratitudeReminderTime());
         assertEquals(LocalTime.of(7, 0), settings.getWakingHoursStart());
         assertEquals(LocalTime.of(22, 0), settings.getWakingHoursEnd());
     }
@@ -58,6 +60,20 @@ class ReminderSettingsTest {
         ReminderSettings settings = new ReminderSettings();
         settings.setDiaryReminderTime(LocalTime.of(21, 0));
         assertEquals(LocalTime.of(21, 0), settings.getDiaryReminderTime());
+    }
+
+    @Test
+    void testSetGratitudeReminderEnabled() {
+        ReminderSettings settings = new ReminderSettings();
+        settings.setGratitudeReminderEnabled(true);
+        assertTrue(settings.isGratitudeReminderEnabled());
+    }
+
+    @Test
+    void testSetGratitudeReminderTime() {
+        ReminderSettings settings = new ReminderSettings();
+        settings.setGratitudeReminderTime(LocalTime.of(7, 30));
+        assertEquals(LocalTime.of(7, 30), settings.getGratitudeReminderTime());
     }
 
     @Test

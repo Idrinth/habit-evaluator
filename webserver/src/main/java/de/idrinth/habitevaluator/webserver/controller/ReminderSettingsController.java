@@ -54,6 +54,8 @@ public class ReminderSettingsController {
         settings.setDiaryReminderTime(incoming.getDiaryReminderTime());
         settings.setEmotionReminderEnabled(incoming.isEmotionReminderEnabled());
         settings.setEmotionReminderCount(incoming.getEmotionReminderCount());
+        settings.setGratitudeReminderEnabled(incoming.isGratitudeReminderEnabled());
+        settings.setGratitudeReminderTime(incoming.getGratitudeReminderTime());
         settings.setWakingHoursStart(incoming.getWakingHoursStart());
         settings.setWakingHoursEnd(incoming.getWakingHoursEnd());
         return ResponseEntity.ok(reminderSettingsRepository.save(settings));

@@ -174,6 +174,15 @@ public class SettingsDialogController {
     private TextField diaryReminderTimeField;
 
     @FXML
+    private CheckBox gratitudeReminderCheckBox;
+
+    @FXML
+    private HBox gratitudeReminderTimePane;
+
+    @FXML
+    private TextField gratitudeReminderTimeField;
+
+    @FXML
     private CheckBox emotionReminderCheckBox;
 
     @FXML
@@ -222,6 +231,9 @@ public class SettingsDialogController {
         });
         diaryReminderCheckBox.selectedProperty().addListener((obs, oldVal, newVal) -> {
             diaryReminderTimePane.setDisable(!newVal);
+        });
+        gratitudeReminderCheckBox.selectedProperty().addListener((obs, oldVal, newVal) -> {
+            gratitudeReminderTimePane.setDisable(!newVal);
         });
         emotionReminderCheckBox.selectedProperty().addListener((obs, oldVal, newVal) -> {
             emotionReminderPane.setDisable(!newVal);
@@ -279,6 +291,10 @@ public class SettingsDialogController {
         diaryReminderCheckBox.setSelected(config.isDiaryReminderEnabled());
         diaryReminderTimePane.setDisable(!config.isDiaryReminderEnabled());
         diaryReminderTimeField.setText(config.getDiaryReminderTime());
+
+        gratitudeReminderCheckBox.setSelected(config.isGratitudeReminderEnabled());
+        gratitudeReminderTimePane.setDisable(!config.isGratitudeReminderEnabled());
+        gratitudeReminderTimeField.setText(config.getGratitudeReminderTime());
 
         emotionReminderCheckBox.setSelected(config.isEmotionReminderEnabled());
         emotionReminderPane.setDisable(!config.isEmotionReminderEnabled());
@@ -414,6 +430,8 @@ public class SettingsDialogController {
         storageConfig.setSleepReminderTime(sleepReminderTimeField.getText());
         storageConfig.setDiaryReminderEnabled(diaryReminderCheckBox.isSelected());
         storageConfig.setDiaryReminderTime(diaryReminderTimeField.getText());
+        storageConfig.setGratitudeReminderEnabled(gratitudeReminderCheckBox.isSelected());
+        storageConfig.setGratitudeReminderTime(gratitudeReminderTimeField.getText());
         storageConfig.setEmotionReminderEnabled(emotionReminderCheckBox.isSelected());
         storageConfig.setEmotionReminderCount(emotionReminderCountSpinner.getValue());
         storageConfig.setWakingHoursStart(wakingHoursStartField.getText());

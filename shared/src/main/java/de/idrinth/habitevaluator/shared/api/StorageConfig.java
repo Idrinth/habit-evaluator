@@ -72,6 +72,8 @@ public class StorageConfig {
     private String diaryReminderTime;
     private boolean emotionReminderEnabled;
     private int emotionReminderCount;
+    private boolean gratitudeReminderEnabled;
+    private String gratitudeReminderTime;
     private String wakingHoursStart;
     private String wakingHoursEnd;
     private boolean diaryVisible;
@@ -103,6 +105,8 @@ public class StorageConfig {
         this.diaryReminderTime = "20:00";
         this.emotionReminderEnabled = false;
         this.emotionReminderCount = 3;
+        this.gratitudeReminderEnabled = false;
+        this.gratitudeReminderTime = "08:00";
         this.wakingHoursStart = "07:00";
         this.wakingHoursEnd = "22:00";
         this.diaryVisible = true;
@@ -158,6 +162,9 @@ public class StorageConfig {
             } catch (NumberFormatException e2) {
                 emotionReminderCount = 3;
             }
+            gratitudeReminderEnabled = Boolean.parseBoolean(
+                    props.getProperty("reminder.gratitude.enabled", "false"));
+            gratitudeReminderTime = props.getProperty("reminder.gratitude.time", "08:00");
             wakingHoursStart = props.getProperty("reminder.waking.start", "07:00");
             wakingHoursEnd = props.getProperty("reminder.waking.end", "22:00");
             diaryVisible = Boolean.parseBoolean(
@@ -213,6 +220,8 @@ public class StorageConfig {
         props.setProperty("reminder.diary.time", diaryReminderTime != null ? diaryReminderTime : "20:00");
         props.setProperty("reminder.emotion.enabled", String.valueOf(emotionReminderEnabled));
         props.setProperty("reminder.emotion.count", String.valueOf(emotionReminderCount));
+        props.setProperty("reminder.gratitude.enabled", String.valueOf(gratitudeReminderEnabled));
+        props.setProperty("reminder.gratitude.time", gratitudeReminderTime != null ? gratitudeReminderTime : "08:00");
         props.setProperty("reminder.waking.start", wakingHoursStart != null ? wakingHoursStart : "07:00");
         props.setProperty("reminder.waking.end", wakingHoursEnd != null ? wakingHoursEnd : "22:00");
         props.setProperty("module.diary.visible", String.valueOf(diaryVisible));
@@ -362,6 +371,22 @@ public class StorageConfig {
 
     public void setEmotionReminderCount(int emotionReminderCount) {
         this.emotionReminderCount = emotionReminderCount;
+    }
+
+    public boolean isGratitudeReminderEnabled() {
+        return gratitudeReminderEnabled;
+    }
+
+    public void setGratitudeReminderEnabled(boolean gratitudeReminderEnabled) {
+        this.gratitudeReminderEnabled = gratitudeReminderEnabled;
+    }
+
+    public String getGratitudeReminderTime() {
+        return gratitudeReminderTime;
+    }
+
+    public void setGratitudeReminderTime(String gratitudeReminderTime) {
+        this.gratitudeReminderTime = gratitudeReminderTime;
     }
 
     public String getWakingHoursStart() {
