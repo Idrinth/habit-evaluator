@@ -113,6 +113,7 @@ settings:
   module_backup: "Sauvegarde"
   module_pdf_export: "Export PDF"
   module_activity_log: "Journal d'activités"
+  module_gratitude: "Journal de gratitude"
 
 reminders:
   settings_title: "Paramètres de rappels"
@@ -129,6 +130,10 @@ reminders:
   diary_notification_text: "Vous n'avez pas ajouté d'entrée de journal aujourd'hui. Des moments positifs à noter ?"
   emotion_notification_title: "Comment vous sentez-vous ?"
   emotion_notification_text: "Prenez un moment pour enregistrer votre état émotionnel actuel."
+  gratitude_label: "Me rappeler d'écrire des entrées de gratitude"
+  gratitude_time_label: "Heure du rappel de gratitude"
+  gratitude_notification_title: "Journal de gratitude"
+  gratitude_notification_text: "Pour quoi êtes-vous reconnaissant aujourd'hui ? Prenez un moment pour y réfléchir."
 
 first_start:
   title: "Bienvenue sur Habit Evaluator"
@@ -361,6 +366,23 @@ activity_log:
   activity_hint: "p. ex. Randonnée, Atelier, Réunion d'équipe (facultatif)"
   no_entries: "Aucune entrée d'activité pour le moment."
   delete: "Supprimer"
+
+gratitude_diary:
+  title: "Journal de gratitude"
+  add_entry: "Ajouter une entrée de gratitude"
+  description: "Description"
+  description_hint: "Pour quoi êtes-vous reconnaissant ?"
+  prompt_grateful: "Je suis reconnaissant pour..."
+  prompt_thankful: "Je suis reconnaissant de..."
+  date: "Date"
+  no_entries: "Aucune entrée de gratitude pour l'instant. Pour quoi êtes-vous reconnaissant aujourd'hui ?"
+  delete: "Supprimer"
+  today_count: "Aujourd'hui"
+  week_count: "Cette semaine"
+  month_count: "Ce mois-ci"
+  daily_average: "Moyenne quotidienne"
+  current_streak: "Série en cours"
+  streak_days: "%d jours"
 
 food_log:
   title: "Journal alimentaire"

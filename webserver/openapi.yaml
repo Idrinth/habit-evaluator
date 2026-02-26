@@ -612,11 +612,42 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/HabitEntry"
+  /api/gratitude:
+    get:
+      tags:
+      - gratitude-controller
+      operationId: getAllEntries_3
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/GratitudeEntry"
+    post:
+      tags:
+      - gratitude-controller
+      operationId: createEntry_3
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GratitudeEntry"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/GratitudeEntry"
   /api/food-logs:
     get:
       tags:
       - food-log-controller
-      operationId: getAllEntries_3
+      operationId: getAllEntries_4
       responses:
         "200":
           description: OK
@@ -629,7 +660,7 @@ paths:
     post:
       tags:
       - food-log-controller
-      operationId: createEntry_3
+      operationId: createEntry_4
       requestBody:
         content:
           application/json:
@@ -655,7 +686,7 @@ paths:
     get:
       tags:
       - diary-controller
-      operationId: getAllEntries_4
+      operationId: getAllEntries_5
       responses:
         "200":
           description: OK
@@ -668,7 +699,7 @@ paths:
     post:
       tags:
       - diary-controller
-      operationId: createEntry_4
+      operationId: createEntry_5
       requestBody:
         content:
           application/json:
@@ -998,7 +1029,7 @@ paths:
     get:
       tags:
       - activity-log-controller
-      operationId: getAllEntries_5
+      operationId: getAllEntries_6
       responses:
         "200":
           description: OK
@@ -1011,7 +1042,7 @@ paths:
     post:
       tags:
       - activity-log-controller
-      operationId: createEntry_5
+      operationId: createEntry_6
       requestBody:
         content:
           application/json:
@@ -1285,6 +1316,20 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/PredictedWeeklyScore"
+  /api/gratitude/stats:
+    get:
+      tags:
+      - gratitude-controller
+      operationId: getStats_2
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
   /api/food-logs/suggestions:
     get:
       tags:
@@ -1395,7 +1440,7 @@ paths:
     get:
       tags:
       - diary-controller
-      operationId: getStats_2
+      operationId: getStats_3
       responses:
         "200":
           description: OK
@@ -1572,11 +1617,25 @@ paths:
       responses:
         "200":
           description: OK
+  /api/gratitude/{id}:
+    delete:
+      tags:
+      - gratitude-controller
+      operationId: deleteEntry_4
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
   /api/food-logs/{id}:
     delete:
       tags:
       - food-log-controller
-      operationId: deleteEntry_4
+      operationId: deleteEntry_5
       parameters:
       - name: id
         in: path
@@ -1590,7 +1649,7 @@ paths:
     delete:
       tags:
       - diary-controller
-      operationId: deleteEntry_5
+      operationId: deleteEntry_6
       parameters:
       - name: id
         in: path
@@ -1638,6 +1697,11 @@ components:
         emotionReminderCount:
           type: integer
           format: int32
+        gratitudeReminderEnabled:
+          type: boolean
+        gratitudeReminderTime:
+          type: string
+          example: 14:30:00
         wakingHoursStart:
           type: string
           example: 14:30:00
@@ -1686,6 +1750,8 @@ components:
         activityLogVisible:
           type: boolean
         dayPlannerVisible:
+          type: boolean
+        gratitudeVisible:
           type: boolean
     Medication:
       type: object
@@ -2078,6 +2144,21 @@ components:
           format: date-time
         expired:
           type: boolean
+    GratitudeEntry:
+      type: object
+      properties:
+        id:
+          type: string
+        description:
+          type: string
+        eventDate:
+          type: string
+          format: date
+        createdAt:
+          type: string
+          format: date-time
+        user:
+          $ref: "#/components/schemas/User"
     FoodLog:
       type: object
       properties:

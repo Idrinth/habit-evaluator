@@ -35,6 +35,7 @@ import de.idrinth.habitevaluator.android.ui.screens.PlannerActivityScreen
 import de.idrinth.habitevaluator.android.ui.screens.PlannerGroupScreen
 import de.idrinth.habitevaluator.android.ui.screens.PlannerNavigationScreen
 import de.idrinth.habitevaluator.android.ui.screens.StatsScreen
+import de.idrinth.habitevaluator.android.ui.screens.GratitudeScreen
 import de.idrinth.habitevaluator.android.ui.screens.WeekPlannerScreen
 
 @Composable
@@ -139,6 +140,9 @@ fun AppNavigation(
         }
         composable(Screen.Backup.route) {
             BackupScreen(viewModel = viewModel)
+        }
+        composable(Screen.Gratitude.route) {
+            GratitudeScreen(viewModel = viewModel)
         }
     }
 }

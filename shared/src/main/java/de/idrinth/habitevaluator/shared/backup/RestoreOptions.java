@@ -21,6 +21,7 @@ public class RestoreOptions {
     private boolean restoreModuleVisibility;
     private boolean restoreEmergencyPlan;
     private boolean restoreDayPlanner;
+    private boolean restoreGratitudeEntries;
     private boolean overwrite;
 
     public RestoreOptions() {
@@ -38,6 +39,7 @@ public class RestoreOptions {
         this.restoreModuleVisibility = true;
         this.restoreEmergencyPlan = true;
         this.restoreDayPlanner = true;
+        this.restoreGratitudeEntries = true;
     }
 
     /**
@@ -66,6 +68,7 @@ public class RestoreOptions {
         options.restoreModuleVisibility = false;
         options.restoreEmergencyPlan = false;
         options.restoreDayPlanner = false;
+        options.restoreGratitudeEntries = false;
         return options;
     }
 
@@ -179,6 +182,14 @@ public class RestoreOptions {
 
     public void setRestoreDayPlanner(boolean restoreDayPlanner) {
         this.restoreDayPlanner = restoreDayPlanner;
+    }
+
+    public boolean isRestoreGratitudeEntries() {
+        return restoreGratitudeEntries;
+    }
+
+    public void setRestoreGratitudeEntries(boolean restoreGratitudeEntries) {
+        this.restoreGratitudeEntries = restoreGratitudeEntries;
     }
 
     public boolean isOverwrite() {

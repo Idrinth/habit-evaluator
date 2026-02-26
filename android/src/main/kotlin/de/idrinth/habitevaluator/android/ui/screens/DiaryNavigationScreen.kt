@@ -34,6 +34,9 @@ fun DiaryNavigationScreen(viewModel: AppViewModel, navController: NavController)
         NavigationCard(stringResource(R.string.positivity_diary)) {
             navController.navigate(Screen.PositivityDiary.route)
         }
+        NavigationCard(stringResource(R.string.gratitude_diary)) {
+            navController.navigate(Screen.Gratitude.route)
+        }
         NavigationCard(stringResource(R.string.sleep_tracking)) {
             navController.navigate(Screen.Sleep.route)
         }

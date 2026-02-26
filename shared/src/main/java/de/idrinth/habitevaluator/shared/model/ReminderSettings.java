@@ -66,6 +66,18 @@ public class ReminderSettings {
     private int emotionReminderCount;
 
     /**
+     * Whether to send a daily reminder to record gratitude entries.
+     */
+    @Column(name = "gratitude_reminder_enabled", nullable = false)
+    private boolean gratitudeReminderEnabled;
+
+    /**
+     * Time at which the gratitude reminder fires (e.g. evening).
+     */
+    @Column(name = "gratitude_reminder_time")
+    private LocalTime gratitudeReminderTime;
+
+    /**
      * Start of the user's waking hours window (used for emotion reminders
      * and as earliest possible time for any reminder).
      */
@@ -87,6 +99,8 @@ public class ReminderSettings {
         this.diaryReminderTime = LocalTime.of(20, 0);
         this.emotionReminderEnabled = false;
         this.emotionReminderCount = 3;
+        this.gratitudeReminderEnabled = false;
+        this.gratitudeReminderTime = LocalTime.of(21, 0);
         this.wakingHoursStart = LocalTime.of(7, 0);
         this.wakingHoursEnd = LocalTime.of(22, 0);
     }
@@ -153,6 +167,22 @@ public class ReminderSettings {
 
     public void setEmotionReminderCount(int emotionReminderCount) {
         this.emotionReminderCount = Math.max(1, Math.min(10, emotionReminderCount));
+    }
+
+    public boolean isGratitudeReminderEnabled() {
+        return gratitudeReminderEnabled;
+    }
+
+    public void setGratitudeReminderEnabled(boolean gratitudeReminderEnabled) {
+        this.gratitudeReminderEnabled = gratitudeReminderEnabled;
+    }
+
+    public LocalTime getGratitudeReminderTime() {
+        return gratitudeReminderTime;
+    }
+
+    public void setGratitudeReminderTime(LocalTime gratitudeReminderTime) {
+        this.gratitudeReminderTime = gratitudeReminderTime;
     }
 
     public LocalTime getWakingHoursStart() {

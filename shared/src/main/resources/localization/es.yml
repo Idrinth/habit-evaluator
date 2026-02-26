@@ -113,6 +113,7 @@ settings:
   module_backup: "Copia de seguridad"
   module_pdf_export: "Exportar PDF"
   module_activity_log: "Registro de actividades"
+  module_gratitude: "Diario de gratitud"
 
 reminders:
   settings_title: "Configuración de recordatorios"
@@ -129,6 +130,10 @@ reminders:
   diary_notification_text: "No has añadido una entrada de diario hoy. ¿Algún momento positivo?"
   emotion_notification_title: "¿Cómo te sientes?"
   emotion_notification_text: "Tómate un momento para registrar tu estado emocional actual."
+  gratitude_label: "Recordarme escribir entradas de gratitud"
+  gratitude_time_label: "Hora del recordatorio de gratitud"
+  gratitude_notification_title: "Diario de gratitud"
+  gratitude_notification_text: "¿Por qué estás agradecido hoy? Tómate un momento para reflexionar."
 
 first_start:
   title: "Bienvenido a Habit Evaluator"
@@ -361,6 +366,23 @@ activity_log:
   activity_hint: "p. ej. Senderismo, Taller, Reunión de equipo (opcional)"
   no_entries: "Aún no hay entradas de actividad."
   delete: "Eliminar"
+
+gratitude_diary:
+  title: "Diario de gratitud"
+  add_entry: "Añadir entrada de gratitud"
+  description: "Descripción"
+  description_hint: "¿Por qué estás agradecido?"
+  prompt_grateful: "Estoy agradecido por..."
+  prompt_thankful: "Doy gracias por..."
+  date: "Fecha"
+  no_entries: "Aún no hay entradas de gratitud. ¿Por qué estás agradecido hoy?"
+  delete: "Eliminar"
+  today_count: "Hoy"
+  week_count: "Esta semana"
+  month_count: "Este mes"
+  daily_average: "Promedio diario"
+  current_streak: "Racha actual"
+  streak_days: "%d días"
 
 food_log:
   title: "Registro de alimentación"

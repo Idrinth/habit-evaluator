@@ -18,6 +18,7 @@ import de.idrinth.habitevaluator.android.persistence.RoomEmergencyPlanActionRepo
 import de.idrinth.habitevaluator.android.persistence.RoomEmergencyPlanStepRepository
 import de.idrinth.habitevaluator.android.persistence.RoomEmotionEntryRepository
 import de.idrinth.habitevaluator.android.persistence.RoomEmotionPairRepository
+import de.idrinth.habitevaluator.android.persistence.RoomGratitudeEntryRepository
 import de.idrinth.habitevaluator.android.persistence.RoomFoodLogRepository
 import de.idrinth.habitevaluator.android.persistence.RoomFoodTagRepository
 import de.idrinth.habitevaluator.android.persistence.RoomHabitCategoryRepository
@@ -58,6 +59,7 @@ import de.idrinth.habitevaluator.shared.repository.EmotionEntryRepository
 import de.idrinth.habitevaluator.shared.repository.EmotionPairRepository
 import de.idrinth.habitevaluator.shared.repository.FoodLogRepository
 import de.idrinth.habitevaluator.shared.repository.FoodTagRepository
+import de.idrinth.habitevaluator.shared.repository.GratitudeEntryRepository
 import de.idrinth.habitevaluator.shared.repository.HabitCategoryRepository
 import de.idrinth.habitevaluator.shared.repository.HabitRepository
 import de.idrinth.habitevaluator.shared.repository.MedicationLogRepository
@@ -108,6 +110,7 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
     val roomPlannerGroupRepository = RoomPlannerGroupRepository(db.dayPlannerDao())
     val roomWeekPlannerSlotRepository = RoomWeekPlannerSlotRepository(db.dayPlannerDao())
     val roomSlotConfirmationRepository = RoomSlotConfirmationRepository(db.dayPlannerDao())
+    val roomGratitudeEntryRepository = RoomGratitudeEntryRepository(db.gratitudeDao())
 
     // Active repositories (may point to remote when in remote mode)
     private val _habitRepository = MutableStateFlow<HabitRepository>(roomHabitRepository)
@@ -134,6 +137,7 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
     val plannerGroupRepository: PlannerGroupRepository get() = roomPlannerGroupRepository
     val weekPlannerSlotRepository: WeekPlannerSlotRepository get() = roomWeekPlannerSlotRepository
     val slotConfirmationRepository: SlotConfirmationRepository get() = roomSlotConfirmationRepository
+    val gratitudeEntryRepository: GratitudeEntryRepository get() = roomGratitudeEntryRepository
 
     // List wrapper that uses identity-based equality to force StateFlow emission.
     // MutableStateFlow suppresses emissions when the new value equals the old one.

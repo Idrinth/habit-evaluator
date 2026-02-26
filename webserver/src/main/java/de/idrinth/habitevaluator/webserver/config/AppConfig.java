@@ -6,6 +6,7 @@ import de.idrinth.habitevaluator.shared.service.HabitEvaluatorService;
 import de.idrinth.habitevaluator.shared.service.HabitScoringService;
 import de.idrinth.habitevaluator.shared.service.SleepEvaluationService;
 import de.idrinth.habitevaluator.shared.service.DayPlannerService;
+import de.idrinth.habitevaluator.shared.service.GratitudeService;
 import de.idrinth.habitevaluator.shared.service.SportLogService;
 import de.idrinth.habitevaluator.webserver.service.StatsCacheService;
 import org.springframework.context.annotation.Bean;
@@ -54,5 +55,10 @@ public class AppConfig {
     @Bean
     public DayPlannerService dayPlannerService() {
         return new DayPlannerService();
+    }
+
+    @Bean
+    public GratitudeService gratitudeService() {
+        return new GratitudeService();
     }
 }

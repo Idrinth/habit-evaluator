@@ -708,4 +708,17 @@
     <string name="diary_navigation_sleep_description">Track your sleep patterns and quality</string>
     <string name="day_planner">Day Planner</string>
     <string name="planner">Planner</string>
+
+    <!-- Gratitude diary screen -->
+    <string name="gratitude_diary">Gratitude Diary</string>
+    <string name="add_gratitude_entry">Add Gratitude Entry</string>
+    <string name="gratitude_hint">What are you grateful for?</string>
+    <string name="gratitude_prompt_grateful">I\'m grateful for\u2026</string>
+    <string name="gratitude_prompt_thankful">I\'m thankful for\u2026</string>
+    <string name="gratitude_no_entries">No gratitude entries yet. Start recording what you are grateful for!</string>
+    <string name="gratitude_today">Today</string>
+    <string name="gratitude_week">Week</string>
+    <string name="gratitude_month">Month</string>
+    <string name="gratitude_streak">Streak</string>
+    <string name="gratitude_daily_avg">Daily Avg</string>
 </resources>

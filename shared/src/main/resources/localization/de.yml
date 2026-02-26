@@ -113,6 +113,7 @@ settings:
   module_backup: "Sicherung"
   module_pdf_export: "PDF-Export"
   module_activity_log: "Aktivitätsprotokoll"
+  module_gratitude: "Dankbarkeitstagebuch"
 
 reminders:
   settings_title: "Erinnerungseinstellungen"
@@ -129,6 +130,10 @@ reminders:
   diary_notification_text: "Du hast heute noch keinen Tagebucheintrag gemacht. Gibt es positive Momente?"
   emotion_notification_title: "Wie fühlst du dich?"
   emotion_notification_text: "Nimm dir einen Moment um deinen aktuellen Gefühlszustand festzuhalten."
+  gratitude_label: "An Dankbarkeitseinträge erinnern"
+  gratitude_time_label: "Erinnerungszeit Dankbarkeit"
+  gratitude_notification_title: "Dankbarkeitstagebuch"
+  gratitude_notification_text: "Wofür bist du heute dankbar? Nimm dir einen Moment zum Nachdenken."
 
 first_start:
   title: "Willkommen bei Habit Evaluator"
@@ -361,6 +366,23 @@ activity_log:
   activity_hint: "z.B. Wandern, Workshop, Teambesprechung (optional)"
   no_entries: "Noch keine Aktivitätseinträge."
   delete: "Löschen"
+
+gratitude_diary:
+  title: "Dankbarkeitstagebuch"
+  add_entry: "Dankbarkeitseintrag hinzufügen"
+  description: "Beschreibung"
+  description_hint: "Wofür bist du dankbar?"
+  prompt_grateful: "Ich bin dankbar für..."
+  prompt_thankful: "Ich bin dankbar für..."
+  date: "Datum"
+  no_entries: "Noch keine Dankbarkeitseinträge. Wofür bist du heute dankbar?"
+  delete: "Löschen"
+  today_count: "Heute"
+  week_count: "Diese Woche"
+  month_count: "Diesen Monat"
+  daily_average: "Tagesdurchschnitt"
+  current_streak: "Aktuelle Serie"
+  streak_days: "%d Tage"
 
 food_log:
   title: "Ernährungsprotokoll"
