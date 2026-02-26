@@ -39,6 +39,7 @@ class ReminderSchedulerTest {
     fun testRescheduleAllWithAllRemindersDisabled() {
         `when`(prefs.getBoolean(SettingsConstants.KEY_SLEEP_REMINDER_ENABLED, false)).thenReturn(false)
         `when`(prefs.getBoolean(SettingsConstants.KEY_DIARY_REMINDER_ENABLED, false)).thenReturn(false)
+        `when`(prefs.getBoolean(SettingsConstants.KEY_GRATITUDE_REMINDER_ENABLED, false)).thenReturn(false)
         `when`(prefs.getBoolean(SettingsConstants.KEY_EMOTION_REMINDER_ENABLED, false)).thenReturn(false)
         `when`(prefs.getInt(SettingsConstants.KEY_EMOTION_REMINDER_COUNT,
             SettingsConstants.DEFAULT_EMOTION_REMINDER_COUNT)).thenReturn(3)
@@ -54,6 +55,7 @@ class ReminderSchedulerTest {
     fun testRescheduleAllWithNullAlarmManager() {
         `when`(prefs.getBoolean(SettingsConstants.KEY_SLEEP_REMINDER_ENABLED, false)).thenReturn(true)
         `when`(prefs.getBoolean(SettingsConstants.KEY_DIARY_REMINDER_ENABLED, false)).thenReturn(true)
+        `when`(prefs.getBoolean(SettingsConstants.KEY_GRATITUDE_REMINDER_ENABLED, false)).thenReturn(true)
         `when`(prefs.getBoolean(SettingsConstants.KEY_EMOTION_REMINDER_ENABLED, false)).thenReturn(true)
         `when`(prefs.getInt(SettingsConstants.KEY_EMOTION_REMINDER_COUNT,
             SettingsConstants.DEFAULT_EMOTION_REMINDER_COUNT)).thenReturn(3)
@@ -63,6 +65,9 @@ class ReminderSchedulerTest {
         `when`(prefs.getString(SettingsConstants.KEY_DIARY_REMINDER_TIME,
             SettingsConstants.DEFAULT_DIARY_REMINDER_TIME))
             .thenReturn(SettingsConstants.DEFAULT_DIARY_REMINDER_TIME)
+        `when`(prefs.getString(SettingsConstants.KEY_GRATITUDE_REMINDER_TIME,
+            SettingsConstants.DEFAULT_GRATITUDE_REMINDER_TIME))
+            .thenReturn(SettingsConstants.DEFAULT_GRATITUDE_REMINDER_TIME)
         `when`(prefs.getString(SettingsConstants.KEY_WAKING_HOURS_START,
             SettingsConstants.DEFAULT_WAKING_HOURS_START))
             .thenReturn(SettingsConstants.DEFAULT_WAKING_HOURS_START)
@@ -84,6 +89,7 @@ class ReminderSchedulerTest {
 
         `when`(prefs.getBoolean(SettingsConstants.KEY_SLEEP_REMINDER_ENABLED, false)).thenReturn(true)
         `when`(prefs.getBoolean(SettingsConstants.KEY_DIARY_REMINDER_ENABLED, false)).thenReturn(true)
+        `when`(prefs.getBoolean(SettingsConstants.KEY_GRATITUDE_REMINDER_ENABLED, false)).thenReturn(true)
         `when`(prefs.getBoolean(SettingsConstants.KEY_EMOTION_REMINDER_ENABLED, false)).thenReturn(false)
         `when`(prefs.getInt(SettingsConstants.KEY_EMOTION_REMINDER_COUNT,
             SettingsConstants.DEFAULT_EMOTION_REMINDER_COUNT)).thenReturn(3)
@@ -93,11 +99,14 @@ class ReminderSchedulerTest {
         `when`(prefs.getString(SettingsConstants.KEY_DIARY_REMINDER_TIME,
             SettingsConstants.DEFAULT_DIARY_REMINDER_TIME))
             .thenReturn("20:00")
+        `when`(prefs.getString(SettingsConstants.KEY_GRATITUDE_REMINDER_TIME,
+            SettingsConstants.DEFAULT_GRATITUDE_REMINDER_TIME))
+            .thenReturn("08:00")
 
         ReminderScheduler.rescheduleAll(context)
 
-        // Verify alarm was scheduled for both sleep and diary
-        verify(alarmManager, times(2)).setInexactRepeating(
+        // Verify alarm was scheduled for sleep, diary, and gratitude
+        verify(alarmManager, times(3)).setInexactRepeating(
             eq(AlarmManager.RTC_WAKEUP), anyLong(), eq(AlarmManager.INTERVAL_DAY), any())
     }
 
@@ -108,14 +117,15 @@ class ReminderSchedulerTest {
 
         `when`(prefs.getBoolean(SettingsConstants.KEY_SLEEP_REMINDER_ENABLED, false)).thenReturn(false)
         `when`(prefs.getBoolean(SettingsConstants.KEY_DIARY_REMINDER_ENABLED, false)).thenReturn(false)
+        `when`(prefs.getBoolean(SettingsConstants.KEY_GRATITUDE_REMINDER_ENABLED, false)).thenReturn(false)
         `when`(prefs.getBoolean(SettingsConstants.KEY_EMOTION_REMINDER_ENABLED, false)).thenReturn(false)
         `when`(prefs.getInt(SettingsConstants.KEY_EMOTION_REMINDER_COUNT,
             SettingsConstants.DEFAULT_EMOTION_REMINDER_COUNT)).thenReturn(3)
 
         ReminderScheduler.rescheduleAll(context)
 
-        // When disabled, sleep + diary are cancelled (1 each) + 10 emotion slots + 168 planner slots = 180 cancels
-        verify(alarmManager, times(180)).cancel(any<PendingIntent>())
+        // When disabled, sleep + diary + gratitude are cancelled (1 each) + 10 emotion slots + 168 planner slots = 181 cancels
+        verify(alarmManager, times(181)).cancel(any<PendingIntent>())
     }
 
     @Test
@@ -125,6 +135,7 @@ class ReminderSchedulerTest {
 
         `when`(prefs.getBoolean(SettingsConstants.KEY_SLEEP_REMINDER_ENABLED, false)).thenReturn(false)
         `when`(prefs.getBoolean(SettingsConstants.KEY_DIARY_REMINDER_ENABLED, false)).thenReturn(false)
+        `when`(prefs.getBoolean(SettingsConstants.KEY_GRATITUDE_REMINDER_ENABLED, false)).thenReturn(false)
         `when`(prefs.getBoolean(SettingsConstants.KEY_EMOTION_REMINDER_ENABLED, false)).thenReturn(true)
         `when`(prefs.getInt(SettingsConstants.KEY_EMOTION_REMINDER_COUNT,
             SettingsConstants.DEFAULT_EMOTION_REMINDER_COUNT)).thenReturn(3)
@@ -149,6 +160,7 @@ class ReminderSchedulerTest {
 
         `when`(prefs.getBoolean(SettingsConstants.KEY_SLEEP_REMINDER_ENABLED, false)).thenReturn(false)
         `when`(prefs.getBoolean(SettingsConstants.KEY_DIARY_REMINDER_ENABLED, false)).thenReturn(false)
+        `when`(prefs.getBoolean(SettingsConstants.KEY_GRATITUDE_REMINDER_ENABLED, false)).thenReturn(false)
         `when`(prefs.getBoolean(SettingsConstants.KEY_EMOTION_REMINDER_ENABLED, false)).thenReturn(true)
         `when`(prefs.getInt(SettingsConstants.KEY_EMOTION_REMINDER_COUNT,
             SettingsConstants.DEFAULT_EMOTION_REMINDER_COUNT)).thenReturn(1)

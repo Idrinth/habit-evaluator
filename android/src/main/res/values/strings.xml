@@ -285,6 +285,10 @@
     <string name="reminder_sleep_time_label">Sleep reminder time</string>
     <string name="reminder_diary_label">Remind me if no diary entry today</string>
     <string name="reminder_diary_time_label">Diary reminder time</string>
+    <string name="reminder_gratitude_label">Remind me to write gratitude entries</string>
+    <string name="reminder_gratitude_time_label">Gratitude reminder time</string>
+    <string name="reminder_gratitude_notification_title">Gratitude diary</string>
+    <string name="reminder_gratitude_notification_text">What are you grateful for today? Take a moment to reflect.</string>
     <string name="reminder_emotion_label">Random emotion check reminders</string>
     <string name="reminder_emotion_count_label">Reminders per day: %d</string>
     <string name="reminder_waking_hours_label">Waking hours</string>

@@ -34,10 +34,13 @@ object SettingsConstants {
     const val KEY_DIARY_REMINDER_TIME = "diary_reminder_time"
     const val KEY_EMOTION_REMINDER_ENABLED = "emotion_reminder_enabled"
     const val KEY_EMOTION_REMINDER_COUNT = "emotion_reminder_count"
+    const val KEY_GRATITUDE_REMINDER_ENABLED = "gratitude_reminder_enabled"
+    const val KEY_GRATITUDE_REMINDER_TIME = "gratitude_reminder_time"
     const val KEY_WAKING_HOURS_START = "waking_hours_start"
     const val KEY_WAKING_HOURS_END = "waking_hours_end"
     const val DEFAULT_SLEEP_REMINDER_TIME = "08:00"
     const val DEFAULT_DIARY_REMINDER_TIME = "20:00"
+    const val DEFAULT_GRATITUDE_REMINDER_TIME = "08:00"
     const val DEFAULT_EMOTION_REMINDER_COUNT = 3
     const val DEFAULT_WAKING_HOURS_START = "07:00"
     const val DEFAULT_WAKING_HOURS_END = "22:00"

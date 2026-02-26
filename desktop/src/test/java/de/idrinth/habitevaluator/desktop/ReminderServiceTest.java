@@ -86,6 +86,21 @@ class ReminderServiceTest {
     }
 
     @Test
+    void testRescheduleWithGratitudeReminderEnabled() {
+        config.setSleepReminderEnabled(false);
+        config.setDiaryReminderEnabled(false);
+        config.setGratitudeReminderEnabled(true);
+        config.setGratitudeReminderTime("08:00");
+        config.setEmotionReminderEnabled(false);
+
+        assertDoesNotThrow(() -> service.reschedule());
+
+        ScheduledExecutorService scheduler = getScheduler();
+        assertNotNull(scheduler);
+        assertFalse(scheduler.isShutdown());
+    }
+
+    @Test
     void testRescheduleWithEmotionReminderEnabled() {
         config.setSleepReminderEnabled(false);
         config.setDiaryReminderEnabled(false);
@@ -107,6 +122,8 @@ class ReminderServiceTest {
         config.setSleepReminderTime("08:00");
         config.setDiaryReminderEnabled(true);
         config.setDiaryReminderTime("20:00");
+        config.setGratitudeReminderEnabled(true);
+        config.setGratitudeReminderTime("08:00");
         config.setEmotionReminderEnabled(true);
         config.setEmotionReminderCount(5);
         config.setWakingHoursStart("07:00");

@@ -50,6 +50,12 @@ public class ReminderService {
                     "You haven't added a diary entry today. Any positive moments to record?");
         }
 
+        if (config.isGratitudeReminderEnabled()) {
+            scheduleDailyAt(config.getGratitudeReminderTime(),
+                    "Gratitude diary",
+                    "What are you grateful for today? Take a moment to reflect.");
+        }
+
         if (config.isEmotionReminderEnabled()) {
             scheduleRandomEmotionReminders();
         }

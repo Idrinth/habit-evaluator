@@ -257,6 +257,10 @@
     <string name="reminder_sleep_time_label">Heure du rappel de sommeil</string>
     <string name="reminder_diary_label">Me rappeler si aucune entrée de journal aujourd\'hui</string>
     <string name="reminder_diary_time_label">Heure du rappel de journal</string>
+    <string name="reminder_gratitude_label">Me rappeler d\'écrire des entrées de gratitude</string>
+    <string name="reminder_gratitude_time_label">Heure du rappel de gratitude</string>
+    <string name="reminder_gratitude_notification_title">Journal de gratitude</string>
+    <string name="reminder_gratitude_notification_text">Pour quoi êtes-vous reconnaissant aujourd\'hui ? Prenez un moment pour y réfléchir.</string>
     <string name="reminder_emotion_label">Rappels aléatoires d\'émotions</string>
     <string name="reminder_emotion_count_label">Rappels par jour : %d</string>
     <string name="reminder_waking_hours_label">Heures d\'éveil</string>

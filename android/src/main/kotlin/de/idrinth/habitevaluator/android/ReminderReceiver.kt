@@ -25,11 +25,13 @@ class ReminderReceiver : BroadcastReceiver() {
         const val EXTRA_PLANNER_HOUR = "planner_hour"
         const val TYPE_SLEEP = "sleep"
         const val TYPE_DIARY = "diary"
+        const val TYPE_GRATITUDE = "gratitude"
         const val TYPE_EMOTION = "emotion"
         const val TYPE_PLANNER = "planner"
 
         private const val NOTIFICATION_SLEEP = 1001
         private const val NOTIFICATION_DIARY = 1002
+        private const val NOTIFICATION_GRATITUDE = 1004
         private const val NOTIFICATION_EMOTION = 1003
         private const val NOTIFICATION_PLANNER_BASE = 2000
     }
@@ -68,6 +70,14 @@ class ReminderReceiver : BroadcastReceiver() {
                                 NotificationHelper.CHANNEL_ID_INPUT_REMINDERS
                             )
                         }
+                    }
+                    TYPE_GRATITUDE -> {
+                        showNotification(
+                            context, NOTIFICATION_GRATITUDE,
+                            context.getString(R.string.reminder_gratitude_notification_title),
+                            context.getString(R.string.reminder_gratitude_notification_text),
+                            NotificationHelper.CHANNEL_ID_INPUT_REMINDERS
+                        )
                     }
                     TYPE_EMOTION -> {
                         if (!hasEnoughEmotionEntriesForToday(context)) {

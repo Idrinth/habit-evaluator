@@ -13,7 +13,7 @@
 		emotionReminderEnabled: false,
 		emotionReminderCount: 3,
 		gratitudeReminderEnabled: false,
-		gratitudeReminderTime: '20:00',
+		gratitudeReminderTime: '08:00',
 		wakingHoursStart: '07:00',
 		wakingHoursEnd: '22:00'
 	});
@@ -53,7 +53,7 @@
 				emotionReminderEnabled: reminderData.emotionReminderEnabled,
 				emotionReminderCount: reminderData.emotionReminderCount || 3,
 				gratitudeReminderEnabled: reminderData.gratitudeReminderEnabled,
-				gratitudeReminderTime: formatTime(reminderData.gratitudeReminderTime) || '20:00',
+				gratitudeReminderTime: formatTime(reminderData.gratitudeReminderTime) || '08:00',
 				wakingHoursStart: formatTime(reminderData.wakingHoursStart) || '07:00',
 				wakingHoursEnd: formatTime(reminderData.wakingHoursEnd) || '22:00'
 			};
@@ -195,6 +195,21 @@
 				<label class="field-row">
 					<span>Reminder time:</span>
 					<input type="time" bind:value={settings.diaryReminderTime} />
+				</label>
+			{/if}
+		</section>
+
+		<section>
+			<h2>Gratitude Diary Reminder</h2>
+			<p class="hint">Get reminded in the morning to write about what you are grateful for.</p>
+			<label class="toggle-row">
+				<input type="checkbox" bind:checked={settings.gratitudeReminderEnabled} />
+				<span>Enable gratitude reminder</span>
+			</label>
+			{#if settings.gratitudeReminderEnabled}
+				<label class="field-row">
+					<span>Reminder time:</span>
+					<input type="time" bind:value={settings.gratitudeReminderTime} />
 				</label>
 			{/if}
 		</section>

@@ -72,6 +72,8 @@ class StorageConfigTest {
         assertFalse(config.isFirstStartCompleted());
         assertFalse(config.isRemote());
         assertFalse(config.isCustomTranslationsEnabled());
+        assertFalse(config.isGratitudeReminderEnabled());
+        assertEquals("08:00", config.getGratitudeReminderTime());
     }
 
     @Test
@@ -169,6 +171,20 @@ class StorageConfigTest {
         assertEquals(2, StorageConfig.StorageMode.values().length);
         assertEquals(StorageConfig.StorageMode.LOCAL, StorageConfig.StorageMode.valueOf("LOCAL"));
         assertEquals(StorageConfig.StorageMode.REMOTE, StorageConfig.StorageMode.valueOf("REMOTE"));
+    }
+
+    @Test
+    void testGratitudeReminderSaveAndLoad() throws IOException {
+        File configFile = new File(tempDir, "gratitude-config.properties");
+        StorageConfig config = new StorageConfig(configFile);
+
+        config.setGratitudeReminderEnabled(true);
+        config.setGratitudeReminderTime("07:30");
+        config.save();
+
+        StorageConfig loaded = new StorageConfig(configFile);
+        assertTrue(loaded.isGratitudeReminderEnabled());
+        assertEquals("07:30", loaded.getGratitudeReminderTime());
     }
 
     @Test

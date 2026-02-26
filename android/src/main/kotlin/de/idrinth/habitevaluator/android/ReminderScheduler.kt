@@ -17,6 +17,7 @@ object ReminderScheduler {
 
     private const val SLEEP_REMINDER_REQUEST_CODE = 9001
     private const val DIARY_REMINDER_REQUEST_CODE = 9002
+    private const val GRATITUDE_REMINDER_REQUEST_CODE = 9003
     private const val EMOTION_REMINDER_BASE_REQUEST_CODE = 9100
     private const val PLANNER_REMINDER_BASE_REQUEST_CODE = 9200
 
@@ -24,6 +25,7 @@ object ReminderScheduler {
         val prefs = context.getSharedPreferences(SettingsConstants.PREFS_NAME, Context.MODE_PRIVATE)
         scheduleSleepReminder(context, prefs)
         scheduleDiaryReminder(context, prefs)
+        scheduleGratitudeReminder(context, prefs)
         scheduleEmotionReminders(context, prefs)
         schedulePlannerReminders(context)
     }
@@ -60,6 +62,24 @@ object ReminderScheduler {
             SettingsConstants.KEY_DIARY_REMINDER_TIME,
             SettingsConstants.DEFAULT_DIARY_REMINDER_TIME
         ) ?: SettingsConstants.DEFAULT_DIARY_REMINDER_TIME
+        val hm = ReminderScheduleCalculator.parseTime(time)
+        scheduleDaily(alarmManager, pi, hm[0], hm[1])
+    }
+
+    private fun scheduleGratitudeReminder(context: Context, prefs: SharedPreferences) {
+        val enabled = prefs.getBoolean(SettingsConstants.KEY_GRATITUDE_REMINDER_ENABLED, false)
+        val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as? AlarmManager
+        val pi = createPendingIntent(context, GRATITUDE_REMINDER_REQUEST_CODE, ReminderReceiver.TYPE_GRATITUDE)
+
+        if (!enabled || alarmManager == null) {
+            alarmManager?.cancel(pi)
+            return
+        }
+
+        val time = prefs.getString(
+            SettingsConstants.KEY_GRATITUDE_REMINDER_TIME,
+            SettingsConstants.DEFAULT_GRATITUDE_REMINDER_TIME
+        ) ?: SettingsConstants.DEFAULT_GRATITUDE_REMINDER_TIME
         val hm = ReminderScheduleCalculator.parseTime(time)
         scheduleDaily(alarmManager, pi, hm[0], hm[1])
     }

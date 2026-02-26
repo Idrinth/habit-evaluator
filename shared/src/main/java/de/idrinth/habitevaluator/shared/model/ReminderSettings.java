@@ -100,7 +100,7 @@ public class ReminderSettings {
         this.emotionReminderEnabled = false;
         this.emotionReminderCount = 3;
         this.gratitudeReminderEnabled = false;
-        this.gratitudeReminderTime = LocalTime.of(21, 0);
+        this.gratitudeReminderTime = LocalTime.of(8, 0);
         this.wakingHoursStart = LocalTime.of(7, 0);
         this.wakingHoursEnd = LocalTime.of(22, 0);
     }

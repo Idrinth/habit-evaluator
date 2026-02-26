@@ -123,4 +123,21 @@ class ReminderSettingsControllerTest {
         assertEquals(LocalTime.of(23, 0), response.getBody().getWakingHoursEnd());
         verify(reminderSettingsRepository).save(existing);
     }
+
+    @Test
+    void testUpdateSettingsWithGratitudeReminder() {
+        when(userRepository.findById(testUser.getId())).thenReturn(Optional.of(testUser));
+        when(reminderSettingsRepository.findByUserId(testUser.getId())).thenReturn(Optional.empty());
+        when(reminderSettingsRepository.save(any(ReminderSettings.class))).thenAnswer(i -> i.getArgument(0));
+
+        ReminderSettings incoming = new ReminderSettings();
+        incoming.setGratitudeReminderEnabled(true);
+        incoming.setGratitudeReminderTime(LocalTime.of(7, 30));
+
+        ResponseEntity<ReminderSettings> response = controller.updateSettings(incoming, session);
+
+        assertEquals(200, response.getStatusCode().value());
+        assertTrue(response.getBody().isGratitudeReminderEnabled());
+        assertEquals(LocalTime.of(7, 30), response.getBody().getGratitudeReminderTime());
+    }
 }

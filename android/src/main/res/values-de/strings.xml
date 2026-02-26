@@ -257,6 +257,10 @@
     <string name="reminder_sleep_time_label">Schlaf-Erinnerungszeit</string>
     <string name="reminder_diary_label">Erinnern, wenn heute kein Tagebucheintrag</string>
     <string name="reminder_diary_time_label">Tagebuch-Erinnerungszeit</string>
+    <string name="reminder_gratitude_label">An Dankbarkeitseinträge erinnern</string>
+    <string name="reminder_gratitude_time_label">Erinnerungszeit Dankbarkeit</string>
+    <string name="reminder_gratitude_notification_title">Dankbarkeitstagebuch</string>
+    <string name="reminder_gratitude_notification_text">Wofür bist du heute dankbar? Nimm dir einen Moment zum Nachdenken.</string>
     <string name="reminder_emotion_label">Zufällige Emotions-Erinnerungen</string>
     <string name="reminder_emotion_count_label">Erinnerungen pro Tag: %d</string>
     <string name="reminder_waking_hours_label">Wachstunden</string>
