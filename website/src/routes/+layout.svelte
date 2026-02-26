@@ -26,7 +26,8 @@
 		backupVisible: true,
 		pdfExportVisible: true,
 		activityLogVisible: true,
-		dayPlannerVisible: true
+		dayPlannerVisible: true,
+		gratitudeVisible: true
 	});
 
 	function handleVisibilityChanged(event: Event) {

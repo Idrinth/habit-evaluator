@@ -16,6 +16,9 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -33,7 +36,11 @@ public class FileSystemGratitudeEntryRepository implements GratitudeEntryReposit
 
     public FileSystemGratitudeEntryRepository(File storageDir) {
         if (!storageDir.exists()) {
-            storageDir.mkdirs();
+            boolean created = storageDir.mkdirs();
+            if (!created && !storageDir.exists()) {
+                throw new IllegalStateException(
+                        "Failed to create storage directory: " + storageDir.getAbsolutePath());
+            }
         }
         this.storageFile = new File(storageDir, "gratitude_entries.json");
         this.gson = GsonSerializers.createGson();
@@ -76,8 +83,17 @@ public class FileSystemGratitudeEntryRepository implements GratitudeEntryReposit
             for (GratitudeEntry entry : store.values()) {
                 array.add(serializeEntry(entry));
             }
-            try (FileWriter writer = new FileWriter(storageFile)) {
+            Path storagePath = storageFile.toPath();
+            Path tempPath = storagePath.resolveSibling(storageFile.getName() + ".tmp");
+            try (FileWriter writer = new FileWriter(tempPath.toFile())) {
                 gson.toJson(array, writer);
+                writer.flush();
+            }
+            try {
+                Files.move(tempPath, storagePath,
+                        StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING);
+            } catch (java.nio.file.AtomicMoveNotSupportedException e) {
+                Files.move(tempPath, storagePath, StandardCopyOption.REPLACE_EXISTING);
             }
         } catch (IOException e) {
             throw new RuntimeException("Failed to persist gratitude entries to filesystem", e);

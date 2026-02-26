@@ -12,7 +12,7 @@ import java.util.Map;
 public class BackupData {
 
     private String backupDate;
-    private int version = 1;
+    private int version = 2;
     private UserData user;
     private List<HabitData> habits = new ArrayList<>();
     private List<CategoryData> categories = new ArrayList<>();

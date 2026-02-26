@@ -42,10 +42,12 @@
 		e.preventDefault();
 		if (!description.trim()) return;
 		error = '';
+		const today = new Date().toISOString().split('T')[0];
+		const clampedDate = eventDate > today ? today : eventDate;
 		try {
 			await gratitude.create({
 				description: description.trim(),
-				eventDate
+				eventDate: clampedDate
 			});
 			description = '';
 			eventDate = new Date().toISOString().split('T')[0];
@@ -128,7 +130,7 @@
 							<span class="entry-date">{entry.eventDate}</span>
 							<span class="entry-description">{entry.description}</span>
 						</div>
-						<button class="delete-btn" onclick={() => handleDelete(entry.id)}>X</button>
+						<button class="delete-btn" aria-label={t('gratitude.deleteEntry', lang)} onclick={() => handleDelete(entry.id)}>X</button>
 					</div>
 				{/each}
 			</div>

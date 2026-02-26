@@ -72,7 +72,13 @@ fun GratitudeScreen(viewModel: AppViewModel) {
 
     fun loadEntries() {
         scope.launch(Dispatchers.IO) {
-            val userId = localUser?.id ?: return@launch
+            val userId = localUser?.id
+            if (userId == null) {
+                withContext(Dispatchers.Main) {
+                    entries = emptyList()
+                }
+                return@launch
+            }
             val list = viewModel.gratitudeEntryRepository.findByUserId(userId)
             withContext(Dispatchers.Main) {
                 entries = list

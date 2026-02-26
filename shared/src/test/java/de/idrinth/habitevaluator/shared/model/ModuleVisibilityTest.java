@@ -28,6 +28,7 @@ class ModuleVisibilityTest {
         assertTrue(mv.isPdfExportVisible());
         assertTrue(mv.isActivityLogVisible());
         assertTrue(mv.isDayPlannerVisible());
+        assertTrue(mv.isGratitudeVisible());
     }
 
     @Test
@@ -112,6 +113,15 @@ class ModuleVisibilityTest {
         ModuleVisibility mv = new ModuleVisibility();
         mv.setDayPlannerVisible(false);
         assertFalse(mv.isDayPlannerVisible());
+    }
+
+    @Test
+    void testSetGratitudeVisible() {
+        ModuleVisibility mv = new ModuleVisibility();
+        mv.setGratitudeVisible(false);
+        assertFalse(mv.isGratitudeVisible());
+        mv.setGratitudeVisible(true);
+        assertTrue(mv.isGratitudeVisible());
     }
 
     @Test

@@ -18,6 +18,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 class GratitudeControllerTest {
@@ -136,6 +137,7 @@ class GratitudeControllerTest {
 
     @Test
     void testGetStatsSuccess() {
+        when(statsCacheService.getCachedMap(any(), any())).thenReturn(null);
         List<GratitudeEntry> entries = List.of(new GratitudeEntry("Test"));
         when(gratitudeEntryRepository.findByUserId(testUser.getId())).thenReturn(entries);
         when(gratitudeService.getDayCount(any(), any())).thenReturn(1);
@@ -154,5 +156,23 @@ class GratitudeControllerTest {
         assertEquals(15, stats.get("monthCount"));
         assertEquals(1.5, stats.get("dailyAverage"));
         assertEquals(3, stats.get("currentStreak"));
+        verify(statsCacheService).putMap(eq(testUser.getId()), any(), any());
+    }
+
+    @Test
+    void testGetStatsCacheHit() {
+        Map<String, Object> cachedStats = new java.util.HashMap<>();
+        cachedStats.put("todayCount", 2);
+        cachedStats.put("weekCount", 10);
+        cachedStats.put("monthCount", 30);
+        cachedStats.put("dailyAverage", 2.0);
+        cachedStats.put("currentStreak", 5);
+        when(statsCacheService.getCachedMap(testUser.getId(), "gratitudeStats")).thenReturn(cachedStats);
+
+        ResponseEntity<Map<String, Object>> response = controller.getStats(session);
+
+        assertEquals(200, response.getStatusCode().value());
+        assertEquals(2, response.getBody().get("todayCount"));
+        verify(gratitudeEntryRepository, never()).findByUserId(any());
     }
 }

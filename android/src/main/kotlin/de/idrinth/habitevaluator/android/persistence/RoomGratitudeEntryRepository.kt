@@ -3,6 +3,7 @@ package de.idrinth.habitevaluator.android.persistence
 import de.idrinth.habitevaluator.shared.model.GratitudeEntry
 import de.idrinth.habitevaluator.shared.repository.GratitudeEntryRepository
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.runBlocking
 import java.util.Optional
 
@@ -11,32 +12,47 @@ class RoomGratitudeEntryRepository(
 ) : GratitudeEntryRepository {
 
     override fun save(entry: GratitudeEntry): GratitudeEntry = runBlocking {
-        dao.insert(entry.toEntity())
-        entry
+        saveSuspend(entry)
     }
 
     override fun findById(id: String): Optional<GratitudeEntry> = runBlocking {
-        val entity = dao.findById(id) ?: return@runBlocking Optional.empty()
-        Optional.of(entity.toModel())
+        findByIdSuspend(id)
     }
 
     override fun findAll(): List<GratitudeEntry> = runBlocking {
-        dao.findAll().map { it.toModel() }
+        findAllSuspend()
     }
 
     override fun deleteById(id: String) = runBlocking {
-        dao.deleteById(id)
+        deleteByIdSuspend(id)
     }
 
     override fun findByUserId(userId: String): List<GratitudeEntry> = runBlocking {
-        dao.findByUserId(userId).map { it.toModel() }
+        findByUserIdSuspend(userId)
     }
 
-    fun observeByUserId(userId: String): Flow<List<GratitudeEntryEntity>> =
-        dao.observeByUserId(userId)
+    fun observeByUserId(userId: String): Flow<List<GratitudeEntry>> =
+        dao.observeByUserId(userId).map { entities -> entities.map { it.toModel() } }
 
     suspend fun saveSuspend(entry: GratitudeEntry): GratitudeEntry {
         dao.insert(entry.toEntity())
         return entry
+    }
+
+    suspend fun findByIdSuspend(id: String): Optional<GratitudeEntry> {
+        val entity = dao.findById(id) ?: return Optional.empty()
+        return Optional.of(entity.toModel())
+    }
+
+    suspend fun findAllSuspend(): List<GratitudeEntry> {
+        return dao.findAll().map { it.toModel() }
+    }
+
+    suspend fun deleteByIdSuspend(id: String) {
+        dao.deleteById(id)
+    }
+
+    suspend fun findByUserIdSuspend(userId: String): List<GratitudeEntry> {
+        return dao.findByUserId(userId).map { it.toModel() }
     }
 }

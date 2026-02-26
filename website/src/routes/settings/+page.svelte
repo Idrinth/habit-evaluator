@@ -12,6 +12,8 @@
 		diaryReminderTime: '20:00',
 		emotionReminderEnabled: false,
 		emotionReminderCount: 3,
+		gratitudeReminderEnabled: false,
+		gratitudeReminderTime: '20:00',
 		wakingHoursStart: '07:00',
 		wakingHoursEnd: '22:00'
 	});
@@ -28,7 +30,8 @@
 		backupVisible: true,
 		pdfExportVisible: true,
 		activityLogVisible: true,
-		dayPlannerVisible: true
+		dayPlannerVisible: true,
+		gratitudeVisible: true
 	});
 
 	let error = $state('');
@@ -49,6 +52,8 @@
 				diaryReminderTime: formatTime(reminderData.diaryReminderTime) || '20:00',
 				emotionReminderEnabled: reminderData.emotionReminderEnabled,
 				emotionReminderCount: reminderData.emotionReminderCount || 3,
+				gratitudeReminderEnabled: reminderData.gratitudeReminderEnabled,
+				gratitudeReminderTime: formatTime(reminderData.gratitudeReminderTime) || '20:00',
 				wakingHoursStart: formatTime(reminderData.wakingHoursStart) || '07:00',
 				wakingHoursEnd: formatTime(reminderData.wakingHoursEnd) || '22:00'
 			};
@@ -64,7 +69,8 @@
 				backupVisible: visibilityData.backupVisible,
 				pdfExportVisible: visibilityData.pdfExportVisible,
 				activityLogVisible: visibilityData.activityLogVisible,
-				dayPlannerVisible: visibilityData.dayPlannerVisible
+				dayPlannerVisible: visibilityData.dayPlannerVisible,
+				gratitudeVisible: visibilityData.gratitudeVisible
 			};
 		} catch (err) {
 			error = err instanceof Error ? err.message : 'Failed to load settings';

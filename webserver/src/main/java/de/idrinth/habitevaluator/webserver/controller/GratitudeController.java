@@ -15,10 +15,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/gratitude")
 public class GratitudeController {
+
+    private static final String GRATITUDE_STATS = "gratitudeStats";
 
     private final GratitudeEntryRepository gratitudeEntryRepository;
     private final UserRepository userRepository;
@@ -55,6 +58,7 @@ public class GratitudeController {
             return ResponseEntity.status(401).build();
         }
         User user = userOpt.get();
+        entry.setId(UUID.randomUUID().toString());
         entry.setUser(user);
 
         GratitudeEntry saved = gratitudeEntryRepository.save(entry);
@@ -87,6 +91,10 @@ public class GratitudeController {
         if (userId == null) {
             return ResponseEntity.status(401).build();
         }
+        Map<String, Object> cached = statsCacheService.getCachedMap(userId, GRATITUDE_STATS);
+        if (cached != null) {
+            return ResponseEntity.ok(cached);
+        }
         List<GratitudeEntry> entries = gratitudeEntryRepository.findByUserId(userId);
         Map<String, Object> stats = new HashMap<>();
         stats.put("todayCount", gratitudeService.getDayCount(entries, LocalDate.now()));
@@ -94,6 +102,7 @@ public class GratitudeController {
         stats.put("monthCount", gratitudeService.getCurrentMonthCount(entries));
         stats.put("dailyAverage", gratitudeService.getDailyAverageForMonth(entries));
         stats.put("currentStreak", gratitudeService.getCurrentStreak(entries));
+        statsCacheService.putMap(userId, GRATITUDE_STATS, stats);
         return ResponseEntity.ok(stats);
     }
 }
