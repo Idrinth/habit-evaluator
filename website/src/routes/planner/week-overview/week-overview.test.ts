@@ -34,8 +34,8 @@ describe('Week Overview Page', () => {
 	it('should render the grid when slots exist', async () => {
 		vi.mocked(dayPlanner.weekOverview).mockResolvedValue({
 			slots: [
-				{ dayOfWeek: 1, hour: 9 },
-				{ dayOfWeek: 3, hour: 14 }
+				{ dayOfWeek: 1, hour: 9, duration: 1 },
+				{ dayOfWeek: 3, hour: 14, duration: 1 }
 			]
 		});
 		render(WeekOverviewPage);
@@ -47,7 +47,7 @@ describe('Week Overview Page', () => {
 
 	it('should mark occupied cells correctly', async () => {
 		vi.mocked(dayPlanner.weekOverview).mockResolvedValue({
-			slots: [{ dayOfWeek: 1, hour: 9 }]
+			slots: [{ dayOfWeek: 1, hour: 9, duration: 1 }]
 		});
 		render(WeekOverviewPage);
 
@@ -60,7 +60,7 @@ describe('Week Overview Page', () => {
 
 	it('should mark free cells correctly', async () => {
 		vi.mocked(dayPlanner.weekOverview).mockResolvedValue({
-			slots: [{ dayOfWeek: 1, hour: 9 }]
+			slots: [{ dayOfWeek: 1, hour: 9, duration: 1 }]
 		});
 		render(WeekOverviewPage);
 
@@ -82,7 +82,7 @@ describe('Week Overview Page', () => {
 
 	it('should render day headers', async () => {
 		vi.mocked(dayPlanner.weekOverview).mockResolvedValue({
-			slots: [{ dayOfWeek: 1, hour: 0 }]
+			slots: [{ dayOfWeek: 1, hour: 0, duration: 1 }]
 		});
 		render(WeekOverviewPage);
 
@@ -99,7 +99,7 @@ describe('Week Overview Page', () => {
 
 	it('should show legend when slots exist', async () => {
 		vi.mocked(dayPlanner.weekOverview).mockResolvedValue({
-			slots: [{ dayOfWeek: 1, hour: 9 }]
+			slots: [{ dayOfWeek: 1, hour: 9, duration: 1 }]
 		});
 		render(WeekOverviewPage);
 
