@@ -317,6 +317,56 @@
 					</div>
 				{/if}
 			</div>
+
+			<div class="chart-card">
+				<h2>Gratitude Entries</h2>
+				<p class="chart-avg">Avg: {formatValue(average(data.gratitudeEntries), 1)}</p>
+				{#if true}
+					{@const gratitudeTrend = calculateTrendLine(data.gratitudeEntries)}
+					{@const gratitudeMax = maxValue(data.gratitudeEntries)}
+					<div class="chart-wrapper">
+						<svg viewBox="0 0 {data.labels.length * 20} 200" class="bar-chart">
+							{#each data.gratitudeEntries as value, i}
+								{@const height = gratitudeMax > 0 ? (value / gratitudeMax) * 170 : 0}
+								<rect
+									x={i * 20 + 2}
+									y={180 - height}
+									width="16"
+									height={Math.max(height, 0)}
+									fill="#FFB74D"
+									rx="2"
+								>
+									<title>{data.labels[i]}: {value}</title>
+								</rect>
+							{/each}
+							<line x1="0" y1="180" x2={data.labels.length * 20} y2="180" stroke="var(--color-border)" stroke-width="1" />
+							{#if data.gratitudeEntries.length >= 2}
+								{@const bounds = findDataBounds(data.gratitudeEntries)}
+								{#if bounds.first !== -1 && bounds.last !== -1 && bounds.first !== bounds.last}
+									{@const startY = gratitudeMax > 0 ? 180 - (getTrendY(gratitudeTrend, bounds.first) / gratitudeMax) * 170 : 180}
+									{@const endY = gratitudeMax > 0 ? 180 - (getTrendY(gratitudeTrend, bounds.last) / gratitudeMax) * 170 : 180}
+									<line
+										x1={bounds.first * 20 + 10}
+										y1={Math.max(10, Math.min(180, startY))}
+										x2={bounds.last * 20 + 10}
+										y2={Math.max(10, Math.min(180, endY))}
+										stroke="#E91E63"
+										stroke-width="2"
+										stroke-dasharray="4,2"
+									/>
+								{/if}
+							{/if}
+						</svg>
+						<div class="chart-labels">
+							{#each data.labels as label, i}
+								{#if i % 5 === 0}
+									<span style="left: {(i / data.labels.length) * 100}%">{label}</span>
+								{/if}
+							{/each}
+						</div>
+					</div>
+				{/if}
+			</div>
 		</div>
 
 		{#if timelineData && timelineData.habits.length > 0}

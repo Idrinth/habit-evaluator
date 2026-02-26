@@ -5,6 +5,7 @@ import de.idrinth.habitevaluator.shared.model.EmotionEntry;
 import de.idrinth.habitevaluator.shared.model.EmotionPair;
 import de.idrinth.habitevaluator.shared.model.EventCorrelation;
 import de.idrinth.habitevaluator.shared.model.FoodLog;
+import de.idrinth.habitevaluator.shared.model.GratitudeEntry;
 import de.idrinth.habitevaluator.shared.model.Habit;
 import de.idrinth.habitevaluator.shared.model.HabitCategory;
 import de.idrinth.habitevaluator.shared.model.HabitScore;
@@ -14,6 +15,7 @@ import de.idrinth.habitevaluator.shared.repository.ActivityLogRepository;
 import de.idrinth.habitevaluator.shared.repository.DiaryEntryRepository;
 import de.idrinth.habitevaluator.shared.repository.EmotionEntryRepository;
 import de.idrinth.habitevaluator.shared.repository.FoodLogRepository;
+import de.idrinth.habitevaluator.shared.repository.GratitudeEntryRepository;
 import de.idrinth.habitevaluator.shared.repository.HabitCategoryRepository;
 import de.idrinth.habitevaluator.shared.repository.HabitRepository;
 import de.idrinth.habitevaluator.shared.repository.MedicationLogRepository;
@@ -52,6 +54,7 @@ class StatsControllerTest {
     private MeetingEntryRepository meetingEntryRepository;
     private ActivityLogRepository activityLogRepository;
     private MedicationLogRepository medicationLogRepository;
+    private GratitudeEntryRepository gratitudeEntryRepository;
     private HabitScoringService scoringService;
     private DiaryService diaryService;
     private EventCorrelationService correlationService;
@@ -72,6 +75,7 @@ class StatsControllerTest {
         meetingEntryRepository = mock(MeetingEntryRepository.class);
         activityLogRepository = mock(ActivityLogRepository.class);
         medicationLogRepository = mock(MedicationLogRepository.class);
+        gratitudeEntryRepository = mock(GratitudeEntryRepository.class);
         scoringService = mock(HabitScoringService.class);
         diaryService = mock(DiaryService.class);
         correlationService = mock(EventCorrelationService.class);
@@ -79,6 +83,7 @@ class StatsControllerTest {
         controller = new StatsController(habitRepository, sleepEntryRepository, diaryEntryRepository,
                 emotionEntryRepository, habitCategoryRepository, sportLogRepository, foodLogRepository,
                 meetingEntryRepository, activityLogRepository, medicationLogRepository,
+                gratitudeEntryRepository,
                 scoringService, diaryService, correlationService, statsCacheService);
         session = new MockHttpSession();
         testUser = new User("testuser", "password");
@@ -97,6 +102,7 @@ class StatsControllerTest {
         when(habitRepository.findByUserId(testUser.getId())).thenReturn(new ArrayList<>());
         when(diaryEntryRepository.findByUserId(testUser.getId())).thenReturn(new ArrayList<>());
         when(sleepEntryRepository.findByUserId(testUser.getId())).thenReturn(new ArrayList<>());
+        when(gratitudeEntryRepository.findByUserId(testUser.getId())).thenReturn(new ArrayList<>());
         when(diaryService.getDayPoints(any(), any(LocalDate.class))).thenReturn(0);
 
         ResponseEntity<Map<String, Object>> response = controller.getDashboard(session);
@@ -109,9 +115,38 @@ class StatsControllerTest {
         assertTrue(body.containsKey("diaryPoints"));
         assertTrue(body.containsKey("sleepDuration"));
         assertTrue(body.containsKey("sleepEntries"));
+        assertTrue(body.containsKey("gratitudeEntries"));
 
         List<?> labels = (List<?>) body.get("labels");
         assertEquals(30, labels.size());
+
+        List<?> gratitudeEntries = (List<?>) body.get("gratitudeEntries");
+        assertEquals(30, gratitudeEntries.size());
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    void testGetDashboardWithGratitudeEntries() {
+        when(habitRepository.findByUserId(testUser.getId())).thenReturn(new ArrayList<>());
+        when(diaryEntryRepository.findByUserId(testUser.getId())).thenReturn(new ArrayList<>());
+        when(sleepEntryRepository.findByUserId(testUser.getId())).thenReturn(new ArrayList<>());
+        when(diaryService.getDayPoints(any(), any(LocalDate.class))).thenReturn(0);
+
+        GratitudeEntry entry1 = new GratitudeEntry("Grateful for sunshine", LocalDate.now());
+        GratitudeEntry entry2 = new GratitudeEntry("Grateful for friends", LocalDate.now());
+        GratitudeEntry entry3 = new GratitudeEntry("Grateful for health", LocalDate.now().minusDays(1));
+        when(gratitudeEntryRepository.findByUserId(testUser.getId())).thenReturn(List.of(entry1, entry2, entry3));
+
+        ResponseEntity<Map<String, Object>> response = controller.getDashboard(session);
+
+        assertEquals(200, response.getStatusCode().value());
+        Map<String, Object> body = response.getBody();
+        assertNotNull(body);
+
+        List<Integer> gratitudeEntries = (List<Integer>) body.get("gratitudeEntries");
+        assertEquals(30, gratitudeEntries.size());
+        assertEquals(2, gratitudeEntries.get(29));
+        assertEquals(1, gratitudeEntries.get(28));
     }
 
     @Test
