@@ -706,6 +706,7 @@ export interface PlannerActivity {
 export interface GratitudeEntry {
 	id: string;
 	description: string;
+	reason: string | null;
 	eventDate: string;
 	createdAt: string;
 }
@@ -722,7 +723,7 @@ export const gratitude = {
 	list() {
 		return request<GratitudeEntry[]>('/gratitude');
 	},
-	create(entry: { description: string; eventDate: string }) {
+	create(entry: { description: string; reason?: string; eventDate: string }) {
 		return request<GratitudeEntry>('/gratitude', {
 			method: 'POST',
 			body: JSON.stringify(entry)

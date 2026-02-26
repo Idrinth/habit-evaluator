@@ -6,6 +6,7 @@ module.exports = (apiRootUrl,) => ({
     autohandle: 'json',
     body: {
       description: 'I am grateful for this benchmark test',
+      reason: 'it validates the API performance',
       eventDate: new Date().toISOString().split('T')[0],
     },
     maxDuration: 500,

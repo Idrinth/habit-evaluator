@@ -374,6 +374,8 @@ gratitude_diary:
   description_hint: "Pour quoi êtes-vous reconnaissant ?"
   prompt_grateful: "Je suis reconnaissant pour..."
   prompt_thankful: "Je suis reconnaissant de..."
+  reason: "Parce que"
+  reason_hint: "Pourquoi êtes-vous reconnaissant pour cela ?"
   date: "Date"
   no_entries: "Aucune entrée de gratitude pour l'instant. Pour quoi êtes-vous reconnaissant aujourd'hui ?"
   delete: "Supprimer"

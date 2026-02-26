@@ -374,6 +374,8 @@ gratitude_diary:
   description_hint: "¿Por qué estás agradecido?"
   prompt_grateful: "Estoy agradecido por..."
   prompt_thankful: "Doy gracias por..."
+  reason: "Porque"
+  reason_hint: "¿Por qué estás agradecido por esto?"
   date: "Fecha"
   no_entries: "Aún no hay entradas de gratitud. ¿Por qué estás agradecido hoy?"
   delete: "Eliminar"

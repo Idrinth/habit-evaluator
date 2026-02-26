@@ -669,6 +669,7 @@ fun SlotConfirmationEntity.toModel(
 fun GratitudeEntry.toEntity(): GratitudeEntryEntity = GratitudeEntryEntity(
     id = id,
     description = description ?: "",
+    reason = reason,
     eventDate = eventDate?.format(DATE_FORMAT) ?: LocalDate.now().format(DATE_FORMAT),
     createdAt = createdAt?.format(DT_FORMAT) ?: LocalDateTime.now().format(DT_FORMAT),
     userId = user?.id ?: "",
@@ -679,6 +680,7 @@ fun GratitudeEntryEntity.toModel(): GratitudeEntry {
     val entry = GratitudeEntry()
     entry.id = id
     entry.description = description
+    entry.reason = reason
     entry.eventDate = parseDateOrNull(eventDate)
     entry.createdAt = parseDateTimeOrNull(createdAt)
     val u = User()

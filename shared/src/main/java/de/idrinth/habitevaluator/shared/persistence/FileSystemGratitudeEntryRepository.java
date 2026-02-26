@@ -122,6 +122,7 @@ public class FileSystemGratitudeEntryRepository implements GratitudeEntryReposit
         JsonObject obj = new JsonObject();
         obj.addProperty("id", entry.getId());
         obj.addProperty("description", entry.getDescription());
+        obj.addProperty("reason", entry.getReason());
         obj.add("eventDate", gson.toJsonTree(entry.getEventDate()));
         obj.add("createdAt", gson.toJsonTree(entry.getCreatedAt()));
 
@@ -136,6 +137,7 @@ public class FileSystemGratitudeEntryRepository implements GratitudeEntryReposit
         GratitudeEntry entry = new GratitudeEntry();
         entry.setId(obj.get("id").getAsString());
         entry.setDescription(getStringOrNull(obj, "description"));
+        entry.setReason(getStringOrNull(obj, "reason"));
 
         if (hasNonNull(obj, "eventDate")) {
             entry.setEventDate(gson.fromJson(obj.get("eventDate"), LocalDate.class));

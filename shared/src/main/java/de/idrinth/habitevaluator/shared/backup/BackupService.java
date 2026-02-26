@@ -1103,6 +1103,7 @@ public class BackupService {
                     GratitudeEntry newEntry = new GratitudeEntry();
                     newEntry.setId(entryData.getId());
                     newEntry.setDescription(entryData.getDescription());
+                    newEntry.setReason(entryData.getReason());
                     if (entryData.getEventDate() != null) {
                         newEntry.setEventDate(LocalDate.parse(entryData.getEventDate()));
                     }
@@ -2116,6 +2117,7 @@ public class BackupService {
                 BackupData.GratitudeEntryData entryData = new BackupData.GratitudeEntryData();
                 entryData.setId(entry.getId());
                 entryData.setDescription(entry.getDescription());
+                entryData.setReason(entry.getReason());
                 if (entry.getEventDate() != null) {
                     entryData.setEventDate(entry.getEventDate().toString());
                 }

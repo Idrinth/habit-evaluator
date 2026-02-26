@@ -299,6 +299,7 @@ data class SlotConfirmationEntity(
 data class GratitudeEntryEntity(
     @PrimaryKey @ColumnInfo(name = "id") val id: String,
     @ColumnInfo(name = "description") val description: String,
+    @ColumnInfo(name = "reason") val reason: String?,
     @ColumnInfo(name = "event_date") val eventDate: String,
     @ColumnInfo(name = "created_at") val createdAt: String,
     @ColumnInfo(name = "user_id") val userId: String,
