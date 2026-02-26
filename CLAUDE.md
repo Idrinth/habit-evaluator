@@ -36,9 +36,9 @@ habit-evaluator/
 
 Core library consumed by all platform modules. Uses JPMS (`module-info.java`) and opens model package to Hibernate for reflection and backup package to GSON for serialization.
 
-- **Models:** `Habit`, `HabitEntry`, `User`, `HabitCategory`, `Evaluation`, `ScoringRule`, `WeeklyScore`, `HabitScore`, `PredictedWeeklyScore`, `PredictedHabitScore`, `MagicLink`, `FrequencyType` (enum: DAILY/WEEKLY/MONTHLY), `DiaryEntry`, `DiaryReference`, `EventSignificance` (enum: MINOR/NORMAL/MAJOR), `SleepEntry`, `SleepStats`, `SleepDistribution`, `EmotionEntry`, `EmotionPair`, `EmotionStrengthFormatter`, `EventCorrelation`, `ReminderSettings`, `FoodLog`, `FoodTag`, `SportLog`, `SportLogStats`, `Medication`, `MedicationLog`, `MedicationProvisionType` (enum: PILL/LIQUID_DROPS/LIQUID_ML), `MeetingEntry`, `ModuleVisibility`, `EmergencyPlanStep` (question-based steps with ordering), `EmergencyPlanAction` (actions with optional phone numbers), `ActivityLog` (activity tracking with persons, location, time range, optional activity description), `ActivityGroup` (groups for activity log entries), `PlannerGroup` (groups of planner activities, e.g. "fitness", "creative projects"), `PlannerActivity` (individual tasks suggested during planner time slots, belongs to multiple groups), `WeekPlannerSlot` (time slot in weekly planner: ISO-8601 day-of-week 1-7, hour 0-23, assigned groups), `SlotConfirmation` (records user confirm/deny of suggested planner activity)
+- **Models:** `Habit`, `HabitEntry`, `User`, `HabitCategory`, `Evaluation`, `ScoringRule`, `WeeklyScore`, `HabitScore`, `PredictedWeeklyScore`, `PredictedHabitScore`, `MagicLink`, `FrequencyType` (enum: DAILY/WEEKLY/MONTHLY), `DiaryEntry`, `DiaryReference`, `EventSignificance` (enum: MINOR/NORMAL/MAJOR), `SleepEntry`, `SleepStats`, `SleepDistribution`, `EmotionEntry`, `EmotionPair`, `EmotionStrengthFormatter`, `EventCorrelation`, `ReminderSettings`, `FoodLog`, `FoodTag`, `SportLog`, `SportLogStats`, `Medication`, `MedicationLog`, `MedicationProvisionType` (enum: PILL/LIQUID_DROPS/LIQUID_ML), `MeetingEntry`, `ModuleVisibility`, `EmergencyPlanStep` (question-based steps with ordering), `EmergencyPlanAction` (actions with optional phone numbers), `ActivityLog` (activity tracking with persons, location, time range, optional activity description; many-to-many with `ActivityGroup` and `PersonTag`), `ActivityGroup` (groups for activity log entries), `PersonTag` (normalized case-insensitive person tag for autocomplete/deduplication, similar to FoodTag pattern), `PlannerGroup` (groups of planner activities, e.g. "fitness", "creative projects"), `PlannerActivity` (individual tasks suggested during planner time slots, belongs to multiple groups), `WeekPlannerSlot` (time slot in weekly planner: ISO-8601 day-of-week 1-7, hour 0-23, duration in hours, assigned groups), `SlotConfirmation` (records user confirm/deny of suggested planner activity)
 - **Services:** `HabitEvaluatorService` (streaks, completion rates, on-track detection, avoidance streaks for negative habits), `HabitScoringService` (point scoring with thresholds 0/1/2/4/8, weekly aggregation, predicted scores), `DiaryService` (day/week/month points, weekly averages, monthly trends, daily averages), `SleepEvaluationService` (sleep stats: avg/min/max hours, weekly/monthly aggregation, overlap detection), `EventCorrelationService` (time-weighted Pearson correlations with proximity boost across habits, diary, sleep, and emotions over past year; returns top 10 by absolute strength), `SportLogService` (sport log statistics and analysis), `DayPlannerService` (random activity suggestion via two-step group→activity selection, confirmation rate calculation, week slot summary), `DefaultDataInitializer` (42 default habits, 10 categories, 10 emotion pairs with i18n)
-- **Repositories (interfaces):** `HabitRepository`, `UserRepository`, `HabitCategoryRepository`, `ScoringRuleRepository`, `MagicLinkRepository`, `DiaryEntryRepository`, `DiaryReferenceRepository`, `SleepEntryRepository`, `EmotionEntryRepository`, `EmotionPairRepository`, `ReminderSettingsRepository`, `FoodLogRepository`, `FoodTagRepository`, `SportLogRepository`, `MedicationRepository`, `MedicationLogRepository`, `MeetingEntryRepository`, `ModuleVisibilityRepository`, `EmergencyPlanStepRepository`, `EmergencyPlanActionRepository`, `ActivityLogRepository`, `ActivityGroupRepository`, `PlannerActivityRepository`, `PlannerGroupRepository`, `WeekPlannerSlotRepository`, `SlotConfirmationRepository`
+- **Repositories (interfaces):** `HabitRepository`, `UserRepository`, `HabitCategoryRepository`, `ScoringRuleRepository`, `MagicLinkRepository`, `DiaryEntryRepository`, `DiaryReferenceRepository`, `SleepEntryRepository`, `EmotionEntryRepository`, `EmotionPairRepository`, `ReminderSettingsRepository`, `FoodLogRepository`, `FoodTagRepository`, `SportLogRepository`, `MedicationRepository`, `MedicationLogRepository`, `MeetingEntryRepository`, `ModuleVisibilityRepository`, `EmergencyPlanStepRepository`, `EmergencyPlanActionRepository`, `ActivityLogRepository`, `ActivityGroupRepository`, `PersonTagRepository`, `PlannerActivityRepository`, `PlannerGroupRepository`, `WeekPlannerSlotRepository`, `SlotConfirmationRepository`
 - **Persistence (shared implementations):** FileSystem repositories (JSON-based via GSON): `FileSystemHabitRepository`, `FileSystemHabitCategoryRepository`, `FileSystemDiaryEntryRepository`, `FileSystemDiaryReferenceRepository`, `FileSystemSleepEntryRepository`, `FileSystemEmotionPairRepository`, `FileSystemEmotionEntryRepository`, `FileSystemPlannerActivityRepository`, `FileSystemPlannerGroupRepository`, `FileSystemSlotConfirmationRepository`, `FileSystemWeekPlannerSlotRepository`; In-memory: `InMemoryHabitRepository`, `InMemoryHabitCategoryRepository`
 - **Localization:** `Localizer` service — YAML-based i18n loaded from classpath `localization/{lang}.yml`. Resolution: module.key (requested lang) -> module.key (English) -> general.key (requested lang) -> general.key (English) -> literal fallback. Uses concurrent caching. `ResourceStreamProvider` for classpath resource loading.
 - **API client:** `ApiClient` (with `maskBugfixVersion()` for version compatibility), `RemoteHabitRepository`, `RemoteUserRepository`, `StorageConfig` (with ThemeMode enum: SYSTEM/LIGHT/DARK), `SyncData`, `SyncService`, `CircuitBreaker` for resilient client-server communication and bidirectional sync, `VersionMismatchException`
@@ -54,7 +54,7 @@ Spring Boot 4.0.2 application with Spring Security, Spring Data JPA, Spring Depe
 - **Entry point:** `de.idrinth.habitevaluator.webserver.HabitEvaluatorWebApplication`
 - **Controllers:** `HabitController`, `AuthController`, `CategoryController`, `ScoringRuleController`, `MagicLinkController`, `DefaultDataController`, `SyncController`, `DiaryController`, `SleepEntryController`, `EmotionPairController`, `ReminderSettingsController`, `StatsController`, `PdfExportController`, `BackupController`, `FoodLogController`, `SportLogController`, `MedicationController`, `MeetingController`, `ModuleVisibilityController`, `VersionController`, `ActivityLogController`, `DayPlannerController`
 - **Services:** `StatsCacheService` (in-memory per-user cache for expensive stats endpoints with configurable TTL and explicit invalidation)
-- **Repositories:** 23 `Database*Repository` wrappers (`DatabaseHabitRepository`, `DatabaseUserRepository`, `DatabaseHabitCategoryRepository`, `DatabaseScoringRuleRepository`, `DatabaseMagicLinkRepository`, `DatabaseDiaryEntryRepository`, `DatabaseDiaryReferenceRepository`, `DatabaseSleepEntryRepository`, `DatabaseEmotionEntryRepository`, `DatabaseEmotionPairRepository`, `DatabaseReminderSettingsRepository`, `DatabaseFoodLogRepository`, `DatabaseFoodTagRepository`, `DatabaseSportLogRepository`, `DatabaseMedicationRepository`, `DatabaseMedicationLogRepository`, `DatabaseMeetingEntryRepository`, `DatabaseModuleVisibilityRepository`, `DatabaseActivityLogRepository`, `DatabasePlannerActivityRepository`, `DatabasePlannerGroupRepository`, `DatabaseSlotConfirmationRepository`, `DatabaseWeekPlannerSlotRepository`) over 24 Spring Data JPA interfaces (`JpaHabitRepository`, `JpaHabitEntryRepository`, `JpaHabitCategoryRepository`, `JpaUserRepository`, `JpaScoringRuleRepository`, `JpaMagicLinkRepository`, `JpaDiaryEntryRepository`, `JpaDiaryReferenceRepository`, `JpaSleepEntryRepository`, `JpaEmotionEntryRepository`, `JpaEmotionPairRepository`, `JpaReminderSettingsRepository`, `JpaFoodLogRepository`, `JpaFoodTagRepository`, `JpaSportLogRepository`, `JpaMedicationRepository`, `JpaMedicationLogRepository`, `JpaMeetingEntryRepository`, `JpaModuleVisibilityRepository`, `JpaActivityLogRepository`, `JpaPlannerActivityRepository`, `JpaPlannerGroupRepository`, `JpaSlotConfirmationRepository`, `JpaWeekPlannerSlotRepository`)
+- **Repositories:** 24 `Database*Repository` wrappers (`DatabaseHabitRepository`, `DatabaseUserRepository`, `DatabaseHabitCategoryRepository`, `DatabaseScoringRuleRepository`, `DatabaseMagicLinkRepository`, `DatabaseDiaryEntryRepository`, `DatabaseDiaryReferenceRepository`, `DatabaseSleepEntryRepository`, `DatabaseEmotionEntryRepository`, `DatabaseEmotionPairRepository`, `DatabaseReminderSettingsRepository`, `DatabaseFoodLogRepository`, `DatabaseFoodTagRepository`, `DatabaseSportLogRepository`, `DatabaseMedicationRepository`, `DatabaseMedicationLogRepository`, `DatabaseMeetingEntryRepository`, `DatabaseModuleVisibilityRepository`, `DatabaseActivityLogRepository`, `DatabasePersonTagRepository`, `DatabasePlannerActivityRepository`, `DatabasePlannerGroupRepository`, `DatabaseSlotConfirmationRepository`, `DatabaseWeekPlannerSlotRepository`) over 25 Spring Data JPA interfaces (`JpaHabitRepository`, `JpaHabitEntryRepository`, `JpaHabitCategoryRepository`, `JpaUserRepository`, `JpaScoringRuleRepository`, `JpaMagicLinkRepository`, `JpaDiaryEntryRepository`, `JpaDiaryReferenceRepository`, `JpaSleepEntryRepository`, `JpaEmotionEntryRepository`, `JpaEmotionPairRepository`, `JpaReminderSettingsRepository`, `JpaFoodLogRepository`, `JpaFoodTagRepository`, `JpaSportLogRepository`, `JpaMedicationRepository`, `JpaMedicationLogRepository`, `JpaMeetingEntryRepository`, `JpaModuleVisibilityRepository`, `JpaActivityLogRepository`, `JpaPersonTagRepository`, `JpaPlannerActivityRepository`, `JpaPlannerGroupRepository`, `JpaSlotConfirmationRepository`, `JpaWeekPlannerSlotRepository`)
 - **Configuration:** `SecurityConfig` (BCrypt, session-based auth, CSRF disabled), `AppConfig` (service beans), `DataInitializer` (demo user: username "demo", password "demo123"), `RequestIdFilter` (CSRF & replay attack prevention requiring X-Request-ID header on state-changing requests)
 - **DTOs:** `LoginRequest`, `LoginResponse` (standalone); `CreateCategoryRequest`, `CreateScoringRuleRequest`, `MagicLinkRequest` (inner classes in controllers)
 - **Database:** H2 (dev, console at `/h2-console`) or MariaDB (production via `mariadb` profile)
@@ -69,7 +69,7 @@ JavaFX 21.0.2 application with JPMS module system.
 - **Entry point:** `de.idrinth.habitevaluator.desktop.HabitEvaluatorDesktopApp`
 - **Controllers:** `MainController`, `AddHabitController`, `SettingsDialogController`, `SyncDialogController`, `StatsController`, `SleepTrackingController`, `EmotionEntryController`, `EmotionPairController`, `PdfExportController`, `ImprintController`
 - **Services:** `ReminderService` (reminder and notification system)
-- **Persistence:** `PersistenceManager`, `JpaTransactionHelper`, `H2HabitRepository`, `H2HabitCategoryRepository`, `H2UserRepository`, `H2DiaryEntryRepository`, `H2DiaryReferenceRepository`, `H2SleepEntryRepository`, `H2EmotionPairRepository`, `H2EmotionEntryRepository`, `H2FoodLogRepository`, `H2FoodTagRepository`, `H2SportLogRepository`, `H2ActivityLogRepository`, `H2PlannerActivityRepository`, `H2PlannerGroupRepository`, `H2SlotConfirmationRepository`, `H2WeekPlannerSlotRepository`
+- **Persistence:** `PersistenceManager`, `JpaTransactionHelper`, `H2HabitRepository`, `H2HabitCategoryRepository`, `H2UserRepository`, `H2DiaryEntryRepository`, `H2DiaryReferenceRepository`, `H2SleepEntryRepository`, `H2EmotionPairRepository`, `H2EmotionEntryRepository`, `H2FoodLogRepository`, `H2FoodTagRepository`, `H2SportLogRepository`, `H2ActivityLogRepository`, `H2PersonTagRepository`, `H2PlannerActivityRepository`, `H2PlannerGroupRepository`, `H2SlotConfirmationRepository`, `H2WeekPlannerSlotRepository`
 - **UI:** FXML layouts (`main.fxml`, `add-habit.fxml`, `settings.fxml`, `sync.fxml`, `stats.fxml`, `sleep-tracking.fxml`, `emotion-entry.fxml`, `emotion-pairs.fxml`, `pdf-export.fxml`, `imprint.fxml`), CSS (`styles.css`, `dark.css`)
 - **Database:** H2 file-based at `~/.habit-evaluator/data`, configured via `persistence.xml`
 - **Dependencies:** JavaFX (controls, FXML), Hibernate Core 6.4.2, H2 2.2.224, Logback 1.4.14, OpenPDF 1.3.35, TestFX Monocle 17.0.10 (test)
@@ -86,12 +86,12 @@ Kotlin/Jetpack Compose Android application (compileSdk 36, targetSdk 35, min 23/
 - **Architecture:** Single-Activity (`MainActivity`) with Navigation Compose; `AppViewModel` (AndroidViewModel) as central state holder managing all repositories, services, sync, backup, and data operations
 - **Screens (Compose):** `HomeScreen`, `DiaryScreen`, `DiaryNavigationScreen`, `SleepTrackingScreen`, `EditHabitsScreen`, `AddHabitScreen`, `StatsScreen`, `PointDevelopmentScreen`, `EmotionalStateScreen`, `RecordEmotionEntryScreen`, `AddEmotionPairScreen`, `SettingsScreen`, `ImprintScreen`, `FoodLogScreen`, `SportLogScreen`, `MedicationListScreen`, `MedicationLogScreen`, `ActivityLogScreen`, `PdfExportScreen`, `SleepAnalysisScreen`, `CorrelationScreen`, `EmergencyPlanScreen`, `EmergencyDialogueScreen`, `BackupScreen`, `PlannerActivityScreen`, `PlannerGroupScreen`, `PlannerNavigationScreen`, `WeekPlannerScreen`
 - **Navigation:** `AppNavigation` (NavHost setup), `Screen` sealed class defining all routes with type-safe navigation
-- **UI Components (Compose):** `PointChart`, `SleepGraph`, `EmotionLineChart`, `EmotionScatterChart`, `SleepDistributionChart` (custom Compose chart components)
+- **UI Components (Compose):** `PointChart`, `SleepGraph`, `EmotionLineChart`, `EmotionScatterChart`, `SleepDistributionChart` (custom Compose chart components), `AutocompleteTextField` (reusable Material 3 autocomplete input with case-insensitive filtering, used in diary/food/activity/sport screens)
 - **UI Theme:** `Color.kt`, `Theme.kt`, `Type.kt` (Material 3 theming)
 - **Utilities:** `FontSizeHelper`, `SettingsConstants` (SharedPreferences keys)
-- **Reminders:** `ReminderScheduler`, `ReminderReceiver` (broadcast receiver for boot-completed and reminder intents)
+- **Reminders:** `ReminderScheduler`, `ReminderReceiver` (broadcast receiver for boot-completed and reminder intents), `PlannerConfirmationReceiver` (broadcast receiver for planner slot notification confirm/deny/timeout actions with 1-hour auto-deny)
 - **Permission Handlers:** `Api33PermissionHandler` (Android 13+), `PreApi33PermissionHandler`, `NotificationPermissionHandler`
-- **Persistence (Room):** `AppDatabase` (Room database, version 12, schema export enabled), `Entities.kt` (Room entity classes), `Daos.kt` (Room DAO interfaces: `HabitDao`, `HabitCategoryDao`, `DiaryDao`, `SleepEntryDao`, `EmotionDao`, `FoodLogDao`, `SportLogDao`, `MedicationDao`, `EmergencyPlanDao`, `ActivityLogDao`, `DayPlannerDao`), `EntityMappers.kt` (Room entity to shared model mapping)
+- **Persistence (Room):** `AppDatabase` (Room database, version 13, schema export enabled), `Entities.kt` (Room entity classes), `Daos.kt` (Room DAO interfaces: `HabitDao`, `HabitCategoryDao`, `DiaryDao`, `SleepEntryDao`, `EmotionDao`, `FoodLogDao`, `SportLogDao`, `MedicationDao`, `EmergencyPlanDao`, `ActivityLogDao`, `DayPlannerDao`), `EntityMappers.kt` (Room entity to shared model mapping)
 - **Room Repositories:** `RoomHabitRepository`, `RoomHabitCategoryRepository`, `RoomDiaryEntryRepository`, `RoomDiaryReferenceRepository`, `RoomSleepEntryRepository`, `RoomEmotionPairRepository`, `RoomEmotionEntryRepository`, `RoomFoodLogRepository`, `RoomFoodTagRepository`, `RoomSportLogRepository`, `RoomMedicationRepository`, `RoomMedicationLogRepository`, `RoomEmergencyPlanStepRepository`, `RoomEmergencyPlanActionRepository`, `RoomActivityLogRepository`, `RoomActivityGroupRepository`, `RoomPlannerActivityRepository`, `RoomPlannerGroupRepository`, `RoomSlotConfirmationRepository`, `RoomWeekPlannerSlotRepository`
 - **Migration:** `LegacySqliteToRoomMigration` (migrates from pre-Room SQLite database to Room)
 - **Room schemas:** Exported to `android/schemas/` for migration testing
@@ -105,7 +105,7 @@ Kotlin/Jetpack Compose Android application (compileSdk 36, targetSdk 35, min 23/
 
 SvelteKit 2.0 frontend application with TypeScript.
 
-- **Routes:** Login, habits (add/edit/home), categories (add/manage), score-rules (add), diary, sleep, emotions graph, stats (dashboard, correlations), points, PDF export, backup, settings, imprint, food-log (home, distribution), sport-graph, activity-log, planner
+- **Routes:** Login, habits (add/edit/home), categories (add/manage), score-rules (add), diary, sleep, emotions graph, stats (dashboard, correlations), points, PDF export, backup, settings, imprint, food-log (home, distribution), sport-graph, activity-log, planner (home, activities, groups, week-overview)
 - **API client:** `src/lib/api.ts` (40+ endpoints, circuit breaker pattern)
 - **i18n:** `src/lib/i18n.ts` — client-side internationalization
 - **Config:** `src/lib/config.ts` — runtime configuration with dynamic API URL
@@ -154,6 +154,8 @@ API performance benchmarking suite using `@idrinth-api-bench/framework`.
 | GET | `/api/habits/predict` | Predict weekly scores |
 | GET | `/api/categories` | List user's categories |
 | POST | `/api/categories` | Create category |
+| PUT | `/api/categories/{id}` | Update category |
+| DELETE | `/api/categories/{id}` | Delete category (optional reassignTo, confirm params) |
 | POST | `/api/score-rules` | Create scoring rule (validates threshold ordering) |
 | POST | `/api/magic-links` | Create magic link for sharing |
 | GET | `/api/magic-links` | List user's magic links |
@@ -168,6 +170,7 @@ API performance benchmarking suite using `@idrinth-api-bench/framework`.
 | POST | `/api/sleep-entries` | Create sleep entry (validates no overlaps) |
 | DELETE | `/api/sleep-entries/{id}` | Delete sleep entry |
 | GET | `/api/sleep-entries/stats` | Sleep stats (weekly and monthly: avg/min/max hours) |
+| GET | `/api/sleep-entries/distribution` | Sleep distribution data |
 | GET | `/api/emotions/pairs` | List user's emotion pairs with labels |
 | GET | `/api/emotions/graph` | Emotion graph data (daily averages, overall averages per pair) |
 | GET | `/api/food-logs` | List user's food log entries |
@@ -175,6 +178,7 @@ API performance benchmarking suite using `@idrinth-api-bench/framework`.
 | DELETE | `/api/food-logs/{id}` | Delete food log entry |
 | GET | `/api/food-logs/suggestions` | Get food item suggestions from tags |
 | POST | `/api/food-logs/migrate-tags` | Migrate existing entries to use food tags |
+| GET | `/api/sport-logs/suggestions` | Get sport name and unit suggestions |
 | GET | `/api/sport-logs` | List user's sport log entries |
 | POST | `/api/sport-logs` | Create sport log entry (validates name and unit) |
 | DELETE | `/api/sport-logs/{id}` | Delete sport log entry |
@@ -187,6 +191,7 @@ API performance benchmarking suite using `@idrinth-api-bench/framework`.
 | GET | `/api/medications/logs` | List user's medication logs |
 | POST | `/api/medications/logs` | Create medication log entry |
 | DELETE | `/api/medications/logs/{id}` | Delete medication log entry |
+| GET | `/api/meetings/suggestions` | Get meeting attendant and place suggestions |
 | GET | `/api/meetings` | List user's meeting entries |
 | POST | `/api/meetings` | Create meeting entry |
 | DELETE | `/api/meetings/{id}` | Delete meeting entry |
@@ -202,6 +207,7 @@ API performance benchmarking suite using `@idrinth-api-bench/framework`.
 | GET | `/api/export/pdf` | PDF report (params: from, to, habits, sleep, diary, emotions flags) |
 | POST | `/api/sync` | Bidirectional sync (merges client/server habits and entries) |
 | POST | `/api/init-defaults` | Initialize default data for user (with language parameter) |
+| GET | `/api/activity-logs/suggestions` | Get person, location, and activity suggestions |
 | GET | `/api/activity-logs` | List user's activity log entries |
 | POST | `/api/activity-logs` | Create activity log entry |
 | PUT | `/api/activity-logs/{id}` | Update activity log entry |
@@ -210,18 +216,20 @@ API performance benchmarking suite using `@idrinth-api-bench/framework`.
 | POST | `/api/backup` | Upload and restore .hez backup (supports selective RestoreOptions) |
 | GET | `/api/day-planner/groups` | List user's planner groups |
 | POST | `/api/day-planner/groups` | Create planner group |
+| PUT | `/api/day-planner/groups/{id}` | Update planner group |
 | DELETE | `/api/day-planner/groups/{id}` | Delete planner group |
 | GET | `/api/day-planner/activities` | List user's planner activities |
 | POST | `/api/day-planner/activities` | Create planner activity (resolves group references) |
 | PUT | `/api/day-planner/activities/{id}` | Update planner activity |
 | DELETE | `/api/day-planner/activities/{id}` | Delete planner activity |
 | GET | `/api/day-planner/slots` | List user's weekly planner slots |
-| POST | `/api/day-planner/slots` | Create weekly planner slot (resolves group references) |
+| POST | `/api/day-planner/slots` | Create weekly planner slot (validates overlap, min duration 1) |
 | DELETE | `/api/day-planner/slots/{id}` | Delete weekly planner slot |
 | GET | `/api/day-planner/confirmations` | List user's slot confirmations |
 | POST | `/api/day-planner/confirmations` | Create slot confirmation (confirm/deny suggested activity) |
-| GET | `/api/day-planner/suggest` | Suggest random activity for day-of-week and hour |
-| GET | `/api/day-planner/summary` | Week summary (filled slots vs total 168 possible) |
+| GET | `/api/day-planner/suggest` | Suggest random activity for day-of-week and hour (multi-hour slot aware) |
+| GET | `/api/day-planner/week-overview` | List occupied slots with day, hour, and duration |
+| GET | `/api/day-planner/summary` | Week summary (filled hours vs total 168 possible) |
 
 ## Database Schema
 
@@ -246,14 +254,17 @@ All entities use UUID string IDs (`@Id @Column(length = 36)`).
 - **medication_logs** — id, medication_id (FK), dose (double), taken_at, notes (500), created_at, user_id (FK)
 - **meeting_entries** — id, place, attendants (1000), start_time, end_time, date, created_at, user_id (FK)
 - **module_visibility** — id, user_id (FK, unique, OneToOne), diary_visible, sleep_visible, emotions_visible, points_visible, statistics_visible, food_log_visible, sport_log_visible, medication_visible, backup_visible, pdf_export_visible, activity_log_visible, day_planner_visible (all default true)
-- **activity_logs** — id, persons (1000), location, start_time, end_time, date, activity (500), created_at, user_id (FK)
+- **activity_logs** — id, persons (1000), location, start_time, end_time, date, activity (500), created_at, user_id (FK); many-to-many with activity_groups via `activity_log_group_links` join table; many-to-many with person_tags via `activity_log_person_tags` join table
 - **activity_groups** — id, name (200), description (500), created_at, user_id (FK)
+- **person_tags** — id, name, name_lower (auto-generated lowercase), user_id (FK); unique constraint on (name_lower, user_id)
 - **emergency_plan_steps** — id, question (500), step_order, user_id (FK)
 - **emergency_plan_actions** — id, action_text (500), phone_number (50, nullable), action_order, step_id (FK to emergency_plan_steps)
 - **planner_groups** — id, name (200), description (500), created_at, user_id (FK)
 - **planner_activities** — id, name (200), description (500), created_at, user_id (FK); many-to-many with planner_groups via `planner_activity_group_links` join table
-- **week_planner_slots** — id, day_of_week (1-7 ISO-8601), hour (0-23), user_id (FK); many-to-many with planner_groups via `week_planner_slot_group_links` join table
+- **week_planner_slots** — id, day_of_week (1-7 ISO-8601), hour (0-23), duration (int, default 1), user_id (FK); many-to-many with planner_groups via `week_planner_slot_group_links` join table
 - **slot_confirmations** — id, slot_id (FK), activity_id (FK), group_id (FK), confirmed (boolean, default false), date, created_at, user_id (FK)
+- **activity_log_group_links** — activity_log_id, activity_group_id (join table)
+- **activity_log_person_tags** — activity_log_id, person_tag_id (join table)
 - **planner_activity_group_links** — activity_id, group_id (join table)
 - **week_planner_slot_group_links** — slot_id, group_id (join table)
 
@@ -312,7 +323,7 @@ All entities use UUID string IDs (`@Id @Column(length = 36)`).
 **DayPlannerService:**
 - `suggestActivity(slotsForHour, allActivities)` — two-step random selection: picks random group from slot's assigned groups, then random activity within that group
 - `calculateConfirmationRate(totalConfirmations, confirmedCount)` — confirmation rate between 0.0 and 1.0
-- `getWeekSlotSummary(slots)` — counts filled slots vs total 168 possible (7 days × 24 hours)
+- `getWeekSlotSummary(slots)` — counts filled hours (summing slot durations) vs total 168 possible (7 days × 24 hours)
 
 **EventCorrelationService:**
 - Calculates time-weighted Pearson correlations across habits, diary, sleep, and emotions over the past year (365 days)
@@ -492,35 +503,36 @@ cd "$WRAPPER_DIR" && unzip -q gradle-9.3.1-bin.zip && rm -f *.lck *.part
 **Frontend Framework:** Vitest 4.0.18, Testing Library (Svelte/user-event), jsdom 28.1.0, Cypress 15.10.0 (E2E)
 
 **Test locations:**
-- `shared/src/test/java/` — 86 test classes:
+- `shared/src/test/java/` — 87 test classes:
   - **Service tests (9):** `HabitEvaluatorServiceTest`, `HabitScoringServiceTest`, `HabitScoringServicePredictionTest`, `DiaryServiceTest`, `SleepEvaluationServiceTest`, `EventCorrelationServiceTest`, `SportLogServiceTest`, `DayPlannerServiceTest`, `DefaultDataInitializerTest`
-  - **Model tests (41):** `HabitTest`, `HabitEntryTest`, `UserTest`, `HabitCategoryTest`, `ScoringRuleTest`, `WeeklyScoreTest`, `HabitScoreTest`, `PredictedHabitScoreTest`, `PredictedWeeklyScoreTest`, `EvaluationTest`, `MagicLinkTest`, `FrequencyTypeTest`, `DiaryEntryTest`, `DiaryReferenceTest`, `SleepEntryTest`, `SleepStatsTest`, `SleepDistributionTest`, `EmotionEntryTest`, `EmotionPairTest`, `EmotionStrengthFormatterTest`, `EventSignificanceTest`, `EventCorrelationTest`, `ReminderSettingsTest`, `FoodLogTest`, `FoodTagTest`, `SportLogTest`, `SportLogStatsTest`, `MedicationTest`, `MedicationLogTest`, `MedicationProvisionTypeTest`, `MeetingEntryTest`, `ModuleVisibilityTest`, `EmergencyPlanStepTest`, `EmergencyPlanActionTest`, `ActivityLogTest`, `ActivityGroupTest`, `PlannerActivityTest`, `PlannerGroupTest`, `WeekPlannerSlotTest`, `SlotConfirmationTest`
+  - **Model tests (42):** `HabitTest`, `HabitEntryTest`, `UserTest`, `HabitCategoryTest`, `ScoringRuleTest`, `WeeklyScoreTest`, `HabitScoreTest`, `PredictedHabitScoreTest`, `PredictedWeeklyScoreTest`, `EvaluationTest`, `MagicLinkTest`, `FrequencyTypeTest`, `DiaryEntryTest`, `DiaryReferenceTest`, `SleepEntryTest`, `SleepStatsTest`, `SleepDistributionTest`, `EmotionEntryTest`, `EmotionPairTest`, `EmotionStrengthFormatterTest`, `EventSignificanceTest`, `EventCorrelationTest`, `ReminderSettingsTest`, `FoodLogTest`, `FoodTagTest`, `SportLogTest`, `SportLogStatsTest`, `MedicationTest`, `MedicationLogTest`, `MedicationProvisionTypeTest`, `MeetingEntryTest`, `ModuleVisibilityTest`, `EmergencyPlanStepTest`, `EmergencyPlanActionTest`, `ActivityLogTest`, `ActivityGroupTest`, `PersonTagTest`, `PlannerActivityTest`, `PlannerGroupTest`, `WeekPlannerSlotTest`, `SlotConfirmationTest`
   - **API/Sync tests (8):** `ApiClientTest`, `SyncDataTest`, `SyncServiceTest`, `StorageConfigTest`, `CircuitBreakerTest`, `RemoteHabitRepositoryTest`, `RemoteUserRepositoryTest`, `VersionMismatchExceptionTest`
   - **Backup tests (8):** `BackupServiceTest`, `HezBackupServiceTest`, `HezBackupRestoreTest`, `BackupEncryptionServiceTest`, `BackupDataTest`, `BackupExceptionTest`, `MergeResultTest`, `RestoreOptionsTest`
   - **Persistence tests (13):** `FileSystemHabitRepositoryTest`, `FileSystemHabitCategoryRepositoryTest`, `FileSystemDiaryEntryRepositoryTest`, `FileSystemDiaryReferenceRepositoryTest`, `FileSystemSleepEntryRepositoryTest`, `FileSystemEmotionPairRepositoryTest`, `FileSystemEmotionEntryRepositoryTest`, `FileSystemPlannerActivityRepositoryTest`, `FileSystemPlannerGroupRepositoryTest`, `FileSystemSlotConfirmationRepositoryTest`, `FileSystemWeekPlannerSlotRepositoryTest`, `InMemoryHabitRepositoryTest`, `InMemoryHabitCategoryRepositoryTest`
   - **Localization tests (3):** `LocalizerTest`, `TranslationCompletenessTest`, `ResourceStreamProviderTest`
   - **Other tests (5):** `GsonSerializersTest`, `DiaryReferenceRepositoryTest`, `DateRangeUtilsTest`, `PdfDataAggregatorTest`, `ReminderScheduleCalculatorTest`
-- `webserver/src/test/java/` — 71 test classes:
+- `webserver/src/test/java/` — 73 test classes:
   - **Controller tests (23):** `AuthControllerTest`, `HabitControllerTest`, `CategoryControllerTest`, `DiaryControllerTest`, `SleepEntryControllerTest`, `EmotionPairControllerTest`, `ScoringRuleControllerTest`, `MagicLinkControllerTest`, `ReminderSettingsControllerTest`, `StatsControllerTest`, `SyncControllerTest`, `PdfExportControllerTest`, `DefaultDataControllerTest`, `BackupControllerTest`, `SecurityConfigTest`, `FoodLogControllerTest`, `SportLogControllerTest`, `MedicationControllerTest`, `MeetingControllerTest`, `ModuleVisibilityControllerTest`, `VersionControllerTest`, `ActivityLogControllerTest`, `DayPlannerControllerTest`
-  - **JPA repository tests (20):** `JpaHabitRepositoryTest`, `JpaUserRepositoryTest`, `JpaDiaryEntryRepositoryTest`, `JpaDiaryReferenceRepositoryTest`, `JpaMagicLinkRepositoryTest`, `JpaScoringRuleRepositoryTest`, `JpaSleepEntryRepositoryTest`, `JpaEmotionEntryRepositoryTest`, `JpaEmotionPairRepositoryTest`, `JpaReminderSettingsRepositoryTest`, `JpaHabitCategoryRepositoryTest`, `JpaFoodLogRepositoryTest`, `JpaFoodTagRepositoryTest`, `JpaSportLogRepositoryTest`, `JpaMedicationRepositoryTest`, `JpaMedicationLogRepositoryTest`, `JpaMeetingEntryRepositoryTest`, `JpaModuleVisibilityRepositoryTest`, `JpaActivityLogRepositoryTest`, `JpaPlannerActivityRepositoryTest`
-  - **Database repository tests (20):** `DatabaseHabitRepositoryTest`, `DatabaseUserRepositoryTest`, `DatabaseDiaryEntryRepositoryTest`, `DatabaseDiaryReferenceRepositoryTest`, `DatabaseMagicLinkRepositoryTest`, `DatabaseScoringRuleRepositoryTest`, `DatabaseSleepEntryRepositoryTest`, `DatabaseEmotionEntryRepositoryTest`, `DatabaseEmotionPairRepositoryTest`, `DatabaseReminderSettingsRepositoryTest`, `DatabaseHabitCategoryRepositoryTest`, `DatabaseFoodLogRepositoryTest`, `DatabaseFoodTagRepositoryTest`, `DatabaseSportLogRepositoryTest`, `DatabaseMedicationRepositoryTest`, `DatabaseMedicationLogRepositoryTest`, `DatabaseMeetingEntryRepositoryTest`, `DatabaseModuleVisibilityRepositoryTest`, `DatabaseActivityLogRepositoryTest`, `DatabasePlannerActivityRepositoryTest`
+  - **JPA repository tests (21):** `JpaHabitRepositoryTest`, `JpaUserRepositoryTest`, `JpaDiaryEntryRepositoryTest`, `JpaDiaryReferenceRepositoryTest`, `JpaMagicLinkRepositoryTest`, `JpaScoringRuleRepositoryTest`, `JpaSleepEntryRepositoryTest`, `JpaEmotionEntryRepositoryTest`, `JpaEmotionPairRepositoryTest`, `JpaReminderSettingsRepositoryTest`, `JpaHabitCategoryRepositoryTest`, `JpaFoodLogRepositoryTest`, `JpaFoodTagRepositoryTest`, `JpaSportLogRepositoryTest`, `JpaMedicationRepositoryTest`, `JpaMedicationLogRepositoryTest`, `JpaMeetingEntryRepositoryTest`, `JpaModuleVisibilityRepositoryTest`, `JpaActivityLogRepositoryTest`, `JpaPlannerActivityRepositoryTest`, `JpaSleepEntryRepositoryTest`
+  - **Database repository tests (21):** `DatabaseHabitRepositoryTest`, `DatabaseUserRepositoryTest`, `DatabaseDiaryEntryRepositoryTest`, `DatabaseDiaryReferenceRepositoryTest`, `DatabaseMagicLinkRepositoryTest`, `DatabaseScoringRuleRepositoryTest`, `DatabaseSleepEntryRepositoryTest`, `DatabaseEmotionEntryRepositoryTest`, `DatabaseEmotionPairRepositoryTest`, `DatabaseReminderSettingsRepositoryTest`, `DatabaseHabitCategoryRepositoryTest`, `DatabaseFoodLogRepositoryTest`, `DatabaseFoodTagRepositoryTest`, `DatabaseSportLogRepositoryTest`, `DatabaseMedicationRepositoryTest`, `DatabaseMedicationLogRepositoryTest`, `DatabaseMeetingEntryRepositoryTest`, `DatabaseModuleVisibilityRepositoryTest`, `DatabaseActivityLogRepositoryTest`, `DatabasePlannerActivityRepositoryTest`, `DatabasePersonTagRepositoryTest`
   - **Service tests (1):** `StatsCacheServiceTest`
   - **Config tests (3):** `RequestIdFilterTest`, `DataInitializerTest`, `AppConfigTest`
   - **DTO tests (2):** `LoginRequestTest`, `LoginResponseTest`
   - **Other (2):** `HabitEvaluatorWebApplicationTest`, `OpenApiGeneratorTest`
-- `desktop/src/test/java/` — 32 test classes:
-  - **Repository tests (18):** `H2HabitRepositoryTest`, `H2HabitCategoryRepositoryTest`, `H2UserRepositoryTest`, `H2DiaryEntryRepositoryTest`, `H2DiaryReferenceRepositoryTest`, `H2SleepEntryRepositoryTest`, `H2EmotionPairRepositoryTest`, `H2EmotionEntryRepositoryTest`, `H2FoodLogRepositoryTest`, `H2FoodTagRepositoryTest`, `H2SportLogRepositoryTest`, `H2ActivityLogRepositoryTest`, `H2PlannerActivityRepositoryTest`, `H2PlannerGroupRepositoryTest`, `H2SlotConfirmationRepositoryTest`, `H2WeekPlannerSlotRepositoryTest`, `PersistenceManagerTest`, `JpaTransactionHelperTest`
+- `desktop/src/test/java/` — 34 test classes:
+  - **Repository tests (19):** `H2HabitRepositoryTest`, `H2HabitCategoryRepositoryTest`, `H2UserRepositoryTest`, `H2DiaryEntryRepositoryTest`, `H2DiaryReferenceRepositoryTest`, `H2SleepEntryRepositoryTest`, `H2EmotionPairRepositoryTest`, `H2EmotionEntryRepositoryTest`, `H2FoodLogRepositoryTest`, `H2FoodTagRepositoryTest`, `H2SportLogRepositoryTest`, `H2ActivityLogRepositoryTest`, `H2PersonTagRepositoryTest`, `H2PlannerActivityRepositoryTest`, `H2PlannerGroupRepositoryTest`, `H2SlotConfirmationRepositoryTest`, `H2WeekPlannerSlotRepositoryTest`, `PersistenceManagerTest`, `JpaTransactionHelperTest`
   - **Controller tests (10):** `MainControllerTest`, `AddHabitControllerTest`, `SettingsDialogControllerTest`, `SyncDialogControllerTest`, `StatsControllerTest`, `SleepTrackingControllerTest`, `EmotionEntryControllerTest`, `EmotionPairControllerTest`, `PdfExportControllerTest`, `ImprintControllerTest`
   - **Other (2):** `ReminderServiceTest`, `HabitEvaluatorDesktopAppTest`
   - **Test base classes (2):** `H2RepositoryTestBase`, `JavaFXControllerTestBase`
-- `android/src/test/kotlin/` — 88 Kotlin test classes:
-  - **Screen tests (41):** `HomeScreenTest`, `EditHabitsScreenTest`, `AddHabitScreenTest`, `DiaryScreenTest`, `DiaryNavigationScreenTest`, `SleepTrackingScreenTest`, `StatsScreenTest`, `PointDevelopmentScreenTest`, `EmotionalStateScreenTest`, `RecordEmotionEntryScreenTest`, `AddEmotionPairScreenTest`, `ImprintScreenTest`, `SettingsScreenTest`, `FoodLogScreenTest`, `SportLogScreenTest`, `MedicationListScreenTest`, `MedicationLogScreenTest`, `EmergencyPlanScreenTest`, `EmergencyDialogueScreenTest`, `ActivityLogScreenTest`, `PdfExportScreenTest`, `SleepAnalysisScreenTest`, `CorrelationScreenTest`, `BackupScreenTest`, `PlannerActivityScreenTest`, `PlannerGroupScreenTest`, `PlannerNavigationScreenTest`, `WeekPlannerScreenTest`, `MainActivityTest`, `StartupRegressionTest`, `MaestroFormValidationTest`, `MaestroNavigationCoverageTest`, `SettingsConstantsTest`, `FontSizeHelperTest`, `ReminderSchedulerTest`, `ReminderReceiverTest`, `PreApi33PermissionHandlerTest`, `Api33PermissionHandlerTest`, `NotificationHelperTest`, `NotificationPermissionHandlerTest`, `ThemeTest`
-  - **UI/Adapter tests (18):** `HabitAdapterTest`, `EditHabitAdapterTest`, `DiaryEntryAdapterTest`, `SleepEntryAdapterTest`, `EmotionPairAdapterTest`, `EmotionDataAdapterTest`, `FoodLogAdapterTest`, `SportLogAdapterTest`, `MedicationAdapterTest`, `MedicationLogAdapterTest`, `ActivityLogAdapterTest`, `ScreenPagerAdapterTest`, `PointChartTest`, `SleepGraphTest`, `EmotionLineChartTest`, `EmotionScatterChartTest`, `SleepDistributionChartTest`, `ViewPager2SwipeSensitivityReducerTest`
-  - **Navigation/Regression tests (5):** `ScreenTest`, `AdapterDataConsistencyTest`, `BottomNavigationRegressionTest`, `StartupRegressionTest`, `AppNavigationTest`
-  - **Persistence tests (24):** `AppDatabaseTest`, `EntitiesTest`, `EntityMappersTest`, `RoomHabitRepositoryTest`, `RoomHabitCategoryRepositoryTest`, `RoomDiaryEntryRepositoryTest`, `RoomDiaryReferenceRepositoryTest`, `RoomSleepEntryRepositoryTest`, `RoomEmotionPairRepositoryTest`, `RoomEmotionEntryRepositoryTest`, `RoomFoodLogRepositoryTest`, `RoomFoodTagRepositoryTest`, `RoomSportLogRepositoryTest`, `RoomMedicationRepositoryTest`, `RoomMedicationLogRepositoryTest`, `RoomEmergencyPlanStepRepositoryTest`, `RoomEmergencyPlanActionRepositoryTest`, `RoomActivityLogRepositoryTest`, `RoomActivityGroupRepositoryTest`, `RoomPlannerActivityRepositoryTest`, `RoomPlannerGroupRepositoryTest`, `RoomSlotConfirmationRepositoryTest`, `RoomWeekPlannerSlotRepositoryTest`, `LegacySqliteToRoomMigrationTest`
+- `android/src/test/kotlin/` — 92 Kotlin test classes:
+  - **Screen tests (39):** `HomeScreenTest`, `EditHabitsScreenTest`, `AddHabitScreenTest`, `DiaryScreenTest`, `DiaryNavigationScreenTest`, `SleepTrackingScreenTest`, `StatsScreenTest`, `PointDevelopmentScreenTest`, `EmotionalStateScreenTest`, `RecordEmotionEntryScreenTest`, `AddEmotionPairScreenTest`, `ImprintScreenTest`, `SettingsScreenTest`, `FoodLogScreenTest`, `SportLogScreenTest`, `MedicationListScreenTest`, `MedicationLogScreenTest`, `EmergencyPlanScreenTest`, `EmergencyDialogueScreenTest`, `ActivityLogScreenTest`, `PdfExportScreenTest`, `SleepAnalysisScreenTest`, `CorrelationScreenTest`, `BackupScreenTest`, `PlannerActivityScreenTest`, `PlannerGroupScreenTest`, `PlannerNavigationScreenTest`, `WeekPlannerScreenTest`, `MainActivityTest`, `StartupRegressionTest`, `MaestroFormValidationTest`, `MaestroNavigationCoverageTest`, `SettingsConstantsTest`, `FontSizeHelperTest`, `ReminderSchedulerTest`, `ReminderReceiverTest`, `PreApi33PermissionHandlerTest`, `Api33PermissionHandlerTest`, `NotificationPermissionHandlerTest`
+  - **UI/Component tests (23):** `HabitAdapterTest`, `EditHabitAdapterTest`, `DiaryEntryAdapterTest`, `SleepEntryAdapterTest`, `EmotionPairAdapterTest`, `EmotionDataAdapterTest`, `FoodLogAdapterTest`, `SportLogAdapterTest`, `MedicationAdapterTest`, `MedicationLogAdapterTest`, `ActivityLogAdapterTest`, `ScreenPagerAdapterTest`, `PointChartTest`, `SleepGraphTest`, `EmotionLineChartTest`, `EmotionScatterChartTest`, `SleepDistributionChartTest`, `ViewPager2SwipeSensitivityReducerTest`, `AutocompleteTextFieldTest`, `ScreenTest`, `AdapterDataConsistencyTest`, `BottomNavigationRegressionTest`, `AppNavigationTest`
+  - **Notification/Receiver tests (2):** `NotificationHelperTest`, `PlannerConfirmationReceiverTest`
+  - **Theme tests (3):** `ThemeTest`, `ColorTest`, `TypeTest`
+  - **Persistence tests (25):** `AppDatabaseTest`, `EntitiesTest`, `EntityMappersTest`, `DaosTest`, `RoomHabitRepositoryTest`, `RoomHabitCategoryRepositoryTest`, `RoomDiaryEntryRepositoryTest`, `RoomDiaryReferenceRepositoryTest`, `RoomSleepEntryRepositoryTest`, `RoomEmotionPairRepositoryTest`, `RoomEmotionEntryRepositoryTest`, `RoomFoodLogRepositoryTest`, `RoomFoodTagRepositoryTest`, `RoomSportLogRepositoryTest`, `RoomMedicationRepositoryTest`, `RoomMedicationLogRepositoryTest`, `RoomEmergencyPlanStepRepositoryTest`, `RoomEmergencyPlanActionRepositoryTest`, `RoomActivityLogRepositoryTest`, `RoomActivityGroupRepositoryTest`, `RoomPlannerActivityRepositoryTest`, `RoomPlannerGroupRepositoryTest`, `RoomSlotConfirmationRepositoryTest`, `RoomWeekPlannerSlotRepositoryTest`, `LegacySqliteToRoomMigrationTest`
   - **ViewModel tests (1):** `AppViewModelTest`
-- `website/src/` — 6 test files:
-  - `lib/api.test.ts`, `lib/config.test.ts`, `lib/i18n.test.ts`, `routes/login/login.test.ts`, `routes/diary/diary.test.ts`, `routes/categories/add/categories-add.test.ts`
+- `website/src/` — 7 test files:
+  - `lib/api.test.ts`, `lib/config.test.ts`, `lib/i18n.test.ts`, `routes/login/login.test.ts`, `routes/diary/diary.test.ts`, `routes/categories/add/categories-add.test.ts`, `routes/planner/week-overview/week-overview.test.ts`
 - `homepage/src/` — 4 test files:
   - `routes/landing.test.ts`, `routes/imprint/imprint.test.ts`, `routes/docs/docs.test.ts`, `routes/features/features.test.ts`
 - `shared/src/test/resources/test-localization/` — German and English YAML test fixtures
@@ -566,7 +578,7 @@ GitHub Actions workflows at `.github/workflows/`:
 **Package naming:** `de.idrinth.habitevaluator.[module].[layer]`
 
 **Naming patterns:**
-- Entities: PascalCase (`Habit`, `HabitEntry`, `User`, `DiaryEntry`, `DiaryReference`, `SleepEntry`, `EmotionEntry`, `EmotionPair`, `ReminderSettings`, `FoodLog`, `FoodTag`, `SportLog`, `Medication`, `MedicationLog`, `MeetingEntry`, `ModuleVisibility`, `EmergencyPlanStep`, `EmergencyPlanAction`, `ActivityLog`)
+- Entities: PascalCase (`Habit`, `HabitEntry`, `User`, `DiaryEntry`, `DiaryReference`, `SleepEntry`, `EmotionEntry`, `EmotionPair`, `ReminderSettings`, `FoodLog`, `FoodTag`, `SportLog`, `Medication`, `MedicationLog`, `MeetingEntry`, `ModuleVisibility`, `EmergencyPlanStep`, `EmergencyPlanAction`, `ActivityLog`, `ActivityGroup`, `PersonTag`)
 - Services: `*Service` (`HabitEvaluatorService`, `DiaryService`, `SleepEvaluationService`, `EventCorrelationService`, `SportLogService`, `DayPlannerService`, `BackupService`, `SyncService`, `ReminderService`, `StatsCacheService`)
 - Repositories: `*Repository` (interface), `Database*Repository` (Spring Data wrapper), `H2*Repository` (desktop), `FileSystem*Repository` (shared, JSON-based), `Room*Repository` (Android), `InMemory*Repository` (shared, testing)
 - Controllers: `*Controller` (`HabitController`, `AuthController`, `CategoryController`, `StatsController`, `PdfExportController`, `BackupController`, `ReminderSettingsController`, `FoodLogController`, `SportLogController`, `MedicationController`, `MeetingController`, `ModuleVisibilityController`, `VersionController`, `ActivityLogController`, `DayPlannerController`)
@@ -582,20 +594,24 @@ GitHub Actions workflows at `.github/workflows/`:
 - JPMS module system for shared and desktop modules
 - Android persistence: Room database (primary) with `LegacySqliteToRoomMigration` from pre-Room SQLite databases
 - Android architecture: Single-Activity with Jetpack Compose, Navigation Compose for routing (sealed class `Screen`), `AppViewModel` as central state holder
-- Room schema version: `AppDatabase` version 12 with `fallbackToDestructiveMigration()`; schema exported to `android/schemas/` for migration testing
+- Room schema version: `AppDatabase` version 13 with explicit migrations (e.g. `MIGRATION_12_13` for `duration` column); schema exported to `android/schemas/` for migration testing
 - Android build flavors: `lollipop` (API 23), `oreo` (API 26), `tiramisu` (API 33) with core library desugaring
 - Bidirectional sync via SyncController merging client and server data by ID
 - Emotion strength clamped to [-10, +10] range with validation in model
 - Circuit breaker pattern in API client for resilient network communication
 - DiaryReference pattern for reusable diary descriptions with case-insensitive matching
 - FoodTag pattern for normalized food items with case-insensitive matching (similar to DiaryReference)
+- PersonTag pattern for normalized person names with case-insensitive matching (similar to FoodTag); used by ActivityLog via many-to-many join table; auto-resolved from comma-separated persons field with lazy migration
 - Encrypted backup/restore via .hez file format with password-based encryption and selective RestoreOptions
 - ModuleVisibility for per-user UI section toggling (all visible by default)
 - RequestIdFilter for CSRF/replay protection on state-changing API requests
 - Version masking via `ApiClient.maskBugfixVersion()` for client-server compatibility checks
 - Emergency Plan: step-based crisis intervention with ordered questions and associated actions (phone numbers for crisis contacts); currently Android-only with shared models/interfaces
-- ActivityLog: tracks activities with persons, location, time range, and optional activity description; supports duration calculation with midnight crossing; available across all platforms
-- Day Planner: weekly time-slot-based activity suggestion system; PlannerGroups organize PlannerActivities, WeekPlannerSlots assign groups to day-of-week + hour, DayPlannerService uses two-step random selection (group then activity) to suggest tasks, SlotConfirmations track user responses; available across all platforms
+- ActivityLog: tracks activities with persons, location, time range, and optional activity description; supports duration calculation with midnight crossing; many-to-many with ActivityGroup and PersonTag; available across all platforms
+- Day Planner: weekly time-slot-based activity suggestion system; PlannerGroups organize PlannerActivities, WeekPlannerSlots assign groups to day-of-week + hour with configurable duration (multi-hour slots), DayPlannerService uses two-step random selection (group then activity) to suggest tasks, SlotConfirmations track user responses; overlap validation on slot creation; available across all platforms
+- Planner notification workflow (Android): `ReminderScheduler` schedules weekly alarms per slot, `ReminderReceiver` fires suggestion notifications with inline Confirm/Deny actions, `PlannerConfirmationReceiver` handles user actions and 1-hour auto-deny timeout, recording `SlotConfirmation` entities
+- AutocompleteTextField (Android Compose): reusable `ExposedDropdownMenuBox`-based input component with case-insensitive filtering; used across diary, food log, sport log, and activity log screens
+- Lazy auto-migration: controllers auto-migrate legacy free-text entries to normalized tag entities (FoodTag, PersonTag) when suggestions endpoints are first called
 
 **Testing requirements:**
 - New features must include unit tests covering the added functionality
