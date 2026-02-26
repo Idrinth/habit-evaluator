@@ -1,14 +1,23 @@
-Esta aplicación intenta proporcionarte herramientas para ayudarte a rastrear y documentar tu estado mental, para uso de profesionales de la salud mental y de ti mismo.
+This app tries to provide you with tools to help track and document your mental state for use by mental health professionals and yourself.
 
-La aplicación puede conectarse a un servidor remoto, pero por defecto no comparte ningún dato. Los datos se almacenan y analizan localmente.
+The app can be attached to a remote server, but by default shares no data. Data is stored and analyzed locally.
 
-El código está disponible en GitHub en https://github.com/Idrinth/habit-evaluator si estás interesado.
+The code is available on GitHub at https://github.com/Idrinth/habit-evaluator if you are interested.
 
-Las herramientas incluidas son:
-- rastreador de hábitos
-- registro de sueño
-- registro del estado emocional
-- diario de positividad
-- exportación a PDF
+Tools included are:
+- habit tracker with scoring and point development
+- sleep log with analysis and distribution charts
+- emotion state log with line and scatter charts
+- positivity diary with statistics and trends
+- food log with distribution tracking
+- sport log with statistics and graphs
+- medication tracker
+- meeting log
+- activity log with person and group tagging
+- weekly day planner with activity suggestions
+- emergency plan for crisis intervention
+- statistics dashboard with event correlations
+- encrypted backup and restore
+- PDF export
 
-Estos se evalúan localmente para proporcionar una vista temprana de posibles cambios. Esta aplicación no intenta ni logra reemplazar a los profesionales, ¡asegúrate de buscar ayuda si la necesitas!
+These are evaluated locally to provide an early view on potential changes. This does not try or succeed in replacing professionals, make sure to get help if you need any!
