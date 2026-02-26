@@ -95,6 +95,9 @@ fun PlannerNavigationScreen(viewModel: AppViewModel, navController: NavControlle
         NavigationCard(stringResource(R.string.planner_week_planner_title)) {
             navController.navigate(Screen.WeekPlanner.route)
         }
+        NavigationCard(stringResource(R.string.planner_week_overview_title)) {
+            navController.navigate(Screen.WeekOverview.route)
+        }
         NavigationCard(stringResource(R.string.planner_activities_title)) {
             navController.navigate(Screen.PlannerActivities.route)
         }

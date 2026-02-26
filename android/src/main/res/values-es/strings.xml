@@ -678,6 +678,10 @@
     <string name="diary_navigation_sleep_description">Registra tus patrones y calidad de sueño</string>
     <string name="day_planner">Planificador diario</string>
     <string name="planner">Planificador</string>
+    <string name="planner_week_overview_title">Vista semanal</string>
+    <string name="planner_week_overview_empty">Aún no hay espacios configurados.</string>
+    <string name="planner_week_overview_occupied">Ocupado</string>
+    <string name="planner_week_overview_free">Libre</string>
 
     <!-- Gratitude diary screen -->
     <string name="gratitude_diary">Diario de gratitud</string>

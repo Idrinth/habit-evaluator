@@ -678,6 +678,10 @@
     <string name="diary_navigation_sleep_description">Verfolgen Sie Ihre Schlafmuster und -qualität</string>
     <string name="day_planner">Tagesplaner</string>
     <string name="planner">Planer</string>
+    <string name="planner_week_overview_title">Wochenübersicht</string>
+    <string name="planner_week_overview_empty">Noch keine Zeitfenster konfiguriert.</string>
+    <string name="planner_week_overview_occupied">Belegt</string>
+    <string name="planner_week_overview_free">Frei</string>
 
     <!-- Gratitude diary screen -->
     <string name="gratitude_diary">Dankbarkeitstagebuch</string>

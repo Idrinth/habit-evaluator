@@ -712,6 +712,10 @@
     <string name="diary_navigation_sleep_description">Track your sleep patterns and quality</string>
     <string name="day_planner">Day Planner</string>
     <string name="planner">Planner</string>
+    <string name="planner_week_overview_title">Week Overview</string>
+    <string name="planner_week_overview_empty">No slots configured yet.</string>
+    <string name="planner_week_overview_occupied">Occupied</string>
+    <string name="planner_week_overview_free">Free</string>
 
     <!-- Gratitude diary screen -->
     <string name="gratitude_diary">Gratitude Diary</string>
