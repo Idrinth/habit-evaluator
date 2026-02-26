@@ -5,10 +5,19 @@ L'application peut être connectée à un serveur distant, mais par défaut, ell
 Le code est disponible sur GitHub à l'adresse https://github.com/Idrinth/habit-evaluator si cela vous intéresse.
 
 Les outils inclus sont :
-- suivi des habitudes
-- journal du sommeil
-- journal de l'état émotionnel
-- journal de positivité
+- suivi des habitudes avec notation et développement des points
+- journal du sommeil avec analyse et graphiques de distribution
+- journal de l'état émotionnel avec graphiques en lignes et en nuage de points
+- journal de positivité avec statistiques et tendances
+- journal alimentaire avec suivi de la distribution
+- journal sportif avec statistiques et graphiques
+- suivi des médicaments
+- journal des réunions
+- journal d'activités avec marquage de personnes et de groupes
+- planificateur hebdomadaire avec suggestions d'activités
+- plan d'urgence pour l'intervention en cas de crise
+- tableau de bord statistique avec corrélations d'événements
+- sauvegarde chiffrée et restauration
 - export PDF
 
 Ces données sont évaluées localement pour fournir un aperçu précoce des changements potentiels. Cette application n'essaie pas et ne réussit pas à remplacer les professionnels, assurez-vous d'obtenir de l'aide si vous en avez besoin !

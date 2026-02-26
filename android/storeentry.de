@@ -5,10 +5,19 @@ Die App kann mit einem entfernten Server verbunden werden, teilt aber standardm�
 Der Quellcode ist auf GitHub unter https://github.com/Idrinth/habit-evaluator verfügbar, falls Sie interessiert sind.
 
 Enthaltene Werkzeuge sind:
-- Gewohnheitstracker
-- Schlafprotokoll
-- Protokoll des emotionalen Zustands
-- Positivitätstagebuch
+- Gewohnheitstracker mit Bewertung und Punkteentwicklung
+- Schlafprotokoll mit Analyse und Verteilungsdiagrammen
+- Protokoll des emotionalen Zustands mit Linien- und Streudiagrammen
+- Positivitätstagebuch mit Statistiken und Trends
+- Ernährungsprotokoll mit Verteilungserfassung
+- Sportprotokoll mit Statistiken und Diagrammen
+- Medikamententracker
+- Besprechungsprotokoll
+- Aktivitätsprotokoll mit Personen- und Gruppenmarkierung
+- Wöchentlicher Tagesplaner mit Aktivitätsvorschlägen
+- Notfallplan zur Krisenintervention
+- Statistik-Dashboard mit Ereigniskorrelationen
+- Verschlüsselte Sicherung und Wiederherstellung
 - PDF-Export
 
 Diese werden lokal ausgewertet, um einen frühen Blick auf mögliche Veränderungen zu ermöglichen. Diese App versucht nicht und schafft es nicht, Fachleute zu ersetzen – holen Sie sich unbedingt Hilfe, wenn Sie welche brauchen!
