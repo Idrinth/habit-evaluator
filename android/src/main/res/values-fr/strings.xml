@@ -671,5 +671,20 @@
     <string name="planner_confirmations_total">%1$d confirmées / %2$d total</string>
     <string name="module_day_planner">Planificateur quotidien</string>
     <string name="diary_navigation_planner_description">Planifiez votre semaine avec des suggestions d\'activités aléatoires</string>
+    <string name="diary_navigation_sleep_description">Suivez vos habitudes et votre qualité de sommeil</string>
     <string name="day_planner">Planificateur quotidien</string>
+    <string name="planner">Planificateur</string>
+
+    <!-- Gratitude diary screen -->
+    <string name="gratitude_diary">Journal de gratitude</string>
+    <string name="add_gratitude_entry">Ajouter une entrée de gratitude</string>
+    <string name="gratitude_hint">Pour quoi êtes-vous reconnaissant ?</string>
+    <string name="gratitude_prompt_grateful">Je suis reconnaissant pour\u2026</string>
+    <string name="gratitude_prompt_thankful">Je remercie pour\u2026</string>
+    <string name="gratitude_no_entries">Aucune entrée de gratitude. Commencez à noter ce pour quoi vous êtes reconnaissant !</string>
+    <string name="gratitude_today">Aujourd\'hui</string>
+    <string name="gratitude_week">Semaine</string>
+    <string name="gratitude_month">Mois</string>
+    <string name="gratitude_streak">Série</string>
+    <string name="gratitude_daily_avg">Moyenne quotidienne</string>
 </resources>
