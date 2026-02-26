@@ -665,6 +665,8 @@ describe('api', () => {
 				diaryReminderTime: '20:00',
 				emotionReminderEnabled: false,
 				emotionReminderCount: 1,
+				gratitudeReminderEnabled: false,
+				gratitudeReminderTime: null,
 				wakingHoursStart: '08:00',
 				wakingHoursEnd: '22:00'
 			};
@@ -717,7 +719,8 @@ describe('api', () => {
 				backupVisible: false,
 				pdfExportVisible: false,
 				activityLogVisible: true,
-				dayPlannerVisible: true
+				dayPlannerVisible: true,
+				gratitudeVisible: true
 			};
 			(globalThis.fetch as Mock).mockReturnValue(mockFetchResponse(visibility));
 
@@ -945,6 +948,8 @@ describe('api', () => {
 				diaryReminderTime: null,
 				emotionReminderEnabled: false,
 				emotionReminderCount: 1,
+				gratitudeReminderEnabled: false,
+				gratitudeReminderTime: null,
 				wakingHoursStart: null,
 				wakingHoursEnd: null
 			});

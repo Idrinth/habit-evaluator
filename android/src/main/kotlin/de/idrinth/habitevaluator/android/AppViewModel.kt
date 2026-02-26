@@ -611,7 +611,8 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
             emotionPairRepository, emotionEntryRepository,
             null, activityLogRepository,
             null, medicationRepository, medicationLogRepository,
-            null, emergencyPlanStepRepository, emergencyPlanActionRepository
+            null, emergencyPlanStepRepository, emergencyPlanActionRepository,
+            gratitudeEntryRepository
         )
     }
 
@@ -627,6 +628,7 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
             null, activityLogRepository,
             null, medicationRepository, medicationLogRepository,
             null, emergencyPlanStepRepository, emergencyPlanActionRepository,
+            gratitudeEntryRepository,
             options
         )
     }

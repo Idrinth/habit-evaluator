@@ -514,6 +514,7 @@ export interface ModuleVisibility {
 	pdfExportVisible: boolean;
 	activityLogVisible: boolean;
 	dayPlannerVisible: boolean;
+	gratitudeVisible: boolean;
 }
 
 export const moduleVisibility = {
@@ -535,6 +536,8 @@ export interface ReminderSettings {
 	diaryReminderTime: string | null;
 	emotionReminderEnabled: boolean;
 	emotionReminderCount: number;
+	gratitudeReminderEnabled: boolean;
+	gratitudeReminderTime: string | null;
 	wakingHoursStart: string | null;
 	wakingHoursEnd: string | null;
 }

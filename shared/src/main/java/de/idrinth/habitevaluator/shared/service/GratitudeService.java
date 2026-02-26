@@ -6,7 +6,9 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAdjusters;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -75,10 +77,13 @@ public class GratitudeService {
      * Calculates the current streak of consecutive days with at least one gratitude entry.
      */
     public int getCurrentStreak(List<GratitudeEntry> entries) {
-        LocalDate today = LocalDate.now();
+        Set<LocalDate> entryDates = new HashSet<>();
+        for (GratitudeEntry entry : entries) {
+            entryDates.add(entry.getEventDate());
+        }
+        LocalDate date = LocalDate.now();
         int streak = 0;
-        LocalDate date = today;
-        while (getDayCount(entries, date) > 0) {
+        while (entryDates.contains(date)) {
             streak++;
             date = date.minusDays(1);
         }

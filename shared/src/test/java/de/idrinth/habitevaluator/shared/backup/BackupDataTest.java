@@ -15,7 +15,7 @@ class BackupDataTest {
     void testDefaultState() {
         BackupData data = new BackupData();
         assertNull(data.getBackupDate());
-        assertEquals(1, data.getVersion());
+        assertEquals(2, data.getVersion());
         assertNull(data.getUser());
         assertNotNull(data.getHabits());
         assertTrue(data.getHabits().isEmpty());

@@ -20,6 +20,7 @@ import de.idrinth.habitevaluator.shared.repository.MedicationLogRepository;
 import de.idrinth.habitevaluator.shared.repository.ModuleVisibilityRepository;
 import de.idrinth.habitevaluator.shared.repository.EmergencyPlanStepRepository;
 import de.idrinth.habitevaluator.shared.repository.EmergencyPlanActionRepository;
+import de.idrinth.habitevaluator.shared.repository.GratitudeEntryRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -171,6 +172,57 @@ public class HezBackupService {
                     reminderSettingsRepository, medicationRepository, medicationLogRepository,
                     moduleVisibilityRepository, emergencyPlanStepRepository,
                     emergencyPlanActionRepository);
+
+            String json = gson.toJson(backupData);
+            byte[] plaintext = json.getBytes(StandardCharsets.UTF_8);
+            byte[] encrypted = encryptionService.encrypt(plaintext, password);
+
+            return createZipArchive(encrypted);
+        } catch (BackupException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new BackupException("Failed to create .hez backup", e);
+        }
+    }
+
+    /**
+     * Creates a .hez backup file containing encrypted user data, including all data types and gratitude entries.
+     */
+    public byte[] createHezBackup(String password, User user,
+                                   HabitRepository habitRepository,
+                                   HabitCategoryRepository categoryRepository,
+                                   DiaryEntryRepository diaryEntryRepository,
+                                   SleepEntryRepository sleepEntryRepository,
+                                   SportLogRepository sportLogRepository,
+                                   FoodLogRepository foodLogRepository,
+                                   EmotionPairRepository emotionPairRepository,
+                                   EmotionEntryRepository emotionEntryRepository,
+                                   MeetingEntryRepository meetingEntryRepository,
+                                   ActivityLogRepository activityLogRepository,
+                                   ReminderSettingsRepository reminderSettingsRepository,
+                                   MedicationRepository medicationRepository,
+                                   MedicationLogRepository medicationLogRepository,
+                                   ModuleVisibilityRepository moduleVisibilityRepository,
+                                   EmergencyPlanStepRepository emergencyPlanStepRepository,
+                                   EmergencyPlanActionRepository emergencyPlanActionRepository,
+                                   GratitudeEntryRepository gratitudeEntryRepository) throws BackupException {
+        if (password == null || password.isEmpty()) {
+            throw new BackupException("Backup password must not be empty");
+        }
+        if (user == null) {
+            throw new BackupException("User must not be null for backup");
+        }
+
+        try {
+            BackupService backupService = new BackupService();
+            BackupData backupData = backupService.collectBackupData(user, habitRepository,
+                    categoryRepository, diaryEntryRepository, sleepEntryRepository,
+                    sportLogRepository, foodLogRepository, emotionPairRepository,
+                    emotionEntryRepository, meetingEntryRepository, activityLogRepository,
+                    reminderSettingsRepository, medicationRepository, medicationLogRepository,
+                    moduleVisibilityRepository, emergencyPlanStepRepository,
+                    emergencyPlanActionRepository, gratitudeEntryRepository,
+                    null, null, null, null);
 
             String json = gson.toJson(backupData);
             byte[] plaintext = json.getBytes(StandardCharsets.UTF_8);
@@ -402,6 +454,42 @@ public class HezBackupService {
                 activityLogRepository, reminderSettingsRepository, medicationRepository,
                 medicationLogRepository, moduleVisibilityRepository,
                 emergencyPlanStepRepository, emergencyPlanActionRepository, options);
+    }
+
+    /**
+     * Merges data from .hez bytes into the current user's existing data,
+     * including all data types and gratitude entries.
+     */
+    public MergeResult mergeFromHezBytes(byte[] hezData, String password, User user,
+                                         HabitRepository habitRepository,
+                                         HabitCategoryRepository categoryRepository,
+                                         DiaryEntryRepository diaryEntryRepository,
+                                         SleepEntryRepository sleepEntryRepository,
+                                         SportLogRepository sportLogRepository,
+                                         FoodLogRepository foodLogRepository,
+                                         FoodTagRepository foodTagRepository,
+                                         EmotionPairRepository emotionPairRepository,
+                                         EmotionEntryRepository emotionEntryRepository,
+                                         MeetingEntryRepository meetingEntryRepository,
+                                         ActivityLogRepository activityLogRepository,
+                                         ReminderSettingsRepository reminderSettingsRepository,
+                                         MedicationRepository medicationRepository,
+                                         MedicationLogRepository medicationLogRepository,
+                                         ModuleVisibilityRepository moduleVisibilityRepository,
+                                         EmergencyPlanStepRepository emergencyPlanStepRepository,
+                                         EmergencyPlanActionRepository emergencyPlanActionRepository,
+                                         GratitudeEntryRepository gratitudeEntryRepository,
+                                         RestoreOptions options) throws BackupException {
+        BackupData backupData = restoreFromHezBytes(hezData, password);
+        BackupService backupService = new BackupService();
+        return backupService.mergeBackupData(backupData, user, habitRepository,
+                categoryRepository, diaryEntryRepository, sleepEntryRepository,
+                sportLogRepository, foodLogRepository, foodTagRepository,
+                emotionPairRepository, emotionEntryRepository, meetingEntryRepository,
+                activityLogRepository, reminderSettingsRepository, medicationRepository,
+                medicationLogRepository, moduleVisibilityRepository,
+                emergencyPlanStepRepository, emergencyPlanActionRepository,
+                gratitudeEntryRepository, null, null, null, null, options);
     }
 
     /**
