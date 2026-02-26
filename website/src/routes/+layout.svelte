@@ -124,6 +124,9 @@
 		{#if mv.diaryVisible}
 			<a href="/diary">{t('nav.diary', lang)}</a>
 		{/if}
+		{#if mv.gratitudeVisible}
+			<a href="/gratitude">{t('nav.gratitude', lang)}</a>
+		{/if}
 		{#if mv.diaryVisible && mv.sleepVisible}
 			<a href="/sleep">{t('nav.sleep', lang)}</a>
 		{/if}

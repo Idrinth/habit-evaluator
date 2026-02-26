@@ -695,3 +695,27 @@ interface DayPlannerDao {
     @Query("SELECT EXISTS(SELECT 1 FROM slot_confirmations WHERE id = :id)")
     suspend fun confirmationExistsById(id: String): Boolean
 }
+
+@Dao
+interface GratitudeDao {
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insert(entry: GratitudeEntryEntity)
+
+    @Query("SELECT * FROM gratitude_entries WHERE id = :id")
+    suspend fun findById(id: String): GratitudeEntryEntity?
+
+    @Query("SELECT * FROM gratitude_entries")
+    suspend fun findAll(): List<GratitudeEntryEntity>
+
+    @Query("SELECT * FROM gratitude_entries WHERE user_id = :userId ORDER BY event_date DESC, created_at DESC")
+    suspend fun findByUserId(userId: String): List<GratitudeEntryEntity>
+
+    @Query("SELECT * FROM gratitude_entries WHERE user_id = :userId ORDER BY event_date DESC, created_at DESC")
+    fun observeByUserId(userId: String): Flow<List<GratitudeEntryEntity>>
+
+    @Query("DELETE FROM gratitude_entries WHERE id = :id")
+    suspend fun deleteById(id: String)
+
+    @Query("SELECT EXISTS(SELECT 1 FROM gratitude_entries WHERE id = :id)")
+    suspend fun existsById(id: String): Boolean
+}

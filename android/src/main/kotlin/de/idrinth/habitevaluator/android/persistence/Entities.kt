@@ -294,3 +294,13 @@ data class SlotConfirmationEntity(
     @ColumnInfo(name = "user_id") val userId: String,
     @ColumnInfo(name = "user_name") val userName: String
 )
+
+@Entity(tableName = "gratitude_entries", indices = [Index("user_id")])
+data class GratitudeEntryEntity(
+    @PrimaryKey @ColumnInfo(name = "id") val id: String,
+    @ColumnInfo(name = "description") val description: String,
+    @ColumnInfo(name = "event_date") val eventDate: String,
+    @ColumnInfo(name = "created_at") val createdAt: String,
+    @ColumnInfo(name = "user_id") val userId: String,
+    @ColumnInfo(name = "user_name") val userName: String
+)

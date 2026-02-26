@@ -23,6 +23,7 @@ public class MergeResult {
     private final boolean moduleVisibilityRestored;
     private final int emergencyPlanStepsAdded;
     private final int dayPlannerItemsAdded;
+    private final int gratitudeEntriesAdded;
 
     public MergeResult(int categoriesAdded, int habitsAdded, int habitsMerged,
                        int entriesAdded, int diaryEntriesAdded, int sleepEntriesAdded) {
@@ -92,6 +93,22 @@ public class MergeResult {
                        boolean reminderSettingsRestored,
                        boolean moduleVisibilityRestored, int emergencyPlanStepsAdded,
                        int dayPlannerItemsAdded) {
+        this(categoriesAdded, habitsAdded, habitsMerged, entriesAdded,
+                diaryEntriesAdded, sleepEntriesAdded, sportLogsAdded, foodLogsAdded,
+                emotionPairsAdded, emotionEntriesAdded, meetingEntriesAdded, activityLogsAdded,
+                medicationsAdded, medicationLogsAdded, reminderSettingsRestored,
+                moduleVisibilityRestored, emergencyPlanStepsAdded, dayPlannerItemsAdded, 0);
+    }
+
+    public MergeResult(int categoriesAdded, int habitsAdded, int habitsMerged,
+                       int entriesAdded, int diaryEntriesAdded, int sleepEntriesAdded,
+                       int sportLogsAdded, int foodLogsAdded,
+                       int emotionPairsAdded, int emotionEntriesAdded,
+                       int meetingEntriesAdded, int activityLogsAdded,
+                       int medicationsAdded, int medicationLogsAdded,
+                       boolean reminderSettingsRestored,
+                       boolean moduleVisibilityRestored, int emergencyPlanStepsAdded,
+                       int dayPlannerItemsAdded, int gratitudeEntriesAdded) {
         this.categoriesAdded = categoriesAdded;
         this.habitsAdded = habitsAdded;
         this.habitsMerged = habitsMerged;
@@ -110,6 +127,7 @@ public class MergeResult {
         this.moduleVisibilityRestored = moduleVisibilityRestored;
         this.emergencyPlanStepsAdded = emergencyPlanStepsAdded;
         this.dayPlannerItemsAdded = dayPlannerItemsAdded;
+        this.gratitudeEntriesAdded = gratitudeEntriesAdded;
     }
 
     public int getCategoriesAdded() {
@@ -184,6 +202,10 @@ public class MergeResult {
         return dayPlannerItemsAdded;
     }
 
+    public int getGratitudeEntriesAdded() {
+        return gratitudeEntriesAdded;
+    }
+
     public int getTotalChanges() {
         return categoriesAdded + habitsAdded + habitsMerged + diaryEntriesAdded
                 + sleepEntriesAdded + sportLogsAdded + foodLogsAdded
@@ -192,7 +214,8 @@ public class MergeResult {
                 + (reminderSettingsRestored ? 1 : 0)
                 + (moduleVisibilityRestored ? 1 : 0)
                 + emergencyPlanStepsAdded
-                + dayPlannerItemsAdded;
+                + dayPlannerItemsAdded
+                + gratitudeEntriesAdded;
     }
 
     @Override
@@ -216,6 +239,7 @@ public class MergeResult {
                 + ", module visibility restored=" + moduleVisibilityRestored
                 + ", emergency plan steps added=" + emergencyPlanStepsAdded
                 + ", day planner items added=" + dayPlannerItemsAdded
+                + ", gratitude entries added=" + gratitudeEntriesAdded
                 + '}';
     }
 }

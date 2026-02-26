@@ -29,6 +29,7 @@
         <class>de.idrinth.habitevaluator.shared.model.PlannerActivity</class>
         <class>de.idrinth.habitevaluator.shared.model.WeekPlannerSlot</class>
         <class>de.idrinth.habitevaluator.shared.model.SlotConfirmation</class>
+        <class>de.idrinth.habitevaluator.shared.model.GratitudeEntry</class>
 
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
 

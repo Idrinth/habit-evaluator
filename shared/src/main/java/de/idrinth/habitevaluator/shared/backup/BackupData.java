@@ -34,6 +34,7 @@ public class BackupData {
     private List<PlannerActivityData> plannerActivities = new ArrayList<>();
     private List<WeekPlannerSlotData> weekPlannerSlots = new ArrayList<>();
     private List<SlotConfirmationData> slotConfirmations = new ArrayList<>();
+    private List<GratitudeEntryData> gratitudeEntries = new ArrayList<>();
 
     public String getBackupDate() {
         return backupDate;
@@ -217,6 +218,14 @@ public class BackupData {
 
     public void setSlotConfirmations(List<SlotConfirmationData> slotConfirmations) {
         this.slotConfirmations = slotConfirmations;
+    }
+
+    public List<GratitudeEntryData> getGratitudeEntries() {
+        return gratitudeEntries;
+    }
+
+    public void setGratitudeEntries(List<GratitudeEntryData> gratitudeEntries) {
+        this.gratitudeEntries = gratitudeEntries;
     }
 
     public static class UserData {
@@ -1043,6 +1052,8 @@ public class BackupData {
         private String diaryReminderTime;
         private boolean emotionReminderEnabled;
         private int emotionReminderCount;
+        private boolean gratitudeReminderEnabled;
+        private String gratitudeReminderTime;
         private String wakingHoursStart;
         private String wakingHoursEnd;
 
@@ -1117,6 +1128,22 @@ public class BackupData {
         public void setWakingHoursEnd(String wakingHoursEnd) {
             this.wakingHoursEnd = wakingHoursEnd;
         }
+
+        public boolean isGratitudeReminderEnabled() {
+            return gratitudeReminderEnabled;
+        }
+
+        public void setGratitudeReminderEnabled(boolean gratitudeReminderEnabled) {
+            this.gratitudeReminderEnabled = gratitudeReminderEnabled;
+        }
+
+        public String getGratitudeReminderTime() {
+            return gratitudeReminderTime;
+        }
+
+        public void setGratitudeReminderTime(String gratitudeReminderTime) {
+            this.gratitudeReminderTime = gratitudeReminderTime;
+        }
     }
 
     public static class MedicationData {
@@ -1170,6 +1197,7 @@ public class BackupData {
         private boolean backupVisible;
         private boolean pdfExportVisible;
         private boolean activityLogVisible;
+        private boolean gratitudeVisible;
 
         public String getId() { return id; }
         public void setId(String id) { this.id = id; }
@@ -1195,6 +1223,8 @@ public class BackupData {
         public void setPdfExportVisible(boolean pdfExportVisible) { this.pdfExportVisible = pdfExportVisible; }
         public boolean isActivityLogVisible() { return activityLogVisible; }
         public void setActivityLogVisible(boolean activityLogVisible) { this.activityLogVisible = activityLogVisible; }
+        public boolean isGratitudeVisible() { return gratitudeVisible; }
+        public void setGratitudeVisible(boolean gratitudeVisible) { this.gratitudeVisible = gratitudeVisible; }
     }
 
     public static class EmergencyPlanStepData {
@@ -1304,6 +1334,22 @@ public class BackupData {
         public void setConfirmed(boolean confirmed) { this.confirmed = confirmed; }
         public String getDate() { return date; }
         public void setDate(String date) { this.date = date; }
+        public String getCreatedAt() { return createdAt; }
+        public void setCreatedAt(String createdAt) { this.createdAt = createdAt; }
+    }
+
+    public static class GratitudeEntryData {
+        private String id;
+        private String description;
+        private String eventDate;
+        private String createdAt;
+
+        public String getId() { return id; }
+        public void setId(String id) { this.id = id; }
+        public String getDescription() { return description; }
+        public void setDescription(String description) { this.description = description; }
+        public String getEventDate() { return eventDate; }
+        public void setEventDate(String eventDate) { this.eventDate = eventDate; }
         public String getCreatedAt() { return createdAt; }
         public void setCreatedAt(String createdAt) { this.createdAt = createdAt; }
     }

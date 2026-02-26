@@ -39,9 +39,10 @@ import java.io.File
         PlannerActivityGroupLinkEntity::class,
         WeekPlannerSlotEntity::class,
         WeekPlannerSlotGroupLinkEntity::class,
-        SlotConfirmationEntity::class
+        SlotConfirmationEntity::class,
+        GratitudeEntryEntity::class
     ],
-    version = 13,
+    version = 14,
     exportSchema = true
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -56,6 +57,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun emergencyPlanDao(): EmergencyPlanDao
     abstract fun activityLogDao(): ActivityLogDao
     abstract fun dayPlannerDao(): DayPlannerDao
+    abstract fun gratitudeDao(): GratitudeDao
 
     companion object {
         private const val DATABASE_NAME = "habit_evaluator.db"
@@ -150,6 +152,22 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        val MIGRATION_13_14 = object : Migration(13, 14) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    """CREATE TABLE IF NOT EXISTS `gratitude_entries` (
+                        `id` TEXT NOT NULL,
+                        `description` TEXT NOT NULL,
+                        `event_date` TEXT NOT NULL,
+                        `created_at` TEXT NOT NULL,
+                        `user_id` TEXT NOT NULL,
+                        `user_name` TEXT NOT NULL,
+                        PRIMARY KEY(`id`))"""
+                )
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_gratitude_entries_user_id` ON `gratitude_entries` (`user_id`)")
+            }
+        }
+
         val MIGRATION_11_12 = object : Migration(11, 12) {
             override fun migrate(db: SupportSQLiteDatabase) {
                 // Week planner slot: migrate from single group_id to many-to-many join table
@@ -210,7 +228,7 @@ abstract class AppDatabase : RoomDatabase() {
                 context.applicationContext,
                 AppDatabase::class.java,
                 DATABASE_NAME
-            ).addMigrations(MIGRATION_10_11, MIGRATION_11_12, MIGRATION_12_13).build()
+            ).addMigrations(MIGRATION_10_11, MIGRATION_11_12, MIGRATION_12_13, MIGRATION_13_14).build()
         }
 
         private fun handlePreRoomDatabase(context: Context) {

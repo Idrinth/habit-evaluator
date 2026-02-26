@@ -12,6 +12,7 @@ import de.idrinth.habitevaluator.shared.model.EventSignificance
 import de.idrinth.habitevaluator.shared.model.FoodLog
 import de.idrinth.habitevaluator.shared.model.FoodTag
 import de.idrinth.habitevaluator.shared.model.FrequencyType
+import de.idrinth.habitevaluator.shared.model.GratitudeEntry
 import de.idrinth.habitevaluator.shared.model.Habit
 import de.idrinth.habitevaluator.shared.model.HabitCategory
 import de.idrinth.habitevaluator.shared.model.HabitEntry
@@ -661,4 +662,28 @@ fun SlotConfirmationEntity.toModel(
     u.username = userName
     confirmation.user = u
     return confirmation
+}
+
+// ── GratitudeEntry ──
+
+fun GratitudeEntry.toEntity(): GratitudeEntryEntity = GratitudeEntryEntity(
+    id = id,
+    description = description ?: "",
+    eventDate = eventDate?.format(DATE_FORMAT) ?: LocalDate.now().format(DATE_FORMAT),
+    createdAt = createdAt?.format(DT_FORMAT) ?: LocalDateTime.now().format(DT_FORMAT),
+    userId = user?.id ?: "",
+    userName = user?.username ?: ""
+)
+
+fun GratitudeEntryEntity.toModel(): GratitudeEntry {
+    val entry = GratitudeEntry()
+    entry.id = id
+    entry.description = description
+    entry.eventDate = parseDateOrNull(eventDate)
+    entry.createdAt = parseDateTimeOrNull(createdAt)
+    val u = User()
+    u.id = userId
+    u.username = userName
+    entry.user = u
+    return entry
 }

@@ -699,6 +699,39 @@ export interface PlannerActivity {
 	groups: PlannerGroup[];
 }
 
+export interface GratitudeEntry {
+	id: string;
+	description: string;
+	eventDate: string;
+	createdAt: string;
+}
+
+export interface GratitudeStats {
+	todayCount: number;
+	weekCount: number;
+	monthCount: number;
+	dailyAverage: number;
+	currentStreak: number;
+}
+
+export const gratitude = {
+	list() {
+		return request<GratitudeEntry[]>('/gratitude');
+	},
+	create(entry: { description: string; eventDate: string }) {
+		return request<GratitudeEntry>('/gratitude', {
+			method: 'POST',
+			body: JSON.stringify(entry)
+		});
+	},
+	delete(id: string) {
+		return request<void>(`/gratitude/${id}`, { method: 'DELETE' });
+	},
+	stats() {
+		return request<GratitudeStats>('/gratitude/stats');
+	}
+};
+
 export const dayPlanner = {
 	weekOverview() {
 		return request<WeekOverviewData>('/day-planner/week-overview');
