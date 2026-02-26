@@ -98,11 +98,18 @@ class AppDatabaseTest {
     }
 
     @Test
-    fun testDatabaseHasElevenDaoMethods() {
+    fun testGratitudeDaoMethodExists() {
+        val method = AppDatabase::class.java.getDeclaredMethod("gratitudeDao")
+        assertNotNull(method)
+        assertEquals(GratitudeDao::class.java, method.returnType)
+    }
+
+    @Test
+    fun testDatabaseHasTwelveDaoMethods() {
         val daoMethods = AppDatabase::class.java.declaredMethods.filter {
             it.name.endsWith("Dao")
         }
-        assertEquals(11, daoMethods.size)
+        assertEquals(12, daoMethods.size)
     }
 
     @Test
@@ -217,11 +224,59 @@ class AppDatabaseTest {
     }
 
     @Test
+    fun testMigration12To13Exists() {
+        val migration = AppDatabase.MIGRATION_12_13
+        assertNotNull(migration)
+        assertTrue(migration is Migration)
+        assertEquals(12, migration.startVersion)
+        assertEquals(13, migration.endVersion)
+    }
+
+    @Test
+    fun testMigration12To13StartVersionIsCorrect() {
+        assertEquals(12, AppDatabase.MIGRATION_12_13.startVersion)
+    }
+
+    @Test
+    fun testMigration12To13EndVersionIsCorrect() {
+        assertEquals(13, AppDatabase.MIGRATION_12_13.endVersion)
+    }
+
+    @Test
+    fun testMigration13To14Exists() {
+        val migration = AppDatabase.MIGRATION_13_14
+        assertNotNull(migration)
+        assertTrue(migration is Migration)
+        assertEquals(13, migration.startVersion)
+        assertEquals(14, migration.endVersion)
+    }
+
+    @Test
+    fun testMigration13To14StartVersionIsCorrect() {
+        assertEquals(13, AppDatabase.MIGRATION_13_14.startVersion)
+    }
+
+    @Test
+    fun testMigration13To14EndVersionIsCorrect() {
+        assertEquals(14, AppDatabase.MIGRATION_13_14.endVersion)
+    }
+
+    @Test
     fun testMigrationsAreSequential() {
         assertEquals(
             AppDatabase.MIGRATION_10_11.endVersion,
             AppDatabase.MIGRATION_11_12.startVersion,
             "Migration 10->11 end should match migration 11->12 start"
+        )
+        assertEquals(
+            AppDatabase.MIGRATION_11_12.endVersion,
+            AppDatabase.MIGRATION_12_13.startVersion,
+            "Migration 11->12 end should match migration 12->13 start"
+        )
+        assertEquals(
+            AppDatabase.MIGRATION_12_13.endVersion,
+            AppDatabase.MIGRATION_13_14.startVersion,
+            "Migration 12->13 end should match migration 13->14 start"
         )
     }
 
@@ -238,7 +293,8 @@ class AppDatabaseTest {
             "medicationDao" to MedicationDao::class.java,
             "emergencyPlanDao" to EmergencyPlanDao::class.java,
             "activityLogDao" to ActivityLogDao::class.java,
-            "dayPlannerDao" to DayPlannerDao::class.java
+            "dayPlannerDao" to DayPlannerDao::class.java,
+            "gratitudeDao" to GratitudeDao::class.java
         )
         expectedDaos.forEach { (name, expectedType) ->
             val method = AppDatabase::class.java.getDeclaredMethod(name)
