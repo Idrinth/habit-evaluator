@@ -88,6 +88,7 @@ jobs:
 
       - name: Coveralls - shared
         uses: coverallsapp/github-action@v2
+        continue-on-error: true
         with:
           flag-name: shared
           parallel: true
@@ -96,6 +97,7 @@ jobs:
 
       - name: Coveralls - webserver
         uses: coverallsapp/github-action@v2
+        continue-on-error: true
         with:
           flag-name: webserver
           parallel: true
@@ -104,6 +106,7 @@ jobs:
 
       - name: Coveralls - desktop
         uses: coverallsapp/github-action@v2
+        continue-on-error: true
         with:
           flag-name: desktop
           parallel: true
@@ -148,6 +151,7 @@ jobs:
 
       - name: Coveralls - android
         uses: coverallsapp/github-action@v2
+        continue-on-error: true
         with:
           flag-name: android
           parallel: true
@@ -213,6 +217,7 @@ jobs:
 
       - name: Coveralls
         uses: coverallsapp/github-action@v2
+        continue-on-error: true
         with:
           flag-name: website
           parallel: true
@@ -250,6 +255,7 @@ jobs:
 
       - name: Coveralls
         uses: coverallsapp/github-action@v2
+        continue-on-error: true
         with:
           flag-name: homepage
           parallel: true
@@ -303,6 +309,7 @@ jobs:
       - name: Coveralls - ${{ matrix.project }} E2E
         uses: coverallsapp/github-action@v2
         if: always()
+        continue-on-error: true
         with:
           flag-name: ${{ matrix.project }}-e2e
           parallel: true
@@ -315,6 +322,7 @@ jobs:
     steps:
       - name: Coveralls Finished
         uses: coverallsapp/github-action@v2
+        continue-on-error: true
         with:
           parallel-finished: true
           carryforward: "shared,webserver,desktop,android,website,homepage,website-e2e,homepage-e2e"
