@@ -104,6 +104,13 @@ Most habit trackers upload your data to third-party servers. habit-evaluator kee
 - Week overview showing filled hours versus total available hours
 - Notification-based reminders with inline confirm/deny actions (Android)
 
+### Gratitude Diary
+
+- Log gratitude entries with random writing prompts
+- Daily, weekly, and monthly entry counts
+- Current streak of consecutive days with at least one entry
+- Daily average for the current month
+
 ### Emergency Plan (Android)
 
 - Step-based crisis intervention with ordered questions
