@@ -27,6 +27,9 @@ public class GratitudeEntry {
     @Column(nullable = false, length = 1000)
     private String description;
 
+    @Column(length = 1000)
+    private String reason;
+
     @Column(name = "event_date", nullable = false)
     private LocalDate eventDate;
 
@@ -67,6 +70,14 @@ public class GratitudeEntry {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getReason() {
+        return reason;
+    }
+
+    public void setReason(String reason) {
+        this.reason = reason;
     }
 
     public LocalDate getEventDate() {

@@ -9,6 +9,7 @@
 	let loading = $state(true);
 
 	let description = $state('');
+	let reason = $state('');
 	let eventDate = $state(new Date().toISOString().split('T')[0]);
 
 	const lang = getLanguage();
@@ -45,11 +46,16 @@
 		const today = new Date().toISOString().split('T')[0];
 		const clampedDate = eventDate > today ? today : eventDate;
 		try {
-			await gratitude.create({
+			const createPayload: { description: string; reason?: string; eventDate: string } = {
 				description: description.trim(),
 				eventDate: clampedDate
-			});
+			};
+			if (reason.trim()) {
+				createPayload.reason = reason.trim();
+			}
+			await gratitude.create(createPayload);
 			description = '';
+			reason = '';
 			eventDate = new Date().toISOString().split('T')[0];
 			await loadData();
 		} catch (err) {
@@ -114,6 +120,7 @@
 
 		<form class="add-form" onsubmit={handleAdd}>
 			<input type="text" bind:value={description} placeholder={t('gratitude.placeholder', lang)} required autocomplete="off" />
+			<input type="text" bind:value={reason} placeholder={t('gratitude.reasonPlaceholder', lang)} autocomplete="off" />
 			<div class="form-row">
 				<input type="date" bind:value={eventDate} />
 				<button type="submit">{t('gratitude.addEntry', lang)}</button>
@@ -128,7 +135,12 @@
 					<div class="entry-card">
 						<div class="entry-main">
 							<span class="entry-date">{entry.eventDate}</span>
-							<span class="entry-description">{entry.description}</span>
+							<div class="entry-text">
+								<span class="entry-description">{entry.description}</span>
+								{#if entry.reason}
+									<span class="entry-reason">{t('gratitude.because', lang)} {entry.reason}</span>
+								{/if}
+							</div>
 						</div>
 						<button class="delete-btn" aria-label={t('gratitude.deleteEntry', lang)} onclick={() => handleDelete(entry.id)}>X</button>
 					</div>
@@ -251,8 +263,22 @@
 		white-space: nowrap;
 	}
 
-	.entry-description {
+	.entry-text {
 		flex: 1;
+		min-width: 0;
+		display: flex;
+		flex-direction: column;
+	}
+
+	.entry-description {
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	.entry-reason {
+		font-size: 0.85rem;
+		color: var(--color-text-muted);
 		overflow: hidden;
 		text-overflow: ellipsis;
 		white-space: nowrap;

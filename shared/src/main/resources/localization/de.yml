@@ -374,6 +374,8 @@ gratitude_diary:
   description_hint: "Wofür bist du dankbar?"
   prompt_grateful: "Ich bin dankbar für..."
   prompt_thankful: "Ich bin dankbar für..."
+  reason: "Weil"
+  reason_hint: "Warum bist du dafür dankbar?"
   date: "Datum"
   no_entries: "Noch keine Dankbarkeitseinträge. Wofür bist du heute dankbar?"
   delete: "Löschen"

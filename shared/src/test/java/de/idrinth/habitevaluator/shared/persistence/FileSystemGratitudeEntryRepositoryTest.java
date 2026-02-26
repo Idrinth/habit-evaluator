@@ -114,4 +114,38 @@ class FileSystemGratitudeEntryRepositoryTest {
         assertEquals(1, repository.findAll().size());
         assertEquals("Updated", repository.findById(entry.getId()).get().getDescription());
     }
+
+    @Test
+    void testSaveAndFindWithReason() {
+        GratitudeEntry entry = new GratitudeEntry("the sunny weather");
+        entry.setReason("it allowed for a nice walk");
+        repository.save(entry);
+
+        Optional<GratitudeEntry> found = repository.findById(entry.getId());
+        assertTrue(found.isPresent());
+        assertEquals("the sunny weather", found.get().getDescription());
+        assertEquals("it allowed for a nice walk", found.get().getReason());
+    }
+
+    @Test
+    void testSaveAndFindWithNullReason() {
+        GratitudeEntry entry = new GratitudeEntry("good weather");
+        repository.save(entry);
+
+        Optional<GratitudeEntry> found = repository.findById(entry.getId());
+        assertTrue(found.isPresent());
+        assertNull(found.get().getReason());
+    }
+
+    @Test
+    void testReasonPersistsAcrossInstances() {
+        GratitudeEntry entry = new GratitudeEntry("sunny weather");
+        entry.setReason("it made me happy");
+        repository.save(entry);
+
+        FileSystemGratitudeEntryRepository repo2 = new FileSystemGratitudeEntryRepository(tempDir);
+        Optional<GratitudeEntry> found = repo2.findById(entry.getId());
+        assertTrue(found.isPresent());
+        assertEquals("it made me happy", found.get().getReason());
+    }
 }

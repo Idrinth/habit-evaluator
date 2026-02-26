@@ -1341,6 +1341,7 @@ public class BackupData {
     public static class GratitudeEntryData {
         private String id;
         private String description;
+        private String reason;
         private String eventDate;
         private String createdAt;
 
@@ -1348,6 +1349,8 @@ public class BackupData {
         public void setId(String id) { this.id = id; }
         public String getDescription() { return description; }
         public void setDescription(String description) { this.description = description; }
+        public String getReason() { return reason; }
+        public void setReason(String reason) { this.reason = reason; }
         public String getEventDate() { return eventDate; }
         public void setEventDate(String eventDate) { this.eventDate = eventDate; }
         public String getCreatedAt() { return createdAt; }

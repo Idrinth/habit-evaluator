@@ -110,4 +110,25 @@ class GratitudeEntryTest {
         GratitudeEntry entry = new GratitudeEntry();
         assertNull(entry.getUser());
     }
+
+    @Test
+    void testReasonDefaultNull() {
+        GratitudeEntry entry = new GratitudeEntry();
+        assertNull(entry.getReason());
+    }
+
+    @Test
+    void testSetReason() {
+        GratitudeEntry entry = new GratitudeEntry();
+        entry.setReason("it allowed for a nice walk");
+        assertEquals("it allowed for a nice walk", entry.getReason());
+    }
+
+    @Test
+    void testSetReasonNull() {
+        GratitudeEntry entry = new GratitudeEntry();
+        entry.setReason("some reason");
+        entry.setReason(null);
+        assertNull(entry.getReason());
+    }
 }

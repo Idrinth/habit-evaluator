@@ -59,6 +59,7 @@ fun GratitudeScreen(viewModel: AppViewModel) {
 
     var entries by remember { mutableStateOf<List<GratitudeEntry>>(emptyList()) }
     var description by remember { mutableStateOf("") }
+    var reason by remember { mutableStateOf("") }
     var date by remember { mutableStateOf(LocalDate.now()) }
     var formVisible by remember { mutableStateOf(false) }
 
@@ -90,6 +91,7 @@ fun GratitudeScreen(viewModel: AppViewModel) {
 
     fun resetForm() {
         description = ""
+        reason = ""
         date = LocalDate.now()
         formVisible = false
         currentPrompt = prompts.random()
@@ -156,6 +158,13 @@ fun GratitudeScreen(viewModel: AppViewModel) {
                     Row(modifier = Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
                         Column(modifier = Modifier.weight(1f)) {
                             Text(entry.description ?: "", style = MaterialTheme.typography.bodyLarge)
+                            if (!entry.reason.isNullOrBlank()) {
+                                Text(
+                                    "${stringResource(R.string.gratitude_because)} ${entry.reason}",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
                             Text(
                                 entry.eventDate?.format(DateTimeFormatter.ISO_LOCAL_DATE) ?: "",
                                 style = MaterialTheme.typography.bodySmall
@@ -196,6 +205,13 @@ fun GratitudeScreen(viewModel: AppViewModel) {
                         modifier = Modifier.fillMaxWidth(),
                         minLines = 2
                     )
+                    OutlinedTextField(
+                        value = reason,
+                        onValueChange = { reason = it },
+                        label = { Text(stringResource(R.string.gratitude_because_hint)) },
+                        modifier = Modifier.fillMaxWidth(),
+                        minLines = 2
+                    )
                     OutlinedButton(onClick = {
                         val dp = DatePickerDialog(context, { _, y, m, d ->
                             date = LocalDate.of(y, m + 1, d)
@@ -216,6 +232,9 @@ fun GratitudeScreen(viewModel: AppViewModel) {
                     scope.launch(Dispatchers.IO) {
                         val user = localUser ?: return@launch
                         val entry = GratitudeEntry(description.trim(), date)
+                        if (reason.isNotBlank()) {
+                            entry.reason = reason.trim()
+                        }
                         entry.user = user
                         viewModel.gratitudeEntryRepository.save(entry)
                         withContext(Dispatchers.Main) {

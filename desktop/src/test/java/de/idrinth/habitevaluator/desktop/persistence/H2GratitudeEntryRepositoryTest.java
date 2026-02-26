@@ -102,4 +102,28 @@ class H2GratitudeEntryRepositoryTest extends H2RepositoryTestBase {
         assertTrue(found.isPresent());
         assertEquals(LocalDate.of(2026, 3, 15), found.get().getEventDate());
     }
+
+    @Test
+    void testSaveAndFindWithReason() {
+        GratitudeEntry entry = new GratitudeEntry("the sunny weather");
+        entry.setReason("it allowed for a nice walk");
+        entry.setUser(testUser);
+        gratitudeRepository.save(entry);
+
+        Optional<GratitudeEntry> found = gratitudeRepository.findById(entry.getId());
+        assertTrue(found.isPresent());
+        assertEquals("the sunny weather", found.get().getDescription());
+        assertEquals("it allowed for a nice walk", found.get().getReason());
+    }
+
+    @Test
+    void testSaveWithNullReason() {
+        GratitudeEntry entry = new GratitudeEntry("good weather");
+        entry.setUser(testUser);
+        gratitudeRepository.save(entry);
+
+        Optional<GratitudeEntry> found = gratitudeRepository.findById(entry.getId());
+        assertTrue(found.isPresent());
+        assertNull(found.get().getReason());
+    }
 }

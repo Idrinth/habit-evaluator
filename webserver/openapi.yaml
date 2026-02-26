@@ -2151,6 +2151,8 @@ components:
           type: string
         description:
           type: string
+        reason:
+          type: string
         eventDate:
           type: string
           format: date
@@ -2231,10 +2233,10 @@ components:
           $ref: "#/components/schemas/User"
         description:
           type: string
-        points:
+        durationMinutes:
           type: integer
           format: int32
-        durationMinutes:
+        points:
           type: integer
           format: int32
     DiaryReference:
