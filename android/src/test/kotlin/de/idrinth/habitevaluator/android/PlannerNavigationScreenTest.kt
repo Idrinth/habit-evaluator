@@ -37,14 +37,20 @@ class PlannerNavigationScreenTest {
     }
 
     @Test
+    fun testWeekOverviewRouteExists() {
+        assertEquals("week_overview", Screen.WeekOverview.route)
+    }
+
+    @Test
     fun testPlannerRoutesAreUnique() {
         val routes = setOf(
             Screen.Planner.route,
             Screen.WeekPlanner.route,
+            Screen.WeekOverview.route,
             Screen.PlannerActivities.route,
             Screen.PlannerGroups.route
         )
-        assertEquals(4, routes.size)
+        assertEquals(5, routes.size)
     }
 
     @Test
@@ -71,6 +77,7 @@ class PlannerNavigationScreenTest {
     fun testPlannerRoutesDoNotContainSpaces() {
         assertFalse(Screen.Planner.route.contains(" "))
         assertFalse(Screen.WeekPlanner.route.contains(" "))
+        assertFalse(Screen.WeekOverview.route.contains(" "))
         assertFalse(Screen.PlannerActivities.route.contains(" "))
         assertFalse(Screen.PlannerGroups.route.contains(" "))
     }
@@ -78,6 +85,7 @@ class PlannerNavigationScreenTest {
     @Test
     fun testPlannerSubRoutesAreDistinctFromParent() {
         assertNotEquals(Screen.Planner.route, Screen.WeekPlanner.route)
+        assertNotEquals(Screen.Planner.route, Screen.WeekOverview.route)
         assertNotEquals(Screen.Planner.route, Screen.PlannerActivities.route)
         assertNotEquals(Screen.Planner.route, Screen.PlannerGroups.route)
     }
