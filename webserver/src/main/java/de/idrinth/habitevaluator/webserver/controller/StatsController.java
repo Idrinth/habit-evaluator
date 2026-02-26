@@ -5,6 +5,7 @@ import de.idrinth.habitevaluator.shared.model.DiaryEntry;
 import de.idrinth.habitevaluator.shared.model.EmotionEntry;
 import de.idrinth.habitevaluator.shared.model.EventCorrelation;
 import de.idrinth.habitevaluator.shared.model.FoodLog;
+import de.idrinth.habitevaluator.shared.model.GratitudeEntry;
 import de.idrinth.habitevaluator.shared.model.Habit;
 import de.idrinth.habitevaluator.shared.model.HabitCategory;
 import de.idrinth.habitevaluator.shared.model.HabitEntry;
@@ -16,6 +17,7 @@ import de.idrinth.habitevaluator.shared.repository.ActivityLogRepository;
 import de.idrinth.habitevaluator.shared.repository.DiaryEntryRepository;
 import de.idrinth.habitevaluator.shared.repository.EmotionEntryRepository;
 import de.idrinth.habitevaluator.shared.repository.FoodLogRepository;
+import de.idrinth.habitevaluator.shared.repository.GratitudeEntryRepository;
 import de.idrinth.habitevaluator.shared.repository.HabitCategoryRepository;
 import de.idrinth.habitevaluator.shared.repository.HabitRepository;
 import de.idrinth.habitevaluator.shared.repository.MedicationLogRepository;
@@ -59,6 +61,7 @@ public class StatsController {
     private final MeetingEntryRepository meetingEntryRepository;
     private final ActivityLogRepository activityLogRepository;
     private final MedicationLogRepository medicationLogRepository;
+    private final GratitudeEntryRepository gratitudeEntryRepository;
     private final HabitScoringService scoringService;
     private final DiaryService diaryService;
     private final EventCorrelationService correlationService;
@@ -74,6 +77,7 @@ public class StatsController {
                            MeetingEntryRepository meetingEntryRepository,
                            ActivityLogRepository activityLogRepository,
                            MedicationLogRepository medicationLogRepository,
+                           GratitudeEntryRepository gratitudeEntryRepository,
                            HabitScoringService scoringService,
                            DiaryService diaryService,
                            EventCorrelationService correlationService,
@@ -88,6 +92,7 @@ public class StatsController {
         this.meetingEntryRepository = meetingEntryRepository;
         this.activityLogRepository = activityLogRepository;
         this.medicationLogRepository = medicationLogRepository;
+        this.gratitudeEntryRepository = gratitudeEntryRepository;
         this.scoringService = scoringService;
         this.diaryService = diaryService;
         this.correlationService = correlationService;
@@ -120,6 +125,7 @@ public class StatsController {
         result.put("diaryPoints", calculateDiaryPoints(userId, startDate, today));
         result.put("sleepDuration", calculateSleepDuration(userId, startDate, today));
         result.put("sleepEntries", calculateSleepEntries(userId, startDate, today));
+        result.put("gratitudeEntries", calculateGratitudeEntries(userId, startDate, today));
 
         statsCacheService.putMap(userId, StatsCacheService.DASHBOARD, result);
         return ResponseEntity.ok(result);
@@ -170,6 +176,20 @@ public class StatsController {
         for (SleepEntry entry : allEntries) {
             if (!entry.getDate().isBefore(startDate) && !entry.getDate().isAfter(today)) {
                 countByDate.merge(entry.getDate(), 1, Integer::sum);
+            }
+        }
+        return new ArrayList<>(countByDate.values());
+    }
+
+    private List<Integer> calculateGratitudeEntries(String userId, LocalDate startDate, LocalDate today) {
+        List<GratitudeEntry> allEntries = gratitudeEntryRepository.findByUserId(userId);
+        Map<LocalDate, Integer> countByDate = new TreeMap<>();
+        for (LocalDate d = startDate; !d.isAfter(today); d = d.plusDays(1)) {
+            countByDate.put(d, 0);
+        }
+        for (GratitudeEntry entry : allEntries) {
+            if (!entry.getEventDate().isBefore(startDate) && !entry.getEventDate().isAfter(today)) {
+                countByDate.merge(entry.getEventDate(), 1, Integer::sum);
             }
         }
         return new ArrayList<>(countByDate.values());

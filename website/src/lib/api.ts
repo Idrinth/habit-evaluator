@@ -234,6 +234,7 @@ export interface DashboardData {
 	diaryPoints: number[];
 	sleepDuration: number[];
 	sleepEntries: number[];
+	gratitudeEntries: number[];
 }
 
 export interface TimelineEntry {
