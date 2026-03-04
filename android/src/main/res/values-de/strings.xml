@@ -695,4 +695,6 @@
     <string name="gratitude_month">Monat</string>
     <string name="gratitude_streak">Serie</string>
     <string name="gratitude_daily_avg">Tagesschnitt</string>
+    <string name="gratitude_because">weil</string>
+    <string name="gratitude_because_hint">Weil\u2026 (optional)</string>
 </resources>

@@ -695,4 +695,6 @@
     <string name="gratitude_month">Mes</string>
     <string name="gratitude_streak">Racha</string>
     <string name="gratitude_daily_avg">Promedio diario</string>
+    <string name="gratitude_because">porque</string>
+    <string name="gratitude_because_hint">Porque\u2026 (opcional)</string>
 </resources>
