@@ -45,42 +45,42 @@ jobs:
         if: always()
 
       - name: Upload shared coverage report
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: shared-coverage-report
           path: shared/build/reports/jacoco/
 
       - name: Upload webserver coverage report
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: webserver-coverage-report
           path: webserver/build/reports/jacoco/
 
       - name: Upload desktop coverage report
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: desktop-coverage-report
           path: desktop/build/reports/jacoco/
 
       - name: Upload aggregate coverage report
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: aggregate-coverage-report
           path: build/reports/jacoco/
 
       - name: Upload webserver JAR
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: webserver-jar
           path: webserver/build/libs/habit-evaluator-web.jar
 
       - name: Upload desktop JAR
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: habit-evaluator-desktop
@@ -143,7 +143,7 @@ jobs:
         if: always()
 
       - name: Upload coverage report
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: android-coverage-report
@@ -209,7 +209,7 @@ jobs:
         run: npm run test:coverage
 
       - name: Upload coverage report
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: website-coverage-report
@@ -247,7 +247,7 @@ jobs:
         run: npm run test:coverage
 
       - name: Upload coverage report
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: homepage-coverage-report
@@ -294,13 +294,13 @@ jobs:
         run: npx start-server-and-test 'npm run preview' http://localhost:4173 'npx cypress run'
 
       - name: Upload build output
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ matrix.project }}-build
           path: ${{ matrix.project }}/build/
 
       - name: Upload E2E coverage report
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: ${{ matrix.project }}-e2e-coverage-report
@@ -349,7 +349,7 @@ jobs:
         run: ./gradlew :desktop:jpackageDeb
 
       - name: Upload desktop .deb
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: habit-evaluator-desktop-deb
           path: desktop/build/jpackage-deb/*.deb
@@ -373,7 +373,7 @@ jobs:
         run: ./gradlew :desktop:jpackageExe
 
       - name: Upload desktop .exe
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: habit-evaluator-desktop-exe
           path: desktop/build/jpackage-exe/*.exe
@@ -437,13 +437,13 @@ jobs:
           :android:bundle${{ matrix.taskName }}Release
 
       - name: Upload APK (${{ matrix.flavor }})
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: habit-evaluator-android-${{ matrix.flavor }}
           path: android/build/outputs/apk/${{ matrix.flavor }}/release/*.apk
 
       - name: Upload AAB (${{ matrix.flavor }})
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: habit-evaluator-android-${{ matrix.flavor }}-aab
           path: android/build/outputs/bundle/${{ matrix.flavor }}Release/*.aab

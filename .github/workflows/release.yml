@@ -42,7 +42,7 @@ jobs:
         run: ./gradlew :desktop:jpackageDeb "-PreleaseVersion=${{ steps.version.outputs.VERSION }}"
 
       - name: Upload webserver JAR artifact
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: webserver-jar
           path: webserver/build/libs/habit-evaluator-web.jar
@@ -166,7 +166,7 @@ jobs:
         run: npm run build
 
       - name: Upload build output
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ matrix.project }}-build
           path: ${{ matrix.project }}/build/
