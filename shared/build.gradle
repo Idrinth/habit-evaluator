@@ -10,7 +10,7 @@ dependencies {
     api 'org.slf4j:slf4j-api:2.0.11'
 
     // YAML processing for localization
-    api 'org.yaml:snakeyaml:2.5'
+    api 'org.yaml:snakeyaml:2.6'
 
     // JPA API for entity annotations (implementation provided by runtime)
     compileOnly 'jakarta.persistence:jakarta.persistence-api:3.2.0'
