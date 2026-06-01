@@ -26,7 +26,7 @@
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/svelte": "^5.3.1",
     "@testing-library/user-event": "^14.6.1",
-    "@vitest/coverage-v8": "^4.0.18",
+    "@vitest/coverage-v8": "^4.1.8",
     "cypress": "^15.11.0",
     "jsdom": "^28.1.0",
     "start-server-and-test": "^2.1.5",
@@ -35,6 +35,6 @@
     "typescript": "^5.9.3",
     "vite": "^7.3.1",
     "vite-plugin-istanbul": "^7.2.1",
-    "vitest": "^4.0.18"
+    "vitest": "^4.1.8"
   }
 }
